@@ -1,9 +1,912 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-  <title>CCT MAP</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CCT Overview</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sidebar-w:200px;
+  --sidebar-collapsed:52px;
+  --bg:#ffffff;
+  --bg2:#f5f6f8;
+  --bg3:#eef0f3;
+  --border:#e0e2e7;
+  --text:#1a1f2e;
+  --text2:#5a6278;
+  --text3:#9099b0;
+  --blue:#1a56db;
+  --blue-l:#eef3ff;
+  --green:#059669;
+  --green-l:#ecfdf5;
+  --orange:#ea580c;
+  --orange-l:#fff7ed;
+  --red:#dc2626;
+  --red-l:#fef2f2;
+  --purple:#7c3aed;
+  --purple-l:#f5f3ff;
+  --gray:#475569;
+  --gray-l:#f1f5f9;
+  --radius:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg2);color:var(--text);font-size:14px;line-height:1.5;display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .2s ease;overflow:hidden;z-index:50}
+.sidebar.collapsed{width:var(--sidebar-collapsed)}
+.sidebar-top{padding:0 12px;height:52px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-logo{width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo svg{width:16px;height:16px;fill:#fff}
+.sidebar-title{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;letter-spacing:-.3px}
+.sidebar-toggle{margin-left:auto;width:24px;height:24px;background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0}
+.sidebar-toggle:hover{background:var(--bg2)}
+.sidebar-toggle svg{width:14px;height:14px}
+
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-group{margin-bottom:4px}
+.nav-group-label{padding:10px 14px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);white-space:nowrap;overflow:hidden}
+.sidebar.collapsed .nav-group-label{opacity:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-radius:6px;margin:1px 6px;transition:all .12s;position:relative;white-space:nowrap}
+.nav-item:hover{background:var(--bg2)}
+.nav-item.active{background:var(--blue-l);color:var(--blue)}
+.nav-item.active .nav-icon{color:var(--blue)}
+.nav-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border-radius:6px}
+.nav-label{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;transition:opacity .2s}
+.nav-item.active .nav-label{color:var(--blue)}
+.sidebar.collapsed .nav-label{opacity:0;width:0}
+.sidebar.collapsed .nav-group-label{height:0;padding:0;overflow:hidden}
+.nav-badge{margin-left:auto;background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sidebar.collapsed .nav-badge{display:none}
+
+/* Tooltip on collapsed */
+.nav-item[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:calc(var(--sidebar-collapsed) - 4px);top:50%;transform:translateY(-50%);background:#1a1f2e;color:#fff;font-size:12px;padding:5px 10px;border-radius:6px;white-space:nowrap;z-index:200;pointer-events:none}
+.sidebar:not(.collapsed) .nav-item[data-tip]:hover::after{display:none}
+
+.sidebar-bottom{padding:8px;border-top:1px solid var(--border);flex-shrink:0}
+.sync-row{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:6px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0}
+.sync-label{font-size:11px;color:var(--text3);overflow:hidden;white-space:nowrap}
+.sidebar.collapsed .sync-label{display:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:48px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text)}
+.topbar-sub{font-size:12px;color:var(--text3);margin-left:4px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn-sm{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:5px}
+.btn-sm:hover{background:var(--bg2)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:#1648c0}
+
+/* ── KPI BAR ── */
+.kpi-bar{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0}
+.kpi-card{flex:1;padding:10px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;border-right:1px solid var(--border);border-bottom:2px solid transparent;transition:all .12s;min-width:0}
+.kpi-card:last-child{border-right:none}
+.kpi-card:hover{background:var(--bg2)}
+.kpi-card.active{border-bottom-color:var(--blue);background:var(--blue-l)}
+.kpi-icon{font-size:18px;flex-shrink:0}
+.kpi-num{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px}
+.kpi-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
+.kpi-pct{font-size:10px;font-weight:600;margin-top:1px}
+
+/* ── PAGES ── */
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.page{display:none;flex:1;overflow:hidden}
+.page.active{display:flex;flex-direction:column}
+.page-scroll{flex:1;overflow:auto;padding:20px}
+
+/* ── MAP PAGE ── */
+.map-layout{flex:1;display:grid;grid-template-columns:1fr 300px;overflow:hidden}
+.map-area{padding:16px;overflow:auto;background:var(--bg2)}
+.map-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.side-panel{background:var(--bg);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.side-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.side-section{padding:10px 14px;border-bottom:1px solid var(--border)}
+.side-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px}
+.alert-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--bg3)}
+.alert-item:last-child{border-bottom:none}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-id{font-size:13px;font-weight:600}
+.alert-meta{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Eq detail */
+.eq-detail{padding:14px;overflow-y:auto;flex:1}
+.eq-name{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.eq-type{font-size:12px;color:var(--text3);margin-top:2px}
+.eq-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.s-btn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid;cursor:pointer;transition:all .12s}
+.s-av{background:var(--green-l);border-color:var(--green);color:var(--green)}
+.s-ru{background:var(--blue-l);border-color:var(--blue);color:var(--blue)}
+.s-em{background:var(--orange-l);border-color:var(--orange);color:var(--orange)}
+.s-oos{background:var(--gray-l);border-color:var(--gray);color:var(--gray)}
+.s-pm{background:var(--purple-l);border-color:var(--purple);color:var(--purple)}
+.s-dm{background:var(--red-l);border-color:var(--red);color:var(--red)}
+.eq-field{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.eq-input{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;outline:none;font-family:inherit;transition:border-color .12s}
+.eq-input:focus{border-color:var(--blue)}
+.eq-submit{padding:8px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;margin-top:2px}
+.hist-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg3);font-size:11px}
+.hist-row:last-child{border-bottom:none}
+.hist-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600;line-height:1.6}
+.p-av{background:var(--green-l);color:var(--green)}
+.p-ru{background:var(--blue-l);color:var(--blue)}
+.p-em{background:var(--orange-l);color:var(--orange)}
+.p-oos{background:var(--gray-l);color:var(--gray)}
+.p-pm{background:var(--purple-l);color:var(--purple)}
+.p-dm{background:var(--red-l);color:var(--red)}
+
+/* ── ALL EQ PAGE ── */
+.eq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;padding:16px}
+.eq-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .12s;position:relative}
+.eq-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.eq-card-dot{width:8px;height:8px;border-radius:50%;position:absolute;top:7px;right:7px}
+.eq-card-icon{font-size:24px;line-height:1}
+.eq-card-name{font-size:11px;font-weight:600;color:var(--text);text-align:center}
+.eq-card-status{font-size:10px;color:var(--text3);text-align:center}
+.eq-filter-bar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg);flex-shrink:0}
+.filter-chip{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);cursor:pointer;background:var(--bg);color:var(--text2);transition:all .12s}
+.filter-chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.eq-search{padding:6px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;outline:none;width:180px;font-family:inherit}
+.eq-search:focus{border-color:var(--blue)}
+
+/* ── DASHBOARD PAGE ── */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.widget{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.widget.w2{grid-column:span 2}
+.widget.w3{grid-column:span 3}
+.widget-head{padding:13px 16px 0;display:flex;align-items:center;justify-content:space-between}
+.widget-title{font-size:13px;font-weight:600}
+.widget-body{padding:12px 16px 14px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px}
+.bar-label{width:56px;text-align:right;color:var(--text2);flex-shrink:0}
+.bar-track{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s}
+.bar-val{width:28px;text-align:right;color:var(--text3);flex-shrink:0}
+.donut-wrap{display:flex;align-items:center;gap:16px}
+.donut-legend{display:flex;flex-direction:column;gap:5px}
+.donut-item{display:flex;align-items:center;gap:7px;font-size:11px}
+.donut-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* ── HISTORY PAGE ── */
+.hist-filters{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:16px;background:var(--bg);border-bottom:1px solid var(--border)}
+.hist-field{display:flex;flex-direction:column;gap:4px}
+.hist-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.hist-input{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:inherit}
+.hist-input:focus{border-color:var(--blue)}
+.hist-table{width:100%;border-collapse:collapse;font-size:13px}
+.hist-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0}
+.hist-table td{padding:10px 14px;border-bottom:1px solid var(--bg3);color:var(--text)}
+.hist-table tr:hover td{background:var(--bg2)}
+
+/* ── PLACEHOLDER PAGES ── */
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:var(--text3)}
+.placeholder-icon{font-size:48px;opacity:.3}
+.placeholder-title{font-size:16px;font-weight:600;color:var(--text2)}
+.placeholder-sub{font-size:13px;max-width:320px;text-align:center}
+.placeholder-badge{padding:4px 12px;border-radius:20px;background:var(--orange-l);color:var(--orange);font-size:11px;font-weight:600}
+
+/* ── LOADING ── */
+.spin{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;justify-content:center;padding:24px;gap:8px;color:var(--text3);font-size:12px}
+
+/* SVG map */
+.rtg-c{cursor:pointer}.rtg-c:hover rect:first-child{opacity:.8}
+.gc-c{cursor:pointer}.gc-c:hover rect:first-child{opacity:.8}
+</style>
 </head>
 <body>
-  <h1>CCT MAP</h1>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+    </div>
+    <span class="sidebar-title">CCT Overview</span>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M3 4h10M3 12h10"/></svg>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-label">監控</div>
+      <div class="nav-item active" data-page="map" data-tip="地圖狀態" onclick="navTo('map',this)">
+        <div class="nav-icon">🗺</div>
+        <span class="nav-label">地圖狀態</span>
+      </div>
+      <div class="nav-item" data-page="allEq" data-tip="全車機監控" onclick="navTo('allEq',this)">
+        <div class="nav-icon">📟</div>
+        <span class="nav-label">全車機監控</span>
+      </div>
+      <div class="nav-item" data-page="secondary" data-tip="非主力車機" onclick="navTo('secondary',this)">
+        <div class="nav-icon">🚜</div>
+        <span class="nav-label">非主力車機</span>
+        <span class="nav-badge">soon</span>
+      </div>
+      <div class="nav-item" data-page="trailer" data-tip="拖車板台連結" onclick="navTo('trailer',this)">
+        <div class="nav-icon">🔗</div>
+        <span class="nav-label">拖車板台連結</span>
+        <span class="nav-badge">soon</span>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">報表</div>
+      <div class="nav-item" data-page="realtime" data-tip="即時報表" onclick="navTo('realtime',this)">
+        <div class="nav-icon">📊</div>
+        <span class="nav-label">即時報表</span>
+      </div>
+      <div class="nav-item" data-page="history" data-tip="歷史查詢" onclick="navTo('history',this)">
+        <div class="nav-icon">🕐</div>
+        <span class="nav-label">歷史查詢</span>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">管理</div>
+      <div class="nav-item" data-page="maintenance" data-tip="保養計畫" onclick="navTo('maintenance',this)">
+        <div class="nav-icon">🔧</div>
+        <span class="nav-label">保養計畫</span>
+        <span class="nav-badge">soon</span>
+      </div>
+      <div class="nav-item" data-page="notify" data-tip="即時故障通知" onclick="navTo('notify',this)">
+        <div class="nav-icon">🔔</div>
+        <span class="nav-label">即時故障通知</span>
+        <span class="nav-badge">soon</span>
+      </div>
+      <div class="nav-item" data-page="admin" data-tip="管理者介面" onclick="navTo('admin',this)">
+        <div class="nav-icon">⚙️</div>
+        <span class="nav-label">管理者介面</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="sync-row">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span class="sync-label" id="sync-label">Connecting...</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="topbar-title" id="topbar-title">地圖狀態</span>
+    <span class="topbar-sub" id="topbar-sub">Colon Container Terminal</span>
+    <div class="topbar-right">
+      <button class="btn-sm" id="topbar-action" onclick="addToHome()" title="加到首頁">
+        ＋ 加到首頁
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI BAR -->
+  <div class="kpi-bar">
+    <div class="kpi-card active" onclick="filterKPI('All',this)">
+      <div class="kpi-icon">🏭</div>
+      <div><div class="kpi-num" id="kpi-total">—</div><div class="kpi-label">Total</div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Available',this)">
+      <div class="kpi-icon">✅</div>
+      <div><div class="kpi-num" style="color:var(--green)" id="kpi-av">—</div><div class="kpi-label">Available</div><div class="kpi-pct" style="color:var(--green)" id="kpi-av-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Running',this)">
+      <div class="kpi-icon">🔵</div>
+      <div><div class="kpi-num" style="color:var(--blue)" id="kpi-ru">—</div><div class="kpi-label">Running</div><div class="kpi-pct" style="color:var(--blue)" id="kpi-ru-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Emergency Maintenance',this)">
+      <div class="kpi-icon">🔶</div>
+      <div><div class="kpi-num" style="color:var(--orange)" id="kpi-em">—</div><div class="kpi-label">Emergency</div><div class="kpi-pct" style="color:var(--orange)" id="kpi-em-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Out Of Service',this)">
+      <div class="kpi-icon">⛔</div>
+      <div><div class="kpi-num" style="color:var(--gray)" id="kpi-oos">—</div><div class="kpi-label">Out of Svc</div><div class="kpi-pct" style="color:var(--gray)" id="kpi-oos-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Planned Maintenance',this)">
+      <div class="kpi-icon">🔧</div>
+      <div><div class="kpi-num" style="color:var(--purple)" id="kpi-pm">—</div><div class="kpi-label">Planned</div><div class="kpi-pct" style="color:var(--purple)" id="kpi-pm-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Damaged',this)">
+      <div class="kpi-icon">🔴</div>
+      <div><div class="kpi-num" style="color:var(--red)" id="kpi-dm">—</div><div class="kpi-label">Damaged</div><div class="kpi-pct" style="color:var(--red)" id="kpi-dm-p"></div></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- 1. MAP PAGE -->
+    <div class="page active" id="page-map">
+      <div class="map-layout">
+        <div class="map-area">
+          <div class="map-box">
+            <svg id="map-svg" width="100%" viewBox="0 0 900 580" xmlns="http://www.w3.org/2000/svg">
+<!-- Sea -->
+<rect x="0" y="0" width="46" height="490" fill="#dbeafe"/>
+<text x="23" y="245" text-anchor="middle" fill="#60a5fa" font-size="11" transform="rotate(-90,23,245)">MUELLE 3</text>
+<rect x="0" y="490" width="640" height="80" fill="#dbeafe"/>
+<text x="220" y="542" text-anchor="middle" fill="#60a5fa" font-size="11">MUELLE 1 &amp; 2</text>
+<!-- Quay -->
+<rect x="44" y="20" width="7" height="470" fill="#94a3b8"/>
+<rect x="44" y="490" width="600" height="7" fill="#94a3b8"/>
+<!-- Land -->
+<rect x="51" y="20" width="849" height="470" fill="#f8fafc"/>
+
+<!-- GC Left -->
+<g class="gc-c" onclick="selGC('GC-10/SP-T32')"><rect x="22" y="28" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="39" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">10</text></g>
+<g class="gc-c" onclick="selGC('GC-17/SP-T23')"><rect x="22" y="50" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="61" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">17</text></g>
+<g class="gc-c" onclick="selGC('GC-16/SP-T25')"><rect x="22" y="72" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="83" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">16</text></g>
+<g class="gc-c" onclick="selGC('GC-15/SP-TW04')"><rect x="22" y="108" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="119" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">15</text></g>
+<g class="gc-c" onclick="selGC('GC-13/SP-TW05')"><rect x="22" y="198" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="209" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">13</text></g>
+<g class="gc-c" onclick="selGC('GC-12/SP-TW01')"><rect x="22" y="288" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="299" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">12</text></g>
+<g class="gc-c" onclick="selGC('GC-09/SP-T31')"><rect x="22" y="340" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="351" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">9</text></g>
+<g class="gc-c" onclick="selGC('GC-08/SP-T27')"><rect x="22" y="385" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="396" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">8</text></g>
+<g class="gc-c" onclick="selGC('GC-07/SP-T33')"><rect x="22" y="435" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="446" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">7</text></g>
+<!-- GC Bottom -->
+<g class="gc-c" onclick="selGC('GC-11/SP-T29')"><rect x="76" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="87" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">11</text></g>
+<g class="gc-c" onclick="selGC('GC-06/SP-T22')"><rect x="158" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="169" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">6</text></g>
+<g class="gc-c" onclick="selGC('GC-05/SP-T21')"><rect x="298" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="309" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">5</text></g>
+<g class="gc-c" onclick="selGC('GC-03/SP-T19')"><rect x="388" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="399" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">3</text></g>
+
+<!-- ARMGC -->
+<rect x="55" y="24" width="148" height="48" rx="3" fill="#faf5ff" stroke="#a78bfa" stroke-width="1"/>
+<text x="129" y="38" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="600">ARMGC</text>
+<g class="rtg-c" id="c-ARMGC-01" onclick="selEq('ARMGC-01','ARMGC')"><rect x="59" y="44" width="64" height="22" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/><text x="91" y="58" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">ARMGC-01</text></g>
+<g class="rtg-c" id="c-ARMGC-02" onclick="selEq('ARMGC-02','ARMGC')"><rect x="129" y="44" width="64" height="22" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/><text x="161" y="58" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">ARMGC-02</text></g>
+
+<!-- R area -->
+<rect x="209" y="24" width="86" height="48" rx="2" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8"/>
+<text x="252" y="42" text-anchor="middle" fill="#64748b" font-size="11">R area</text>
+<text x="252" y="56" text-anchor="middle" fill="#94a3b8" font-size="10">R1-R2</text>
+
+<!-- ROW 15 -->
+<rect x="55" y="82" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="129" y="95" text-anchor="middle" fill="#64748b" font-size="11">I area (I1-I4)</text>
+<g class="rtg-c" id="c-RTG-01" onclick="selEq('RTG-01','RTG')"><rect x="59" y="98" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="111" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">01</text><rect x="83" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="111" text-anchor="middle" fill="#64748b" font-size="10">I4  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-04" onclick="selEq('RTG-04','RTG')"><rect x="59" y="120" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="133" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">04</text><rect x="83" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="133" text-anchor="middle" fill="#64748b" font-size="10">I3  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-05" onclick="selEq('RTG-05','RTG')"><rect x="59" y="142" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="70" y="155" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">05</text><rect x="83" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="155" text-anchor="middle" fill="#64748b" font-size="10">I2  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-06" onclick="selEq('RTG-06','RTG')"><rect x="59" y="164" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="177" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">06</text><rect x="83" y="164" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="177" text-anchor="middle" fill="#64748b" font-size="10">I1  600 TEU</text></g>
+
+<rect x="209" y="82" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="283" y="95" text-anchor="middle" fill="#64748b" font-size="11">J area (J1-J4)</text>
+<g class="rtg-c" id="c-RTG-07" onclick="selEq('RTG-07','RTG')"><rect x="213" y="98" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="111" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">07</text><rect x="237" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="111" text-anchor="middle" fill="#64748b" font-size="10">J4  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-08" onclick="selEq('RTG-08','RTG')"><rect x="213" y="120" width="22" height="20" rx="2" fill="#eff6ff" stroke="#bfdbfe" stroke-width="0.5"/><text x="224" y="133" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="700">08</text><rect x="237" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="133" text-anchor="middle" fill="#64748b" font-size="10">J3  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-10" onclick="selEq('RTG-10','RTG')"><rect x="213" y="142" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="155" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">10</text><rect x="237" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="155" text-anchor="middle" fill="#64748b" font-size="10">J2  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-11" onclick="selEq('RTG-11','RTG')"><rect x="213" y="164" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="177" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">11</text><rect x="237" y="164" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="177" text-anchor="middle" fill="#64748b" font-size="10">J1  600 TEU</text></g>
+
+<rect x="363" y="82" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="437" y="95" text-anchor="middle" fill="#64748b" font-size="11">K area (K1-K4)</text>
+<g class="rtg-c" id="c-RTG-12" onclick="selEq('RTG-12','RTG')"><rect x="367" y="98" width="22" height="20" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.5"/><text x="378" y="111" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="700">12</text><rect x="391" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="111" text-anchor="middle" fill="#64748b" font-size="10">K4  510 TEU</text></g>
+<g class="rtg-c" id="c-RTG-13" onclick="selEq('RTG-13','RTG')"><rect x="367" y="120" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="133" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">13</text><rect x="391" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="133" text-anchor="middle" fill="#64748b" font-size="10">K3  510 TEU</text></g>
+<g class="rtg-c" id="c-RTG-14" onclick="selEq('RTG-14','RTG')"><rect x="367" y="142" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="155" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">14</text><rect x="391" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="155" text-anchor="middle" fill="#64748b" font-size="10">K2  510 TEU</text></g>
+<g class="rtg-c" id="c-RTG-16" onclick="selEq('RTG-16','RTG')"><rect x="367" y="164" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="177" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">16</text><rect x="391" y="164" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="177" text-anchor="middle" fill="#64748b" font-size="10">K1  510 TEU</text></g>
+
+<rect x="517" y="82" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="591" y="95" text-anchor="middle" fill="#64748b" font-size="11">O area (O1-O4)</text>
+<g class="rtg-c" id="c-RTG-17" onclick="selEq('RTG-17','RTG')"><rect x="521" y="98" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="111" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">17</text><rect x="545" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="111" text-anchor="middle" fill="#64748b" font-size="10">O4  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-18" onclick="selEq('RTG-18','RTG')"><rect x="521" y="120" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="532" y="133" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">18</text><rect x="545" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="133" text-anchor="middle" fill="#64748b" font-size="10">O3  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-19" onclick="selEq('RTG-19','RTG')"><rect x="521" y="142" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="155" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">19</text><rect x="545" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="155" text-anchor="middle" fill="#64748b" font-size="10">O2  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-20" onclick="selEq('RTG-20','RTG')"><rect x="521" y="164" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="177" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">20</text><rect x="545" y="164" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="177" text-anchor="middle" fill="#64748b" font-size="10">O1  600 TEU</text></g>
+
+<rect x="671" y="82" width="148" height="88" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="745" y="95" text-anchor="middle" fill="#64748b" font-size="11">P area (P1-P4)</text>
+<g class="rtg-c" id="c-RTG-21" onclick="selEq('RTG-21','RTG')"><rect x="675" y="98" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="111" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">21</text><rect x="699" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="111" text-anchor="middle" fill="#64748b" font-size="10">P4  480 TEU</text></g>
+<g class="rtg-c" id="c-RTG-22" onclick="selEq('RTG-22','RTG')"><rect x="675" y="120" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="133" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">22</text><rect x="699" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="133" text-anchor="middle" fill="#64748b" font-size="10">P3  480 TEU</text></g>
+<g class="rtg-c" id="c-RTG-23" onclick="selEq('RTG-23','RTG')"><rect x="675" y="142" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="155" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">23</text><rect x="699" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="155" text-anchor="middle" fill="#64748b" font-size="10">P1  480 TEU</text></g>
+
+<!-- Road 1 -->
+<rect x="51" y="196" width="849" height="8" rx="1" fill="#e2e8f0"/>
+
+<!-- ROW 13 -->
+<rect x="55" y="208" width="148" height="132" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="129" y="221" text-anchor="middle" fill="#64748b" font-size="11">E area (E1-E5)</text>
+<g class="rtg-c" id="c-RTG-24" onclick="selEq('RTG-24','RTG')"><rect x="59" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">24</text><rect x="83" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="237" text-anchor="middle" fill="#64748b" font-size="10">E5  530 TEU</text></g>
+<g class="rtg-c" id="c-RTG-25" onclick="selEq('RTG-25','RTG')"><rect x="59" y="246" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="70" y="259" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">25</text><rect x="83" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="259" text-anchor="middle" fill="#64748b" font-size="10">E4  630 TEU</text></g>
+<g class="rtg-c" id="c-RTG-26" onclick="selEq('RTG-26','RTG')"><rect x="59" y="268" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="281" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">26</text><rect x="83" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="281" text-anchor="middle" fill="#64748b" font-size="10">E3  630 TEU</text></g>
+<g class="rtg-c" id="c-RTG-27" onclick="selEq('RTG-27','RTG')"><rect x="59" y="290" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="303" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">27</text><rect x="83" y="290" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="303" text-anchor="middle" fill="#64748b" font-size="10">E2  630 TEU</text></g>
+<g class="rtg-c" id="c-RTG-28" onclick="selEq('RTG-28','RTG')"><rect x="59" y="312" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="325" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">28</text><rect x="83" y="312" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="325" text-anchor="middle" fill="#64748b" font-size="10">E1  630 TEU</text></g>
+
+<rect x="209" y="208" width="148" height="132" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="283" y="221" text-anchor="middle" fill="#64748b" font-size="11">D area (D1-D5)</text>
+<g class="rtg-c" id="c-RTG-29" onclick="selEq('RTG-29','RTG')"><rect x="213" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">29</text><rect x="237" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="237" text-anchor="middle" fill="#64748b" font-size="10">D5  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-32" onclick="selEq('RTG-32','RTG')"><rect x="213" y="246" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="259" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">32</text><rect x="237" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="259" text-anchor="middle" fill="#64748b" font-size="10">D4  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-33" onclick="selEq('RTG-33','RTG')"><rect x="213" y="268" width="22" height="20" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.5"/><text x="224" y="281" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="700">33</text><rect x="237" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="281" text-anchor="middle" fill="#64748b" font-size="10">D3  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-34" onclick="selEq('RTG-34','RTG')"><rect x="213" y="290" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="303" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">34</text><rect x="237" y="290" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="303" text-anchor="middle" fill="#64748b" font-size="10">D2  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-35" onclick="selEq('RTG-35','RTG')"><rect x="213" y="312" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="325" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">35</text><rect x="237" y="312" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="325" text-anchor="middle" fill="#64748b" font-size="10">D1  600 TEU</text></g>
+
+<rect x="363" y="208" width="148" height="88" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="437" y="221" text-anchor="middle" fill="#64748b" font-size="11">B area (B3-B5)</text>
+<g class="rtg-c" id="c-RTG-36" onclick="selEq('RTG-36','RTG')"><rect x="367" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">36</text><rect x="391" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="237" text-anchor="middle" fill="#64748b" font-size="10">B5  510 TEU</text></g>
+<g class="rtg-c" id="c-RTG-37" onclick="selEq('RTG-37','RTG')"><rect x="367" y="246" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="259" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">37</text><rect x="391" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="259" text-anchor="middle" fill="#64748b" font-size="10">B4  510 TEU</text></g>
+<g class="rtg-c" id="c-RTG-38" onclick="selEq('RTG-38','RTG')"><rect x="367" y="268" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="281" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">38</text><rect x="391" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="281" text-anchor="middle" fill="#64748b" font-size="10">B3  510 TEU</text></g>
+
+<rect x="363" y="300" width="148" height="40" rx="3" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.8"/>
+<text x="437" y="314" text-anchor="middle" fill="#0369a1" font-size="11">B Reefer</text>
+<g class="rtg-c" id="c-RTG-39" onclick="selEq('RTG-39','RTG')"><rect x="367" y="320" width="22" height="16" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="331" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">39</text><rect x="391" y="320" width="116" height="16" rx="2" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.5"/><text x="449" y="331" text-anchor="middle" fill="#0369a1" font-size="10">B2  384 TEU</text></g>
+
+<rect x="517" y="208" width="148" height="132" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="591" y="221" text-anchor="middle" fill="#64748b" font-size="11">X area (X5-X9)</text>
+<g class="rtg-c" id="c-RTG-40" onclick="selEq('RTG-40','RTG')"><rect x="521" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">40</text><rect x="545" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="237" text-anchor="middle" fill="#64748b" font-size="10">X9  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-41" onclick="selEq('RTG-41','RTG')"><rect x="521" y="246" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="259" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">41</text><rect x="545" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="259" text-anchor="middle" fill="#64748b" font-size="10">X8  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-42" onclick="selEq('RTG-42','RTG')"><rect x="521" y="268" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="532" y="281" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">42</text><rect x="545" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="281" text-anchor="middle" fill="#64748b" font-size="10">X7  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-43" onclick="selEq('RTG-43','RTG')"><rect x="521" y="290" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="303" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">43</text><rect x="545" y="290" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="303" text-anchor="middle" fill="#64748b" font-size="10">X6  600 TEU</text></g>
+<g class="rtg-c" id="c-RTG-44" onclick="selEq('RTG-44','RTG')"><rect x="521" y="312" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="325" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">44</text><rect x="545" y="312" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="325" text-anchor="middle" fill="#64748b" font-size="10">X5  600 TEU</text></g>
+
+<rect x="671" y="208" width="148" height="132" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="745" y="221" text-anchor="middle" fill="#64748b" font-size="11">M area (M2-M6)</text>
+<g class="rtg-c" onclick="selEq('RTG-M6','RTG')"><rect x="675" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">M6</text><rect x="699" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="237" text-anchor="middle" fill="#64748b" font-size="10">M6  540 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-M5','RTG')"><rect x="675" y="246" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="259" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">M5</text><rect x="699" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="259" text-anchor="middle" fill="#64748b" font-size="10">M5  540 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-M4','RTG')"><rect x="675" y="268" width="22" height="20" rx="2" fill="#eff6ff" stroke="#bfdbfe" stroke-width="0.5"/><text x="686" y="281" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="700">M4</text><rect x="699" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="281" text-anchor="middle" fill="#64748b" font-size="10">M4  540 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-M3','RTG')"><rect x="675" y="290" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="303" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">M3</text><rect x="699" y="290" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="303" text-anchor="middle" fill="#64748b" font-size="10">M3  540 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-M2','RTG')"><rect x="675" y="312" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="325" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">M2</text><rect x="699" y="312" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="325" text-anchor="middle" fill="#64748b" font-size="10">M2  540 TEU</text></g>
+
+<!-- Road 2 -->
+<rect x="51" y="344" width="849" height="8" rx="1" fill="#e2e8f0"/>
+
+<!-- ROW 9 -->
+<rect x="55" y="356" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="129" y="369" text-anchor="middle" fill="#64748b" font-size="11">C area (C1-C3)</text>
+<g class="rtg-c" onclick="selEq('RTG-C3','RTG')"><rect x="59" y="372" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="385" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">C3</text><rect x="83" y="372" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="385" text-anchor="middle" fill="#64748b" font-size="10">C3  630 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-C2','RTG')"><rect x="59" y="394" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="407" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">C2</text><rect x="83" y="394" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="407" text-anchor="middle" fill="#64748b" font-size="10">C2  630 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-C1','RTG')"><rect x="59" y="416" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="429" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">C1</text><rect x="83" y="416" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="429" text-anchor="middle" fill="#64748b" font-size="10">C1  630 TEU</text></g>
+<rect x="59" y="438" width="140" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/>
+<text x="129" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">F0-MTY</text>
+
+<rect x="209" y="356" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="283" y="369" text-anchor="middle" fill="#64748b" font-size="11">F area (F1-F3)</text>
+<g class="rtg-c" onclick="selEq('RTG-F3','RTG')"><rect x="213" y="372" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="385" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">F3</text><rect x="237" y="372" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="385" text-anchor="middle" fill="#64748b" font-size="10">F3  600 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-F2','RTG')"><rect x="213" y="394" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="224" y="407" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">F2</text><rect x="237" y="394" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="407" text-anchor="middle" fill="#64748b" font-size="10">F2  600 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-F1','RTG')"><rect x="213" y="416" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="429" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">F1</text><rect x="237" y="416" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="429" text-anchor="middle" fill="#64748b" font-size="10">F1  540 TEU</text></g>
+<rect x="213" y="438" width="140" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/>
+<text x="283" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">A0-MTY</text>
+
+<rect x="363" y="356" width="208" height="110" rx="3" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.8"/>
+<text x="467" y="369" text-anchor="middle" fill="#0369a1" font-size="11">A Reefer (A1-A3)</text>
+<g class="rtg-c" onclick="selEq('RTG-A3','RTG')"><rect x="367" y="372" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="385" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">A3</text><rect x="391" y="372" width="176" height="20" rx="2" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.5"/><text x="479" y="385" text-anchor="middle" fill="#0369a1" font-size="10">A3/RD  384 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-A2','RTG')"><rect x="367" y="394" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="407" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">A2</text><rect x="391" y="394" width="176" height="20" rx="2" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.5"/><text x="479" y="407" text-anchor="middle" fill="#0369a1" font-size="10">A2/RD  384 TEU</text></g>
+<g class="rtg-c" onclick="selEq('RTG-A1','RTG')"><rect x="367" y="416" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="429" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">A1</text><rect x="391" y="416" width="176" height="20" rx="2" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.5"/><text x="479" y="429" text-anchor="middle" fill="#0369a1" font-size="10">A1/RD  384 TEU</text></g>
+
+<!-- Legend -->
+<rect x="671" y="356" width="228" height="110" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="785" y="374" text-anchor="middle" fill="#1a1f2e" font-size="12" font-weight="600">Status</text>
+<rect x="679" y="382" width="12" height="12" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/><text x="697" y="392" fill="#64748b" font-size="10">Available</text>
+<rect x="751" y="382" width="12" height="12" rx="2" fill="#eff6ff" stroke="#bfdbfe" stroke-width="0.8"/><text x="769" y="392" fill="#64748b" font-size="10">Running</text>
+<rect x="679" y="400" width="12" height="12" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.8"/><text x="697" y="410" fill="#64748b" font-size="10">Emergency</text>
+<rect x="751" y="400" width="12" height="12" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.8"/><text x="769" y="410" fill="#64748b" font-size="10">Out of svc</text>
+<rect x="679" y="418" width="12" height="12" rx="2" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="0.8"/><text x="697" y="428" fill="#64748b" font-size="10">Planned</text>
+<rect x="751" y="418" width="12" height="12" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.8"/><text x="769" y="428" fill="#64748b" font-size="10">Damaged</text>
+<rect x="679" y="436" width="12" height="10" rx="1" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="697" y="445" fill="#64748b" font-size="10">GC crane</text>
+<text x="220" y="542" text-anchor="middle" fill="#60a5fa" font-size="11">MUELLE 1</text>
+<text x="100" y="542" text-anchor="middle" fill="#60a5fa" font-size="11">MUELLE 2</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Side panel -->
+        <div class="side-panel">
+          <div id="side-alerts" style="display:flex;flex-direction:column;overflow:hidden;flex:1">
+            <div class="side-header">⚠️ Alerts <span id="alert-badge" style="background:var(--orange-l);color:var(--orange);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">0</span></div>
+            <div style="overflow-y:auto;flex:1;padding:10px 14px">
+              <div class="side-section-label">Emergency / OOS / Damaged</div>
+              <div id="alert-list"><div class="loading"><div class="spin"></div> Loading...</div></div>
+            </div>
+          </div>
+
+          <div id="side-eq" style="display:none;flex:1;overflow:hidden;flex-direction:column">
+            <div class="side-header">
+              <button onclick="closeEq()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0;margin-right:6px">←</button>
+              Equipment
+            </div>
+            <div class="eq-detail">
+              <div class="eq-name" id="eq-name">—</div>
+              <div class="eq-type" id="eq-type">—</div>
+              <div style="margin-top:8px" id="eq-pill"></div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px" id="eq-crew-info"></div>
+              <div class="eq-actions" style="margin-top:12px">
+                <button class="s-btn s-av" onclick="setStatus('Available')">Available</button>
+                <button class="s-btn s-ru" onclick="setStatus('Running')">Running</button>
+                <button class="s-btn s-em" onclick="setStatus('Emergency Maintenance')">Emergency</button>
+                <button class="s-btn s-oos" onclick="setStatus('Out Of Service')">OOS</button>
+                <button class="s-btn s-pm" onclick="setStatus('Planned Maintenance')">Planned</button>
+                <button class="s-btn s-dm" onclick="setStatus('Damaged')">Damaged</button>
+              </div>
+              <div class="eq-field">
+                <input class="eq-input" id="eq-crew" placeholder="Reporter"/>
+                <input class="eq-input" id="eq-note" placeholder="Notes"/>
+                <button class="eq-submit" id="eq-submit-btn" onclick="submitEq()" style="opacity:.5;cursor:default">Select a status first</button>
+              </div>
+              <div style="margin-top:14px;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">History</div>
+              <div id="eq-hist"><div class="loading"><div class="spin"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ALL EQ PAGE -->
+    <div class="page" id="page-allEq">
+      <div class="eq-filter-bar">
+        <input class="eq-search" id="eq-search" placeholder="Search equipment..." oninput="renderAllEq()"/>
+        <div id="type-filters" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div style="overflow:auto;flex:1">
+        <div class="eq-grid" id="all-eq-grid"><div class="loading"><div class="spin"></div> Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- 3. REALTIME REPORT PAGE -->
+    <div class="page" id="page-realtime">
+      <div class="page-scroll">
+        <div class="dash-grid">
+          <div class="widget">
+            <div class="widget-head"><div class="widget-title">Status distribution</div></div>
+            <div class="widget-body">
+              <div class="donut-wrap">
+                <svg width="80" height="80" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="#f1f5f9" stroke-width="12"/>
+                  <circle id="d-av" cx="40" cy="40" r="28" fill="none" stroke="#059669" stroke-width="12" stroke-dasharray="0 175.9" stroke-dashoffset="44" transform="rotate(-90 40 40)"/>
+                  <circle id="d-ru" cx="40" cy="40" r="28" fill="none" stroke="#1a56db" stroke-width="12" stroke-dasharray="0 175.9" stroke-dashoffset="44" transform="rotate(-90 40 40)"/>
+                  <circle id="d-em" cx="40" cy="40" r="28" fill="none" stroke="#ea580c" stroke-width="12" stroke-dasharray="0 175.9" stroke-dashoffset="44" transform="rotate(-90 40 40)"/>
+                  <circle id="d-oos" cx="40" cy="40" r="28" fill="none" stroke="#475569" stroke-width="12" stroke-dasharray="0 175.9" stroke-dashoffset="44" transform="rotate(-90 40 40)"/>
+                  <text x="40" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="#1a1f2e" id="d-center">—</text>
+                </svg>
+                <div class="donut-legend" id="d-legend"></div>
+              </div>
+            </div>
+          </div>
+          <div class="widget w2">
+            <div class="widget-head"><div class="widget-title">By equipment type</div></div>
+            <div class="widget-body" id="type-bars"><div class="loading"><div class="spin"></div></div></div>
+          </div>
+          <div class="widget w3">
+            <div class="widget-head"><div class="widget-title">Currently abnormal</div></div>
+            <div class="widget-body"><div id="dash-abnormal" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. HISTORY PAGE -->
+    <div class="page" id="page-history">
+      <div class="hist-filters">
+        <div class="hist-field">
+          <label class="hist-label">From</label>
+          <input type="date" class="hist-input" id="h-from"/>
+        </div>
+        <div class="hist-field">
+          <label class="hist-label">To</label>
+          <input type="date" class="hist-input" id="h-to"/>
+        </div>
+        <div class="hist-field">
+          <label class="hist-label">Type</label>
+          <select class="hist-input" id="h-type" style="min-width:100px">
+            <option value="all">All types</option>
+            <option>ARMGC</option><option>CH</option><option>ESL</option><option>FL</option>
+            <option>GC</option><option>PPG</option><option>RS</option><option>RTG</option>
+            <option>SL</option><option>SP</option><option>TR</option>
+          </select>
+        </div>
+        <button class="btn-sm btn-primary" onclick="loadHistory()">Query</button>
+        <span id="h-status" style="font-size:12px;color:var(--text3)"></span>
+      </div>
+      <div style="overflow:auto;flex:1">
+        <table class="hist-table" id="hist-table">
+          <thead><tr>
+            <th>Date/Time</th><th>Equipment</th><th>Type</th><th>Status</th><th>Description</th><th>Reporter</th>
+          </tr></thead>
+          <tbody id="hist-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px">Select a date range and click Query</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PLACEHOLDER PAGES -->
+    <div class="page" id="page-secondary"><div class="placeholder"><div class="placeholder-icon">🚜</div><div class="placeholder-title">Non-primary equipment</div><div class="placeholder-sub">FL, SL, RS, PPG, ESL monitoring — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
+    <div class="page" id="page-trailer"><div class="placeholder"><div class="placeholder-icon">🔗</div><div class="placeholder-title">TR / CH pairing</div><div class="placeholder-sub">Trailer chassis pairing monitor — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
+    <div class="page" id="page-maintenance"><div class="placeholder"><div class="placeholder-icon">🔧</div><div class="placeholder-title">Maintenance plan</div><div class="placeholder-sub">Scheduled maintenance tracking — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
+    <div class="page" id="page-notify"><div class="placeholder"><div class="placeholder-icon">🔔</div><div class="placeholder-title">Real-time fault notifications</div><div class="placeholder-sub">Push alerts for emergency events — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
+    <div class="page" id="page-admin"><div class="placeholder"><div class="placeholder-icon">⚙️</div><div class="placeholder-title">Admin interface</div><div class="placeholder-sub">User management, settings, passwords</div><div class="placeholder-badge">Coming soon</div></div></div>
+
+  </div>
+</div>
+
+<script>
+const FB = 'https://tesm-c9396-default-rtdb.firebaseio.com';
+const GAS = 'https://script.google.com/macros/s/AKfycbxliEkHrCaCXAiHza1N0r4Ji80we61tDGbF_kg3GGjAkt-e93zznlFYGrj2lwHcRK5b/exec';
+
+const SC = {
+  'Available':            {fill:'#dcfce7',stroke:'#86efac',text:'#166534',pill:'p-av',color:'#059669'},
+  'Running':              {fill:'#eff6ff',stroke:'#bfdbfe',text:'#1e40af',pill:'p-ru',color:'#1a56db'},
+  'Emergency Maintenance':{fill:'#fff7ed',stroke:'#fed7aa',text:'#9a3412',pill:'p-em',color:'#ea580c'},
+  'Out Of Service':       {fill:'#f1f5f9',stroke:'#cbd5e1',text:'#475569',pill:'p-oos',color:'#475569'},
+  'Planned Maintenance':  {fill:'#f5f3ff',stroke:'#c4b5fd',text:'#5b21b6',pill:'p-pm',color:'#7c3aed'},
+  'Damaged':              {fill:'#fef2f2',stroke:'#fca5a5',text:'#991b1b',pill:'p-dm',color:'#dc2626'},
+};
+const TYPE_ICON = {RTG:'🏗',GC:'⚓',ARMGC:'🤖',TR:'🚛',CH:'🚚',FL:'🚜',SL:'🏗',ESL:'🚜',RS:'🦺',PPG:'⚡',SP:'⚓'};
+
+let data = {};
+let selId = null, selType = null, pendSt = null;
+let activeTypeFilter = 'All';
+
+// ── Sidebar toggle ──────────────────────────────────────
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+// ── Nav ─────────────────────────────────────────────────
+const PAGE_TITLES = {
+  map:'地圖狀態', allEq:'全車機監控', secondary:'非主力車機', trailer:'拖車板台連結',
+  realtime:'即時報表', history:'歷史查詢', maintenance:'保養計畫',
+  notify:'即時故障通知', admin:'管理者介面'
+};
+function navTo(page, el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[page]||page;
+  if(page==='allEq') renderAllEq();
+  if(page==='realtime') renderRealtime();
+  if(page==='history'){
+    const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
+    document.getElementById('h-from').value=`${y}-${m}-01`;
+    document.getElementById('h-to').value=`${y}-${m}-${d}`;
+  }
+}
+
+// ── Firebase poll ────────────────────────────────────────
+async function poll(){
+  try{
+    const r = await fetch(`${FB}/equipment.json`);
+    const d2 = await r.json();
+    if(!d2) return;
+    data = d2;
+    updateKPI(); updateMap(); updateAlerts(); updateAllEq(); updateRealtime();
+    document.getElementById('sync-label').textContent = 'Synced '+new Date().toLocaleTimeString('en-GB');
+    document.getElementById('sync-dot').style.background='#059669';
+  }catch(e){
+    document.getElementById('sync-label').textContent='Error';
+    document.getElementById('sync-dot').style.background='#dc2626';
+  }
+}
+
+// ── KPI ─────────────────────────────────────────────────
+function updateKPI(){
+  const vals=Object.values(data), total=vals.length;
+  const c={};vals.forEach(v=>c[v.status]=(c[v.status]||0)+1);
+  document.getElementById('kpi-total').textContent=total;
+  [['av','Available'],['ru','Running'],['em','Emergency Maintenance'],['oos','Out Of Service'],['pm','Planned Maintenance'],['dm','Damaged']].forEach(([k,s])=>{
+    const n=c[s]||0;
+    document.getElementById(`kpi-${k}`).textContent=n;
+    document.getElementById(`kpi-${k}-p`).textContent=total?Math.round(n/total*100)+'%':'';
+  });
+}
+
+// ── Map update ───────────────────────────────────────────
+function updateMap(){
+  Object.entries(data).forEach(([key,eq])=>{
+    const id=eq.machine_id||key.replace(/_/g,'-');
+    const g=document.getElementById('c-'+id); if(!g) return;
+    const s=SC[eq.status]||SC['Out Of Service'];
+    const r=g.querySelector('rect'); if(r){r.setAttribute('fill',s.fill);r.setAttribute('stroke',s.stroke);}
+    const t=g.querySelector('text'); if(t) t.setAttribute('fill',s.text);
+  });
+}
+
+// ── Alerts ───────────────────────────────────────────────
+function updateAlerts(){
+  const bad=Object.values(data).filter(e=>['Emergency Maintenance','Out Of Service','Damaged'].includes(e.status));
+  document.getElementById('alert-badge').textContent=bad.length;
+  const el=document.getElementById('alert-list');
+  if(!bad.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px 0">✅ All clear</div>';return;}
+  el.innerHTML=bad.sort((a,b)=>{const o={'Emergency Maintenance':0,'Damaged':1,'Out Of Service':2};return (o[a.status]||9)-(o[b.status]||9);}).map(e=>{
+    const c=SC[e.status]||SC['Out Of Service'];
+    return `<div class="alert-item"><div class="alert-dot" style="background:${c.color}"></div><div>
+      <div class="alert-id" style="cursor:pointer" onclick="selEq('${e.machine_id}','${e.machine_type}')">${e.machine_id||'—'}</div>
+      <div><span class="pill ${c.pill}" style="font-size:10px">${e.status}</span></div>
+      <div class="alert-meta">${e.crew||''} ${e.last_updated?'· '+e.last_updated.substring(5,16):''}</div>
+    </div></div>`;
+  }).join('');
+}
+
+// ── Select eq ────────────────────────────────────────────
+function selEq(id,type){
+  selId=id; selType=type; pendSt=null;
+  const key=id.replace(/[\/\.\#\$\[\]-]/g,'_');
+  const eq=data[key]||{machine_id:id,machine_type:type,status:'Unknown'};
+  const s=SC[eq.status]||SC['Out Of Service'];
+  document.getElementById('eq-name').textContent=id;
+  document.getElementById('eq-type').textContent=(TYPE_ICON[type]||'🔧')+' '+type+' · CCT';
+  document.getElementById('eq-pill').innerHTML=`<span class="pill ${s.pill}">${eq.status||'Unknown'}</span>`;
+  document.getElementById('eq-crew-info').textContent=eq.crew?'Last by: '+eq.crew:'';
+  document.getElementById('eq-submit-btn').style.opacity='.5';
+  document.getElementById('eq-submit-btn').style.cursor='default';
+  document.getElementById('eq-submit-btn').textContent='Select a status first';
+  document.getElementById('side-alerts').style.display='none';
+  document.getElementById('side-eq').style.display='flex';
+  loadEqHist(id,type);
+}
+function selGC(id){ selEq(id,'GC'); }
+function closeEq(){
+  document.getElementById('side-alerts').style.display='flex';
+  document.getElementById('side-eq').style.display='none';
+  selId=null; pendSt=null;
+}
+function setStatus(s){
+  pendSt=s;
+  const btn=document.getElementById('eq-submit-btn');
+  btn.style.opacity='1'; btn.style.cursor='pointer';
+  btn.textContent=`Update to: ${s}`;
+}
+async function submitEq(){
+  if(!selId||!pendSt) return;
+  const crew=document.getElementById('eq-crew').value.trim()||'Web';
+  const note=document.getElementById('eq-note').value.trim();
+  const key=selId.replace(/[\/\.\#\$\[\]-]/g,'_');
+  const type=selId.split('-')[0];
+  const now=new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});
+  await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({machine_id:selId,machine_type:type,status:pendSt,crew,note,last_updated:now})});
+  const num=selId.startsWith(type+'-')?selId.slice(type.length+1):selId;
+  fetch(`${GAS}?${new URLSearchParams({action:'write',machine_kind:type,number:num,status:pendSt,process:note||'Web',crew})}`,{method:'GET',mode:'no-cors'});
+  document.getElementById('eq-crew').value='';
+  document.getElementById('eq-note').value='';
+  pendSt=null;
+  await poll();
+  selEq(selId,selType);
+}
+
+async function loadEqHist(id,type){
+  const el=document.getElementById('eq-hist');
+  el.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  try{
+    const now=new Date(), month=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+    const r=await fetch(`${GAS}?action=history&month=${month}&type=${type}`);
+    const d2=await r.json();
+    const rows=(d2.rows||[]).filter(r=>r.machine_id===id).slice(0,8);
+    if(!rows.length){el.innerHTML='<div style="color:var(--text3);font-size:12px">No history this month</div>';return;}
+    el.innerHTML=rows.map(r=>{
+      const c=SC[r.status]||SC['Out Of Service'];
+      return `<div class="hist-row"><div class="hist-dot" style="background:${c.color}"></div>
+        <span class="pill ${c.pill}" style="font-size:10px">${r.status}</span>
+        <span style="color:var(--text3);font-size:11px;margin-left:4px">${String(r.date||'').substring(5,16)}</span>
+        <span style="color:var(--text2);font-size:11px;margin-left:auto">${r.crew||''}</span></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div style="color:var(--text3);font-size:12px">Failed</div>';}
+}
+
+// ── All EQ ───────────────────────────────────────────────
+function updateAllEq(){ if(document.getElementById('page-allEq').classList.contains('active')) renderAllEq(); }
+function renderAllEq(){
+  const search=(document.getElementById('eq-search')?.value||'').toLowerCase();
+  const vals=Object.values(data);
+  const types=['All',...new Set(vals.map(e=>e.machine_type).filter(Boolean)).values()].sort();
+
+  // Build type filters once
+  const tf=document.getElementById('type-filters');
+  if(tf&&tf.children.length!==types.length){
+    tf.innerHTML=types.map(t=>`<div class="filter-chip${t===activeTypeFilter?' active':''}" onclick="setTypeFilter('${t}',this)">${t}</div>`).join('');
+  }
+
+  const filtered=vals.filter(e=>{
+    const matchT=activeTypeFilter==='All'||e.machine_type===activeTypeFilter;
+    const matchS=!search||(e.machine_id||'').toLowerCase().includes(search)||(e.machine_type||'').toLowerCase().includes(search);
+    return matchT&&matchS;
+  }).sort((a,b)=>(a.machine_type||'').localeCompare(b.machine_type||'')||(a.machine_id||'').localeCompare(b.machine_id||''));
+
+  const grid=document.getElementById('all-eq-grid');
+  if(!filtered.length){grid.innerHTML='<div style="padding:40px;color:var(--text3);text-align:center">No results</div>';return;}
+  grid.innerHTML=filtered.map(e=>{
+    const s=SC[e.status]||SC['Out Of Service'];
+    return `<div class="eq-card" onclick="navTo('map',document.querySelector('[data-page=map]'));setTimeout(()=>selEq('${e.machine_id}','${e.machine_type}'),100)">
+      <div class="eq-card-dot" style="background:${s.color}"></div>
+      <div class="eq-card-icon">${TYPE_ICON[e.machine_type]||'🔧'}</div>
+      <div class="eq-card-name">${e.machine_id||'—'}</div>
+      <div><span class="pill ${s.pill}" style="font-size:9px">${e.status?.replace(' Maintenance','')}</span></div>
+    </div>`;
+  }).join('');
+}
+function setTypeFilter(t,el){
+  activeTypeFilter=t;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderAllEq();
+}
+
+// ── Realtime report ──────────────────────────────────────
+function updateRealtime(){ if(document.getElementById('page-realtime').classList.contains('active')) renderRealtime(); }
+function renderRealtime(){
+  const vals=Object.values(data), total=vals.length; if(!total) return;
+  const c={};vals.forEach(v=>c[v.status]=(c[v.status]||0)+1);
+  const circ=175.9;
+  let off=0;
+  ['Available','Running','Emergency Maintenance','Out Of Service'].forEach((s,i)=>{
+    const n=c[s]||0, dash=(n/total)*circ;
+    const el=document.getElementById(['d-av','d-ru','d-em','d-oos'][i]);
+    if(!el) return;
+    el.setAttribute('stroke-dasharray',dash+' '+(circ-dash));
+    el.setAttribute('stroke-dashoffset',circ-off);
+    off+=dash;
+  });
+  document.getElementById('d-center').textContent=total;
+  document.getElementById('d-legend').innerHTML=Object.entries(c).map(([s,n])=>{
+    const sc=SC[s]||SC['Out Of Service'];
+    return `<div class="donut-item"><div class="donut-dot" style="background:${sc.color}"></div>
+      <span style="font-size:11px;color:var(--text2)">${s.replace(' Maintenance','')}</span>
+      <span style="margin-left:8px;font-weight:600;font-size:11px">${Math.round(n/total*100)}%</span></div>`;
+  }).join('');
+
+  const types={};vals.forEach(v=>types[v.machine_type]=(types[v.machine_type]||0)+1);
+  const maxT=Math.max(...Object.values(types));
+  document.getElementById('type-bars').innerHTML=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`
+    <div class="bar-row"><div class="bar-label">${t}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${n/maxT*100}%;background:var(--blue)"></div></div>
+    <div class="bar-val">${n}</div></div>`).join('');
+
+  const bad=vals.filter(e=>['Emergency Maintenance','Out Of Service','Damaged'].includes(e.status));
+  const da=document.getElementById('dash-abnormal');
+  da.innerHTML=bad.length?bad.map(e=>{const s=SC[e.status]||SC['Out Of Service'];
+    return `<div style="border:1px solid var(--border);border-left:3px solid ${s.color};border-radius:8px;padding:10px;cursor:pointer;background:var(--bg2)" onclick="navTo('map',document.querySelector('[data-page=map]'));setTimeout(()=>selEq('${e.machine_id}','${e.machine_type}'),100)">
+      <div style="font-size:13px;font-weight:600">${e.machine_id}</div>
+      <span class="pill ${s.pill}" style="font-size:10px;margin-top:4px;display:inline-flex">${e.status}</span>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">${e.crew||''}</div>
+    </div>`;}).join('')
+    :'<div style="color:var(--text3);font-size:13px">All equipment operational ✅</div>';
+}
+
+// ── History ──────────────────────────────────────────────
+async function loadHistory(){
+  const from=document.getElementById('h-from').value;
+  const to=document.getElementById('h-to').value;
+  const type=document.getElementById('h-type').value;
+  const st=document.getElementById('h-status');
+  st.textContent='Loading...';
+  try{
+    const now=new Date(), month=from?from.replace(/-/g,'').substring(0,6):`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+    const r=await fetch(`${GAS}?action=history&month=${month}&from=${from}&to=${to}&type=${type}`);
+    const d2=await r.json();
+    const rows=d2.rows||[];
+    st.textContent=`${rows.length} records`;
+    document.getElementById('hist-tbody').innerHTML=rows.length?rows.map(r=>{
+      const s=SC[r.status]||SC['Out Of Service'];
+      return `<tr><td>${r.date||''}</td><td style="font-weight:600">${r.machine_id||''}</td><td>${r.machine_kind||''}</td>
+        <td><span class="pill ${s.pill}">${r.status}</span></td><td>${r.process||''}</td><td>${r.crew||''}</td></tr>`;
+    }).join('')
+    :'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">No records found</td></tr>';
+  }catch(e){st.textContent='Error: '+e.message;}
+}
+
+// ── KPI filter ───────────────────────────────────────────
+function filterKPI(s,el){
+  document.querySelectorAll('.kpi-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Add to home (placeholder) ────────────────────────────
+function addToHome(){
+  const title=document.getElementById('topbar-title').textContent;
+  alert(`"${title}" 加到首頁功能即將推出！`);
+}
+
+// Init history date
+const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
+document.getElementById('h-from').value=`${y}-${m}-01`;
+document.getElementById('h-to').value=`${y}-${m}-${d}`;
+
+poll();
+setInterval(poll,3000);
+</script>
 </body>
 </html>
