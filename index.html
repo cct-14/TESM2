@@ -333,37 +333,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="map-layout">
         <div class="map-area">
           <div class="map-box">
-            <svg id="map-svg" width="100%" viewBox="0 0 900 580" xmlns="http://www.w3.org/2000/svg">
+            <svg id="map-svg" width="100%" viewBox="0 0 910 520" xmlns="http://www.w3.org/2000/svg">
 <!-- Sea -->
-<rect x="0" y="0" width="46" height="490" fill="#dbeafe"/>
-<text x="23" y="245" text-anchor="middle" fill="#60a5fa" font-size="11" transform="rotate(-90,23,245)">MUELLE 3</text>
-<rect x="0" y="490" width="640" height="80" fill="#dbeafe"/>
-<text x="220" y="542" text-anchor="middle" fill="#60a5fa" font-size="11">MUELLE 1 &amp; 2</text>
+<rect x="0" y="0" width="46" height="500" fill="#dbeafe"/>
+<text x="23" y="250" text-anchor="middle" fill="#60a5fa" font-size="11" transform="rotate(-90,23,250)">MUELLE 3</text>
+<rect x="0" y="500" width="680" height="80" fill="#dbeafe"/>
+<!-- Pier labels bottom -->
+<text x="160" y="552" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="600">Pier 2</text>
+<text x="410" y="552" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="600">Pier 1</text>
 <!-- Quay -->
-<rect x="44" y="20" width="7" height="470" fill="#94a3b8"/>
-<rect x="44" y="490" width="600" height="7" fill="#94a3b8"/>
+<rect x="44" y="20" width="7" height="480" fill="#94a3b8"/>
+<rect x="44" y="500" width="640" height="7" fill="#94a3b8"/>
+<!-- Pier divider vertical (left quay mid) -->
+<line x1="44" y1="260" x2="52" y2="260" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3 2"/>
+<!-- Pier labels left -->
+<text x="20" y="145" text-anchor="middle" fill="#3b82f6" font-size="10" font-weight="600" transform="rotate(-90,20,145)">Pier 4</text>
+<text x="20" y="390" text-anchor="middle" fill="#3b82f6" font-size="10" font-weight="600" transform="rotate(-90,20,390)">Pier 3</text>
+<!-- Pier divider bottom (at x=340) -->
+<line x1="340" y1="500" x2="340" y2="508" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3 2"/>
 <!-- Land -->
-<rect x="51" y="20" width="849" height="470" fill="#f8fafc"/>
+<rect x="51" y="20" width="859" height="480" fill="#f8fafc"/>
 
-<!-- GC Left -->
-<g class="gc-c" onclick="selGC('GC-10/SP-T32')"><rect x="22" y="28" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="39" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">10</text></g>
-<g class="gc-c" onclick="selGC('GC-17/SP-T23')"><rect x="22" y="50" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="61" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">17</text></g>
-<g class="gc-c" onclick="selGC('GC-16/SP-T25')"><rect x="22" y="72" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="83" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">16</text></g>
-<g class="gc-c" onclick="selGC('GC-15/SP-TW04')"><rect x="22" y="108" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="119" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">15</text></g>
-<g class="gc-c" onclick="selGC('GC-13/SP-TW05')"><rect x="22" y="198" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="209" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">13</text></g>
-<g class="gc-c" onclick="selGC('GC-12/SP-TW01')"><rect x="22" y="288" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="299" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">12</text></g>
-<g class="gc-c" onclick="selGC('GC-09/SP-T31')"><rect x="22" y="340" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="351" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">9</text></g>
-<g class="gc-c" onclick="selGC('GC-08/SP-T27')"><rect x="22" y="385" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="396" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">8</text></g>
-<g class="gc-c" onclick="selGC('GC-07/SP-T33')"><rect x="22" y="435" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="33" y="446" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">7</text></g>
-<!-- GC Bottom -->
-<g class="gc-c" onclick="selGC('GC-11/SP-T29')"><rect x="76" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="87" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">11</text></g>
-<g class="gc-c" onclick="selGC('GC-06/SP-T22')"><rect x="158" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="169" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">6</text></g>
-<g class="gc-c" onclick="selGC('GC-05/SP-T21')"><rect x="298" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="309" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">5</text></g>
-<g class="gc-c" onclick="selGC('GC-03/SP-T19')"><rect x="388" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="399" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">3</text></g>
+<!-- GC dynamic layer -->
+<g id="gc-layer"></g>
 
-<!-- ARMGC 四台 (動態渲染) -->
-<rect x="55" y="24" width="196" height="48" rx="3" fill="#faf5ff" stroke="#a78bfa" stroke-width="1"/>
-<text x="153" y="38" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="600">ARMGC</text>
+<!-- ARMGC 四台 固定兩排 -->
+<rect x="55" y="22" width="148" height="58" rx="3" fill="#faf5ff" stroke="#a78bfa" stroke-width="1"/>
+<text x="129" y="34" text-anchor="middle" fill="#7c3aed" font-size="10" font-weight="600">ARMGC</text>
+<!-- 上排：AR-03, AR-05 -->
+<g id="c-ARMGC-03" onclick="selEq('ARMGC-03','ARMGC')" style="cursor:pointer">
+  <rect x="59" y="38" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
+  <text x="90" y="50" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-03</text>
+</g>
+<g id="c-ARMGC-05" onclick="selEq('ARMGC-05','ARMGC')" style="cursor:pointer">
+  <rect x="127" y="38" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
+  <text x="158" y="50" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-05</text>
+</g>
+<!-- 下排：AR-01, AR-02 -->
+<g id="c-ARMGC-01" onclick="selEq('ARMGC-01','ARMGC')" style="cursor:pointer">
+  <rect x="59" y="58" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
+  <text x="90" y="70" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-01</text>
+</g>
+<g id="c-ARMGC-02" onclick="selEq('ARMGC-02','ARMGC')" style="cursor:pointer">
+  <rect x="127" y="58" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
+  <text x="158" y="70" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-02</text>
+</g>
 
 <!-- R area -->
 <rect x="209" y="24" width="86" height="48" rx="2" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8"/>
@@ -374,17 +388,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <g id="rtg-layer"></g>
 
 <!-- Legend -->
-<rect x="671" y="356" width="228" height="110" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="785" y="374" text-anchor="middle" fill="#1a1f2e" font-size="12" font-weight="600">Status</text>
-<rect x="679" y="382" width="12" height="12" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/><text x="697" y="392" fill="#64748b" font-size="10">Available</text>
-<rect x="751" y="382" width="12" height="12" rx="2" fill="#eff6ff" stroke="#bfdbfe" stroke-width="0.8"/><text x="769" y="392" fill="#64748b" font-size="10">Running</text>
-<rect x="679" y="400" width="12" height="12" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.8"/><text x="697" y="410" fill="#64748b" font-size="10">Emergency</text>
-<rect x="751" y="400" width="12" height="12" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.8"/><text x="769" y="410" fill="#64748b" font-size="10">Out of svc</text>
-<rect x="679" y="418" width="12" height="12" rx="2" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="0.8"/><text x="697" y="428" fill="#64748b" font-size="10">Planned</text>
-<rect x="751" y="418" width="12" height="12" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.8"/><text x="769" y="428" fill="#64748b" font-size="10">Damaged</text>
-<rect x="679" y="436" width="12" height="10" rx="1" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="697" y="445" fill="#64748b" font-size="10">GC crane</text>
-<text x="220" y="542" text-anchor="middle" fill="#60a5fa" font-size="11">MUELLE 1</text>
-<text x="100" y="542" text-anchor="middle" fill="#60a5fa" font-size="11">MUELLE 2</text>
+<rect x="640" y="370" width="225" height="110" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="752" y="388" text-anchor="middle" fill="#1a1f2e" font-size="12" font-weight="600">Status</text>
+<rect x="648" y="396" width="12" height="12" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/><text x="666" y="406" fill="#64748b" font-size="10">Available</text>
+<rect x="726" y="396" width="12" height="12" rx="2" fill="#eff6ff" stroke="#bfdbfe" stroke-width="0.8"/><text x="744" y="406" fill="#64748b" font-size="10">Running</text>
+<rect x="648" y="414" width="12" height="12" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.8"/><text x="666" y="424" fill="#64748b" font-size="10">Emergency</text>
+<rect x="726" y="414" width="12" height="12" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.8"/><text x="744" y="424" fill="#64748b" font-size="10">Out of svc</text>
+<rect x="648" y="432" width="12" height="12" rx="2" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="0.8"/><text x="666" y="442" fill="#64748b" font-size="10">Planned</text>
+<rect x="726" y="432" width="12" height="12" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.8"/><text x="744" y="442" fill="#64748b" font-size="10">Damaged</text>
+<rect x="648" y="450" width="12" height="10" rx="1" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="666" y="459" fill="#64748b" font-size="10">GC crane</text>
             </svg>
           </div>
         </div>
@@ -550,20 +562,20 @@ const GAS = 'https://script.google.com/macros/s/AKfycbxliEkHrCaCXAiHza1N0r4Ji80w
 // ── Block definitions ─────────────────────────────────────
 // Each block: {id, label, x, y, w, h, slots:[{label,teu}]}
 const BLOCKS = [
-  {id:'I',  label:'I area',  x:55,  y:82,  w:148, h:110, slots:[{l:'I4',teu:600},{l:'I3',teu:600},{l:'I2',teu:600},{l:'I1',teu:600}]},
-  {id:'J',  label:'J area',  x:209, y:82,  w:148, h:110, slots:[{l:'J4',teu:600},{l:'J3',teu:600},{l:'J2',teu:600},{l:'J1',teu:600}]},
-  {id:'K',  label:'K area',  x:363, y:82,  w:148, h:110, slots:[{l:'K4',teu:510},{l:'K3',teu:510},{l:'K2',teu:510},{l:'K1',teu:510}]},
-  {id:'O',  label:'O area',  x:517, y:82,  w:148, h:110, slots:[{l:'O4',teu:600},{l:'O3',teu:600},{l:'O2',teu:600},{l:'O1',teu:600}]},
-  {id:'P',  label:'P area',  x:671, y:82,  w:148, h:88,  slots:[{l:'P4',teu:480},{l:'P3',teu:480},{l:'P1',teu:480}]},
-  {id:'E',  label:'E area',  x:55,  y:208, w:148, h:132, slots:[{l:'E5',teu:530},{l:'E4',teu:630},{l:'E3',teu:630},{l:'E2',teu:630},{l:'E1',teu:630}]},
-  {id:'D',  label:'D area',  x:209, y:208, w:148, h:132, slots:[{l:'D5',teu:600},{l:'D4',teu:600},{l:'D3',teu:600},{l:'D2',teu:600},{l:'D1',teu:600}]},
-  {id:'B',  label:'B area',  x:363, y:208, w:148, h:88,  slots:[{l:'B5',teu:510},{l:'B4',teu:510},{l:'B3',teu:510}]},
-  {id:'BR', label:'B Reefer',x:363, y:300, w:148, h:40,  slots:[{l:'B2',teu:384}], reefer:true},
-  {id:'X',  label:'X area',  x:517, y:208, w:148, h:132, slots:[{l:'X9',teu:600},{l:'X8',teu:600},{l:'X7',teu:600},{l:'X6',teu:600},{l:'X5',teu:600}]},
-  {id:'M',  label:'M area',  x:671, y:208, w:148, h:132, slots:[{l:'M6',teu:540},{l:'M5',teu:540},{l:'M4',teu:540},{l:'M3',teu:540},{l:'M2',teu:540}]},
-  {id:'C',  label:'C area',  x:55,  y:356, w:148, h:110, slots:[{l:'C3',teu:630},{l:'C2',teu:630},{l:'C1',teu:630}]},
-  {id:'F',  label:'F area',  x:209, y:356, w:148, h:110, slots:[{l:'F3',teu:600},{l:'F2',teu:600},{l:'F1',teu:540}]},
-  {id:'AR', label:'A Reefer',x:363, y:356, w:208, h:110, slots:[{l:'A3',teu:384},{l:'A2',teu:384},{l:'A1',teu:384}], reefer:true},
+  {id:'I',  label:'I area',  x:55,  y:88,  w:165, h:118, slots:[{l:'I4',teu:600},{l:'I3',teu:600},{l:'I2',teu:600},{l:'I1',teu:600}]},
+  {id:'J',  label:'J area',  x:226, y:88,  w:165, h:118, slots:[{l:'J4',teu:600},{l:'J3',teu:600},{l:'J2',teu:600},{l:'J1',teu:600}]},
+  {id:'K',  label:'K area',  x:397, y:88,  w:165, h:118, slots:[{l:'K4',teu:510},{l:'K3',teu:510},{l:'K2',teu:510},{l:'K1',teu:510}]},
+  {id:'O',  label:'O area',  x:568, y:88,  w:165, h:118, slots:[{l:'O4',teu:600},{l:'O3',teu:600},{l:'O2',teu:600},{l:'O1',teu:600}]},
+  {id:'P',  label:'P area',  x:739, y:88,  w:155, h:94,  slots:[{l:'P4',teu:480},{l:'P3',teu:480},{l:'P1',teu:480}]},
+  {id:'E',  label:'E area',  x:55,  y:218, w:165, h:140, slots:[{l:'E5',teu:530},{l:'E4',teu:630},{l:'E3',teu:630},{l:'E2',teu:630},{l:'E1',teu:630}]},
+  {id:'D',  label:'D area',  x:226, y:218, w:165, h:140, slots:[{l:'D5',teu:600},{l:'D4',teu:600},{l:'D3',teu:600},{l:'D2',teu:600},{l:'D1',teu:600}]},
+  {id:'B',  label:'B area',  x:397, y:218, w:165, h:94,  slots:[{l:'B5',teu:510},{l:'B4',teu:510},{l:'B3',teu:510}]},
+  {id:'BR', label:'B Reefer',x:397, y:316, w:165, h:42,  slots:[{l:'B2',teu:384}], reefer:true},
+  {id:'X',  label:'X area',  x:568, y:218, w:165, h:140, slots:[{l:'X9',teu:600},{l:'X8',teu:600},{l:'X7',teu:600},{l:'X6',teu:600},{l:'X5',teu:600}]},
+  {id:'M',  label:'M area',  x:739, y:218, w:155, h:140, slots:[{l:'M6',teu:540},{l:'M5',teu:540},{l:'M4',teu:540},{l:'M3',teu:540},{l:'M2',teu:540}]},
+  {id:'C',  label:'C area',  x:55,  y:370, w:165, h:118, slots:[{l:'C3',teu:630},{l:'C2',teu:630},{l:'C1',teu:630}]},
+  {id:'F',  label:'F area',  x:226, y:370, w:165, h:118, slots:[{l:'F3',teu:600},{l:'F2',teu:600},{l:'F1',teu:540}]},
+  {id:'AR', label:'A Reefer',x:397, y:370, w:236, h:118, slots:[{l:'A3',teu:384},{l:'A2',teu:384},{l:'A1',teu:384}], reefer:true},
 ];
 
 // Default RTG positions: "blockId:slotIndex" -> rtg number (e.g. "I:0" -> "01")
@@ -617,7 +629,14 @@ async function loadRTGPositions() {
     const d2 = await r2.json();
     if (d2 && typeof d2 === 'object') SLOT_TEU = d2;
   } catch(e) {}
-  // 載入自由座標
+  // 載入 GC 位置
+  try {
+    const rg = await fetch(`${FB}/gc_pos.json`);
+    const dg = await rg.json();
+    if (dg && typeof dg === 'object' && Object.keys(dg).length>0) GC_POS = dg;
+  } catch(e) {}
+  renderGCLayer();
+  // 載入 RTG 自由座標
   try {
     const r = await fetch(`${FB}/rtg_free_pos.json`);
     const d = await r.json();
@@ -654,22 +673,10 @@ function renderRTGLayer() {
   });
 
   // Roads
-  svg += `<rect x="51" y="196" width="849" height="8" rx="1" fill="#e2e8f0"/>`;
-  svg += `<rect x="51" y="344" width="849" height="8" rx="1" fill="#e2e8f0"/>`;
-  svg += `<rect x="59" y="438" width="140" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="129" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">F0-MTY</text>`;
-  svg += `<rect x="213" y="438" width="140" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="283" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">A0-MTY</text>`;
-
-  // ARMGC 四台
-  ['ARMGC-01','ARMGC-02','ARMGC-03','ARMGC-05'].forEach((id,i) => {
-    const fbKey = id.replace(/-/g,'_');
-    const eq = data[fbKey] || {};
-    const s  = SC[eq.status] || SC['Available'];
-    const x  = 59 + i * 48;
-    svg += `<g id="c-${id}" onmousedown="rtgMouseDown(event,'${id}')" oncontextmenu="event.preventDefault()" style="cursor:${dragMode?'grab':'pointer'}">
-      <rect x="${x}" y="44" width="42" height="22" rx="2" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.8"/>
-      <text x="${x+21}" y="58" text-anchor="middle" fill="${s.text}" font-size="9" font-weight="700">${id.replace('ARMGC-','AR-')}</text>
-    </g>`;
-  });
+  svg += `<rect x="51" y="212" width="859" height="6" rx="1" fill="#e2e8f0"/>`;
+  svg += `<rect x="51" y="364" width="859" height="6" rx="1" fill="#e2e8f0"/>`;
+  svg += `<rect x="59" y="460" width="158" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="138" y="474" text-anchor="middle" fill="#94a3b8" font-size="10">F0-MTY</text>`;
+  svg += `<rect x="226" y="460" width="158" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="305" y="474" text-anchor="middle" fill="#94a3b8" font-size="10">A0-MTY</text>`;
 
   // RTG 自由浮動卡片
   Object.entries(RTG_POS_FREE).forEach(([num, pos]) => {
@@ -679,25 +686,100 @@ function renderRTGLayer() {
     const s     = SC[eq.status] || SC['Available'];
     const cx = pos.x, cy = pos.y;
     const isGrabbing = dragMode && dragNum === num;
-    const w = 26, h = 20;
+    const w = 28, h = 22;
     svg += `<g id="rtg-${num}" onmousedown="rtgMouseDown(event,'RTG-${num}')" oncontextmenu="event.preventDefault()" style="cursor:${dragMode?'grab':'pointer'}">
       <rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="3"
         fill="${s.fill}" stroke="${isGrabbing?'#1a56db':s.stroke}"
         stroke-width="${isGrabbing?2:0.8}" opacity="${isGrabbing?0.4:1}"/>
-      <text x="${cx}" y="${cy+4}" text-anchor="middle" fill="${s.text}" font-size="${num.length>2?8:10}" font-weight="700">${num}</text>
+      <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="${s.text}" font-size="${num.length>2?8:10}" font-weight="700">${num}</text>
     </g>`;
   });
 
   // 調整模式提示
   if (dragMode) {
-    svg += `<rect x="51" y="460" width="849" height="18" rx="3" fill="#1a56db" fill-opacity="0.85"/>`;
-    svg += `<text x="475" y="472" text-anchor="middle" fill="#fff" font-size="11">拖曳 RTG 到任意位置 · 左鍵查看狀態 · 確定儲存</text>`;
+    svg += `<rect x="51" y="474" width="859" height="18" rx="3" fill="#1a56db" fill-opacity="0.85"/>`;
+    svg += `<text x="480" y="486" text-anchor="middle" fill="#fff" font-size="11">拖曳 RTG / GC 到位置 · 確定儲存 · 取消還原</text>`;
   }
+
 
   layer.innerHTML = svg;
 }
 
-// ── 自由座標拖曳系統 ─────────────────────────────────────
+// ── GC 位置系統 ───────────────────────────────────────────
+// 左側垂直 (axis:'v')：X 固定=33，Y 可自由移動，範圍 28~488
+// 底部水平 (axis:'h')：Y 固定=499，X 可自由移動，範圍 60~644
+const GC_AXIS = {
+  '10':'v','17':'v','16':'v','15':'v','13':'v','12':'v','9':'v','8':'v','7':'v',
+  '11':'h','6':'h','5':'h','3':'h'
+};
+// GC SP 對照
+const GC_SP = {
+  '10':'SP-T32','17':'SP-T23','16':'SP-T25','15':'SP-TW04','13':'SP-TW05',
+  '12':'SP-TW01','9':'SP-T31','8':'SP-T27','7':'SP-T33',
+  '11':'SP-T29','6':'SP-T22','5':'SP-T21','3':'SP-T19'
+};
+let GC_POS = {
+  '10':{x:33,y:36},'17':{x:33,y:58},'16':{x:33,y:80},'15':{x:33,y:116},
+  '13':{x:33,y:212},'12':{x:33,y:302},'9':{x:33,y:355},'8':{x:33,y:400},'7':{x:33,y:450},
+  '11':{x:87,y:504},'6':{x:169,y:504},'5':{x:309,y:504},'3':{x:399,y:504}
+};
+let GC_POS_BACKUP = null;
+let dragGC = null, dragGCOffX=0, dragGCOffY=0;
+
+function renderGCLayer() {
+  const layer = document.getElementById('gc-layer');
+  if (!layer) return;
+  let svg = '';
+  Object.entries(GC_POS).forEach(([num, pos]) => {
+    const axis  = GC_AXIS[num];
+    const gcId  = `GC-${num}`;
+    const spId  = GC_SP[num] ? `/${GC_SP[num]}` : '';
+    const fbKey = gcId.replace(/[\/\.\#\$\[\]-]/g,'_');
+    const eq    = data[fbKey] || {};
+    const s     = SC[eq.status] || SC['Available'];
+    const isV   = axis==='v';
+    const w=22, h=16;
+    const cx=pos.x, cy=pos.y;
+    const isMoving = dragGC===num;
+    const cursor = dragMode ? 'grab' : 'pointer';
+    svg += `<g id="gc-${num}"
+      onmousedown="gcMouseDown(event,'${num}')"
+      oncontextmenu="event.preventDefault()"
+      style="cursor:${cursor}">
+      <rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="2"
+        fill="${isMoving?'#fef9c3':s.fill}"
+        stroke="${isMoving?'#eab308':s.stroke}"
+        stroke-width="${isMoving?2:0.8}"
+        opacity="${isMoving?0.5:1}"/>
+      <text x="${cx}" y="${cy+4}" text-anchor="middle" fill="${isMoving?'#854d0e':s.text}"
+        font-size="${num.length>1?9:10}" font-weight="700">${num}</text>
+    </g>`;
+  });
+  layer.innerHTML = svg;
+}
+
+function gcMouseDown(e, num) {
+  e.preventDefault(); e.stopPropagation();
+  if (!dragMode) {
+    if (e.button===0) { selGC(`GC-${num}${GC_SP[num]?'/'+GC_SP[num]:''}`); }
+    else if (e.button===2) { enterAdjustMode(); startGCDrag(e, num); }
+    return;
+  }
+  startGCDrag(e, num);
+}
+
+function startGCDrag(e, num) {
+  const svg  = document.getElementById('map-svg');
+  const rect = svg.getBoundingClientRect();
+  const scaleX = 900/rect.width, scaleY = 580/rect.height;
+  const svgX = (e.clientX-rect.left)*scaleX;
+  const svgY = (e.clientY-rect.top)*scaleY;
+  const cur  = GC_POS[num];
+  dragGC    = num;
+  dragGCOffX = svgX - cur.x;
+  dragGCOffY = svgY - cur.y;
+  renderGCLayer();
+}
 let dragMode    = false;
 let dragNum     = null;
 let dragOffX    = 0, dragOffY = 0;
@@ -720,9 +802,11 @@ function initFreePosFromSlots() {
 function enterAdjustMode() {
   if (dragMode) return;
   RTG_POS_FREE_BACKUP = JSON.parse(JSON.stringify(RTG_POS_FREE));
+  GC_POS_BACKUP = JSON.parse(JSON.stringify(GC_POS));
   dragMode = true;
   showDragBar();
   renderRTGLayer();
+  renderGCLayer();
 }
 
 function rtgMouseDown(e, fullId) {
@@ -778,25 +862,41 @@ function snapToBlock(svgX, svgY) {
 }
 
 document.addEventListener('mousemove', e => {
-  if (!dragMode || !dragNum) return;
   const svg = document.getElementById('map-svg');
-  if (!svg) return;
+  if (!svg || !dragMode) return;
   const rect = svg.getBoundingClientRect();
   const scaleX = 900/rect.width, scaleY = 580/rect.height;
-  const svgX = (e.clientX-rect.left)*scaleX - dragOffX;
-  const svgY = (e.clientY-rect.top)*scaleY  - dragOffY;
-  // X 自由，Y 限制在 20~490
-  RTG_POS_FREE[dragNum] = {x:Math.max(55,Math.min(895,svgX)),y:Math.max(20,Math.min(490,svgY))};
-  renderRTGLayer();
+  const svgX = (e.clientX-rect.left)*scaleX;
+  const svgY = (e.clientY-rect.top)*scaleY;
+
+  if (dragNum) {
+    // RTG 自由拖曳
+    const nx = svgX - dragOffX, ny = svgY - dragOffY;
+    RTG_POS_FREE[dragNum] = {x:Math.max(55,Math.min(905,nx)),y:Math.max(22,Math.min(498,ny))};
+    renderRTGLayer();
+  } else if (dragGC) {
+    // GC 拖曳 - 限制軸向
+    const axis = GC_AXIS[dragGC];
+    if (axis==='v') {
+      GC_POS[dragGC] = {x:33, y:Math.max(28, Math.min(498, svgY-dragGCOffY))};
+    } else {
+      GC_POS[dragGC] = {x:Math.max(60, Math.min(680, svgX-dragGCOffX)), y:504};
+    }
+    renderGCLayer();
+  }
 });
 
 document.addEventListener('mouseup', e => {
-  if (!dragMode || !dragNum) return;
-  // Snap to nearest block on release
-  const cur = RTG_POS_FREE[dragNum];
-  if (cur) RTG_POS_FREE[dragNum] = snapToBlock(cur.x, cur.y);
-  dragNum = null;
-  renderRTGLayer();
+  if (dragNum) {
+    const cur = RTG_POS_FREE[dragNum];
+    if (cur) RTG_POS_FREE[dragNum] = snapToBlock(cur.x, cur.y);
+    dragNum = null;
+    renderRTGLayer();
+  }
+  if (dragGC) {
+    dragGC = null;
+    renderGCLayer();
+  }
 });
 
 document.addEventListener('touchmove', e => {
@@ -837,24 +937,25 @@ function hideDragBar() {
 }
 
 async function confirmDrag() {
-  dragMode = false; dragNum = null;
-  RTG_POS_FREE_BACKUP = null;
+  dragMode = false; dragNum = null; dragGC = null;
+  RTG_POS_FREE_BACKUP = null; GC_POS_BACKUP = null;
   hideDragBar();
-  renderRTGLayer();
+  renderRTGLayer(); renderGCLayer();
   try {
-    await fetch(`${FB}/rtg_free_pos.json`,{
-      method:'PUT',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(RTG_POS_FREE)
-    });
+    await Promise.all([
+      fetch(`${FB}/rtg_free_pos.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(RTG_POS_FREE)}),
+      fetch(`${FB}/gc_pos.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(GC_POS)})
+    ]);
   } catch(e){}
 }
 
 function cancelDragMode() {
   if (RTG_POS_FREE_BACKUP) RTG_POS_FREE = JSON.parse(JSON.stringify(RTG_POS_FREE_BACKUP));
-  dragMode = false; dragNum = null;
-  RTG_POS_FREE_BACKUP = null;
+  if (GC_POS_BACKUP) GC_POS = JSON.parse(JSON.stringify(GC_POS_BACKUP));
+  dragMode = false; dragNum = null; dragGC = null;
+  RTG_POS_FREE_BACKUP = null; GC_POS_BACKUP = null;
   hideDragBar();
-  renderRTGLayer();
+  renderRTGLayer(); renderGCLayer();
 }
 
 
