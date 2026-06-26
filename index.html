@@ -286,7 +286,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="topbar">
     <span class="topbar-title" id="topbar-title">地圖狀態</span>
     <span class="topbar-sub" id="topbar-sub">Colon Container Terminal</span>
-    <div class="topbar-right">
+    <div class="topbar-right" id="topbar-right">
       <button class="btn-sm" id="topbar-action" onclick="addToHome()" title="加到首頁">
         ＋ 加到首頁
       </button>
@@ -361,123 +361,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <g class="gc-c" onclick="selGC('GC-05/SP-T21')"><rect x="298" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="309" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">5</text></g>
 <g class="gc-c" onclick="selGC('GC-03/SP-T19')"><rect x="388" y="496" width="22" height="16" rx="2" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="399" y="507" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">3</text></g>
 
-<!-- ARMGC -->
-<rect x="55" y="24" width="148" height="48" rx="3" fill="#faf5ff" stroke="#a78bfa" stroke-width="1"/>
-<text x="129" y="38" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="600">ARMGC</text>
-<g class="rtg-c" id="c-ARMGC-01" onclick="selEq('ARMGC-01','ARMGC')"><rect x="59" y="44" width="64" height="22" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/><text x="91" y="58" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">ARMGC-01</text></g>
-<g class="rtg-c" id="c-ARMGC-02" onclick="selEq('ARMGC-02','ARMGC')"><rect x="129" y="44" width="64" height="22" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/><text x="161" y="58" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">ARMGC-02</text></g>
+<!-- ARMGC 四台 (動態渲染) -->
+<rect x="55" y="24" width="196" height="48" rx="3" fill="#faf5ff" stroke="#a78bfa" stroke-width="1"/>
+<text x="153" y="38" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="600">ARMGC</text>
 
 <!-- R area -->
 <rect x="209" y="24" width="86" height="48" rx="2" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8"/>
 <text x="252" y="42" text-anchor="middle" fill="#64748b" font-size="11">R area</text>
 <text x="252" y="56" text-anchor="middle" fill="#94a3b8" font-size="10">R1-R2</text>
 
-<!-- ROW 15 -->
-<rect x="55" y="82" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="129" y="95" text-anchor="middle" fill="#64748b" font-size="11">I area (I1-I4)</text>
-<g class="rtg-c" id="c-RTG-01" onclick="selEq('RTG-01','RTG')"><rect x="59" y="98" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="111" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">01</text><rect x="83" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="111" text-anchor="middle" fill="#64748b" font-size="10">I4  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-04" onclick="selEq('RTG-04','RTG')"><rect x="59" y="120" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="133" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">04</text><rect x="83" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="133" text-anchor="middle" fill="#64748b" font-size="10">I3  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-05" onclick="selEq('RTG-05','RTG')"><rect x="59" y="142" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="70" y="155" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">05</text><rect x="83" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="155" text-anchor="middle" fill="#64748b" font-size="10">I2  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-06" onclick="selEq('RTG-06','RTG')"><rect x="59" y="164" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="177" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">06</text><rect x="83" y="164" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="177" text-anchor="middle" fill="#64748b" font-size="10">I1  600 TEU</text></g>
-
-<rect x="209" y="82" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="283" y="95" text-anchor="middle" fill="#64748b" font-size="11">J area (J1-J4)</text>
-<g class="rtg-c" id="c-RTG-07" onclick="selEq('RTG-07','RTG')"><rect x="213" y="98" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="111" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">07</text><rect x="237" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="111" text-anchor="middle" fill="#64748b" font-size="10">J4  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-08" onclick="selEq('RTG-08','RTG')"><rect x="213" y="120" width="22" height="20" rx="2" fill="#eff6ff" stroke="#bfdbfe" stroke-width="0.5"/><text x="224" y="133" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="700">08</text><rect x="237" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="133" text-anchor="middle" fill="#64748b" font-size="10">J3  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-10" onclick="selEq('RTG-10','RTG')"><rect x="213" y="142" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="155" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">10</text><rect x="237" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="155" text-anchor="middle" fill="#64748b" font-size="10">J2  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-11" onclick="selEq('RTG-11','RTG')"><rect x="213" y="164" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="177" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">11</text><rect x="237" y="164" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="177" text-anchor="middle" fill="#64748b" font-size="10">J1  600 TEU</text></g>
-
-<rect x="363" y="82" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="437" y="95" text-anchor="middle" fill="#64748b" font-size="11">K area (K1-K4)</text>
-<g class="rtg-c" id="c-RTG-12" onclick="selEq('RTG-12','RTG')"><rect x="367" y="98" width="22" height="20" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.5"/><text x="378" y="111" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="700">12</text><rect x="391" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="111" text-anchor="middle" fill="#64748b" font-size="10">K4  510 TEU</text></g>
-<g class="rtg-c" id="c-RTG-13" onclick="selEq('RTG-13','RTG')"><rect x="367" y="120" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="133" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">13</text><rect x="391" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="133" text-anchor="middle" fill="#64748b" font-size="10">K3  510 TEU</text></g>
-<g class="rtg-c" id="c-RTG-14" onclick="selEq('RTG-14','RTG')"><rect x="367" y="142" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="155" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">14</text><rect x="391" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="155" text-anchor="middle" fill="#64748b" font-size="10">K2  510 TEU</text></g>
-<g class="rtg-c" id="c-RTG-16" onclick="selEq('RTG-16','RTG')"><rect x="367" y="164" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="177" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">16</text><rect x="391" y="164" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="177" text-anchor="middle" fill="#64748b" font-size="10">K1  510 TEU</text></g>
-
-<rect x="517" y="82" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="591" y="95" text-anchor="middle" fill="#64748b" font-size="11">O area (O1-O4)</text>
-<g class="rtg-c" id="c-RTG-17" onclick="selEq('RTG-17','RTG')"><rect x="521" y="98" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="111" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">17</text><rect x="545" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="111" text-anchor="middle" fill="#64748b" font-size="10">O4  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-18" onclick="selEq('RTG-18','RTG')"><rect x="521" y="120" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="532" y="133" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">18</text><rect x="545" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="133" text-anchor="middle" fill="#64748b" font-size="10">O3  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-19" onclick="selEq('RTG-19','RTG')"><rect x="521" y="142" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="155" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">19</text><rect x="545" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="155" text-anchor="middle" fill="#64748b" font-size="10">O2  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-20" onclick="selEq('RTG-20','RTG')"><rect x="521" y="164" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="177" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">20</text><rect x="545" y="164" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="177" text-anchor="middle" fill="#64748b" font-size="10">O1  600 TEU</text></g>
-
-<rect x="671" y="82" width="148" height="88" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="745" y="95" text-anchor="middle" fill="#64748b" font-size="11">P area (P1-P4)</text>
-<g class="rtg-c" id="c-RTG-21" onclick="selEq('RTG-21','RTG')"><rect x="675" y="98" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="111" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">21</text><rect x="699" y="98" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="111" text-anchor="middle" fill="#64748b" font-size="10">P4  480 TEU</text></g>
-<g class="rtg-c" id="c-RTG-22" onclick="selEq('RTG-22','RTG')"><rect x="675" y="120" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="133" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">22</text><rect x="699" y="120" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="133" text-anchor="middle" fill="#64748b" font-size="10">P3  480 TEU</text></g>
-<g class="rtg-c" id="c-RTG-23" onclick="selEq('RTG-23','RTG')"><rect x="675" y="142" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="155" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">23</text><rect x="699" y="142" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="155" text-anchor="middle" fill="#64748b" font-size="10">P1  480 TEU</text></g>
-
-<!-- Road 1 -->
-<rect x="51" y="196" width="849" height="8" rx="1" fill="#e2e8f0"/>
-
-<!-- ROW 13 -->
-<rect x="55" y="208" width="148" height="132" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="129" y="221" text-anchor="middle" fill="#64748b" font-size="11">E area (E1-E5)</text>
-<g class="rtg-c" id="c-RTG-24" onclick="selEq('RTG-24','RTG')"><rect x="59" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">24</text><rect x="83" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="237" text-anchor="middle" fill="#64748b" font-size="10">E5  530 TEU</text></g>
-<g class="rtg-c" id="c-RTG-25" onclick="selEq('RTG-25','RTG')"><rect x="59" y="246" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="70" y="259" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">25</text><rect x="83" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="259" text-anchor="middle" fill="#64748b" font-size="10">E4  630 TEU</text></g>
-<g class="rtg-c" id="c-RTG-26" onclick="selEq('RTG-26','RTG')"><rect x="59" y="268" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="281" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">26</text><rect x="83" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="281" text-anchor="middle" fill="#64748b" font-size="10">E3  630 TEU</text></g>
-<g class="rtg-c" id="c-RTG-27" onclick="selEq('RTG-27','RTG')"><rect x="59" y="290" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="303" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">27</text><rect x="83" y="290" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="303" text-anchor="middle" fill="#64748b" font-size="10">E2  630 TEU</text></g>
-<g class="rtg-c" id="c-RTG-28" onclick="selEq('RTG-28','RTG')"><rect x="59" y="312" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="325" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">28</text><rect x="83" y="312" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="325" text-anchor="middle" fill="#64748b" font-size="10">E1  630 TEU</text></g>
-
-<rect x="209" y="208" width="148" height="132" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="283" y="221" text-anchor="middle" fill="#64748b" font-size="11">D area (D1-D5)</text>
-<g class="rtg-c" id="c-RTG-29" onclick="selEq('RTG-29','RTG')"><rect x="213" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">29</text><rect x="237" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="237" text-anchor="middle" fill="#64748b" font-size="10">D5  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-32" onclick="selEq('RTG-32','RTG')"><rect x="213" y="246" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="259" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">32</text><rect x="237" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="259" text-anchor="middle" fill="#64748b" font-size="10">D4  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-33" onclick="selEq('RTG-33','RTG')"><rect x="213" y="268" width="22" height="20" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.5"/><text x="224" y="281" text-anchor="middle" fill="#991b1b" font-size="10" font-weight="700">33</text><rect x="237" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="281" text-anchor="middle" fill="#64748b" font-size="10">D3  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-34" onclick="selEq('RTG-34','RTG')"><rect x="213" y="290" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="303" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">34</text><rect x="237" y="290" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="303" text-anchor="middle" fill="#64748b" font-size="10">D2  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-35" onclick="selEq('RTG-35','RTG')"><rect x="213" y="312" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="325" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">35</text><rect x="237" y="312" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="325" text-anchor="middle" fill="#64748b" font-size="10">D1  600 TEU</text></g>
-
-<rect x="363" y="208" width="148" height="88" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="437" y="221" text-anchor="middle" fill="#64748b" font-size="11">B area (B3-B5)</text>
-<g class="rtg-c" id="c-RTG-36" onclick="selEq('RTG-36','RTG')"><rect x="367" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">36</text><rect x="391" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="237" text-anchor="middle" fill="#64748b" font-size="10">B5  510 TEU</text></g>
-<g class="rtg-c" id="c-RTG-37" onclick="selEq('RTG-37','RTG')"><rect x="367" y="246" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="259" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">37</text><rect x="391" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="259" text-anchor="middle" fill="#64748b" font-size="10">B4  510 TEU</text></g>
-<g class="rtg-c" id="c-RTG-38" onclick="selEq('RTG-38','RTG')"><rect x="367" y="268" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="281" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">38</text><rect x="391" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="449" y="281" text-anchor="middle" fill="#64748b" font-size="10">B3  510 TEU</text></g>
-
-<rect x="363" y="300" width="148" height="40" rx="3" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.8"/>
-<text x="437" y="314" text-anchor="middle" fill="#0369a1" font-size="11">B Reefer</text>
-<g class="rtg-c" id="c-RTG-39" onclick="selEq('RTG-39','RTG')"><rect x="367" y="320" width="22" height="16" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="331" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">39</text><rect x="391" y="320" width="116" height="16" rx="2" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.5"/><text x="449" y="331" text-anchor="middle" fill="#0369a1" font-size="10">B2  384 TEU</text></g>
-
-<rect x="517" y="208" width="148" height="132" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="591" y="221" text-anchor="middle" fill="#64748b" font-size="11">X area (X5-X9)</text>
-<g class="rtg-c" id="c-RTG-40" onclick="selEq('RTG-40','RTG')"><rect x="521" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">40</text><rect x="545" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="237" text-anchor="middle" fill="#64748b" font-size="10">X9  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-41" onclick="selEq('RTG-41','RTG')"><rect x="521" y="246" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="259" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">41</text><rect x="545" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="259" text-anchor="middle" fill="#64748b" font-size="10">X8  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-42" onclick="selEq('RTG-42','RTG')"><rect x="521" y="268" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="532" y="281" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">42</text><rect x="545" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="281" text-anchor="middle" fill="#64748b" font-size="10">X7  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-43" onclick="selEq('RTG-43','RTG')"><rect x="521" y="290" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="303" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">43</text><rect x="545" y="290" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="303" text-anchor="middle" fill="#64748b" font-size="10">X6  600 TEU</text></g>
-<g class="rtg-c" id="c-RTG-44" onclick="selEq('RTG-44','RTG')"><rect x="521" y="312" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="532" y="325" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">44</text><rect x="545" y="312" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="603" y="325" text-anchor="middle" fill="#64748b" font-size="10">X5  600 TEU</text></g>
-
-<rect x="671" y="208" width="148" height="132" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="745" y="221" text-anchor="middle" fill="#64748b" font-size="11">M area (M2-M6)</text>
-<g class="rtg-c" onclick="selEq('RTG-M6','RTG')"><rect x="675" y="224" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="237" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">M6</text><rect x="699" y="224" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="237" text-anchor="middle" fill="#64748b" font-size="10">M6  540 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-M5','RTG')"><rect x="675" y="246" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="259" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">M5</text><rect x="699" y="246" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="259" text-anchor="middle" fill="#64748b" font-size="10">M5  540 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-M4','RTG')"><rect x="675" y="268" width="22" height="20" rx="2" fill="#eff6ff" stroke="#bfdbfe" stroke-width="0.5"/><text x="686" y="281" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="700">M4</text><rect x="699" y="268" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="281" text-anchor="middle" fill="#64748b" font-size="10">M4  540 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-M3','RTG')"><rect x="675" y="290" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="303" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">M3</text><rect x="699" y="290" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="303" text-anchor="middle" fill="#64748b" font-size="10">M3  540 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-M2','RTG')"><rect x="675" y="312" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="686" y="325" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">M2</text><rect x="699" y="312" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="757" y="325" text-anchor="middle" fill="#64748b" font-size="10">M2  540 TEU</text></g>
-
-<!-- Road 2 -->
-<rect x="51" y="344" width="849" height="8" rx="1" fill="#e2e8f0"/>
-
-<!-- ROW 9 -->
-<rect x="55" y="356" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="129" y="369" text-anchor="middle" fill="#64748b" font-size="11">C area (C1-C3)</text>
-<g class="rtg-c" onclick="selEq('RTG-C3','RTG')"><rect x="59" y="372" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="385" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">C3</text><rect x="83" y="372" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="385" text-anchor="middle" fill="#64748b" font-size="10">C3  630 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-C2','RTG')"><rect x="59" y="394" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="407" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">C2</text><rect x="83" y="394" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="407" text-anchor="middle" fill="#64748b" font-size="10">C2  630 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-C1','RTG')"><rect x="59" y="416" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="70" y="429" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">C1</text><rect x="83" y="416" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="141" y="429" text-anchor="middle" fill="#64748b" font-size="10">C1  630 TEU</text></g>
-<rect x="59" y="438" width="140" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/>
-<text x="129" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">F0-MTY</text>
-
-<rect x="209" y="356" width="148" height="110" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.8"/>
-<text x="283" y="369" text-anchor="middle" fill="#64748b" font-size="11">F area (F1-F3)</text>
-<g class="rtg-c" onclick="selEq('RTG-F3','RTG')"><rect x="213" y="372" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="385" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">F3</text><rect x="237" y="372" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="385" text-anchor="middle" fill="#64748b" font-size="10">F3  600 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-F2','RTG')"><rect x="213" y="394" width="22" height="20" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.5"/><text x="224" y="407" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="700">F2</text><rect x="237" y="394" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="407" text-anchor="middle" fill="#64748b" font-size="10">F2  600 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-F1','RTG')"><rect x="213" y="416" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="224" y="429" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">F1</text><rect x="237" y="416" width="116" height="20" rx="2" fill="#fff" stroke="#e2e8f0" stroke-width="0.5"/><text x="295" y="429" text-anchor="middle" fill="#64748b" font-size="10">F1  540 TEU</text></g>
-<rect x="213" y="438" width="140" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/>
-<text x="283" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">A0-MTY</text>
-
-<rect x="363" y="356" width="208" height="110" rx="3" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.8"/>
-<text x="467" y="369" text-anchor="middle" fill="#0369a1" font-size="11">A Reefer (A1-A3)</text>
-<g class="rtg-c" onclick="selEq('RTG-A3','RTG')"><rect x="367" y="372" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="385" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">A3</text><rect x="391" y="372" width="176" height="20" rx="2" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.5"/><text x="479" y="385" text-anchor="middle" fill="#0369a1" font-size="10">A3/RD  384 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-A2','RTG')"><rect x="367" y="394" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="407" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">A2</text><rect x="391" y="394" width="176" height="20" rx="2" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.5"/><text x="479" y="407" text-anchor="middle" fill="#0369a1" font-size="10">A2/RD  384 TEU</text></g>
-<g class="rtg-c" onclick="selEq('RTG-A1','RTG')"><rect x="367" y="416" width="22" height="20" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.5"/><text x="378" y="429" text-anchor="middle" fill="#166534" font-size="10" font-weight="700">A1</text><rect x="391" y="416" width="176" height="20" rx="2" fill="#f0f9ff" stroke="#bae6fd" stroke-width="0.5"/><text x="479" y="429" text-anchor="middle" fill="#0369a1" font-size="10">A1/RD  384 TEU</text></g>
+<!-- Dynamic RTG layer - rendered by JS -->
+<g id="rtg-layer"></g>
 
 <!-- Legend -->
 <rect x="671" y="356" width="228" height="110" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8"/>
@@ -617,7 +511,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="page" id="page-trailer"><div class="placeholder"><div class="placeholder-icon">🔗</div><div class="placeholder-title">TR / CH pairing</div><div class="placeholder-sub">Trailer chassis pairing monitor — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
     <div class="page" id="page-maintenance"><div class="placeholder"><div class="placeholder-icon">🔧</div><div class="placeholder-title">Maintenance plan</div><div class="placeholder-sub">Scheduled maintenance tracking — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
     <div class="page" id="page-notify"><div class="placeholder"><div class="placeholder-icon">🔔</div><div class="placeholder-title">Real-time fault notifications</div><div class="placeholder-sub">Push alerts for emergency events — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
-    <div class="page" id="page-admin"><div class="placeholder"><div class="placeholder-icon">⚙️</div><div class="placeholder-title">Admin interface</div><div class="placeholder-sub">User management, settings, passwords</div><div class="placeholder-badge">Coming soon</div></div></div>
+    <div class="page" id="page-admin">
+      <div class="page-scroll">
+        <div style="max-width:900px">
+          <div style="font-size:15px;font-weight:600;margin-bottom:16px">⚙️ 管理者介面</div>
+
+          <!-- TEU 編輯 -->
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between">
+              📦 Slot TEU 容量設定
+              <button class="btn-sm btn-primary" onclick="saveTEU()">儲存</button>
+            </div>
+            <div style="padding:12px 16px">
+              <div style="font-size:12px;color:var(--text3);margin-bottom:12px">修改每個 slot 的 TEU 容量，地圖上即時更新</div>
+              <div id="teu-editor" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px"></div>
+            </div>
+          </div>
+
+          <!-- RTG 位置重置 -->
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">🗺 RTG 位置管理</div>
+            <div style="padding:12px 16px;display:flex;gap:10px;align-items:center">
+              <button class="btn-sm" onclick="resetRTGPos()" style="color:var(--red);border-color:var(--red)">重置所有 RTG 位置</button>
+              <span style="font-size:12px;color:var(--text3)">恢復到預設 slot 位置</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -625,6 +546,48 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 const FB = 'https://tesm-c9396-default-rtdb.firebaseio.com';
 const GAS = 'https://script.google.com/macros/s/AKfycbxliEkHrCaCXAiHza1N0r4Ji80we61tDGbF_kg3GGjAkt-e93zznlFYGrj2lwHcRK5b/exec';
+
+// ── Block definitions ─────────────────────────────────────
+// Each block: {id, label, x, y, w, h, slots:[{label,teu}]}
+const BLOCKS = [
+  {id:'I',  label:'I area',  x:55,  y:82,  w:148, h:110, slots:[{l:'I4',teu:600},{l:'I3',teu:600},{l:'I2',teu:600},{l:'I1',teu:600}]},
+  {id:'J',  label:'J area',  x:209, y:82,  w:148, h:110, slots:[{l:'J4',teu:600},{l:'J3',teu:600},{l:'J2',teu:600},{l:'J1',teu:600}]},
+  {id:'K',  label:'K area',  x:363, y:82,  w:148, h:110, slots:[{l:'K4',teu:510},{l:'K3',teu:510},{l:'K2',teu:510},{l:'K1',teu:510}]},
+  {id:'O',  label:'O area',  x:517, y:82,  w:148, h:110, slots:[{l:'O4',teu:600},{l:'O3',teu:600},{l:'O2',teu:600},{l:'O1',teu:600}]},
+  {id:'P',  label:'P area',  x:671, y:82,  w:148, h:88,  slots:[{l:'P4',teu:480},{l:'P3',teu:480},{l:'P1',teu:480}]},
+  {id:'E',  label:'E area',  x:55,  y:208, w:148, h:132, slots:[{l:'E5',teu:530},{l:'E4',teu:630},{l:'E3',teu:630},{l:'E2',teu:630},{l:'E1',teu:630}]},
+  {id:'D',  label:'D area',  x:209, y:208, w:148, h:132, slots:[{l:'D5',teu:600},{l:'D4',teu:600},{l:'D3',teu:600},{l:'D2',teu:600},{l:'D1',teu:600}]},
+  {id:'B',  label:'B area',  x:363, y:208, w:148, h:88,  slots:[{l:'B5',teu:510},{l:'B4',teu:510},{l:'B3',teu:510}]},
+  {id:'BR', label:'B Reefer',x:363, y:300, w:148, h:40,  slots:[{l:'B2',teu:384}], reefer:true},
+  {id:'X',  label:'X area',  x:517, y:208, w:148, h:132, slots:[{l:'X9',teu:600},{l:'X8',teu:600},{l:'X7',teu:600},{l:'X6',teu:600},{l:'X5',teu:600}]},
+  {id:'M',  label:'M area',  x:671, y:208, w:148, h:132, slots:[{l:'M6',teu:540},{l:'M5',teu:540},{l:'M4',teu:540},{l:'M3',teu:540},{l:'M2',teu:540}]},
+  {id:'C',  label:'C area',  x:55,  y:356, w:148, h:110, slots:[{l:'C3',teu:630},{l:'C2',teu:630},{l:'C1',teu:630}]},
+  {id:'F',  label:'F area',  x:209, y:356, w:148, h:110, slots:[{l:'F3',teu:600},{l:'F2',teu:600},{l:'F1',teu:540}]},
+  {id:'AR', label:'A Reefer',x:363, y:356, w:208, h:110, slots:[{l:'A3',teu:384},{l:'A2',teu:384},{l:'A1',teu:384}], reefer:true},
+];
+
+// Default RTG positions: "blockId:slotIndex" -> rtg number (e.g. "I:0" -> "01")
+let RTG_SLOTS = {
+  'I:0':'01','I:1':'04','I:2':'05','I:3':'06',
+  'J:0':'07','J:1':'08','J:2':'10','J:3':'11',
+  'K:0':'12','K:1':'13','K:2':'14','K:3':'16',
+  'O:0':'17','O:1':'18','O:2':'19','O:3':'20',
+  'P:0':'21','P:1':'22','P:2':'23',
+  'E:0':'24','E:1':'25','E:2':'26','E:3':'27','E:4':'28',
+  'D:0':'29','D:1':'32','D:2':'33','D:3':'34','D:4':'35',
+  'B:0':'36','B:1':'37','B:2':'38',
+  'BR:0':'39',
+  'X:0':'40','X:1':'41','X:2':'42','X:3':'43','X:4':'44',
+  'M:0':'M6','M:1':'M5','M:2':'M4','M:3':'M3','M:4':'M2',
+  'C:0':'C3','C:1':'C2','C:2':'C1',
+  'F:0':'F3','F:1':'F2','F:2':'F1',
+  'AR:0':'A3','AR:1':'A2','AR:2':'A1',
+};
+
+// Reverse lookup: rtg number -> slot key
+function getRTGSlot(num) {
+  return Object.entries(RTG_SLOTS).find(([k,v])=>v===num)?.[0]||null;
+}
 
 const SC = {
   'Available':            {fill:'#dcfce7',stroke:'#86efac',text:'#166534',pill:'p-av',color:'#059669'},
@@ -640,12 +603,267 @@ let data = {};
 let selId = null, selType = null, pendSt = null;
 let activeTypeFilter = 'All';
 
-// ── Sidebar toggle ──────────────────────────────────────
+// RTG 自由座標 { "01": {x,y}, ... }
+let RTG_POS_FREE = {};
+
+// Slot TEU 覆寫 { "I:0": 800, "J:2": 400, ... }
+let SLOT_TEU = {};
+
+// ── Load RTG positions from Firebase ─────────────────────
+async function loadRTGPositions() {
+  // 載入 SLOT_TEU
+  try {
+    const r2 = await fetch(`${FB}/slot_teu.json`);
+    const d2 = await r2.json();
+    if (d2 && typeof d2 === 'object') SLOT_TEU = d2;
+  } catch(e) {}
+  // 載入自由座標
+  try {
+    const r = await fetch(`${FB}/rtg_free_pos.json`);
+    const d = await r.json();
+    if (d && typeof d === 'object' && Object.keys(d).length > 0) {
+      RTG_POS_FREE = d;
+      renderRTGLayer();
+      return;
+    }
+  } catch(e) {}
+  RTG_POS_FREE = initFreePosFromSlots();
+  renderRTGLayer();
+}
+
+function renderRTGLayer() {
+  const layer = document.getElementById('rtg-layer');
+  if (!layer) return;
+  let svg = '';
+
+  // Block 背景 + slot 標籤（固定顯示，RTG 浮在上面）
+  BLOCKS.forEach(blk => {
+    const isReefer = blk.reefer;
+    const bgFill   = isReefer ? '#f0f9ff' : '#f8fafc';
+    const bgStroke = isReefer ? '#bae6fd' : '#e2e8f0';
+    const lblCol   = isReefer ? '#0369a1' : '#64748b';
+    svg += `<rect x="${blk.x}" y="${blk.y}" width="${blk.w}" height="${blk.h}" rx="3" fill="${bgFill}" stroke="${bgStroke}" stroke-width="0.8"/>`;
+    svg += `<text x="${blk.x+blk.w/2}" y="${blk.y+13}" text-anchor="middle" fill="${lblCol}" font-size="11" font-weight="600">${blk.label}</text>`;
+    blk.slots.forEach((slot, si) => {
+      const rowY = blk.y + 16 + si * 22;
+      const rowH = isReefer ? 16 : 20;
+      const teu = SLOT_TEU[`${blk.id}:${si}`] || slot.teu;
+      svg += `<rect x="${blk.x+4}" y="${rowY}" width="${blk.w-8}" height="${rowH}" rx="2" fill="${isReefer?bgFill:'#fff'}" stroke="${bgStroke}" stroke-width="0.5" stroke-dasharray="2 2"/>`;
+      svg += `<text x="${blk.x+blk.w/2}" y="${rowY+rowH/2+4}" text-anchor="middle" fill="${isReefer?'#93c5fd':'#94a3b8'}" font-size="10" font-weight="500">${slot.l}  ${teu} TEU</text>`;
+    });
+  });
+
+  // Roads
+  svg += `<rect x="51" y="196" width="849" height="8" rx="1" fill="#e2e8f0"/>`;
+  svg += `<rect x="51" y="344" width="849" height="8" rx="1" fill="#e2e8f0"/>`;
+  svg += `<rect x="59" y="438" width="140" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="129" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">F0-MTY</text>`;
+  svg += `<rect x="213" y="438" width="140" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="283" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">A0-MTY</text>`;
+
+  // ARMGC 四台
+  ['ARMGC-01','ARMGC-02','ARMGC-03','ARMGC-05'].forEach((id,i) => {
+    const fbKey = id.replace(/-/g,'_');
+    const eq = data[fbKey] || {};
+    const s  = SC[eq.status] || SC['Available'];
+    const x  = 59 + i * 48;
+    svg += `<g id="c-${id}" onmousedown="rtgMouseDown(event,'${id}')" oncontextmenu="event.preventDefault()" style="cursor:${dragMode?'grab':'pointer'}">
+      <rect x="${x}" y="44" width="42" height="22" rx="2" fill="${s.fill}" stroke="${s.stroke}" stroke-width="0.8"/>
+      <text x="${x+21}" y="58" text-anchor="middle" fill="${s.text}" font-size="9" font-weight="700">${id.replace('ARMGC-','AR-')}</text>
+    </g>`;
+  });
+
+  // RTG 自由浮動卡片
+  Object.entries(RTG_POS_FREE).forEach(([num, pos]) => {
+    const eqId  = 'RTG-'+num;
+    const fbKey = eqId.replace(/[\/\.\#\$\[\]-]/g,'_');
+    const eq    = data[fbKey] || {};
+    const s     = SC[eq.status] || SC['Available'];
+    const cx = pos.x, cy = pos.y;
+    const isGrabbing = dragMode && dragNum === num;
+    const w = 26, h = 20;
+    svg += `<g id="rtg-${num}" onmousedown="rtgMouseDown(event,'RTG-${num}')" oncontextmenu="event.preventDefault()" style="cursor:${dragMode?'grab':'pointer'}">
+      <rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="3"
+        fill="${s.fill}" stroke="${isGrabbing?'#1a56db':s.stroke}"
+        stroke-width="${isGrabbing?2:0.8}" opacity="${isGrabbing?0.4:1}"/>
+      <text x="${cx}" y="${cy+4}" text-anchor="middle" fill="${s.text}" font-size="${num.length>2?8:10}" font-weight="700">${num}</text>
+    </g>`;
+  });
+
+  // 調整模式提示
+  if (dragMode) {
+    svg += `<rect x="51" y="460" width="849" height="18" rx="3" fill="#1a56db" fill-opacity="0.85"/>`;
+    svg += `<text x="475" y="472" text-anchor="middle" fill="#fff" font-size="11">拖曳 RTG 到任意位置 · 左鍵查看狀態 · 確定儲存</text>`;
+  }
+
+  layer.innerHTML = svg;
+}
+
+// ── 自由座標拖曳系統 ─────────────────────────────────────
+let dragMode    = false;
+let dragNum     = null;
+let dragOffX    = 0, dragOffY = 0;
+let RTG_POS_FREE_BACKUP = null;
+
+function initFreePosFromSlots() {
+  const pos = {};
+  BLOCKS.forEach(blk => {
+    blk.slots.forEach((slot, si) => {
+      const slotKey = `${blk.id}:${si}`;
+      const num = RTG_SLOTS[slotKey];
+      if (!num) return;
+      const rowH = blk.reefer ? 16 : 20;
+      pos[num] = { x: blk.x + 15, y: blk.y + 16 + si * 22 + rowH/2 };
+    });
+  });
+  return pos;
+}
+
+function enterAdjustMode() {
+  if (dragMode) return;
+  RTG_POS_FREE_BACKUP = JSON.parse(JSON.stringify(RTG_POS_FREE));
+  dragMode = true;
+  showDragBar();
+  renderRTGLayer();
+}
+
+function rtgMouseDown(e, fullId) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (!dragMode) {
+    if (e.button === 0) {
+      const type = fullId.startsWith('ARMGC') ? 'ARMGC' : 'RTG';
+      selEq(fullId, type);
+    } else if (e.button === 2) {
+      enterAdjustMode();
+      startFreeDrag(e, fullId);
+    }
+    return;
+  }
+  startFreeDrag(e, fullId);
+}
+
+function startFreeDrag(e, fullId) {
+  const num = fullId.replace('RTG-','');
+  const svg = document.getElementById('map-svg');
+  const rect = svg.getBoundingClientRect();
+  const scaleX = 900/rect.width, scaleY = 580/rect.height;
+  const svgX = (e.clientX-rect.left)*scaleX;
+  const svgY = (e.clientY-rect.top)*scaleY;
+  const cur  = RTG_POS_FREE[num] || {x:svgX,y:svgY};
+  dragNum  = num;
+  dragOffX = svgX - cur.x;
+  dragOffY = svgY - cur.y;
+  renderRTGLayer();
+}
+
+// 找滑鼠 X 位置最近的 Block，並 snap Y 到該 block 的行
+function snapToBlock(svgX, svgY) {
+  let nearest = null, minDist = Infinity;
+  BLOCKS.forEach(blk => {
+    const cx = blk.x + blk.w/2;
+    const dist = Math.abs(svgX - cx);
+    if (dist < minDist) { minDist = dist; nearest = blk; }
+  });
+  if (!nearest) return {x: svgX, y: svgY};
+  // Clamp X within block
+  const snapX = Math.max(nearest.x + 13, Math.min(nearest.x + nearest.w - 13, svgX));
+  // Snap Y to nearest slot row in that block
+  let bestY = nearest.y + 26, bestDist = Infinity;
+  nearest.slots.forEach((slot, si) => {
+    const rowH = nearest.reefer ? 16 : 20;
+    const rowCY = nearest.y + 16 + si * 22 + rowH/2;
+    const d = Math.abs(svgY - rowCY);
+    if (d < bestDist) { bestDist = d; bestY = rowCY; }
+  });
+  return {x: snapX, y: bestY};
+}
+
+document.addEventListener('mousemove', e => {
+  if (!dragMode || !dragNum) return;
+  const svg = document.getElementById('map-svg');
+  if (!svg) return;
+  const rect = svg.getBoundingClientRect();
+  const scaleX = 900/rect.width, scaleY = 580/rect.height;
+  const svgX = (e.clientX-rect.left)*scaleX - dragOffX;
+  const svgY = (e.clientY-rect.top)*scaleY  - dragOffY;
+  // X 自由，Y 限制在 20~490
+  RTG_POS_FREE[dragNum] = {x:Math.max(55,Math.min(895,svgX)),y:Math.max(20,Math.min(490,svgY))};
+  renderRTGLayer();
+});
+
+document.addEventListener('mouseup', e => {
+  if (!dragMode || !dragNum) return;
+  // Snap to nearest block on release
+  const cur = RTG_POS_FREE[dragNum];
+  if (cur) RTG_POS_FREE[dragNum] = snapToBlock(cur.x, cur.y);
+  dragNum = null;
+  renderRTGLayer();
+});
+
+document.addEventListener('touchmove', e => {
+  if (!dragMode || !dragNum) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const svg = document.getElementById('map-svg');
+  if (!svg) return;
+  const rect = svg.getBoundingClientRect();
+  const scaleX = 900/rect.width, scaleY = 580/rect.height;
+  RTG_POS_FREE[dragNum] = {
+    x: Math.max(55,Math.min(895,(t.clientX-rect.left)*scaleX-dragOffX)),
+    y: Math.max(25,Math.min(488,(t.clientY-rect.top)*scaleY-dragOffY))
+  };
+  renderRTGLayer();
+},{passive:false});
+
+document.addEventListener('touchend', e=>{
+  if(!dragMode||!dragNum) return;
+  dragNum=null; renderRTGLayer();
+});
+
+function showDragBar() {
+  const bar = document.getElementById('topbar-right');
+  if (!bar) return;
+  bar.innerHTML = `
+    <span style="font-size:12px;color:var(--orange);font-weight:600">✏️ 位置調整模式</span>
+    <button class="btn-sm" onclick="confirmDrag()" style="background:var(--green);border-color:var(--green);color:#fff;font-weight:600">✓ 確定</button>
+    <button class="btn-sm" onclick="cancelDragMode()">✕ 取消</button>`;
+}
+
+function hideDragBar() {
+  const bar = document.getElementById('topbar-right');
+  if (!bar) return;
+  bar.innerHTML = `
+    <button class="btn-sm" onclick="enterAdjustMode()">✏️ 調整位置</button>
+    <button class="btn-sm" onclick="addToHome()">＋ 加到首頁</button>`;
+}
+
+async function confirmDrag() {
+  dragMode = false; dragNum = null;
+  RTG_POS_FREE_BACKUP = null;
+  hideDragBar();
+  renderRTGLayer();
+  try {
+    await fetch(`${FB}/rtg_free_pos.json`,{
+      method:'PUT',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(RTG_POS_FREE)
+    });
+  } catch(e){}
+}
+
+function cancelDragMode() {
+  if (RTG_POS_FREE_BACKUP) RTG_POS_FREE = JSON.parse(JSON.stringify(RTG_POS_FREE_BACKUP));
+  dragMode = false; dragNum = null;
+  RTG_POS_FREE_BACKUP = null;
+  hideDragBar();
+  renderRTGLayer();
+}
+
+
+// ── Sidebar toggle ───────────────────────────────────────
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('collapsed');
 }
 
-// ── Nav ─────────────────────────────────────────────────
+// ── Nav ──────────────────────────────────────────────────
 const PAGE_TITLES = {
   map:'地圖狀態', allEq:'全車機監控', secondary:'非主力車機', trailer:'拖車板台連結',
   realtime:'即時報表', history:'歷史查詢', maintenance:'保養計畫',
@@ -659,6 +877,7 @@ function navTo(page, el){
   document.getElementById('topbar-title').textContent = PAGE_TITLES[page]||page;
   if(page==='allEq') renderAllEq();
   if(page==='realtime') renderRealtime();
+  if(page==='admin') renderTEUEditor();
   if(page==='history'){
     const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
     document.getElementById('h-from').value=`${y}-${m}-01`;
@@ -666,14 +885,56 @@ function navTo(page, el){
   }
 }
 
-// ── Firebase poll ────────────────────────────────────────
+function renderTEUEditor() {
+  const el = document.getElementById('teu-editor');
+  if (!el) return;
+  el.innerHTML = BLOCKS.map(blk =>
+    blk.slots.map((slot, si) => {
+      const key = `${blk.id}:${si}`;
+      const cur = SLOT_TEU[key] !== undefined ? SLOT_TEU[key] : slot.teu;
+      return `<div style="display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:7px 10px">
+        <span style="font-size:12px;font-weight:600;color:var(--text2);min-width:56px">${blk.label} ${slot.l}</span>
+        <input type="number" value="${cur}" min="0" max="9999" step="10"
+          style="width:70px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:12px;text-align:right;font-family:inherit;outline:none"
+          onchange="SLOT_TEU['${key}']=parseInt(this.value)||0;renderRTGLayer()"
+          id="teu-${key.replace(':','-')}"/>
+        <span style="font-size:11px;color:var(--text3)">TEU</span>
+      </div>`;
+    }).join('')
+  ).join('');
+}
+
+async function saveTEU() {
+  try {
+    await fetch(`${FB}/slot_teu.json`,{
+      method:'PUT',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(SLOT_TEU)
+    });
+    alert('TEU 容量已儲存 ✓');
+  } catch(e) { alert('儲存失敗：'+e.message); }
+}
+
+async function resetRTGPos() {
+  if (!confirm('確定要重置所有 RTG 位置到預設？')) return;
+  RTG_POS_FREE = initFreePosFromSlots();
+  try {
+    await fetch(`${FB}/rtg_free_pos.json`,{
+      method:'PUT',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(RTG_POS_FREE)
+    });
+  } catch(e){}
+  renderRTGLayer();
+  alert('位置已重置 ✓');
+}
+
+// ── Firebase poll ─────────────────────────────────────────
 async function poll(){
   try{
     const r = await fetch(`${FB}/equipment.json`);
     const d2 = await r.json();
     if(!d2) return;
     data = d2;
-    updateKPI(); updateMap(); updateAlerts(); updateAllEq(); updateRealtime();
+    updateKPI(); renderRTGLayer(); updateMap(); updateAlerts(); updateAllEq(); updateRealtime();
     document.getElementById('sync-label').textContent = 'Synced '+new Date().toLocaleTimeString('en-GB');
     document.getElementById('sync-dot').style.background='#059669';
   }catch(e){
@@ -682,7 +943,7 @@ async function poll(){
   }
 }
 
-// ── KPI ─────────────────────────────────────────────────
+// ── KPI ──────────────────────────────────────────────────
 function updateKPI(){
   const vals=Object.values(data), total=vals.length;
   const c={};vals.forEach(v=>c[v.status]=(c[v.status]||0)+1);
@@ -694,18 +955,20 @@ function updateKPI(){
   });
 }
 
-// ── Map update ───────────────────────────────────────────
+// ── Map update (GC + ARMGC only, RTG handled by renderRTGLayer) ──
 function updateMap(){
-  Object.entries(data).forEach(([key,eq])=>{
-    const id=eq.machine_id||key.replace(/_/g,'-');
-    const g=document.getElementById('c-'+id); if(!g) return;
-    const s=SC[eq.status]||SC['Out Of Service'];
-    const r=g.querySelector('rect'); if(r){r.setAttribute('fill',s.fill);r.setAttribute('stroke',s.stroke);}
-    const t=g.querySelector('text'); if(t) t.setAttribute('fill',s.text);
+  // Update ARMGC
+  ['ARMGC-01','ARMGC-02','ARMGC-03','ARMGC-05'].forEach(id => {
+    const g = document.getElementById('c-'+id); if(!g) return;
+    const key = id.replace(/[\/\.\#\$\[\]-]/g,'_');
+    const eq = data[key]; if(!eq) return;
+    const s = SC[eq.status]||SC['Available'];
+    const r = g.querySelector('rect'); if(r){r.setAttribute('fill',s.fill);r.setAttribute('stroke',s.stroke);}
+    const t = g.querySelector('text'); if(t) t.setAttribute('fill',s.text);
   });
 }
 
-// ── Alerts ───────────────────────────────────────────────
+// ── Alerts ────────────────────────────────────────────────
 function updateAlerts(){
   const bad=Object.values(data).filter(e=>['Emergency Maintenance','Out Of Service','Damaged'].includes(e.status));
   document.getElementById('alert-badge').textContent=bad.length;
@@ -721,7 +984,7 @@ function updateAlerts(){
   }).join('');
 }
 
-// ── Select eq ────────────────────────────────────────────
+// ── Select eq ─────────────────────────────────────────────
 function selEq(id,type){
   selId=id; selType=type; pendSt=null;
   const key=id.replace(/[\/\.\#\$\[\]-]/g,'_');
@@ -787,25 +1050,21 @@ async function loadEqHist(id,type){
   }catch(e){el.innerHTML='<div style="color:var(--text3);font-size:12px">Failed</div>';}
 }
 
-// ── All EQ ───────────────────────────────────────────────
+// ── All EQ ────────────────────────────────────────────────
 function updateAllEq(){ if(document.getElementById('page-allEq').classList.contains('active')) renderAllEq(); }
 function renderAllEq(){
   const search=(document.getElementById('eq-search')?.value||'').toLowerCase();
   const vals=Object.values(data);
   const types=['All',...new Set(vals.map(e=>e.machine_type).filter(Boolean)).values()].sort();
-
-  // Build type filters once
   const tf=document.getElementById('type-filters');
   if(tf&&tf.children.length!==types.length){
     tf.innerHTML=types.map(t=>`<div class="filter-chip${t===activeTypeFilter?' active':''}" onclick="setTypeFilter('${t}',this)">${t}</div>`).join('');
   }
-
   const filtered=vals.filter(e=>{
     const matchT=activeTypeFilter==='All'||e.machine_type===activeTypeFilter;
     const matchS=!search||(e.machine_id||'').toLowerCase().includes(search)||(e.machine_type||'').toLowerCase().includes(search);
     return matchT&&matchS;
   }).sort((a,b)=>(a.machine_type||'').localeCompare(b.machine_type||'')||(a.machine_id||'').localeCompare(b.machine_id||''));
-
   const grid=document.getElementById('all-eq-grid');
   if(!filtered.length){grid.innerHTML='<div style="padding:40px;color:var(--text3);text-align:center">No results</div>';return;}
   grid.innerHTML=filtered.map(e=>{
@@ -825,7 +1084,7 @@ function setTypeFilter(t,el){
   renderAllEq();
 }
 
-// ── Realtime report ──────────────────────────────────────
+// ── Realtime report ───────────────────────────────────────
 function updateRealtime(){ if(document.getElementById('page-realtime').classList.contains('active')) renderRealtime(); }
 function renderRealtime(){
   const vals=Object.values(data), total=vals.length; if(!total) return;
@@ -847,14 +1106,12 @@ function renderRealtime(){
       <span style="font-size:11px;color:var(--text2)">${s.replace(' Maintenance','')}</span>
       <span style="margin-left:8px;font-weight:600;font-size:11px">${Math.round(n/total*100)}%</span></div>`;
   }).join('');
-
   const types={};vals.forEach(v=>types[v.machine_type]=(types[v.machine_type]||0)+1);
   const maxT=Math.max(...Object.values(types));
   document.getElementById('type-bars').innerHTML=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`
     <div class="bar-row"><div class="bar-label">${t}</div>
     <div class="bar-track"><div class="bar-fill" style="width:${n/maxT*100}%;background:var(--blue)"></div></div>
     <div class="bar-val">${n}</div></div>`).join('');
-
   const bad=vals.filter(e=>['Emergency Maintenance','Out Of Service','Damaged'].includes(e.status));
   const da=document.getElementById('dash-abnormal');
   da.innerHTML=bad.length?bad.map(e=>{const s=SC[e.status]||SC['Out Of Service'];
@@ -866,7 +1123,7 @@ function renderRealtime(){
     :'<div style="color:var(--text3);font-size:13px">All equipment operational ✅</div>';
 }
 
-// ── History ──────────────────────────────────────────────
+// ── History ───────────────────────────────────────────────
 async function loadHistory(){
   const from=document.getElementById('h-from').value;
   const to=document.getElementById('h-to').value;
@@ -888,23 +1145,23 @@ async function loadHistory(){
   }catch(e){st.textContent='Error: '+e.message;}
 }
 
-// ── KPI filter ───────────────────────────────────────────
+// ── KPI filter ────────────────────────────────────────────
 function filterKPI(s,el){
   document.querySelectorAll('.kpi-card').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
 }
 
-// ── Add to home (placeholder) ────────────────────────────
 function addToHome(){
   const title=document.getElementById('topbar-title').textContent;
   alert(`"${title}" 加到首頁功能即將推出！`);
 }
 
-// Init history date
+// Init
 const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
 document.getElementById('h-from').value=`${y}-${m}-01`;
 document.getElementById('h-to').value=`${y}-${m}-${d}`;
 
+loadRTGPositions();
 poll();
 setInterval(poll,3000);
 </script>
