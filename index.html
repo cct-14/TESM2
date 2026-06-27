@@ -1027,7 +1027,7 @@ function getNow() {
 
 // 所有可用功能定義
 const ALL_FEATURES = [
-  {id:'movelog',  label:'📋 移動紀錄'},
+  {id:'movelog',  label:'📋 車機調動紀錄'},
   {id:'teu',      label:'📦 TEU 管理'},
   {id:'announce', label:'📢 公告'},
   {id:'maintain', label:'🔧 保養計畫'},
@@ -1179,7 +1179,7 @@ function renderFeaturePanel(featureId, deptKey) {
   if (featureId==='movelog')  {
     panel.innerHTML=`
       <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
-        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">📋 RTG/GC 移動紀錄</div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">📋 車機調動紀錄</div>
         <div id="move-log-list" style="max-height:520px;overflow-y:auto"><div class="loading"><div class="spin"></div></div></div>
       </div>`;
     loadMoveLog();
