@@ -623,18 +623,34 @@ async function loadRTGPositions() {
     if (dg && typeof dg === 'object' && Object.keys(dg).length>0) GC_POS = dg;
   } catch(e) {}
   renderGCLayer();
-  // 載入 RTG 自由座標
+  // 載入 RTG 自由座標（只接受 01-44 的數字編號）
+  const validNums = new Set(Object.values(RTG_SLOTS));
   try {
     const r = await fetch(`${FB}/rtg_free_pos.json`);
     const d = await r.json();
-    if (d && typeof d === 'object' && Object.keys(d).length > 0) {
-      RTG_POS_FREE = d;
-      renderRTGLayer();
-      return;
+    if (d && typeof d === 'object') {
+      // 過濾只保留 01-44
+      const filtered = {};
+      Object.entries(d).forEach(([num, pos]) => {
+        if (validNums.has(num) && pos && typeof pos.x === 'number') filtered[num] = pos;
+      });
+      if (Object.keys(filtered).length > 0) {
+        RTG_POS_FREE = filtered;
+        renderRTGLayer();
+        return;
+      }
     }
   } catch(e) {}
+  // 重新初始化並存回 Firebase
   RTG_POS_FREE = initFreePosFromSlots();
   renderRTGLayer();
+  // 清掉舊的 Firebase 資料
+  try {
+    await fetch(`${FB}/rtg_free_pos.json`,{
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(RTG_POS_FREE)
+    });
+  } catch(e) {}
 }
 
 function renderRTGLayer() {
