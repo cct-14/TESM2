@@ -620,7 +620,11 @@ async function loadRTGPositions() {
   try {
     const rg = await fetch(`${FB}/gc_pos.json`);
     const dg = await rg.json();
-    if (dg && typeof dg === 'object' && Object.keys(dg).length > 0) GC_POS = dg;
+    if (dg && typeof dg === 'object') {
+      Object.entries(dg).forEach(([k,v]) => {
+        if (v && typeof v.x === 'number') GC_POS[k] = v;
+      });
+    }
   } catch(e) {}
   renderGCLayer();
 
@@ -726,6 +730,7 @@ function renderGCLayer() {
   if (!layer) return;
   let svg = '';
   Object.entries(GC_POS).forEach(([num, pos]) => {
+    if (!pos || typeof pos.x !== 'number') return;
     const axis  = GC_AXIS[num];
     const gcId  = `GC-${num}`;
     const spId  = GC_SP[num] ? `/${GC_SP[num]}` : '';
