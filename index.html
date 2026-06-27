@@ -628,25 +628,11 @@ async function loadRTGPositions() {
   } catch(e) {}
   renderGCLayer();
 
-  // 先用預設位置初始化
+  // 先用預設位置初始化（忽略 Firebase 舊資料）
   RTG_POS_FREE = initFreePosFromSlots();
 
-  // 再嘗試從 Firebase 載入並 merge（只接受已知的 RTG 編號）
-  const validNums = new Set(Object.values(RTG_SLOTS));
-  try {
-    const r = await fetch(`${FB}/rtg_free_pos.json`);
-    const d = await r.json();
-    if (d && typeof d === 'object') {
-      let validCount = 0;
-      Object.entries(d).forEach(([num, pos]) => {
-        if (validNums.has(num) && pos && typeof pos.x === 'number' && typeof pos.y === 'number') {
-          RTG_POS_FREE[num] = pos;
-          validCount++;
-        }
-      });
-      console.log('Loaded', validCount, 'valid RTG positions from Firebase');
-    }
-  } catch(e) {}
+  // TODO: 之後確認座標正確後，再啟用 Firebase 載入
+  // try { ... } catch(e) {}
 
   renderRTGLayer();
 }
@@ -789,11 +775,14 @@ function initFreePosFromSlots() {
   const pos = {};
   BLOCKS.forEach(blk => {
     blk.slots.forEach((slot, si) => {
-      const slotKey = `${blk.id}:${si}`;
+      const slotKey = blk.id+':'+si;
       const num = RTG_SLOTS[slotKey];
       if (!num) return;
       const rowH = blk.reefer ? 16 : 20;
-      pos[num] = { x: blk.x + 15, y: blk.y + 16 + si * 22 + rowH/2 };
+      const rowY = blk.y + 16 + si * 22;
+      // X: Block 左側數字色塊中心 (blk.x + 4 + 22/2 = blk.x + 15)
+      // Y: 行的垂直中心
+      pos[num] = { x: blk.x + 15, y: rowY + rowH/2 };
     });
   });
   return pos;
