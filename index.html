@@ -87,14 +87,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── KPI BAR ── */
 .kpi-bar{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0}
-.kpi-card{flex:1;padding:10px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;border-right:1px solid var(--border);border-bottom:2px solid transparent;transition:all .12s;min-width:0}
+.kpi-card{flex:1;padding:6px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;border-right:1px solid var(--border);border-bottom:2px solid transparent;transition:all .12s;min-width:0}
 .kpi-card:last-child{border-right:none}
 .kpi-card:hover{background:var(--bg2)}
 .kpi-card.active{border-bottom-color:var(--blue);background:var(--blue-l)}
-.kpi-icon{font-size:18px;flex-shrink:0}
-.kpi-num{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px}
-.kpi-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
-.kpi-pct{font-size:10px;font-weight:600;margin-top:1px}
+.kpi-icon{font-size:14px;flex-shrink:0}
+.kpi-num{font-size:16px;font-weight:700;line-height:1;letter-spacing:-.3px}
+.kpi-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
+.kpi-pct{font-size:9px;font-weight:600;margin-top:1px}
 
 /* ── PAGES ── */
 .content{flex:1;overflow:hidden;display:flex;flex-direction:column}
@@ -328,15 +328,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- 跑馬燈 -->
-  <div style="background:var(--blue);height:28px;display:flex;align-items:center;overflow:hidden;flex-shrink:0">
-    <div style="background:#1648c0;padding:0 12px;height:100%;display:flex;align-items:center;flex-shrink:0">
-      <span style="font-size:10px;font-weight:700;color:#bfdbfe;letter-spacing:.08em;white-space:nowrap">最新更新</span>
+  <!-- 跑馬燈 1：更新日誌 -->
+  <div style="background:#1e40af;height:26px;display:flex;align-items:center;overflow:hidden;flex-shrink:0">
+    <div style="background:#1648c0;padding:0 10px;height:100%;display:flex;align-items:center;flex-shrink:0;gap:5px">
+      <span style="font-size:9px;font-weight:700;color:#bfdbfe;letter-spacing:.08em;white-space:nowrap">📋 更新</span>
     </div>
-    <div style="flex:1;overflow:hidden;position:relative;height:100%">
+    <div style="flex:1;overflow:hidden;height:100%">
       <div id="marquee-track" style="display:flex;align-items:center;height:100%;white-space:nowrap;animation:marquee 30s linear infinite">
-        <span id="marquee-text" style="font-size:12px;color:#e0f2fe;padding:0 60px">載入中...</span>
-        <span id="marquee-text2" style="font-size:12px;color:#e0f2fe;padding:0 60px" aria-hidden="true"></span>
+        <span id="marquee-text" style="font-size:11px;color:#e0f2fe;padding:0 40px">載入中...</span>
+        <span id="marquee-text2" style="font-size:11px;color:#e0f2fe;padding:0 40px" aria-hidden="true"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 跑馬燈 2：公告系統 -->
+  <div style="background:#b45309;height:26px;display:flex;align-items:center;overflow:hidden;flex-shrink:0">
+    <div style="background:#92400e;padding:0 10px;height:100%;display:flex;align-items:center;flex-shrink:0;gap:5px">
+      <span style="font-size:9px;font-weight:700;color:#fde68a;letter-spacing:.08em;white-space:nowrap">📢 公告</span>
+    </div>
+    <div style="flex:1;overflow:hidden;height:100%">
+      <div id="announce-track" style="display:flex;align-items:center;height:100%;white-space:nowrap;animation:marquee 25s linear infinite">
+        <span id="announce-text" style="font-size:11px;color:#fef3c7;padding:0 40px">暫無公告</span>
+        <span id="announce-text2" style="font-size:11px;color:#fef3c7;padding:0 40px" aria-hidden="true"></span>
       </div>
     </div>
   </div>
@@ -575,8 +588,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
             <!-- Tab panels -->
             <div id="admin-panel-opd" style="display:none">
-              <!-- OPD 移動紀錄 -->
+              <!-- TEU 編輯（OPD 可操作）-->
               <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px">
+                <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between">
+                  📦 Slot TEU 容量設定
+                  <button class="btn-sm btn-primary" onclick="saveTEU()">儲存</button>
+                </div>
+                <div style="padding:12px 16px">
+                  <div style="font-size:12px;color:var(--text3);margin-bottom:12px">修改每個 slot 的 TEU 容量</div>
+                  <div id="teu-editor" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px"></div>
+                </div>
+              </div>
+              <!-- OPD 移動紀錄 -->
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
                 <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">📋 RTG/GC 移動紀錄</div>
                 <div id="move-log-list" style="max-height:400px;overflow-y:auto">
                   <div class="loading"><div class="spin"></div> Loading...</div>
@@ -607,20 +631,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </div>
 
             <div id="admin-panel-14" style="display:none">
-              <!-- 更新日誌（Firebase） -->
+              <!-- 公告系統 -->
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px">
+                <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">📢 公告系統</div>
+                <div style="padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                  <span id="announce-time-display" style="font-size:12px;color:var(--text3);white-space:nowrap"></span>
+                  <input id="announce-input" placeholder="輸入公告內容" class="eq-input" style="flex:1;min-width:200px"
+                    onfocus="document.getElementById('announce-time-display').textContent=getNow()"/>
+                  <button class="btn-sm btn-primary" onclick="addAnnounce(document.getElementById('announce-input').value.trim());document.getElementById('announce-input').value=''">發布</button>
+                </div>
+                <div id="announce-admin-list" style="max-height:200px;overflow-y:auto"></div>
+              </div>
+              <!-- 更新日誌 -->
               <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px">
                 <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">📝 更新日誌</div>
-                <div style="padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap">
-                  <select id="log-type" class="eq-input" style="width:120px">
+                <div style="padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <span style="font-size:10px;color:var(--text3);text-transform:uppercase">時間</span>
+                    <input id="log-date-display" class="eq-input" style="width:130px;font-size:11px" readonly/>
+                  </div>
+                  <select id="log-type" class="eq-input" style="width:110px">
                     <option value="feature">✨ 新功能</option>
                     <option value="improve">🔧 改善</option>
                     <option value="fix">🐛 修復</option>
                   </select>
-                  <input id="log-version" placeholder="版本 e.g. v1.3.0" class="eq-input" style="width:130px"/>
-                  <input id="log-content" placeholder="更新內容" class="eq-input" style="flex:1;min-width:200px"/>
+                  <input id="log-version" placeholder="版本 v1.0.0" class="eq-input" style="width:120px"/>
+                  <input id="log-content" placeholder="更新內容" class="eq-input" style="flex:1;min-width:200px"
+                    onfocus="document.getElementById('log-date-display').value=getNow()"/>
                   <button class="btn-sm btn-primary" onclick="addChangeLog()">新增</button>
                 </div>
-                <div id="changelog-list" style="max-height:500px;overflow-y:auto"></div>
+                <div id="changelog-list" style="max-height:400px;overflow-y:auto"></div>
               </div>
               <!-- 密碼管理 -->
               <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
@@ -1075,7 +1115,11 @@ function cancelDragMode() {
 }
 
 
-// ── 密碼系統 ─────────────────────────────────────────────
+// 取當下時間字串
+function getNow() {
+  return new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',
+    year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
 let PASSWORDS = { mtd:'CCTMTD', opd:'CCTOPD', '14':'CCT2026' };
 let currentRole = null;
 
@@ -1134,9 +1178,9 @@ function switchAdminTab(id, btn) {
   const el = document.getElementById('admin-panel-'+id);
   if (el) el.style.display = 'block';
   if (btn) { btn.style.borderBottomColor='var(--blue)'; btn.style.color='var(--blue)'; btn.style.fontWeight='600'; }
-  if (id==='opd')  loadMoveLog();
+  if (id==='opd')  { loadMoveLog(); renderTEUEditor(); }
   if (id==='mtd')  renderTEUEditor();
-  if (id==='14')   loadChangelog();
+  if (id==='14')   { loadChangelog(); loadAnnounceAdmin(); }
 }
 
 function changePw(role) {
@@ -1219,10 +1263,8 @@ async function addChangeLog() {
   const version = document.getElementById('log-version').value.trim();
   const content = document.getElementById('log-content').value.trim();
   if (!version || !content) return;
-  const entry = {
-    date: new Date().toLocaleDateString('zh-TW'),
-    version, type, content
-  };
+  const now = document.getElementById('log-date-display')?.value || getNow();
+  const entry = { date: now, version, type, content };
   try {
     await fetch(`${FB}/changelog.json`, {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -1250,7 +1292,9 @@ async function initMarquee() {
     if (!d) return;
     const typeIcon = {feature:'✨',improve:'🔧',fix:'🐛'};
     const entries = Object.values(d).reverse().slice(0,3);
-    const text = entries.map(e => `${typeIcon[e.type]||'📌'} ${e.version}  ${e.content}`).join('　　·　　');
+    const text = entries.map(e =>
+      `${typeIcon[e.type]||'📌'} [${e.date||''}] ${e.version}  ${e.content}`
+    ).join('　　·　　');
     const t1 = document.getElementById('marquee-text');
     const t2 = document.getElementById('marquee-text2');
     if (t1) t1.textContent = text;
@@ -1258,6 +1302,67 @@ async function initMarquee() {
     const duration = Math.max(20, text.length * 0.28);
     const track = document.getElementById('marquee-track');
     if (track) track.style.animationDuration = duration+'s';
+  } catch(e) {}
+}
+
+// ── 公告系統 ─────────────────────────────────────────────
+async function initAnnounce() {
+  try {
+    const r = await fetch(`${FB}/announce.json`);
+    const d = await r.json();
+    if (!d) return;
+    const entries = Object.values(d)
+      .sort((a,b) => (b.time||'').localeCompare(a.time||''))
+      .slice(0,5);
+    if (!entries.length) return;
+    const text = entries.map(e => `[${e.time||''}] ${e.content||''}`).join('　　·　　');
+    const t1 = document.getElementById('announce-text');
+    const t2 = document.getElementById('announce-text2');
+    if (t1) t1.textContent = text;
+    if (t2) t2.textContent = text;
+    const duration = Math.max(15, text.length * 0.28);
+    const track = document.getElementById('announce-track');
+    if (track) track.style.animationDuration = duration+'s';
+  } catch(e) {}
+}
+
+async function addAnnounce(content) {
+  const now = new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',
+    year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  try {
+    await fetch(`${FB}/announce.json`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({content, time: now, role: currentRole||'admin'})
+    });
+    initAnnounce();
+    loadAnnounceAdmin();
+  } catch(e) {}
+}
+
+async function deleteAnnounce(key) {
+  if (!confirm('確定刪除？')) return;
+  try {
+    await fetch(`${FB}/announce/${key}.json`,{method:'DELETE'});
+    initAnnounce();
+    loadAnnounceAdmin();
+  } catch(e) {}
+}
+
+async function loadAnnounceAdmin() {
+  const el = document.getElementById('announce-admin-list');
+  if (!el) return;
+  try {
+    const r = await fetch(`${FB}/announce.json`);
+    const d = await r.json();
+    if (!d) { el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px">尚無公告</div>'; return; }
+    const entries = Object.entries(d).map(([k,v])=>({...v,key:k}))
+      .sort((a,b)=>(b.time||'').localeCompare(a.time||''));
+    el.innerHTML = entries.map(e=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--bg3);font-size:12px">
+        <span style="color:var(--text3);min-width:130px">${e.time||''}</span>
+        <span style="flex:1;color:var(--text)">${e.content||''}</span>
+        <button onclick="deleteAnnounce('${e.key}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px">✕</button>
+      </div>`).join('');
   } catch(e) {}
 }
 
@@ -1600,6 +1705,7 @@ document.getElementById('h-to').value=`${y}-${m}-${d}`;
 
 loadRTGPositions();
 initMarquee();
+initAnnounce();
 poll();
 setInterval(poll,3000);
 </script>
