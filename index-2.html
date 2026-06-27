@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CCT Overview</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sidebar-w:200px;
+  --sidebar-collapsed:52px;
+  --bg:#ffffff;
+  --bg2:#f5f6f8;
+  --bg3:#eef0f3;
+  --border:#e0e2e7;
+  --text:#1a1f2e;
+  --text2:#5a6278;
+  --text3:#9099b0;
+  --blue:#1a56db;
+  --blue-l:#eef3ff;
+  --green:#059669;
+  --green-l:#ecfdf5;
+  --orange:#ea580c;
+  --orange-l:#fff7ed;
+  --red:#dc2626;
+  --red-l:#fef2f2;
+  --purple:#7c3aed;
+  --purple-l:#f5f3ff;
+  --gray:#475569;
+  --gray-l:#f1f5f9;
+  --radius:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg2);color:var(--text);font-size:14px;line-height:1.5;display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .2s ease;overflow:hidden;z-index:50}
+.sidebar.collapsed{width:var(--sidebar-collapsed)}
+.sidebar-top{padding:0 12px;height:52px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-logo{width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.sidebar-logo:hover{background:#1648c0}
+.sidebar-logo svg{width:16px;height:16px;fill:#fff}
+.sidebar-title{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;letter-spacing:-.3px;transition:opacity .2s,width .2s;flex:1}
+.sidebar.collapsed .sidebar-title{opacity:0;width:0;overflow:hidden}
+.sidebar-toggle{width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0}
+.sidebar-toggle:hover{background:var(--bg2)}
+.sidebar-toggle svg{width:14px;height:14px}
+
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-group{margin-bottom:4px}
+.nav-group-label{padding:10px 14px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);white-space:nowrap;overflow:hidden}
+.sidebar.collapsed .nav-group-label{opacity:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-radius:6px;margin:1px 6px;transition:all .12s;position:relative;white-space:nowrap}
+.nav-item:hover{background:var(--bg2)}
+.nav-item.active{background:var(--blue-l);color:var(--blue)}
+.nav-item.active .nav-icon{color:var(--blue)}
+.nav-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border-radius:6px}
+.nav-label{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;transition:opacity .2s}
+.nav-item.active .nav-label{color:var(--blue)}
+.sidebar.collapsed .nav-label{opacity:0;width:0}
+.sidebar.collapsed .nav-group-label{height:0;padding:0;overflow:hidden}
+.nav-badge{margin-left:auto;background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sidebar.collapsed .nav-badge{display:none}
+
+/* Tooltip on collapsed */
+.nav-item[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:calc(var(--sidebar-collapsed) - 4px);top:50%;transform:translateY(-50%);background:#1a1f2e;color:#fff;font-size:12px;padding:5px 10px;border-radius:6px;white-space:nowrap;z-index:200;pointer-events:none}
+.sidebar:not(.collapsed) .nav-item[data-tip]:hover::after{display:none}
+
+.sidebar-bottom{padding:8px;border-top:1px solid var(--border);flex-shrink:0}
+.sync-row{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:6px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0}
+.sync-label{font-size:11px;color:var(--text3);overflow:hidden;white-space:nowrap}
+.sidebar.collapsed .sync-label{display:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:48px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text)}
+.topbar-sub{font-size:12px;color:var(--text3);margin-left:4px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn-sm{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:5px}
+.btn-sm:hover{background:var(--bg2)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:#1648c0}
+
+/* ── KPI BAR ── */
+.kpi-bar{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0}
+.kpi-card{flex:1;padding:10px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;border-right:1px solid var(--border);border-bottom:2px solid transparent;transition:all .12s;min-width:0}
+.kpi-card:last-child{border-right:none}
+.kpi-card:hover{background:var(--bg2)}
+.kpi-card.active{border-bottom-color:var(--blue);background:var(--blue-l)}
+.kpi-icon{font-size:18px;flex-shrink:0}
+.kpi-num{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px}
+.kpi-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
+.kpi-pct{font-size:10px;font-weight:600;margin-top:1px}
+
+/* ── PAGES ── */
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.page{display:none;flex:1;overflow:hidden}
+.page.active{display:flex;flex-direction:column}
+.page-scroll{flex:1;overflow:auto;padding:20px}
+
+/* ── MAP PAGE ── */
+.map-layout{flex:1;display:grid;grid-template-columns:1fr 300px;overflow:hidden}
+.map-area{padding:16px;overflow:auto;background:var(--bg2)}
+.map-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.side-panel{background:var(--bg);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.side-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.side-section{padding:10px 14px;border-bottom:1px solid var(--border)}
+.side-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px}
+.alert-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--bg3)}
+.alert-item:last-child{border-bottom:none}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-id{font-size:13px;font-weight:600}
+.alert-meta{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Eq detail */
+.eq-detail{padding:14px;overflow-y:auto;flex:1}
+.eq-name{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.eq-type{font-size:12px;color:var(--text3);margin-top:2px}
+.eq-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.s-btn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid;cursor:pointer;transition:all .12s}
+.s-av{background:var(--green-l);border-color:var(--green);color:var(--green)}
+.s-ru{background:var(--blue-l);border-color:var(--blue);color:var(--blue)}
+.s-em{background:var(--orange-l);border-color:var(--orange);color:var(--orange)}
+.s-oos{background:var(--gray-l);border-color:var(--gray);color:var(--gray)}
+.s-pm{background:var(--purple-l);border-color:var(--purple);color:var(--purple)}
+.s-dm{background:var(--red-l);border-color:var(--red);color:var(--red)}
+.eq-field{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.eq-input{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;outline:none;font-family:inherit;transition:border-color .12s}
+.eq-input:focus{border-color:var(--blue)}
+.eq-submit{padding:8px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;margin-top:2px}
+.hist-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg3);font-size:11px}
+.hist-row:last-child{border-bottom:none}
+.hist-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600;line-height:1.6}
+.p-av{background:var(--green-l);color:var(--green)}
+.p-ru{background:var(--blue-l);color:var(--blue)}
+.p-em{background:var(--orange-l);color:var(--orange)}
+.p-oos{background:var(--gray-l);color:var(--gray)}
+.p-pm{background:var(--purple-l);color:var(--purple)}
+.p-dm{background:var(--red-l);color:var(--red)}
+
+/* ── ALL EQ PAGE ── */
+.eq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;padding:16px}
+.eq-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .12s;position:relative}
+.eq-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.eq-card-dot{width:8px;height:8px;border-radius:50%;position:absolute;top:7px;right:7px}
+.eq-card-icon{font-size:24px;line-height:1}
+.eq-card-name{font-size:11px;font-weight:600;color:var(--text);text-align:center}
+.eq-card-status{font-size:10px;color:var(--text3);text-align:center}
+.eq-filter-bar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg);flex-shrink:0}
+.filter-chip{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);cursor:pointer;background:var(--bg);color:var(--text2);transition:all .12s}
+.filter-chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.eq-search{padding:6px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;outline:none;width:180px;font-family:inherit}
+.eq-search:focus{border-color:var(--blue)}
+
+/* ── DASHBOARD PAGE ── */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.widget{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.widget.w2{grid-column:span 2}
+.widget.w3{grid-column:span 3}
+.widget-head{padding:13px 16px 0;display:flex;align-items:center;justify-content:space-between}
+.widget-title{font-size:13px;font-weight:600}
+.widget-body{padding:12px 16px 14px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px}
+.bar-label{width:56px;text-align:right;color:var(--text2);flex-shrink:0}
+.bar-track{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s}
+.bar-val{width:28px;text-align:right;color:var(--text3);flex-shrink:0}
+.donut-wrap{display:flex;align-items:center;gap:16px}
+.donut-legend{display:flex;flex-direction:column;gap:5px}
+.donut-item{display:flex;align-items:center;gap:7px;font-size:11px}
+.donut-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* ── HISTORY PAGE ── */
+.hist-filters{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:16px;background:var(--bg);border-bottom:1px solid var(--border)}
+.hist-field{display:flex;flex-direction:column;gap:4px}
+.hist-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.hist-input{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:inherit}
+.hist-input:focus{border-color:var(--blue)}
+.hist-table{width:100%;border-collapse:collapse;font-size:13px}
+.hist-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0}
+.hist-table td{padding:10px 14px;border-bottom:1px solid var(--bg3);color:var(--text)}
+.hist-table tr:hover td{background:var(--bg2)}
+
+/* ── PLACEHOLDER PAGES ── */
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:var(--text3)}
+.placeholder-icon{font-size:48px;opacity:.3}
+.placeholder-title{font-size:16px;font-weight:600;color:var(--text2)}
+.placeholder-sub{font-size:13px;max-width:320px;text-align:center}
+.placeholder-badge{padding:4px 12px;border-radius:20px;background:var(--orange-l);color:var(--orange);font-size:11px;font-weight:600}
+
+/* ── LOADING ── */
+.spin{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;justify-content:center;padding:24px;gap:8px;color:var(--text3);font-size:12px}
+
+/* SVG map */
+.rtg-c{cursor:pointer}.rtg-c:hover rect:first-child{opacity:.8}
+.gc-c{cursor:pointer}.gc-c:hover rect:first-child{opacity:.8}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo" onclick="toggleSidebar()" style="cursor:pointer" title="收合/展開">
+      <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+    </div>
+    <span class="sidebar-title">TESM2</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-label">監控</div>
+      <div class="nav-item active" data-page="map" data-tip="地圖狀態" onclick="navTo('map',this)">
+        <div class="nav-icon">🗺</div>
+        <span class="nav-label">地圖狀態</span>
+      </div>
+      <div class="nav-item" data-page="allEq" data-tip="全車機監控" onclick="navTo('allEq',this)">
+        <div class="nav-icon">📟</div>
+        <span class="nav-label">全車機監控</span>
+      </div>
+      <div class="nav-item" data-page="secondary" data-tip="非主力車機" onclick="navTo('secondary',this)">
+        <div class="nav-icon">🚜</div>
+        <span class="nav-label">非主力車機</span>
+        <span class="nav-badge">soon</span>
+      </div>
+      <div class="nav-item" data-page="trailer" data-tip="拖車板台連結" onclick="navTo('trailer',this)">
+        <div class="nav-icon">🔗</div>
+        <span class="nav-label">拖車板台連結</span>
+        <span class="nav-badge">soon</span>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">報表</div>
+      <div class="nav-item" data-page="realtime" data-tip="即時報表" onclick="navTo('realtime',this)">
+        <div class="nav-icon">📊</div>
+        <span class="nav-label">即時報表</span>
+      </div>
+      <div class="nav-item" data-page="history" data-tip="歷史查詢" onclick="navTo('history',this)">
+        <div class="nav-icon">🕐</div>
+        <span class="nav-label">歷史查詢</span>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">管理</div>
+      <div class="nav-item" data-page="maintenance" data-tip="保養計畫" onclick="navTo('maintenance',this)">
+        <div class="nav-icon">🔧</div>
+        <span class="nav-label">保養計畫</span>
+        <span class="nav-badge">soon</span>
+      </div>
+      <div class="nav-item" data-page="notify" data-tip="即時故障通知" onclick="navTo('notify',this)">
+        <div class="nav-icon">🔔</div>
+        <span class="nav-label">即時故障通知</span>
+        <span class="nav-badge">soon</span>
+      </div>
+      <div class="nav-item" data-page="admin" data-tip="管理者介面" onclick="navTo('admin',this)">
+        <div class="nav-icon">⚙️</div>
+        <span class="nav-label">管理者介面</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="sync-row">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span class="sync-label" id="sync-label">Connecting...</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="topbar-title" id="topbar-title">地圖狀態</span>
+    <span class="topbar-sub" id="topbar-sub">Colon Container Terminal</span>
+    <div class="topbar-right" id="topbar-right">
+      <button class="btn-sm" id="topbar-action" onclick="addToHome()" title="加到首頁">
+        ＋ 加到首頁
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI BAR -->
+  <div class="kpi-bar">
+    <div class="kpi-card active" onclick="filterKPI('All',this)">
+      <div class="kpi-icon">🏭</div>
+      <div><div class="kpi-num" id="kpi-total">—</div><div class="kpi-label">Total</div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Available',this)">
+      <div class="kpi-icon">✅</div>
+      <div><div class="kpi-num" style="color:var(--green)" id="kpi-av">—</div><div class="kpi-label">Available</div><div class="kpi-pct" style="color:var(--green)" id="kpi-av-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Running',this)">
+      <div class="kpi-icon">🔵</div>
+      <div><div class="kpi-num" style="color:var(--blue)" id="kpi-ru">—</div><div class="kpi-label">Running</div><div class="kpi-pct" style="color:var(--blue)" id="kpi-ru-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Emergency Maintenance',this)">
+      <div class="kpi-icon">🔶</div>
+      <div><div class="kpi-num" style="color:var(--orange)" id="kpi-em">—</div><div class="kpi-label">Emergency</div><div class="kpi-pct" style="color:var(--orange)" id="kpi-em-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Out Of Service',this)">
+      <div class="kpi-icon">⛔</div>
+      <div><div class="kpi-num" style="color:var(--gray)" id="kpi-oos">—</div><div class="kpi-label">Out of Svc</div><div class="kpi-pct" style="color:var(--gray)" id="kpi-oos-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Planned Maintenance',this)">
+      <div class="kpi-icon">🔧</div>
+      <div><div class="kpi-num" style="color:var(--purple)" id="kpi-pm">—</div><div class="kpi-label">Planned</div><div class="kpi-pct" style="color:var(--purple)" id="kpi-pm-p"></div></div>
+    </div>
+    <div class="kpi-card" onclick="filterKPI('Damaged',this)">
+      <div class="kpi-icon">🔴</div>
+      <div><div class="kpi-num" style="color:var(--red)" id="kpi-dm">—</div><div class="kpi-label">Damaged</div><div class="kpi-pct" style="color:var(--red)" id="kpi-dm-p"></div></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- 1. MAP PAGE -->
+    <div class="page active" id="page-map">
+      <div class="map-layout">
+        <div class="map-area">
+          <div class="map-box">
+            <svg id="map-svg" width="100%" viewBox="0 0 910 610" xmlns="http://www.w3.org/2000/svg">
+<!-- Sea -->
+<rect x="0" y="0" width="46" height="500" fill="#dbeafe"/>
+<text x="23" y="250" text-anchor="middle" fill="#60a5fa" font-size="11" transform="rotate(-90,23,250)">MUELLE 3</text>
+<rect x="0" y="500" width="680" height="100" fill="#dbeafe"/>
+<!-- Pier labels bottom -->
+<text x="160" y="560" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="600">Pier 2</text>
+<text x="410" y="560" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="600">Pier 1</text>
+<!-- Quay -->
+<rect x="44" y="20" width="7" height="480" fill="#94a3b8"/>
+<rect x="44" y="500" width="640" height="7" fill="#94a3b8"/>
+<!-- Pier divider vertical (left quay mid) -->
+<line x1="44" y1="260" x2="52" y2="260" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3 2"/>
+<!-- Pier labels left -->
+<text x="20" y="145" text-anchor="middle" fill="#3b82f6" font-size="10" font-weight="600" transform="rotate(-90,20,145)">Pier 4</text>
+<text x="20" y="390" text-anchor="middle" fill="#3b82f6" font-size="10" font-weight="600" transform="rotate(-90,20,390)">Pier 3</text>
+<!-- Pier divider bottom (at x=340) -->
+<line x1="340" y1="500" x2="340" y2="508" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3 2"/>
+<!-- Land -->
+<rect x="51" y="20" width="859" height="480" fill="#f8fafc"/>
+
+<!-- GC dynamic layer -->
+<g id="gc-layer"></g>
+
+<!-- ARMGC 四台 固定兩排 -->
+<rect x="55" y="22" width="148" height="58" rx="3" fill="#faf5ff" stroke="#a78bfa" stroke-width="1"/>
+<text x="129" y="34" text-anchor="middle" fill="#7c3aed" font-size="10" font-weight="600">ARMGC</text>
+<!-- 上排：AR-03, AR-05 -->
+<g id="c-ARMGC-03" onclick="selEq('ARMGC-03','ARMGC')" style="cursor:pointer">
+  <rect x="59" y="38" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
+  <text x="90" y="50" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-03</text>
+</g>
+<g id="c-ARMGC-05" onclick="selEq('ARMGC-05','ARMGC')" style="cursor:pointer">
+  <rect x="127" y="38" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
+  <text x="158" y="50" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-05</text>
+</g>
+<!-- 下排：AR-01, AR-02 -->
+<g id="c-ARMGC-01" onclick="selEq('ARMGC-01','ARMGC')" style="cursor:pointer">
+  <rect x="59" y="58" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
+  <text x="90" y="70" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-01</text>
+</g>
+<g id="c-ARMGC-02" onclick="selEq('ARMGC-02','ARMGC')" style="cursor:pointer">
+  <rect x="127" y="58" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
+  <text x="158" y="70" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-02</text>
+</g>
+
+<!-- R area -->
+<rect x="209" y="24" width="86" height="48" rx="2" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8"/>
+<text x="252" y="42" text-anchor="middle" fill="#64748b" font-size="11">R area</text>
+<text x="252" y="56" text-anchor="middle" fill="#94a3b8" font-size="10">R1-R2</text>
+
+<!-- Dynamic RTG layer - rendered by JS -->
+<g id="rtg-layer"></g>
+
+<!-- Legend -->
+<rect x="640" y="370" width="225" height="110" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.8"/>
+<text x="752" y="388" text-anchor="middle" fill="#1a1f2e" font-size="12" font-weight="600">Status</text>
+<rect x="648" y="396" width="12" height="12" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/><text x="666" y="406" fill="#64748b" font-size="10">Available</text>
+<rect x="726" y="396" width="12" height="12" rx="2" fill="#eff6ff" stroke="#bfdbfe" stroke-width="0.8"/><text x="744" y="406" fill="#64748b" font-size="10">Running</text>
+<rect x="648" y="414" width="12" height="12" rx="2" fill="#fff7ed" stroke="#fed7aa" stroke-width="0.8"/><text x="666" y="424" fill="#64748b" font-size="10">Emergency</text>
+<rect x="726" y="414" width="12" height="12" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.8"/><text x="744" y="424" fill="#64748b" font-size="10">Out of svc</text>
+<rect x="648" y="432" width="12" height="12" rx="2" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="0.8"/><text x="666" y="442" fill="#64748b" font-size="10">Planned</text>
+<rect x="726" y="432" width="12" height="12" rx="2" fill="#fef2f2" stroke="#fca5a5" stroke-width="0.8"/><text x="744" y="442" fill="#64748b" font-size="10">Damaged</text>
+<rect x="648" y="450" width="12" height="10" rx="1" fill="#0e7490" stroke="#06b6d4" stroke-width="0.8"/><text x="666" y="459" fill="#64748b" font-size="10">GC crane</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Side panel -->
+        <div class="side-panel">
+          <div id="side-alerts" style="display:flex;flex-direction:column;overflow:hidden;flex:1">
+            <div class="side-header">⚠️ Alerts <span id="alert-badge" style="background:var(--orange-l);color:var(--orange);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">0</span></div>
+            <div style="overflow-y:auto;flex:1;padding:10px 14px">
+              <div class="side-section-label">Emergency / OOS / Damaged</div>
+              <div id="alert-list"><div class="loading"><div class="spin"></div> Loading...</div></div>
+            </div>
+          </div>
+
+          <div id="side-eq" style="display:none;flex:1;overflow:hidden;flex-direction:column">
+            <div class="side-header">
+              <button onclick="closeEq()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0;margin-right:6px">←</button>
+              Equipment
+            </div>
+            <div class="eq-detail">
+              <div class="eq-name" id="eq-name">—</div>
+              <div class="eq-type" id="eq-type">—</div>
+              <div style="margin-top:8px" id="eq-pill"></div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px" id="eq-crew-info"></div>
+              <div class="eq-actions" style="margin-top:12px">
+                <button class="s-btn s-av" onclick="setStatus('Available')">Available</button>
+                <button class="s-btn s-ru" onclick="setStatus('Running')">Running</button>
+                <button class="s-btn s-em" onclick="setStatus('Emergency Maintenance')">Emergency</button>
+                <button class="s-btn s-oos" onclick="setStatus('Out Of Service')">OOS</button>
+                <button class="s-btn s-pm" onclick="setStatus('Planned Maintenance')">Planned</button>
+                <button class="s-btn s-dm" onclick="setStatus('Damaged')">Damaged</button>
+              </div>
+              <div class="eq-field">
+                <input class="eq-input" id="eq-crew" placeholder="Reporter"/>
+                <input class="eq-input" id="eq-note" placeholder="Notes"/>
+                <button class="eq-submit" id="eq-submit-btn" onclick="submitEq()" style="opacity:.5;cursor:default">Select a status first</button>
+              </div>
+              <div style="margin-top:14px;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">History</div>
+              <div id="eq-hist"><div class="loading"><div class="spin"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ALL EQ PAGE -->
+    <div class="page" id="page-allEq">
+      <div class="eq-filter-bar">
+        <input class="eq-search" id="eq-search" placeholder="Search equipment..." oninput="renderAllEq()"/>
+        <div id="type-filters" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div style="overflow:auto;flex:1">
+        <div class="eq-grid" id="all-eq-grid"><div class="loading"><div class="spin"></div> Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- 3. REALTIME REPORT PAGE -->
+    <div class="page" id="page-realtime">
+      <div class="page-scroll">
+        <div class="dash-grid">
+          <div class="widget">
+            <div class="widget-head"><div class="widget-title">Status distribution</div></div>
+            <div class="widget-body">
+              <div class="donut-wrap">
+                <svg width="80" height="80" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="#f1f5f9" stroke-width="12"/>
+                  <circle id="d-av" cx="40" cy="40" r="28" fill="none" stroke="#059669" stroke-width="12" stroke-dasharray="0 175.9" stroke-dashoffset="44" transform="rotate(-90 40 40)"/>
+                  <circle id="d-ru" cx="40" cy="40" r="28" fill="none" stroke="#1a56db" stroke-width="12" stroke-dasharray="0 175.9" stroke-dashoffset="44" transform="rotate(-90 40 40)"/>
+                  <circle id="d-em" cx="40" cy="40" r="28" fill="none" stroke="#ea580c" stroke-width="12" stroke-dasharray="0 175.9" stroke-dashoffset="44" transform="rotate(-90 40 40)"/>
+                  <circle id="d-oos" cx="40" cy="40" r="28" fill="none" stroke="#475569" stroke-width="12" stroke-dasharray="0 175.9" stroke-dashoffset="44" transform="rotate(-90 40 40)"/>
+                  <text x="40" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="#1a1f2e" id="d-center">—</text>
+                </svg>
+                <div class="donut-legend" id="d-legend"></div>
+              </div>
+            </div>
+          </div>
+          <div class="widget w2">
+            <div class="widget-head"><div class="widget-title">By equipment type</div></div>
+            <div class="widget-body" id="type-bars"><div class="loading"><div class="spin"></div></div></div>
+          </div>
+          <div class="widget w3">
+            <div class="widget-head"><div class="widget-title">Currently abnormal</div></div>
+            <div class="widget-body"><div id="dash-abnormal" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. HISTORY PAGE -->
+    <div class="page" id="page-history">
+      <div class="hist-filters">
+        <div class="hist-field">
+          <label class="hist-label">From</label>
+          <input type="date" class="hist-input" id="h-from"/>
+        </div>
+        <div class="hist-field">
+          <label class="hist-label">To</label>
+          <input type="date" class="hist-input" id="h-to"/>
+        </div>
+        <div class="hist-field">
+          <label class="hist-label">Type</label>
+          <select class="hist-input" id="h-type" style="min-width:100px">
+            <option value="all">All types</option>
+            <option>ARMGC</option><option>CH</option><option>ESL</option><option>FL</option>
+            <option>GC</option><option>PPG</option><option>RS</option><option>RTG</option>
+            <option>SL</option><option>SP</option><option>TR</option>
+          </select>
+        </div>
+        <button class="btn-sm btn-primary" onclick="loadHistory()">Query</button>
+        <span id="h-status" style="font-size:12px;color:var(--text3)"></span>
+      </div>
+      <div style="overflow:auto;flex:1">
+        <table class="hist-table" id="hist-table">
+          <thead><tr>
+            <th>Date/Time</th><th>Equipment</th><th>Type</th><th>Status</th><th>Description</th><th>Reporter</th>
+          </tr></thead>
+          <tbody id="hist-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px">Select a date range and click Query</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PLACEHOLDER PAGES -->
+    <div class="page" id="page-secondary"><div class="placeholder"><div class="placeholder-icon">🚜</div><div class="placeholder-title">Non-primary equipment</div><div class="placeholder-sub">FL, SL, RS, PPG, ESL monitoring — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
+    <div class="page" id="page-trailer"><div class="placeholder"><div class="placeholder-icon">🔗</div><div class="placeholder-title">TR / CH pairing</div><div class="placeholder-sub">Trailer chassis pairing monitor — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
+    <div class="page" id="page-maintenance"><div class="placeholder"><div class="placeholder-icon">🔧</div><div class="placeholder-title">Maintenance plan</div><div class="placeholder-sub">Scheduled maintenance tracking — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
+    <div class="page" id="page-notify"><div class="placeholder"><div class="placeholder-icon">🔔</div><div class="placeholder-title">Real-time fault notifications</div><div class="placeholder-sub">Push alerts for emergency events — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
+    <div class="page" id="page-admin">
+      <div class="page-scroll">
+        <div style="max-width:900px">
+          <div style="font-size:15px;font-weight:600;margin-bottom:16px">⚙️ 管理者介面</div>
+
+          <!-- TEU 編輯 -->
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between">
+              📦 Slot TEU 容量設定
+              <button class="btn-sm btn-primary" onclick="saveTEU()">儲存</button>
+            </div>
+            <div style="padding:12px 16px">
+              <div style="font-size:12px;color:var(--text3);margin-bottom:12px">修改每個 slot 的 TEU 容量，地圖上即時更新</div>
+              <div id="teu-editor" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px"></div>
+            </div>
+          </div>
+
+          <!-- RTG 位置重置 -->
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">🗺 RTG 位置管理</div>
+            <div style="padding:12px 16px;display:flex;gap:10px;align-items:center">
+              <button class="btn-sm" onclick="resetRTGPos()" style="color:var(--red);border-color:var(--red)">重置所有 RTG 位置</button>
+              <span style="font-size:12px;color:var(--text3)">恢復到預設 slot 位置</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const FB = 'https://tesm-c9396-default-rtdb.firebaseio.com';
+const GAS = 'https://script.google.com/macros/s/AKfycbxliEkHrCaCXAiHza1N0r4Ji80we61tDGbF_kg3GGjAkt-e93zznlFYGrj2lwHcRK5b/exec';
+
+// ── Block definitions ─────────────────────────────────────
+// Each block: {id, label, x, y, w, h, slots:[{label,teu}]}
+const BLOCKS = [
+  {id:'I',  label:'I area',  x:55,  y:88,  w:165, h:118, slots:[{l:'I4',teu:600},{l:'I3',teu:600},{l:'I2',teu:600},{l:'I1',teu:600}]},
+  {id:'J',  label:'J area',  x:226, y:88,  w:165, h:118, slots:[{l:'J4',teu:600},{l:'J3',teu:600},{l:'J2',teu:600},{l:'J1',teu:600}]},
+  {id:'K',  label:'K area',  x:397, y:88,  w:165, h:118, slots:[{l:'K4',teu:510},{l:'K3',teu:510},{l:'K2',teu:510},{l:'K1',teu:510}]},
+  {id:'O',  label:'O area',  x:568, y:88,  w:165, h:118, slots:[{l:'O4',teu:600},{l:'O3',teu:600},{l:'O2',teu:600},{l:'O1',teu:600}]},
+  {id:'P',  label:'P area',  x:739, y:88,  w:155, h:94,  slots:[{l:'P4',teu:480},{l:'P3',teu:480},{l:'P1',teu:480}]},
+  {id:'E',  label:'E area',  x:55,  y:218, w:165, h:140, slots:[{l:'E5',teu:530},{l:'E4',teu:630},{l:'E3',teu:630},{l:'E2',teu:630},{l:'E1',teu:630}]},
+  {id:'D',  label:'D area',  x:226, y:218, w:165, h:140, slots:[{l:'D5',teu:600},{l:'D4',teu:600},{l:'D3',teu:600},{l:'D2',teu:600},{l:'D1',teu:600}]},
+  {id:'B',  label:'B area',  x:397, y:218, w:165, h:94,  slots:[{l:'B5',teu:510},{l:'B4',teu:510},{l:'B3',teu:510}]},
+  {id:'BR', label:'B Reefer',x:397, y:316, w:165, h:42,  slots:[{l:'B2',teu:384}], reefer:true},
+  {id:'X',  label:'X area',  x:568, y:218, w:165, h:140, slots:[{l:'X9',teu:600},{l:'X8',teu:600},{l:'X7',teu:600},{l:'X6',teu:600},{l:'X5',teu:600}]},
+  {id:'M',  label:'M area',  x:739, y:218, w:155, h:140, slots:[{l:'M6',teu:540},{l:'M5',teu:540},{l:'M4',teu:540},{l:'M3',teu:540},{l:'M2',teu:540}]},
+  {id:'C',  label:'C area',  x:55,  y:370, w:165, h:118, slots:[{l:'C3',teu:630},{l:'C2',teu:630},{l:'C1',teu:630}]},
+  {id:'F',  label:'F area',  x:226, y:370, w:165, h:118, slots:[{l:'F3',teu:600},{l:'F2',teu:600},{l:'F1',teu:540}]},
+  {id:'AR', label:'A Reefer',x:397, y:370, w:236, h:118, slots:[{l:'A3',teu:384},{l:'A2',teu:384},{l:'A1',teu:384}], reefer:true},
+];
+
+// RTG slot positions
+let RTG_SLOTS = {
+  "I:0":'01',"I:1":'04',"I:2":'05',"I:3":'06',
+  "J:0":'07',"J:1":'08',"J:2":'10',"J:3":'11',
+  "K:0":'12',"K:1":'13',"K:2":'14',"K:3":'16',
+  "O:0":'17',"O:1":'18',"O:2":'19',"O:3":'20',
+  "P:0":'21',"P:1":'22',"P:2":'23',
+  "E:0":'24',"E:1":'25',"E:2":'26',"E:3":'27',"E:4":'28',
+  "D:0":'29',"D:1":'32',"D:2":'33',"D:3":'34',"D:4":'35',
+  "B:0":'36',"B:1":'37',"B:2":'38',
+  "BR:0":'39',
+  "X:0":'40',"X:1":'41',"X:2":'42',"X:3":'43',"X:4":'44',
+};
+
+// Reverse lookup: rtg number -> slot key
+function getRTGSlot(num) {
+  return Object.entries(RTG_SLOTS).find(([k,v])=>v===num)?.[0]||null;
+}
+
+const SC = {
+  'Available':            {fill:'#dcfce7',stroke:'#86efac',text:'#166534',pill:'p-av',color:'#059669'},
+  'Running':              {fill:'#eff6ff',stroke:'#bfdbfe',text:'#1e40af',pill:'p-ru',color:'#1a56db'},
+  'Emergency Maintenance':{fill:'#fff7ed',stroke:'#fed7aa',text:'#9a3412',pill:'p-em',color:'#ea580c'},
+  'Out Of Service':       {fill:'#f1f5f9',stroke:'#cbd5e1',text:'#475569',pill:'p-oos',color:'#475569'},
+  'Planned Maintenance':  {fill:'#f5f3ff',stroke:'#c4b5fd',text:'#5b21b6',pill:'p-pm',color:'#7c3aed'},
+  'Damaged':              {fill:'#fef2f2',stroke:'#fca5a5',text:'#991b1b',pill:'p-dm',color:'#dc2626'},
+};
+const TYPE_ICON = {RTG:'🏗',GC:'⚓',ARMGC:'🤖',TR:'🚛',CH:'🚚',FL:'🚜',SL:'🏗',ESL:'🚜',RS:'🦺',PPG:'⚡',SP:'⚓'};
+
+let data = {};
+let selId = null, selType = null, pendSt = null;
+let activeTypeFilter = 'All';
+
+// RTG 自由座標 { "01": {x,y}, ... }
+let RTG_POS_FREE = {};
+
+// Slot TEU 覆寫 { "I:0": 800, "J:2": 400, ... }
+let SLOT_TEU = {};
+
+// ── Load RTG positions from Firebase ─────────────────────
+async function loadRTGPositions() {
+  // 載入 SLOT_TEU
+  try {
+    const r2 = await fetch(`${FB}/slot_teu.json`);
+    const d2 = await r2.json();
+    if (d2 && typeof d2 === 'object') SLOT_TEU = d2;
+  } catch(e) {}
+  // 載入 GC 位置
+  try {
+    const rg = await fetch(`${FB}/gc_pos.json`);
+    const dg = await rg.json();
+    if (dg && typeof dg === 'object' && Object.keys(dg).length>0) GC_POS = dg;
+  } catch(e) {}
+  renderGCLayer();
+  // 載入 RTG 自由座標
+  try {
+    const r = await fetch(`${FB}/rtg_free_pos.json`);
+    const d = await r.json();
+    if (d && typeof d === 'object' && Object.keys(d).length > 0) {
+      RTG_POS_FREE = d;
+      renderRTGLayer();
+      return;
+    }
+  } catch(e) {}
+  RTG_POS_FREE = initFreePosFromSlots();
+  renderRTGLayer();
+}
+
+function renderRTGLayer() {
+  const layer = document.getElementById('rtg-layer');
+  if (!layer) return;
+  let svg = '';
+
+  // Block 背景 + slot 標籤（固定顯示，RTG 浮在上面）
+  BLOCKS.forEach(blk => {
+    const isReefer = blk.reefer;
+    const bgFill   = isReefer ? '#f0f9ff' : '#f8fafc';
+    const bgStroke = isReefer ? '#bae6fd' : '#e2e8f0';
+    const lblCol   = isReefer ? '#0369a1' : '#64748b';
+    svg += `<rect x="${blk.x}" y="${blk.y}" width="${blk.w}" height="${blk.h}" rx="3" fill="${bgFill}" stroke="${bgStroke}" stroke-width="0.8"/>`;
+    svg += `<text x="${blk.x+blk.w/2}" y="${blk.y+13}" text-anchor="middle" fill="${lblCol}" font-size="11" font-weight="600">${blk.label}</text>`;
+    blk.slots.forEach((slot, si) => {
+      const rowY = blk.y + 16 + si * 22;
+      const rowH = isReefer ? 16 : 20;
+      const teu = SLOT_TEU[`${blk.id}:${si}`] || slot.teu;
+      svg += `<rect x="${blk.x+4}" y="${rowY}" width="${blk.w-8}" height="${rowH}" rx="2" fill="${isReefer?bgFill:'#fff'}" stroke="${bgStroke}" stroke-width="0.5" stroke-dasharray="2 2"/>`;
+      svg += `<text x="${blk.x+blk.w/2}" y="${rowY+rowH/2+4}" text-anchor="middle" fill="${isReefer?'#93c5fd':'#94a3b8'}" font-size="10" font-weight="500">${slot.l}  ${teu} TEU</text>`;
+    });
+  });
+
+  // Roads
+  svg += `<rect x="51" y="212" width="859" height="6" rx="1" fill="#e2e8f0"/>`;
+  svg += `<rect x="51" y="364" width="859" height="6" rx="1" fill="#e2e8f0"/>`;
+  svg += `<rect x="59" y="460" width="158" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="138" y="474" text-anchor="middle" fill="#94a3b8" font-size="10">F0-MTY</text>`;
+  svg += `<rect x="226" y="460" width="158" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="305" y="474" text-anchor="middle" fill="#94a3b8" font-size="10">A0-MTY</text>`;
+
+  // RTG 自由浮動卡片（01-44）
+  Object.entries(RTG_POS_FREE).forEach(function(e2){
+    const num=e2[0], pos=e2[1];
+    const eqId='RTG-'+num;
+    const fbKey=eqId.replace(/[^a-zA-Z0-9_]/g,'_');
+    const eq=data[fbKey]||{};
+    const s=SC[eq.status]||SC['Available'];
+    const cx=pos.x, cy=pos.y, w=28, h=22;
+    const isGrab=dragMode&&dragNum===num;
+    svg+=`<g id="rtg-${num}" onmousedown="rtgMouseDown(event,'RTG-${num}')" oncontextmenu="event.preventDefault()" style="cursor:${dragMode?'grab':'pointer'}">`;
+    svg+=`<rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="3" fill="${s.fill}" stroke="${isGrab?'#1a56db':s.stroke}" stroke-width="${isGrab?2:0.8}" opacity="${isGrab?0.4:1}"/>`;
+    svg+=`<text x="${cx}" y="${cy+5}" text-anchor="middle" fill="${s.text}" font-size="${num.length>2?8:10}" font-weight="700">${num}</text>`;
+    svg+=`</g>`;
+  });
+
+  // 調整模式提示
+  if (dragMode) {
+    svg += `<rect x="51" y="474" width="859" height="18" rx="3" fill="#1a56db" fill-opacity="0.85"/>`;
+    svg += `<text x="480" y="486" text-anchor="middle" fill="#fff" font-size="11">拖曳 RTG / GC 到位置 · 確定儲存 · 取消還原</text>`;
+  }
+
+
+  layer.innerHTML = svg;
+}
+
+// ── GC 位置系統 ───────────────────────────────────────────
+// 左側垂直 (axis:'v')：X 固定=33，Y 可自由移動，範圍 28~488
+// 底部水平 (axis:'h')：Y 固定=499，X 可自由移動，範圍 60~644
+const GC_AXIS = {
+  '10':'v','17':'v','16':'v','15':'v','13':'v','12':'v','9':'v','8':'v','7':'v',
+  '11':'h','6':'h','5':'h','3':'h'
+};
+// GC SP 對照
+const GC_SP = {
+  '10':'SP-T32','17':'SP-T23','16':'SP-T25','15':'SP-TW04','13':'SP-TW05',
+  '12':'SP-TW01','9':'SP-T31','8':'SP-T27','7':'SP-T33',
+  '11':'SP-T29','6':'SP-T22','5':'SP-T21','3':'SP-T19'
+};
+let GC_POS = {
+  '10':{x:33,y:36},'17':{x:33,y:58},'16':{x:33,y:80},'15':{x:33,y:116},
+  '13':{x:33,y:212},'12':{x:33,y:302},'9':{x:33,y:355},'8':{x:33,y:400},'7':{x:33,y:450},
+  '11':{x:87,y:504},'6':{x:169,y:504},'5':{x:309,y:504},'3':{x:399,y:504}
+};
+let GC_POS_BACKUP = null;
+let dragGC = null, dragGCOffX=0, dragGCOffY=0;
+
+function renderGCLayer() {
+  const layer = document.getElementById('gc-layer');
+  if (!layer) return;
+  let svg = '';
+  Object.entries(GC_POS).forEach(([num, pos]) => {
+    const axis  = GC_AXIS[num];
+    const gcId  = `GC-${num}`;
+    const spId  = GC_SP[num] ? `/${GC_SP[num]}` : '';
+    const fbKey = gcId.replace(/[\/\.\#\$\[\]-]/g,'_');
+    const eq    = data[fbKey] || {};
+    const s     = SC[eq.status] || SC['Available'];
+    const isV   = axis==='v';
+    const w=22, h=16;
+    const cx=pos.x, cy=pos.y;
+    const isMoving = dragGC===num;
+    const cursor = dragMode ? 'grab' : 'pointer';
+    svg += `<g id="gc-${num}"
+      onmousedown="gcMouseDown(event,'${num}')"
+      oncontextmenu="event.preventDefault()"
+      style="cursor:${cursor}">
+      <rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="2"
+        fill="${isMoving?'#fef9c3':s.fill}"
+        stroke="${isMoving?'#eab308':s.stroke}"
+        stroke-width="${isMoving?2:0.8}"
+        opacity="${isMoving?0.5:1}"/>
+      <text x="${cx}" y="${cy+4}" text-anchor="middle" fill="${isMoving?'#854d0e':s.text}"
+        font-size="${num.length>1?9:10}" font-weight="700">${num}</text>
+    </g>`;
+  });
+  layer.innerHTML = svg;
+}
+
+function gcMouseDown(e, num) {
+  e.preventDefault(); e.stopPropagation();
+  if (!dragMode) {
+    if (e.button===0) { selGC(`GC-${num}${GC_SP[num]?'/'+GC_SP[num]:''}`); }
+    else if (e.button===2) { enterAdjustMode(); startGCDrag(e, num); }
+    return;
+  }
+  startGCDrag(e, num);
+}
+
+function startGCDrag(e, num) {
+  const svg  = document.getElementById('map-svg');
+  const rect = svg.getBoundingClientRect();
+  const scaleX = 910/rect.width, scaleY = 520/rect.height;
+  const svgX = (e.clientX-rect.left)*scaleX;
+  const svgY = (e.clientY-rect.top)*scaleY;
+  const cur  = GC_POS[num];
+  dragGC    = num;
+  dragGCOffX = svgX - cur.x;
+  dragGCOffY = svgY - cur.y;
+  renderGCLayer();
+}
+let dragMode    = false;
+let dragNum     = null;
+let dragOffX    = 0, dragOffY = 0;
+let RTG_POS_FREE_BACKUP = null;
+
+function initFreePosFromSlots() {
+  const pos = {};
+  BLOCKS.forEach(blk => {
+    blk.slots.forEach((slot, si) => {
+      const slotKey = `${blk.id}:${si}`;
+      const num = RTG_SLOTS[slotKey];
+      if (!num) return;
+      const rowH = blk.reefer ? 16 : 20;
+      pos[num] = { x: blk.x + 15, y: blk.y + 16 + si * 22 + rowH/2 };
+    });
+  });
+  return pos;
+}
+
+function enterAdjustMode() {
+  if (dragMode) return;
+  RTG_POS_FREE_BACKUP = JSON.parse(JSON.stringify(RTG_POS_FREE));
+  GC_POS_BACKUP = JSON.parse(JSON.stringify(GC_POS));
+  dragMode = true;
+  showDragBar();
+  renderRTGLayer();
+  renderGCLayer();
+}
+
+function rtgMouseDown(e, fullId) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (!dragMode) {
+    if (e.button === 0) {
+      const type = fullId.startsWith('ARMGC') ? 'ARMGC' : 'RTG';
+      selEq(fullId, type);
+    } else if (e.button === 2) {
+      enterAdjustMode();
+      startFreeDrag(e, fullId);
+    }
+    return;
+  }
+  startFreeDrag(e, fullId);
+}
+
+function startFreeDrag(e, fullId) {
+  const num = fullId.replace('RTG-','');
+  const svg = document.getElementById('map-svg');
+  const rect = svg.getBoundingClientRect();
+  const scaleX = 910/rect.width, scaleY = 520/rect.height;
+  const svgX = (e.clientX-rect.left)*scaleX;
+  const svgY = (e.clientY-rect.top)*scaleY;
+  const cur  = RTG_POS_FREE[num] || {x:svgX,y:svgY};
+  dragNum  = num;
+  dragOffX = svgX - cur.x;
+  dragOffY = svgY - cur.y;
+  renderRTGLayer();
+}
+
+// 找滑鼠 X 位置最近的 Block，並 snap Y 到該 block 的行
+function snapToBlock(svgX, svgY) {
+  let nearest = null, minDist = Infinity;
+  BLOCKS.forEach(blk => {
+    const cx = blk.x + blk.w/2;
+    const dist = Math.abs(svgX - cx);
+    if (dist < minDist) { minDist = dist; nearest = blk; }
+  });
+  if (!nearest) return {x: svgX, y: svgY};
+  // Clamp X within block
+  const snapX = Math.max(nearest.x + 13, Math.min(nearest.x + nearest.w - 13, svgX));
+  // Snap Y to nearest slot row in that block
+  let bestY = nearest.y + 26, bestDist = Infinity;
+  nearest.slots.forEach((slot, si) => {
+    const rowH = nearest.reefer ? 16 : 20;
+    const rowCY = nearest.y + 16 + si * 22 + rowH/2;
+    const d = Math.abs(svgY - rowCY);
+    if (d < bestDist) { bestDist = d; bestY = rowCY; }
+  });
+  return {x: snapX, y: bestY};
+}
+
+document.addEventListener('mousemove', e => {
+  const svg = document.getElementById('map-svg');
+  if (!svg || !dragMode) return;
+  const rect = svg.getBoundingClientRect();
+  const scaleX = 910/rect.width, scaleY = 520/rect.height;
+  const svgX = (e.clientX-rect.left)*scaleX;
+  const svgY = (e.clientY-rect.top)*scaleY;
+
+  if (dragNum) {
+    const nx = svgX - dragOffX, ny = svgY - dragOffY;
+    RTG_POS_FREE[dragNum] = {x:Math.max(55,Math.min(905,nx)),y:Math.max(22,Math.min(498,ny))};
+    renderRTGLayer();
+  } else if (dragGC) {
+    const axis = GC_AXIS[dragGC];
+    if (axis==='v') {
+      GC_POS[dragGC] = {x:33, y:Math.max(28, Math.min(498, svgY-dragGCOffY))};
+    } else {
+      GC_POS[dragGC] = {x:Math.max(60, Math.min(680, svgX-dragGCOffX)), y:504};
+    }
+    renderGCLayer();
+  }
+});
+
+document.addEventListener('mouseup', e => {
+  if (dragNum) {
+    const cur = RTG_POS_FREE[dragNum];
+    if (cur) RTG_POS_FREE[dragNum] = snapToBlock(cur.x, cur.y);
+    dragNum = null;
+    renderRTGLayer();
+  }
+  if (dragGC) {
+    dragGC = null;
+    renderGCLayer();
+  }
+});
+
+document.addEventListener('touchmove', e => {
+  if (!dragMode || !dragNum) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const svg = document.getElementById('map-svg');
+  if (!svg) return;
+  const rect = svg.getBoundingClientRect();
+  const scaleX = 910/rect.width, scaleY = 520/rect.height;
+  RTG_POS_FREE[dragNum] = {
+    x: Math.max(55,Math.min(895,(t.clientX-rect.left)*scaleX-dragOffX)),
+    y: Math.max(25,Math.min(488,(t.clientY-rect.top)*scaleY-dragOffY))
+  };
+  renderRTGLayer();
+},{passive:false});
+
+document.addEventListener('touchend', e=>{
+  if(!dragMode||!dragNum) return;
+  dragNum=null; renderRTGLayer();
+});
+
+function showDragBar() {
+  const bar = document.getElementById('topbar-right');
+  if (!bar) return;
+  bar.innerHTML = `
+    <span style="font-size:12px;color:var(--orange);font-weight:600">✏️ 位置調整模式</span>
+    <button class="btn-sm" onclick="confirmDrag()" style="background:var(--green);border-color:var(--green);color:#fff;font-weight:600">✓ 確定</button>
+    <button class="btn-sm" onclick="cancelDragMode()">✕ 取消</button>`;
+}
+
+function hideDragBar() {
+  const bar = document.getElementById('topbar-right');
+  if (!bar) return;
+  bar.innerHTML = `
+    <button class="btn-sm" onclick="enterAdjustMode()">✏️ 調整位置</button>
+    <button class="btn-sm" onclick="addToHome()">＋ 加到首頁</button>`;
+}
+
+async function confirmDrag() {
+  dragMode = false; dragNum = null; dragGC = null;
+  RTG_POS_FREE_BACKUP = null; GC_POS_BACKUP = null;
+  hideDragBar();
+  renderRTGLayer(); renderGCLayer();
+  try {
+    await Promise.all([
+      fetch(`${FB}/rtg_free_pos.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(RTG_POS_FREE)}),
+      fetch(`${FB}/gc_pos.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(GC_POS)})
+    ]);
+  } catch(e){}
+}
+
+function cancelDragMode() {
+  if (RTG_POS_FREE_BACKUP) RTG_POS_FREE = JSON.parse(JSON.stringify(RTG_POS_FREE_BACKUP));
+  if (GC_POS_BACKUP) GC_POS = JSON.parse(JSON.stringify(GC_POS_BACKUP));
+  dragMode = false; dragNum = null; dragGC = null;
+  RTG_POS_FREE_BACKUP = null; GC_POS_BACKUP = null;
+  hideDragBar();
+  renderRTGLayer(); renderGCLayer();
+}
+
+
+// ── Sidebar toggle ───────────────────────────────────────
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+// ── Nav ──────────────────────────────────────────────────
+const PAGE_TITLES = {
+  map:'地圖狀態', allEq:'全車機監控', secondary:'非主力車機', trailer:'拖車板台連結',
+  realtime:'即時報表', history:'歷史查詢', maintenance:'保養計畫',
+  notify:'即時故障通知', admin:'管理者介面'
+};
+function navTo(page, el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[page]||page;
+  if(page==='allEq') renderAllEq();
+  if(page==='realtime') renderRealtime();
+  if(page==='admin') renderTEUEditor();
+  if(page==='history'){
+    const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
+    document.getElementById('h-from').value=`${y}-${m}-01`;
+    document.getElementById('h-to').value=`${y}-${m}-${d}`;
+  }
+}
+
+function renderTEUEditor() {
+  const el = document.getElementById('teu-editor');
+  if (!el) return;
+  el.innerHTML = BLOCKS.map(blk =>
+    blk.slots.map((slot, si) => {
+      const key = `${blk.id}:${si}`;
+      const cur = SLOT_TEU[key] !== undefined ? SLOT_TEU[key] : slot.teu;
+      return `<div style="display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:7px 10px">
+        <span style="font-size:12px;font-weight:600;color:var(--text2);min-width:56px">${blk.label} ${slot.l}</span>
+        <input type="number" value="${cur}" min="0" max="9999" step="10"
+          style="width:70px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:12px;text-align:right;font-family:inherit;outline:none"
+          onchange="SLOT_TEU['${key}']=parseInt(this.value)||0;renderRTGLayer()"
+          id="teu-${key.replace(':','-')}"/>
+        <span style="font-size:11px;color:var(--text3)">TEU</span>
+      </div>`;
+    }).join('')
+  ).join('');
+}
+
+async function saveTEU() {
+  try {
+    await fetch(`${FB}/slot_teu.json`,{
+      method:'PUT',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(SLOT_TEU)
+    });
+    alert('TEU 容量已儲存 ✓');
+  } catch(e) { alert('儲存失敗：'+e.message); }
+}
+
+async function resetRTGPos() {
+  if (!confirm('確定要重置所有 RTG 位置到預設？')) return;
+  RTG_POS_FREE = initFreePosFromSlots();
+  try {
+    await fetch(`${FB}/rtg_free_pos.json`,{
+      method:'PUT',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(RTG_POS_FREE)
+    });
+  } catch(e){}
+  renderRTGLayer();
+  alert('位置已重置 ✓');
+}
+
+// ── Firebase poll ─────────────────────────────────────────
+async function poll(){
+  try{
+    const r = await fetch(`${FB}/equipment.json`);
+    const d2 = await r.json();
+    if(!d2) return;
+    data = d2;
+    updateKPI(); renderRTGLayer(); updateMap(); updateAlerts(); updateAllEq(); updateRealtime();
+    document.getElementById('sync-label').textContent = 'Synced '+new Date().toLocaleTimeString('en-GB');
+    document.getElementById('sync-dot').style.background='#059669';
+  }catch(e){
+    document.getElementById('sync-label').textContent='Error';
+    document.getElementById('sync-dot').style.background='#dc2626';
+  }
+}
+
+// ── KPI ──────────────────────────────────────────────────
+function updateKPI(){
+  const vals=Object.values(data), total=vals.length;
+  const c={};vals.forEach(v=>c[v.status]=(c[v.status]||0)+1);
+  document.getElementById('kpi-total').textContent=total;
+  [['av','Available'],['ru','Running'],['em','Emergency Maintenance'],['oos','Out Of Service'],['pm','Planned Maintenance'],['dm','Damaged']].forEach(([k,s])=>{
+    const n=c[s]||0;
+    document.getElementById(`kpi-${k}`).textContent=n;
+    document.getElementById(`kpi-${k}-p`).textContent=total?Math.round(n/total*100)+'%':'';
+  });
+}
+
+// ── Map update (GC + ARMGC only, RTG handled by renderRTGLayer) ──
+function updateMap(){
+  // Update ARMGC
+  ['ARMGC-01','ARMGC-02','ARMGC-03','ARMGC-05'].forEach(id => {
+    const g = document.getElementById('c-'+id); if(!g) return;
+    const key = id.replace(/[\/\.\#\$\[\]-]/g,'_');
+    const eq = data[key]; if(!eq) return;
+    const s = SC[eq.status]||SC['Available'];
+    const r = g.querySelector('rect'); if(r){r.setAttribute('fill',s.fill);r.setAttribute('stroke',s.stroke);}
+    const t = g.querySelector('text'); if(t) t.setAttribute('fill',s.text);
+  });
+}
+
+// ── Alerts ────────────────────────────────────────────────
+function updateAlerts(){
+  const bad=Object.values(data).filter(e=>['Emergency Maintenance','Out Of Service','Damaged'].includes(e.status));
+  document.getElementById('alert-badge').textContent=bad.length;
+  const el=document.getElementById('alert-list');
+  if(!bad.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px 0">✅ All clear</div>';return;}
+  el.innerHTML=bad.sort((a,b)=>{const o={'Emergency Maintenance':0,'Damaged':1,'Out Of Service':2};return (o[a.status]||9)-(o[b.status]||9);}).map(e=>{
+    const c=SC[e.status]||SC['Out Of Service'];
+    return `<div class="alert-item"><div class="alert-dot" style="background:${c.color}"></div><div>
+      <div class="alert-id" style="cursor:pointer" onclick="selEq('${e.machine_id}','${e.machine_type}')">${e.machine_id||'—'}</div>
+      <div><span class="pill ${c.pill}" style="font-size:10px">${e.status}</span></div>
+      <div class="alert-meta">${e.crew||''} ${e.last_updated?'· '+e.last_updated.substring(5,16):''}</div>
+    </div></div>`;
+  }).join('');
+}
+
+// ── Select eq ─────────────────────────────────────────────
+function selEq(id,type){
+  selId=id; selType=type; pendSt=null;
+  const key=id.replace(/[\/\.\#\$\[\]-]/g,'_');
+  const eq=data[key]||{machine_id:id,machine_type:type,status:'Unknown'};
+  const s=SC[eq.status]||SC['Out Of Service'];
+  document.getElementById('eq-name').textContent=id;
+  document.getElementById('eq-type').textContent=(TYPE_ICON[type]||'🔧')+' '+type+' · CCT';
+  document.getElementById('eq-pill').innerHTML=`<span class="pill ${s.pill}">${eq.status||'Unknown'}</span>`;
+  document.getElementById('eq-crew-info').textContent=eq.crew?'Last by: '+eq.crew:'';
+  document.getElementById('eq-submit-btn').style.opacity='.5';
+  document.getElementById('eq-submit-btn').style.cursor='default';
+  document.getElementById('eq-submit-btn').textContent='Select a status first';
+  document.getElementById('side-alerts').style.display='none';
+  document.getElementById('side-eq').style.display='flex';
+  loadEqHist(id,type);
+}
+function selGC(id){ selEq(id,'GC'); }
+function closeEq(){
+  document.getElementById('side-alerts').style.display='flex';
+  document.getElementById('side-eq').style.display='none';
+  selId=null; pendSt=null;
+}
+function setStatus(s){
+  pendSt=s;
+  const btn=document.getElementById('eq-submit-btn');
+  btn.style.opacity='1'; btn.style.cursor='pointer';
+  btn.textContent=`Update to: ${s}`;
+}
+async function submitEq(){
+  if(!selId||!pendSt) return;
+  const crew=document.getElementById('eq-crew').value.trim()||'Web';
+  const note=document.getElementById('eq-note').value.trim();
+  const key=selId.replace(/[\/\.\#\$\[\]-]/g,'_');
+  const type=selId.split('-')[0];
+  const now=new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});
+  await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({machine_id:selId,machine_type:type,status:pendSt,crew,note,last_updated:now})});
+  const num=selId.startsWith(type+'-')?selId.slice(type.length+1):selId;
+  fetch(`${GAS}?${new URLSearchParams({action:'write',machine_kind:type,number:num,status:pendSt,process:note||'Web',crew})}`,{method:'GET',mode:'no-cors'});
+  document.getElementById('eq-crew').value='';
+  document.getElementById('eq-note').value='';
+  pendSt=null;
+  await poll();
+  selEq(selId,selType);
+}
+
+async function loadEqHist(id,type){
+  const el=document.getElementById('eq-hist');
+  el.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  try{
+    const now=new Date(), month=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+    const r=await fetch(`${GAS}?action=history&month=${month}&type=${type}`);
+    const d2=await r.json();
+    const rows=(d2.rows||[]).filter(r=>r.machine_id===id).slice(0,8);
+    if(!rows.length){el.innerHTML='<div style="color:var(--text3);font-size:12px">No history this month</div>';return;}
+    el.innerHTML=rows.map(r=>{
+      const c=SC[r.status]||SC['Out Of Service'];
+      return `<div class="hist-row"><div class="hist-dot" style="background:${c.color}"></div>
+        <span class="pill ${c.pill}" style="font-size:10px">${r.status}</span>
+        <span style="color:var(--text3);font-size:11px;margin-left:4px">${String(r.date||'').substring(5,16)}</span>
+        <span style="color:var(--text2);font-size:11px;margin-left:auto">${r.crew||''}</span></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div style="color:var(--text3);font-size:12px">Failed</div>';}
+}
+
+// ── All EQ ────────────────────────────────────────────────
+function updateAllEq(){ if(document.getElementById('page-allEq').classList.contains('active')) renderAllEq(); }
+function renderAllEq(){
+  const search=(document.getElementById('eq-search')?.value||'').toLowerCase();
+  const vals=Object.values(data);
+  const types=['All',...new Set(vals.map(e=>e.machine_type).filter(Boolean)).values()].sort();
+  const tf=document.getElementById('type-filters');
+  if(tf&&tf.children.length!==types.length){
+    tf.innerHTML=types.map(t=>`<div class="filter-chip${t===activeTypeFilter?' active':''}" onclick="setTypeFilter('${t}',this)">${t}</div>`).join('');
+  }
+  const filtered=vals.filter(e=>{
+    const matchT=activeTypeFilter==='All'||e.machine_type===activeTypeFilter;
+    const matchS=!search||(e.machine_id||'').toLowerCase().includes(search)||(e.machine_type||'').toLowerCase().includes(search);
+    return matchT&&matchS;
+  }).sort((a,b)=>(a.machine_type||'').localeCompare(b.machine_type||'')||(a.machine_id||'').localeCompare(b.machine_id||''));
+  const grid=document.getElementById('all-eq-grid');
+  if(!filtered.length){grid.innerHTML='<div style="padding:40px;color:var(--text3);text-align:center">No results</div>';return;}
+  grid.innerHTML=filtered.map(e=>{
+    const s=SC[e.status]||SC['Out Of Service'];
+    return `<div class="eq-card" onclick="navTo('map',document.querySelector('[data-page=map]'));setTimeout(()=>selEq('${e.machine_id}','${e.machine_type}'),100)">
+      <div class="eq-card-dot" style="background:${s.color}"></div>
+      <div class="eq-card-icon">${TYPE_ICON[e.machine_type]||'🔧'}</div>
+      <div class="eq-card-name">${e.machine_id||'—'}</div>
+      <div><span class="pill ${s.pill}" style="font-size:9px">${e.status?.replace(' Maintenance','')}</span></div>
+    </div>`;
+  }).join('');
+}
+function setTypeFilter(t,el){
+  activeTypeFilter=t;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderAllEq();
+}
+
+// ── Realtime report ───────────────────────────────────────
+function updateRealtime(){ if(document.getElementById('page-realtime').classList.contains('active')) renderRealtime(); }
+function renderRealtime(){
+  const vals=Object.values(data), total=vals.length; if(!total) return;
+  const c={};vals.forEach(v=>c[v.status]=(c[v.status]||0)+1);
+  const circ=175.9;
+  let off=0;
+  ['Available','Running','Emergency Maintenance','Out Of Service'].forEach((s,i)=>{
+    const n=c[s]||0, dash=(n/total)*circ;
+    const el=document.getElementById(['d-av','d-ru','d-em','d-oos'][i]);
+    if(!el) return;
+    el.setAttribute('stroke-dasharray',dash+' '+(circ-dash));
+    el.setAttribute('stroke-dashoffset',circ-off);
+    off+=dash;
+  });
+  document.getElementById('d-center').textContent=total;
+  document.getElementById('d-legend').innerHTML=Object.entries(c).map(([s,n])=>{
+    const sc=SC[s]||SC['Out Of Service'];
+    return `<div class="donut-item"><div class="donut-dot" style="background:${sc.color}"></div>
+      <span style="font-size:11px;color:var(--text2)">${s.replace(' Maintenance','')}</span>
+      <span style="margin-left:8px;font-weight:600;font-size:11px">${Math.round(n/total*100)}%</span></div>`;
+  }).join('');
+  const types={};vals.forEach(v=>types[v.machine_type]=(types[v.machine_type]||0)+1);
+  const maxT=Math.max(...Object.values(types));
+  document.getElementById('type-bars').innerHTML=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`
+    <div class="bar-row"><div class="bar-label">${t}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${n/maxT*100}%;background:var(--blue)"></div></div>
+    <div class="bar-val">${n}</div></div>`).join('');
+  const bad=vals.filter(e=>['Emergency Maintenance','Out Of Service','Damaged'].includes(e.status));
+  const da=document.getElementById('dash-abnormal');
+  da.innerHTML=bad.length?bad.map(e=>{const s=SC[e.status]||SC['Out Of Service'];
+    return `<div style="border:1px solid var(--border);border-left:3px solid ${s.color};border-radius:8px;padding:10px;cursor:pointer;background:var(--bg2)" onclick="navTo('map',document.querySelector('[data-page=map]'));setTimeout(()=>selEq('${e.machine_id}','${e.machine_type}'),100)">
+      <div style="font-size:13px;font-weight:600">${e.machine_id}</div>
+      <span class="pill ${s.pill}" style="font-size:10px;margin-top:4px;display:inline-flex">${e.status}</span>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">${e.crew||''}</div>
+    </div>`;}).join('')
+    :'<div style="color:var(--text3);font-size:13px">All equipment operational ✅</div>';
+}
+
+// ── History ───────────────────────────────────────────────
+async function loadHistory(){
+  const from=document.getElementById('h-from').value;
+  const to=document.getElementById('h-to').value;
+  const type=document.getElementById('h-type').value;
+  const st=document.getElementById('h-status');
+  st.textContent='Loading...';
+  try{
+    const now=new Date(), month=from?from.replace(/-/g,'').substring(0,6):`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+    const r=await fetch(`${GAS}?action=history&month=${month}&from=${from}&to=${to}&type=${type}`);
+    const d2=await r.json();
+    const rows=d2.rows||[];
+    st.textContent=`${rows.length} records`;
+    document.getElementById('hist-tbody').innerHTML=rows.length?rows.map(r=>{
+      const s=SC[r.status]||SC['Out Of Service'];
+      return `<tr><td>${r.date||''}</td><td style="font-weight:600">${r.machine_id||''}</td><td>${r.machine_kind||''}</td>
+        <td><span class="pill ${s.pill}">${r.status}</span></td><td>${r.process||''}</td><td>${r.crew||''}</td></tr>`;
+    }).join('')
+    :'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">No records found</td></tr>';
+  }catch(e){st.textContent='Error: '+e.message;}
+}
+
+// ── KPI filter ────────────────────────────────────────────
+function filterKPI(s,el){
+  document.querySelectorAll('.kpi-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function addToHome(){
+  const title=document.getElementById('topbar-title').textContent;
+  alert(`"${title}" 加到首頁功能即將推出！`);
+}
+
+// Init
+const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
+document.getElementById('h-from').value=`${y}-${m}-01`;
+document.getElementById('h-to').value=`${y}-${m}-${d}`;
+
+loadRTGPositions();
+poll();
+setInterval(poll,3000);
+</script>
+</body>
+</html>
