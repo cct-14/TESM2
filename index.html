@@ -1176,7 +1176,14 @@ function switchFeatureTab(featureId, deptKey, btn) {
 function renderFeaturePanel(featureId, deptKey) {
   const panel = document.getElementById('dept-panel');
   panel.innerHTML = '';
-  if (featureId==='movelog')  { panel.innerHTML='<div id="fp-movelog"></div>'; loadMoveLog(); }
+  if (featureId==='movelog')  {
+    panel.innerHTML=`
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">📋 RTG/GC 移動紀錄</div>
+        <div id="move-log-list" style="max-height:520px;overflow-y:auto"><div class="loading"><div class="spin"></div></div></div>
+      </div>`;
+    loadMoveLog();
+  }
   if (featureId==='teu')      { panel.innerHTML='<div id="fp-teu"></div>'; renderTEUInPanel(); }
   if (featureId==='announce') { panel.innerHTML='<div id="fp-announce"></div>'; renderAnnounceInPanel(deptKey); }
   if (featureId==='maintain') { panel.innerHTML=`<div class="placeholder" style="padding:60px 0"><div class="placeholder-icon">🔧</div><div class="placeholder-title">保養計畫</div><div class="placeholder-sub">即將推出</div><div class="placeholder-badge">In planning</div></div>`; }
