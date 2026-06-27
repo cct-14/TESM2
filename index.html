@@ -38,10 +38,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sidebar{width:var(--sidebar-w);background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .2s ease;overflow:hidden;z-index:50}
 .sidebar.collapsed{width:var(--sidebar-collapsed)}
 .sidebar-top{padding:0 12px;height:52px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
-.sidebar-logo{width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo{width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.sidebar-logo:hover{background:#1648c0}
 .sidebar-logo svg{width:16px;height:16px;fill:#fff}
-.sidebar-title{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;letter-spacing:-.3px}
-.sidebar-toggle{margin-left:auto;width:24px;height:24px;background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0}
+.sidebar-title{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;letter-spacing:-.3px;transition:opacity .2s,width .2s;flex:1}
+.sidebar.collapsed .sidebar-title{opacity:0;width:0;overflow:hidden}
+.sidebar-toggle{width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0}
 .sidebar-toggle:hover{background:var(--bg2)}
 .sidebar-toggle svg{width:14px;height:14px}
 
@@ -208,13 +210,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-top">
-    <div class="sidebar-logo">
+    <div class="sidebar-logo" onclick="toggleSidebar()" style="cursor:pointer" title="收合/展開">
       <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
     </div>
-    <span class="sidebar-title">CCT Overview</span>
-    <button class="sidebar-toggle" onclick="toggleSidebar()">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M3 4h10M3 12h10"/></svg>
-    </button>
+    <span class="sidebar-title">TESM2</span>
   </div>
 
   <nav class="sidebar-nav">
@@ -333,14 +332,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="map-layout">
         <div class="map-area">
           <div class="map-box">
-            <svg id="map-svg" width="100%" viewBox="0 0 910 520" xmlns="http://www.w3.org/2000/svg">
+            <svg id="map-svg" width="100%" viewBox="0 0 910 610" xmlns="http://www.w3.org/2000/svg">
 <!-- Sea -->
 <rect x="0" y="0" width="46" height="500" fill="#dbeafe"/>
 <text x="23" y="250" text-anchor="middle" fill="#60a5fa" font-size="11" transform="rotate(-90,23,250)">MUELLE 3</text>
-<rect x="0" y="500" width="680" height="80" fill="#dbeafe"/>
+<rect x="0" y="500" width="680" height="100" fill="#dbeafe"/>
 <!-- Pier labels bottom -->
-<text x="160" y="552" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="600">Pier 2</text>
-<text x="410" y="552" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="600">Pier 1</text>
+<text x="160" y="560" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="600">Pier 2</text>
+<text x="410" y="560" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="600">Pier 1</text>
 <!-- Quay -->
 <rect x="44" y="20" width="7" height="480" fill="#94a3b8"/>
 <rect x="44" y="500" width="640" height="7" fill="#94a3b8"/>
@@ -578,22 +577,18 @@ const BLOCKS = [
   {id:'AR', label:'A Reefer',x:397, y:370, w:236, h:118, slots:[{l:'A3',teu:384},{l:'A2',teu:384},{l:'A1',teu:384}], reefer:true},
 ];
 
-// Default RTG positions: "blockId:slotIndex" -> rtg number (e.g. "I:0" -> "01")
+// RTG slot positions
 let RTG_SLOTS = {
-  'I:0':'01','I:1':'04','I:2':'05','I:3':'06',
-  'J:0':'07','J:1':'08','J:2':'10','J:3':'11',
-  'K:0':'12','K:1':'13','K:2':'14','K:3':'16',
-  'O:0':'17','O:1':'18','O:2':'19','O:3':'20',
-  'P:0':'21','P:1':'22','P:2':'23',
-  'E:0':'24','E:1':'25','E:2':'26','E:3':'27','E:4':'28',
-  'D:0':'29','D:1':'32','D:2':'33','D:3':'34','D:4':'35',
-  'B:0':'36','B:1':'37','B:2':'38',
-  'BR:0':'39',
-  'X:0':'40','X:1':'41','X:2':'42','X:3':'43','X:4':'44',
-  'M:0':'M6','M:1':'M5','M:2':'M4','M:3':'M3','M:4':'M2',
-  'C:0':'C3','C:1':'C2','C:2':'C1',
-  'F:0':'F3','F:1':'F2','F:2':'F1',
-  'AR:0':'A3','AR:1':'A2','AR:2':'A1',
+  "I:0":'01',"I:1":'04',"I:2":'05',"I:3":'06',
+  "J:0":'07',"J:1":'08',"J:2":'10',"J:3":'11',
+  "K:0":'12',"K:1":'13',"K:2":'14',"K:3":'16',
+  "O:0":'17',"O:1":'18',"O:2":'19',"O:3":'20',
+  "P:0":'21',"P:1":'22',"P:2":'23',
+  "E:0":'24',"E:1":'25',"E:2":'26',"E:3":'27',"E:4":'28',
+  "D:0":'29',"D:1":'32',"D:2":'33',"D:3":'34',"D:4":'35',
+  "B:0":'36',"B:1":'37',"B:2":'38',
+  "BR:0":'39',
+  "X:0":'40',"X:1":'41',"X:2":'42',"X:3":'43',"X:4":'44',
 };
 
 // Reverse lookup: rtg number -> slot key
@@ -678,21 +673,19 @@ function renderRTGLayer() {
   svg += `<rect x="59" y="460" width="158" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="138" y="474" text-anchor="middle" fill="#94a3b8" font-size="10">F0-MTY</text>`;
   svg += `<rect x="226" y="460" width="158" height="22" rx="2" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="0.5"/><text x="305" y="474" text-anchor="middle" fill="#94a3b8" font-size="10">A0-MTY</text>`;
 
-  // RTG 自由浮動卡片
-  Object.entries(RTG_POS_FREE).forEach(([num, pos]) => {
-    const eqId  = 'RTG-'+num;
-    const fbKey = eqId.replace(/[\/\.\#\$\[\]-]/g,'_');
-    const eq    = data[fbKey] || {};
-    const s     = SC[eq.status] || SC['Available'];
-    const cx = pos.x, cy = pos.y;
-    const isGrabbing = dragMode && dragNum === num;
-    const w = 28, h = 22;
-    svg += `<g id="rtg-${num}" onmousedown="rtgMouseDown(event,'RTG-${num}')" oncontextmenu="event.preventDefault()" style="cursor:${dragMode?'grab':'pointer'}">
-      <rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="3"
-        fill="${s.fill}" stroke="${isGrabbing?'#1a56db':s.stroke}"
-        stroke-width="${isGrabbing?2:0.8}" opacity="${isGrabbing?0.4:1}"/>
-      <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="${s.text}" font-size="${num.length>2?8:10}" font-weight="700">${num}</text>
-    </g>`;
+  // RTG 自由浮動卡片（01-44）
+  Object.entries(RTG_POS_FREE).forEach(function(e2){
+    const num=e2[0], pos=e2[1];
+    const eqId='RTG-'+num;
+    const fbKey=eqId.replace(/[^a-zA-Z0-9_]/g,'_');
+    const eq=data[fbKey]||{};
+    const s=SC[eq.status]||SC['Available'];
+    const cx=pos.x, cy=pos.y, w=28, h=22;
+    const isGrab=dragMode&&dragNum===num;
+    svg+=`<g id="rtg-${num}" onmousedown="rtgMouseDown(event,'RTG-${num}')" oncontextmenu="event.preventDefault()" style="cursor:${dragMode?'grab':'pointer'}">`;
+    svg+=`<rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="3" fill="${s.fill}" stroke="${isGrab?'#1a56db':s.stroke}" stroke-width="${isGrab?2:0.8}" opacity="${isGrab?0.4:1}"/>`;
+    svg+=`<text x="${cx}" y="${cy+5}" text-anchor="middle" fill="${s.text}" font-size="${num.length>2?8:10}" font-weight="700">${num}</text>`;
+    svg+=`</g>`;
   });
 
   // 調整模式提示
@@ -771,7 +764,7 @@ function gcMouseDown(e, num) {
 function startGCDrag(e, num) {
   const svg  = document.getElementById('map-svg');
   const rect = svg.getBoundingClientRect();
-  const scaleX = 900/rect.width, scaleY = 580/rect.height;
+  const scaleX = 910/rect.width, scaleY = 520/rect.height;
   const svgX = (e.clientX-rect.left)*scaleX;
   const svgY = (e.clientY-rect.top)*scaleY;
   const cur  = GC_POS[num];
@@ -829,7 +822,7 @@ function startFreeDrag(e, fullId) {
   const num = fullId.replace('RTG-','');
   const svg = document.getElementById('map-svg');
   const rect = svg.getBoundingClientRect();
-  const scaleX = 900/rect.width, scaleY = 580/rect.height;
+  const scaleX = 910/rect.width, scaleY = 520/rect.height;
   const svgX = (e.clientX-rect.left)*scaleX;
   const svgY = (e.clientY-rect.top)*scaleY;
   const cur  = RTG_POS_FREE[num] || {x:svgX,y:svgY};
@@ -865,17 +858,15 @@ document.addEventListener('mousemove', e => {
   const svg = document.getElementById('map-svg');
   if (!svg || !dragMode) return;
   const rect = svg.getBoundingClientRect();
-  const scaleX = 900/rect.width, scaleY = 580/rect.height;
+  const scaleX = 910/rect.width, scaleY = 520/rect.height;
   const svgX = (e.clientX-rect.left)*scaleX;
   const svgY = (e.clientY-rect.top)*scaleY;
 
   if (dragNum) {
-    // RTG 自由拖曳
     const nx = svgX - dragOffX, ny = svgY - dragOffY;
     RTG_POS_FREE[dragNum] = {x:Math.max(55,Math.min(905,nx)),y:Math.max(22,Math.min(498,ny))};
     renderRTGLayer();
   } else if (dragGC) {
-    // GC 拖曳 - 限制軸向
     const axis = GC_AXIS[dragGC];
     if (axis==='v') {
       GC_POS[dragGC] = {x:33, y:Math.max(28, Math.min(498, svgY-dragGCOffY))};
@@ -906,7 +897,7 @@ document.addEventListener('touchmove', e => {
   const svg = document.getElementById('map-svg');
   if (!svg) return;
   const rect = svg.getBoundingClientRect();
-  const scaleX = 900/rect.width, scaleY = 580/rect.height;
+  const scaleX = 910/rect.width, scaleY = 520/rect.height;
   RTG_POS_FREE[dragNum] = {
     x: Math.max(55,Math.min(895,(t.clientX-rect.left)*scaleX-dragOffX)),
     y: Math.max(25,Math.min(488,(t.clientY-rect.top)*scaleY-dragOffY))
