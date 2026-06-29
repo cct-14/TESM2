@@ -1063,7 +1063,9 @@ async function saveRoles() {
 }
 
 // ── 登入 ─────────────────────────────────────
-function adminLogin() {
+async function adminLogin() {
+  // 每次登入都重新從 Firebase 載入最新角色設定
+  await loadRoles();
   const pw  = document.getElementById('admin-pw-input').value;
   const err = document.getElementById('admin-pw-err');
   let matched = null;
@@ -1143,13 +1145,14 @@ function renderDeptTabs(deptKey) {
   const cfg = ROLES[deptKey];
   if (!cfg) return;
   const is14 = ROLES[currentRole]?.features?.includes('*');
-  // 14 看某部門時，顯示該部門的功能 + 14 自己的專屬功能
-  let features = cfg.features?.includes('*')
-    ? ALL_FEATURES.filter(f=>f.id!=='roles').map(f=>f.id)
-    : (cfg.features||[]);
-  // 14 查看其他部門時，額外加上 14 專屬功能
-  if (is14 && deptKey!==currentRole) {
-    ['changelog','email','password'].forEach(f=>{ if(!features.includes(f)) features.push(f); });
+
+  let features;
+  if (deptKey === currentRole && cfg.features?.includes('*')) {
+    // 14 看自己：顯示所有功能
+    features = ALL_FEATURES.filter(f=>f.id!=='roles').map(f=>f.id);
+  } else {
+    // 看其他部門：嚴格只顯示該部門被分配的功能
+    features = cfg.features || [];
   }
 
   const tabs = ALL_FEATURES.filter(f=>features.includes(f.id));
@@ -1250,6 +1253,8 @@ async function saveRoleFeatures(roleKey) {
     .map(f=>f.id);
   ROLES[roleKey].features = features;
   await saveRoles();
+  // 重新渲染部門管理，讓勾選狀態反映已儲存的設定
+  renderRolesManager();
   const msg = document.getElementById(`feat-msg-${roleKey}`);
   if(msg){ msg.style.display='inline'; setTimeout(()=>msg.style.display='none',2000); }
 }
