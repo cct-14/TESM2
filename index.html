@@ -148,8 +148,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── ALL EQ PAGE ── */
 .eq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;padding:16px}
-.eq-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .12s;position:relative}
-.eq-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.eq-card{border-radius:10px;padding:12px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .15s;position:relative;border:2px solid transparent}
+.eq-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .eq-card-dot{width:8px;height:8px;border-radius:50%;position:absolute;top:7px;right:7px}
 .eq-card-icon{font-size:24px;line-height:1}
 .eq-card-name{font-size:11px;font-weight:600;color:var(--text);text-align:center}
@@ -659,8 +659,16 @@ function getRTGSlot(num) {
   return Object.entries(RTG_SLOTS).find(([k,v])=>v===num)?.[0]||null;
 }
 
+const STATUS_FILTER = {
+  'Available':             'none',
+  'Running':               'none',
+  'Emergency Maintenance': 'brightness(0) invert(0.2) sepia(1) saturate(2) hue-rotate(340deg)',
+  'Out Of Service':        'grayscale(1) opacity(0.6)',
+  'Planned Maintenance':   'brightness(0) invert(0.3) sepia(1) saturate(3) hue-rotate(220deg)',
+  'Damaged':               'brightness(0) invert(0.2) sepia(1) saturate(2) hue-rotate(300deg)',
+};
+
 const SC = {
-  'Available':            {fill:'#dcfce7',stroke:'#86efac',text:'#166534',pill:'p-av',color:'#059669'},
   'Running':              {fill:'#eff6ff',stroke:'#bfdbfe',text:'#1e40af',pill:'p-ru',color:'#1a56db'},
   'Emergency Maintenance':{fill:'#fff7ed',stroke:'#fed7aa',text:'#9a3412',pill:'p-em',color:'#ea580c'},
   'Out Of Service':       {fill:'#f1f5f9',stroke:'#cbd5e1',text:'#475569',pill:'p-oos',color:'#475569'},
@@ -1995,10 +2003,10 @@ function renderAllEq(){
   if(!filtered.length){grid.innerHTML='<div style="padding:40px;color:var(--text3);text-align:center">No results</div>';return;}
   grid.innerHTML=filtered.map(e=>{
     const s=SC[e.status]||SC['Out Of Service'];
-    return `<div class="eq-card" onclick="navTo('map',document.querySelector('[data-page=map]'));setTimeout(()=>selEq('${e.machine_id}','${e.machine_type}'),100)">
-      <div class="eq-card-dot" style="background:${s.color}"></div>
+    return `<div class="eq-card" style="background:${s.fill};border-color:${s.stroke}"
+      onclick="navTo('map',document.querySelector('[data-page=map]'));setTimeout(()=>selEq('${e.machine_id}','${e.machine_type}'),100)">
       <div class="eq-card-icon" style="position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center">${getTypeIcon(e.machine_type)}</div>
-      <div class="eq-card-name">${e.machine_id||'—'}</div>
+      <div class="eq-card-name" style="font-size:11px;font-weight:600;color:${s.text};text-align:center">${e.machine_id||'—'}</div>
       <div><span class="pill ${s.pill}" style="font-size:9px">${e.status?.replace(' Maintenance','')}</span></div>
     </div>`;
   }).join('');
