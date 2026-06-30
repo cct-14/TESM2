@@ -1484,7 +1484,7 @@ async function deleteAnnounce(key, role) {
 
 // ── Email 設定 Panel ─────────────────────────────────────
 async function renderEmailPanel() {
-  const el = document.getElementById('email-panel-container');
+  const el = document.getElementById('fp-email') || document.getElementById('email-panel-container');
   if (!el) return;
   // 載入現有設定
   let emails = [];
