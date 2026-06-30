@@ -276,9 +276,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </nav>
 
   <div class="sidebar-bottom">
-    <div class="sync-row">
-      <div class="sync-dot" id="sync-dot"></div>
-      <span class="sync-label" id="sync-label">Connecting...</span>
+    <div id="sig-wrap" style="padding:6px 8px;border-radius:8px;transition:background .3s">
+      <svg width="100%" viewBox="0 0 176 52" id="sig-svg" style="display:block;overflow:visible">
+        <defs>
+          <style>@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&amp;display=swap');</style>
+        </defs>
+        <!-- Fourteen -->
+        <text id="sig-fourteen" x="4" y="28"
+          font-family="'Dancing Script', Georgia, cursive"
+          font-size="26" font-weight="700"
+          fill="var(--text)" transition="fill .4s">Fourteen</text>
+        <!-- × -->
+        <text x="89" y="26" font-family="Georgia,serif" font-size="13"
+          fill="var(--text3)">×</text>
+        <!-- Claude -->
+        <text id="sig-claude" x="101" y="30"
+          font-family="'Dancing Script', Georgia, cursive"
+          font-size="26" font-weight="700"
+          fill="#b45309">Claude</text>
+        <!-- status line -->
+        <line x1="4" y1="34" x2="172" y2="34" stroke="var(--border)" stroke-width="0.5"/>
+        <!-- status text -->
+        <text id="sig-status" x="4" y="46"
+          font-family="var(--font-sans, system-ui)" font-size="10"
+          fill="var(--text3)">Connecting...</text>
+        <!-- status dot -->
+        <circle id="sig-dot" cx="168" cy="43" r="4" fill="#94a3b8">
+          <animate id="sig-pulse" attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
     </div>
   </div>
 </aside>
@@ -970,6 +996,7 @@ function showDragBar() {
     <span style="font-size:12px;color:var(--orange);font-weight:600">✏️ 位置調整模式</span>
     <button class="btn-sm" onclick="confirmDrag()" style="background:var(--green);border-color:var(--green);color:#fff;font-weight:600">✓ 確定</button>
     <button class="btn-sm" onclick="cancelDragMode()">✕ 取消</button>`;
+  setSigState('adjusting');
 }
 
 function hideDragBar() {
@@ -978,6 +1005,7 @@ function hideDragBar() {
   bar.innerHTML = `
     <button class="btn-sm" onclick="enterAdjustMode()">✏️ 調整位置</button>
     <button class="btn-sm" onclick="addToHome()">＋ 加到首頁</button>`;
+  setSigState('ok', lastSuccessTime ? 'Synced '+new Date(lastSuccessTime).toLocaleTimeString('en-GB') : 'Connected');
 }
 
 async function confirmDrag() {
@@ -1625,7 +1653,32 @@ async function deleteLog(key) {
     loadChangelog();
   } catch(e) {}
 }
-// ── 跑馬燈 ───────────────────────────────────────────────
+// ── 簽名狀態系統 ─────────────────────────────────────────
+let lastSuccessTime = null;
+let staleTimer = null;
+
+const SIG_STATES = {
+  connecting: { fourteen:'var(--text3)', claude:'#94a3b8', dot:'#94a3b8', pulse:true,  text:'Connecting...' },
+  ok:         { fourteen:'var(--text)',  claude:'#b45309', dot:'#22c55e', pulse:true,  text:null },
+  stale:      { fourteen:'#ea580c',      claude:'#ea580c', dot:'#ea580c', pulse:true,  text:'Data may be stale' },
+  error:      { fourteen:'#dc2626',      claude:'#dc2626', dot:'#dc2626', pulse:false, text:'Connection lost' },
+  adjusting:  { fourteen:'#1a56db',      claude:'#1a56db', dot:'#1a56db', pulse:true,  text:'Adjusting positions...' },
+};
+
+function setSigState(state, extraText) {
+  const cfg = SIG_STATES[state];
+  if (!cfg) return;
+  const f  = document.getElementById('sig-fourteen');
+  const c  = document.getElementById('sig-claude');
+  const d  = document.getElementById('sig-dot');
+  const s  = document.getElementById('sig-status');
+  const p  = document.getElementById('sig-pulse');
+  if (f) f.setAttribute('fill', cfg.fourteen);
+  if (c) c.setAttribute('fill', cfg.claude);
+  if (d) d.setAttribute('fill', cfg.dot);
+  if (s) s.textContent = extraText || cfg.text || '';
+  if (p) p.setAttribute('repeatCount', cfg.pulse ? 'indefinite' : '0');
+}
 async function initMarquee() {
   try {
     const r = await fetch(`${FB}/changelog.json`);
@@ -1782,16 +1835,16 @@ async function poll(){
     if(!d2) return;
     data = d2;
     pollErrCount = 0;
+    lastSuccessTime = Date.now();
     updateKPI(); renderRTGLayer(); updateMap(); updateAlerts(); updateAllEq(); updateRealtime();
-    document.getElementById('sync-label').textContent = 'Synced '+new Date().toLocaleTimeString('en-GB');
-    document.getElementById('sync-dot').style.background='#059669';
+    const t = new Date().toLocaleTimeString('en-GB');
+    if (!dragMode) setSigState('ok', 'Synced '+t);
+    // 2分鐘沒更新 → stale
+    clearTimeout(staleTimer);
+    staleTimer = setTimeout(()=>{ if(!dragMode) setSigState('stale'); }, 120000);
   }catch(e){
     pollErrCount++;
-    // 連續 3 次失敗才顯示 Error
-    if(pollErrCount >= 3){
-      document.getElementById('sync-label').textContent='Connection lost';
-      document.getElementById('sync-dot').style.background='#dc2626';
-    }
+    if(pollErrCount >= 3 && !dragMode) setSigState('error');
   }
 }
 
