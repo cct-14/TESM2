@@ -1244,7 +1244,7 @@ function hideDragBar() {
   bar.innerHTML = `
     <button class="btn-sm" onclick="enterAdjustMode()">✏️ 調整位置</button>
     <button class="btn-sm" onclick="addToHome()">＋ 加到首頁</button>`;
-  setSigState('ok', lastSuccessTime ? 'Synced '+new Date(lastSuccessTime).toLocaleTimeString('en-GB') : 'Connected');
+  setSigState('ok', lastSuccessTime ? 'Synced '+new Date(lastSuccessTime).toLocaleTimeString('en-GB',{timeZone:PA_TZ}) : 'Connected');
 }
 
 async function confirmDrag() {
@@ -1284,8 +1284,11 @@ function cancelDragMode() {
 
 
 // 取當下時間字串
+const PA_TZ='America/Panama';
+function panParts(){ const a=new Date().toLocaleDateString('en-CA',{timeZone:PA_TZ}).split('-'); return {y:+a[0],m:+a[1],d:+a[2]}; }
+function panYmd(){ return new Date().toLocaleDateString('en-CA',{timeZone:PA_TZ}).replace(/-/g,''); }
 function getNow() {
-  return new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',
+  return new Date().toLocaleString('zh-TW',{timeZone:PA_TZ,
     year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
 // ══════════════════════════════════════════════
@@ -2012,19 +2015,19 @@ let maintUser = null;      // 登入的編輯者 {name} 或 null
 
 // ── 多語（西/中/英，預設西） ──
 const MT_I18N = {
-  es:{ up1:'⬆️ Subir MT-1', up2:'⬆️ Subir MT-2', sched:'✏️ Planificar', schedDone:'✓ Listo', showDone:'Ver hechos',
+  es:{ up1:'⬆️ Subir MT-1', up2:'⬆️ Subir MT-2', sched:'✏️ Planificar', schedDone:'✓ Listo', showDone:'Ver hechos', msgTitle:'Enviar mensaje', msgPh:'Escribe un mensaje…', msgSend:'Enviar', msgNoperm:'No tienes permiso para enviar, solo recibir.', msgReply:'Responder…', msgGot:'Recibido', msgOk:'Recibido',
     notUploaded:'Sin subir', dow:['D','L','M','X','J','V','S'],
     monthN:n=>`${n} este mes`, backlog:(d,n)=>`Pendientes hasta ${d}: <b>${n}</b>`,
     add:'＋ Nuevo', over:'Vencido', done:'Hecho', due:'Vence', noTasks:'Sin trabajos', allDone:'✓ Todo hecho',
     dueLabel:'vence', metaFmt:(c,u)=>`${c} ítems · ${u}`,
     addTitle:'Nuevo trabajo', mMachine:'Máquina', mName:'Nombre del trabajo', mInterval:'Ciclo (meses)', mDate:'Fecha límite', cancel:'Cancelar', save:'Añadir' },
-  zh:{ up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成',
+  zh:{ up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成', msgTitle:'傳訊息', msgPh:'輸入訊息…', msgSend:'送出', msgNoperm:'你沒有發訊息權限，只能接收。', msgReply:'回一句…', msgGot:'收到', msgOk:'已收到',
     notUploaded:'尚未上傳', dow:['日','一','二','三','四','五','六'],
     monthN:n=>`本月 ${n} 件`, backlog:(d,n)=>`到 ${d} 未完成 <b>${n}</b> 件`,
     add:'＋ 新增', over:'逾期', done:'完成', due:'到期', noTasks:'尚無工程', allDone:'✓ 都做完了',
     dueLabel:'到期', metaFmt:(c,u)=>`${c} 件 · ${u}`,
     addTitle:'新增工程', mMachine:'機號', mName:'工程名稱', mInterval:'週期（月）', mDate:'到期日', cancel:'取消', save:'新增' },
-  en:{ up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done',
+  en:{ up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done', msgTitle:'Send message', msgPh:'Type a message…', msgSend:'Send', msgNoperm:'You can only receive, not send.', msgReply:'Reply…', msgGot:'Got it', msgOk:'Received',
     notUploaded:'Not uploaded', dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
     monthN:n=>`${n} this month`, backlog:(d,n)=>`Open until ${d}: <b>${n}</b>`,
     add:'＋ Add', over:'Overdue', done:'Done', due:'Due', noTasks:'No tasks', allDone:'✓ All done',
@@ -2038,6 +2041,7 @@ function updateLangUI(){ document.querySelectorAll('.mt-lang').forEach(box=>box.
 function setMaintLang(l){
   if(!MT_I18N[l]) return; maintLang=l; try{localStorage.setItem('mt_lang',l);}catch(_){}
   renderMaintenance(); applyNavLang(); updateLangUI();
+  if(typeof updateMsgLang==='function') updateMsgLang();
   if(typeof initMarquee==='function') initMarquee();
   if(typeof initAnnounce==='function') initAnnounce();
   const cp=document.getElementById('page-changelog');
@@ -2089,7 +2093,7 @@ function ensureMaintEdit(){
 async function maintLog(action, detail){
   try{
     await fetch(`${FB}/maint_log.json`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({time:new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}),user:(maintUser&&maintUser.name)||'?',action,detail})});
+      body:JSON.stringify({time:new Date().toLocaleString('zh-TW',{timeZone:PA_TZ}),user:(maintUser&&maintUser.name)||'?',action,detail})});
   }catch(e){}
 }
 
@@ -2165,7 +2169,7 @@ async function onMaintFile(team, input){
         obj[id] = Object.assign({}, t, { done: prev?prev.done||false:false, doneAt: prev?prev.doneAt||null:null });
       });
       const payload = { meta:{ fileName:file.name, count:byType[ty].length,
-        uploadedAt:new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}) }, tasks:obj };
+        uploadedAt:new Date().toLocaleString('zh-TW',{timeZone:PA_TZ}) }, tasks:obj };
       await fetch(`${FB}/maintenance/${ty}/${team}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     }
     await maintLog('上傳', `${team}｜${file.name}｜${tasks.length}件｜型別:${types.join(',')}`);
@@ -2188,13 +2192,13 @@ function maintTasks(type,team){ const g=mtGet(type,team); return g&&g.tasks?Obje
 function setMaintMonthFromData(){
   const all = MT_TEAMS.reduce((a,tm)=>a.concat(maintTasks(maintType,tm)),[]);
   const valid = all.filter(t=>/^\d{8}$/.test(t.nextTime||''));
-  if(!valid.length){ const n=new Date(); maintYear=n.getFullYear(); maintMonth=n.getMonth()+1; return; }
+  if(!valid.length){ const p=panParts(); maintYear=p.y; maintMonth=p.m; return; }
   const cnt={}; valid.forEach(t=>{ const k=t.nextTime.slice(0,6); cnt[k]=(cnt[k]||0)+1; });
   const best=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
   maintYear=+best[0].slice(0,4); maintMonth=+best[0].slice(4,6);
 }
 function maintShiftMonth(d){
-  if(maintYear===null){ const n=new Date(); maintYear=n.getFullYear(); maintMonth=n.getMonth()+1; }
+  if(maintYear===null){ const p=panParts(); maintYear=p.y; maintMonth=p.m; }
   maintMonth+=d;
   if(maintMonth<1){ maintMonth=12; maintYear--; }
   if(maintMonth>12){ maintMonth=1; maintYear++; }
@@ -2210,7 +2214,7 @@ function toggleMaintEdit(){
 
 // ── 渲染 ──
 const MT_DOW=['日','一','二','三','四','五','六'];
-function todayYmd(){ const n=new Date(); return `${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}`; }
+function todayYmd(){ return panYmd(); }
 function fmtYmd(s){ return s&&s.length>=8?`${s.slice(0,4)}/${s.slice(4,6)}/${s.slice(6,8)}`:(s||''); }
 
 function renderMaintenance(){
@@ -2405,7 +2409,7 @@ async function submitMtAdd(){
 
 async function toggleMaintDone(team, id, checked){
   if(!ensureMaintEdit()){ renderMaintenance(); return; }
-  const now = checked ? new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}) : null;
+  const now = checked ? new Date().toLocaleString('zh-TW',{timeZone:PA_TZ}) : null;
   try{
     await fetch(`${FB}/maintenance/${maintType}/${team}/tasks/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({done:checked,doneAt:now})});
     const g=mtGet(maintType,team);
@@ -2505,9 +2509,17 @@ function ensureMsgLogin(){
 }
 function toggleMsgPanel(){ const p=document.getElementById('msg-panel'); if(p.classList.contains('open')) closeMsgPanel(); else openMsgPanel(); }
 function closeMsgPanel(){ document.getElementById('msg-panel').classList.remove('open'); }
+function updateMsgLang(){
+  const L=mtL();
+  const set=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
+  set('msg-panel-title',L.msgTitle); set('msg-send-btn',L.msgSend); set('msg-noperm',L.msgNoperm);
+  const tb=document.getElementById('msg-top-btn'); if(tb) tb.textContent='💬 '+L.msgTitle;
+  const ta=document.getElementById('msg-text'); if(ta) ta.placeholder=L.msgPh;
+}
 async function openMsgPanel(){
   if(!ensureMsgLogin()) return;
   try{ const r=await fetch(`${FB}/maint_users.json`); const d=await r.json(); MAINT_USERS=(d&&typeof d==='object')?d:{}; }catch(e){}
+  updateMsgLang();
   const compose=document.getElementById('msg-compose'), noperm=document.getElementById('msg-noperm');
   if(canSendMsg()){
     compose.style.display=''; noperm.style.display='none';
@@ -2558,7 +2570,7 @@ function showPingBubble(id,m){
   const div=document.createElement('div'); div.className='msg-bubble'; div.dataset.pid=id;
   div.innerHTML=`<div class="msg-bubble-from">${m.from||''}</div>`+
     `<div class="msg-bubble-text"></div>`+
-    `<div class="msg-bubble-actions"><input placeholder="回一句…"/><button>收到</button></div>`;
+    `<div class="msg-bubble-actions"><input placeholder="${mtL().msgReply}"/><button>${mtL().msgGot}</button></div>`;
   div.querySelector('.msg-bubble-text').textContent=m.text||'';
   const inp=div.querySelector('input'); const btn=div.querySelector('button');
   btn.onclick=()=>ackPing(id, m.from, inp.value.trim(), div);
@@ -2569,7 +2581,7 @@ async function ackPing(id, from, reply, div){
   const me=msgKey(maintUser.name);
   try{ await fetch(`${FB}/ping/${me}/${id}.json`,{method:'DELETE'}); }catch(e){}
   const aid='a'+Date.now()+Math.random().toString(36).slice(2,5);
-  try{ await fetch(`${FB}/ack/${msgKey(from)}/${aid}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({from:msgMe(),text:reply||'已收到',time:Date.now()})}); }catch(e){}
+  try{ await fetch(`${FB}/ack/${msgKey(from)}/${aid}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({from:msgMe(),text:reply||mtL().msgOk,time:Date.now()})}); }catch(e){}
   if(div&&div.parentNode) div.parentNode.removeChild(div);
   shownPings.delete(id); updateMsgBadge();
 }
@@ -2578,13 +2590,14 @@ function showAckBubble(m){
   const div=document.createElement('div'); div.className='msg-bubble ack';
   div.innerHTML=`<div class="msg-bubble-from"></div><div class="msg-bubble-text"></div>`;
   div.querySelector('.msg-bubble-from').textContent=(m.from||'')+'：';
-  div.querySelector('.msg-bubble-text').textContent=m.text||'已收到';
+  div.querySelector('.msg-bubble-text').textContent=m.text||mtL().msgOk;
   box.appendChild(div);
   setTimeout(()=>{ if(div.parentNode) div.parentNode.removeChild(div); }, 6000);
 }
 function initMessaging(){
   const fab=document.getElementById('msg-fab'); if(fab) fab.style.display='flex';
   const tb=document.getElementById('msg-top-btn'); if(tb) tb.style.display='';
+  if(typeof updateMsgLang==='function') updateMsgLang();
   updateMsgAuthUI();
 }
 // ── 登入記住（只記一般使用者身分，不記管理者）──
@@ -2655,7 +2668,7 @@ function navTo(page, el){
     }
   }
   if(page==='history'){
-    const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
+    const p=panParts(), y=p.y, m=String(p.m).padStart(2,'0'), d=String(p.d).padStart(2,'0');
     document.getElementById('h-from').value=`${y}-${m}-01`;
     document.getElementById('h-to').value=`${y}-${m}-${d}`;
   }
@@ -2715,7 +2728,7 @@ async function poll(){
     pollErrCount = 0;
     lastSuccessTime = Date.now();
     updateKPI(); renderRTGLayer(); updateMap(); updateAlerts(); updateAllEq(); updateRealtime();
-    const t = new Date().toLocaleTimeString('en-GB');
+    const t = new Date().toLocaleTimeString('en-GB',{timeZone:PA_TZ});
     if (!dragMode) setSigState('ok', 'Synced '+t);
     // 2分鐘沒更新 → stale
     clearTimeout(staleTimer);
@@ -2801,7 +2814,7 @@ async function submitEq(){
   const note=document.getElementById('eq-note').value.trim();
   const key=selId.replace(/[\/\.\#\$\[\]-]/g,'_');
   const type=selId.split('-')[0];
-  const now=new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});
+  const now=new Date().toLocaleString('zh-TW',{timeZone:PA_TZ});
   await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({machine_id:selId,machine_type:type,status:pendSt,crew,note,last_updated:now})});
   const num=selId.startsWith(type+'-')?selId.slice(type.length+1):selId;
@@ -2817,7 +2830,7 @@ async function loadEqHist(id,type){
   const el=document.getElementById('eq-hist');
   el.innerHTML='<div class="loading"><div class="spin"></div></div>';
   try{
-    const now=new Date(), month=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+    const p=panParts(), month=`${p.y}${String(p.m).padStart(2,'0')}`;
     const r=await fetch(`${GAS}?action=history&month=${month}&type=${type}`);
     const d2=await r.json();
     const rows=(d2.rows||[]).filter(r=>r.machine_id===id).slice(0,8);
@@ -2913,7 +2926,7 @@ async function loadHistory(){
   const st=document.getElementById('h-status');
   st.textContent='Loading...';
   try{
-    const now=new Date(), month=from?from.replace(/-/g,'').substring(0,6):`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+    const p=panParts(), month=from?from.replace(/-/g,'').substring(0,6):`${p.y}${String(p.m).padStart(2,'0')}`;
     const r=await fetch(`${GAS}?action=history&month=${month}&from=${from}&to=${to}&type=${type}`);
     const d2=await r.json();
     const rows=d2.rows||[];
@@ -2939,7 +2952,7 @@ function addToHome(){
 }
 
 // Init
-const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
+const p=panParts(), y=p.y, m=String(p.m).padStart(2,'0'), d=String(p.d).padStart(2,'0');
 document.getElementById('h-from').value=`${y}-${m}-01`;
 document.getElementById('h-to').value=`${y}-${m}-${d}`;
 
