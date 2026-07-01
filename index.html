@@ -305,6 +305,55 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-log-user{font-weight:700;white-space:nowrap}
 .mt-log-act{padding:0 7px;border-radius:8px;background:var(--blue-l);color:var(--blue);font-weight:600;white-space:nowrap}
 .mt-log-detail{color:var(--text2)}
+/* ── 點名簿 ── */
+.at-wrap{flex:1;display:flex;flex-direction:column;padding:12px 14px;gap:10px;overflow:hidden;min-height:0}
+.at-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;flex-shrink:0}
+.at-sel{padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;background:var(--bg)}
+.at-month-nav{display:flex;align-items:center;gap:8px}
+.at-month-nav button{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:15px;color:var(--text2)}
+.at-month-nav button:hover{background:var(--bg2)}
+.at-month-label{font-size:14px;font-weight:600;min-width:90px;text-align:center}
+.at-btn{padding:7px 13px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-weight:600;cursor:pointer}
+.at-btn:hover{background:var(--bg2);border-color:var(--blue)}
+.at-btn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.at-legend{display:flex;flex-wrap:wrap;gap:6px;font-size:11px;color:var(--text3);align-items:center}
+.at-legend .lg{padding:1px 6px;border-radius:6px;font-weight:700}
+.at-tools{display:flex;gap:8px;margin-left:auto}
+.at-gridwrap{flex:1;min-height:0;overflow:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg)}
+.at-empty{padding:40px;text-align:center;color:var(--text3);font-size:13px}
+.at-table{border-collapse:separate;border-spacing:0;font-size:12px}
+.at-table th,.at-table td{border-right:1px solid var(--bg3);border-bottom:1px solid var(--bg3);padding:0;text-align:center;white-space:nowrap}
+.at-table thead th{position:sticky;top:0;z-index:3;background:var(--bg2);font-weight:700;color:var(--text2);height:30px;padding:0 4px}
+.at-th-team{position:sticky;left:0;z-index:5;background:var(--bg2);text-align:left;padding:0 8px;min-width:120px}
+.at-th-name{position:sticky;left:120px;z-index:5;background:var(--bg2);text-align:left;padding:0 8px;min-width:150px}
+.at-th-rate{position:sticky;right:0;z-index:5;background:var(--bg2);min-width:64px}
+.at-td-team{position:sticky;left:0;z-index:2;background:var(--bg);text-align:left;padding:4px 8px;font-weight:600;color:var(--text3);min-width:120px}
+.at-td-name{position:sticky;left:120px;z-index:2;background:var(--bg);text-align:left;padding:4px 8px;font-weight:600;min-width:150px}
+.at-td-name .eid{font-size:10px;color:var(--text3);font-weight:400;margin-right:5px}
+.at-td-rate{position:sticky;right:0;z-index:2;background:var(--bg);font-weight:700;min-width:64px}
+.at-cell{width:30px;height:28px;cursor:default;font-weight:700;font-size:11px}
+.at-table.editing .at-cell{cursor:pointer}
+.at-table.editing .at-cell:hover{outline:2px solid var(--blue);outline-offset:-2px}
+.at-col-we{background:var(--bg2)}
+.at-col-today{box-shadow:inset 0 0 0 2px var(--blue)}
+.at-daynum small{display:block;font-size:9px;color:var(--text3);font-weight:400}
+/* 出勤代碼配色 */
+.c-A{background:var(--green-l);color:var(--green)}
+.c-N,.c-RN{background:var(--red-l);color:var(--red)}
+.c-U{background:#ede9fe;color:#6d28d9}
+.c-V,.c-VA{background:#fef9c3;color:#a16207}
+.c-S{background:#ffe4e6;color:#be123c}
+.c-P{background:#e0f2fe;color:#0369a1}
+.c-L{background:#fff7ed;color:#c2410c}
+.c-SU{background:#e5e7eb;color:#374151}
+.c-311,.c-117{background:#f1f5f9;color:#475569}
+.c-NH{background:#f5f3ff;color:#7c3aed}
+.at-picker{position:fixed;inset:0;background:rgba(15,23,42,.35);display:flex;align-items:center;justify-content:center;z-index:600}
+.at-picker-box{background:var(--bg);border-radius:14px;box-shadow:var(--shadow-md);padding:16px;width:300px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.at-picker-title{width:100%;font-size:13px;font-weight:700;text-align:center;margin-bottom:4px}
+.at-pick{min-width:52px;padding:9px 6px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:12px;font-weight:700;text-align:center}
+.at-pick small{display:block;font-size:9px;font-weight:400;color:var(--text3)}
+.at-pick.clear{border-style:dashed;color:var(--text3)}
 /* ── 站內訊息 ── */
 .msg-fab{position:fixed;right:20px;bottom:20px;z-index:500;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;border:none;box-shadow:var(--shadow-md);cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center}
 .msg-fab .msg-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
@@ -379,6 +428,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="nav-item" data-page="maintenance" data-tip="保養計畫" onclick="navTo('maintenance',this)">
         <div class="nav-icon">🔧</div>
         <span class="nav-label">保養計畫</span>
+      </div>
+      <div class="nav-item" data-page="attendance" data-tip="點名簿" onclick="navTo('attendance',this)">
+        <div class="nav-icon">🗒️</div>
+        <span class="nav-label">點名簿</span>
       </div>
       <div class="nav-item" data-page="notify" data-tip="即時故障通知" onclick="navTo('notify',this)">
         <div class="nav-icon">🔔</div>
@@ -769,6 +822,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
     <div class="page" id="page-notify"><div class="placeholder"><div class="placeholder-icon">🔔</div><div class="placeholder-title">Real-time fault notifications</div><div class="placeholder-sub">Push alerts for emergency events — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
+    <div class="page" id="page-attendance">
+      <div class="at-wrap">
+        <div class="at-toolbar">
+          <select id="at-dept" class="at-sel" onchange="atSelectDept(this.value)"></select>
+          <div class="at-month-nav">
+            <button onclick="atShiftMonth(-1)">‹</button>
+            <div class="at-month-label" id="at-month-label">—</div>
+            <button onclick="atShiftMonth(1)">›</button>
+          </div>
+          <button class="at-btn" id="at-edit-btn" onclick="atToggleEdit()">✏️ 點名</button>
+          <div class="at-legend" id="at-legend"></div>
+          <div class="at-tools" id="at-admin-tools" style="display:none">
+            <button class="at-btn" onclick="atAddPersonPrompt()">＋ 人員</button>
+            <button class="at-btn" onclick="atSeedMT1()">載入 MT1 名冊</button>
+          </div>
+        </div>
+        <div class="at-gridwrap" id="at-gridwrap">
+          <div class="at-empty" id="at-empty">尚無名冊。管理者可按「載入 MT1 名冊」或「＋ 人員」建立。</div>
+          <table class="at-table" id="at-table" style="display:none">
+            <thead id="at-thead"></thead>
+            <tbody id="at-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="at-picker" id="at-picker" style="display:none" onclick="if(event.target===this)atClosePicker()">
+        <div class="at-picker-box" id="at-picker-box"></div>
+      </div>
+    </div>
 
     <!-- 更新日誌頁面 -->
     <div class="page" id="page-changelog">
@@ -2439,6 +2520,7 @@ async function renderMaintAdmin(){
         `<button class="mt-perm${cm?' on':''}" onclick="toggleUserPerm('${id}','canMaint')">保養</button>`+
         `<button class="mt-perm${u.canSend?' on':''}" onclick="toggleUserPerm('${id}','canSend')">訊息</button>`+
         `<button class="mt-perm${u.canAnnounce?' on':''}" onclick="toggleUserPerm('${id}','canAnnounce')">公告</button>`+
+        `<button class="mt-perm${u.canAttend?' on':''}" onclick="toggleUserPerm('${id}','canAttend')">點名</button>`+
       `</div>`+
       `<button class="mt-user-del" onclick="delMaintUser('${id}')">刪除</button></div>`;
     }).join('') || '<div style="color:var(--text3);font-size:12px;padding:6px">尚無使用者</div>';
@@ -2447,6 +2529,7 @@ async function renderMaintAdmin(){
       `<label><input type="checkbox" id="mu-maint" checked/>保養</label>`+
       `<label><input type="checkbox" id="mu-send"/>訊息</label>`+
       `<label><input type="checkbox" id="mu-ann"/>公告</label>`+
+      `<label><input type="checkbox" id="mu-att"/>點名</label>`+
       `<button class="btn-sm btn-primary" onclick="addMaintUser()">新增</button></div>
       <div class="mt-userlist">${rows}</div>`;
   } else {
@@ -2463,11 +2546,12 @@ async function addMaintUser(){
   const canMaint=!(document.getElementById('mu-maint')&&!document.getElementById('mu-maint').checked);
   const canSend=!!(document.getElementById('mu-send')&&document.getElementById('mu-send').checked);
   const canAnnounce=!!(document.getElementById('mu-ann')&&document.getElementById('mu-ann').checked);
+  const canAttend=!!(document.getElementById('mu-att')&&document.getElementById('mu-att').checked);
   if(!name||!pw){ alert('名字和密碼都要填'); return; }
   const id='u'+Date.now();
   try{
-    await fetch(`${FB}/maint_users/${id}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,password:pw,canMaint,canSend,canAnnounce})});
-    MAINT_USERS[id]={name,password:pw,canMaint,canSend,canAnnounce};
+    await fetch(`${FB}/maint_users/${id}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,password:pw,canMaint,canSend,canAnnounce,canAttend})});
+    MAINT_USERS[id]={name,password:pw,canMaint,canSend,canAnnounce,canAttend};
     renderMaintAdmin();
   }catch(e){ alert('新增失敗：'+e.message); }
 }
@@ -2631,20 +2715,211 @@ async function restoreMaintUser(){
   pollMessages();
 }
 
+// ── 點名簿（大規模架構：一月一節點、依部門分層） ──
+const AT_CODES=[
+  {c:'A',zh:'到',cls:'c-A'},{c:'N',zh:'No show',cls:'c-N'},{c:'U',zh:'工會/其他',cls:'c-U'},
+  {c:'V',zh:'假',cls:'c-V'},{c:'S',zh:'病',cls:'c-S'},{c:'P',zh:'事假',cls:'c-P'},
+  {c:'L',zh:'遲到',cls:'c-L'},{c:'SU',zh:'停職',cls:'c-SU'},{c:'VA',zh:'Vale',cls:'c-VA'},
+  {c:'3-11',zh:'3-11',cls:'c-311'},{c:'11-7',zh:'11-7',cls:'c-117'},{c:'RN',zh:'Real NS',cls:'c-RN'},{c:'NH',zh:'國定假',cls:'c-NH'}
+];
+const AT_PRESENT=['A','3-11','11-7','RN','L'];
+const AT_ABSENT=['N','S','P','SU'];
+function atClsOf(code){ const f=AT_CODES.find(x=>x.c===code); return f?f.cls:''; }
+let AT_ROSTER={};   // {dept:{empId:{name,team}}}
+let AT_DATA={};     // 當月當部門 {empId:{day:code}}
+let atDept='MT1', atYear=null, atMonth=null, atEdit=false;
+let atPickCell=null; // {empId,day}
+
+function atYm(){ return `${atYear}-${String(atMonth).padStart(2,'0')}`; }
+function atCanEdit(){
+  if(!maintUser) return false;
+  if(maintUser.name==='14'||maintIsAdmin()) return true;
+  const u=Object.values(MAINT_USERS).find(x=>x&&x.name===maintUser.name);
+  return !!(u&&u.canAttend);
+}
+function ensureAttendEdit(){
+  if(atCanEdit()) return true;
+  if(!maintUser){ if(!ensureMsgLogin()) return false; }
+  if(atCanEdit()) return true;
+  alert('你沒有點名權限'); return false;
+}
+
+async function atLoadRoster(){
+  try{ const r=await fetch(`${FB}/roster.json`); const d=await r.json(); AT_ROSTER=(d&&typeof d==='object')?d:{}; }catch(e){ AT_ROSTER={}; }
+}
+async function atLoadMonth(){
+  AT_DATA={};
+  try{ const r=await fetch(`${FB}/attendance/${atYm()}/${atDept}.json`); const d=await r.json();
+    if(d&&typeof d==='object') Object.entries(d).forEach(([eid,v])=>{ if(eid!=='meta') AT_DATA[eid]=(v&&v.days)||{}; });
+  }catch(e){}
+}
+async function initAttendance(){
+  if(atYear===null){ const p=panParts(); atYear=p.y; atMonth=p.m; }
+  await atLoadRoster();
+  const depts=Object.keys(AT_ROSTER);
+  if(depts.length && !depts.includes(atDept)) atDept=depts[0];
+  await atLoadMonth();
+  renderAttendance();
+  atPruneOld();
+}
+function atShiftMonth(d){
+  if(atYear===null){ const p=panParts(); atYear=p.y; atMonth=p.m; }
+  atMonth+=d; if(atMonth<1){atMonth=12;atYear--;} if(atMonth>12){atMonth=1;atYear++;}
+  atLoadMonth().then(renderAttendance);
+}
+function atSelectDept(dep){ atDept=dep; atLoadMonth().then(renderAttendance); }
+function atToggleEdit(){
+  if(!atEdit){ if(!ensureAttendEdit()) return; atEdit=true; }
+  else atEdit=false;
+  renderAttendance();
+}
+
+function atRate(days){
+  let pres=0, abs=0;
+  Object.values(days||{}).forEach(c=>{ if(AT_PRESENT.includes(c))pres++; else if(AT_ABSENT.includes(c))abs++; });
+  const den=pres+abs; if(!den) return '—';
+  return Math.round(pres/den*100)+'%';
+}
+
+function renderAttendance(){
+  if(atYear===null){ const p=panParts(); atYear=p.y; atMonth=p.m; }
+  // 部門下拉
+  const sel=document.getElementById('at-dept');
+  if(sel){ const depts=Object.keys(AT_ROSTER); if(!depts.length) depts.push('MT1');
+    if(!depts.includes(atDept)) atDept=depts[0];
+    sel.innerHTML=depts.map(d=>`<option value="${d}"${d===atDept?' selected':''}>${d}</option>`).join(''); }
+  const lbl=document.getElementById('at-month-label'); if(lbl) lbl.textContent=`${atYear} / ${String(atMonth).padStart(2,'0')}`;
+  const eb=document.getElementById('at-edit-btn'); if(eb){ eb.textContent=atEdit?'✓ 完成':'✏️ 點名'; eb.classList.toggle('on',atEdit); }
+  const lg=document.getElementById('at-legend'); if(lg) lg.innerHTML=AT_CODES.map(x=>`<span class="lg ${x.cls}">${x.c}</span>`).join('');
+  const tools=document.getElementById('at-admin-tools'); if(tools) tools.style.display=maintIsAdmin()?'flex':'none';
+
+  const people=AT_ROSTER[atDept]||{};
+  const ids=Object.keys(people);
+  const table=document.getElementById('at-table'), empty=document.getElementById('at-empty');
+  if(!ids.length){ if(table)table.style.display='none'; if(empty)empty.style.display='block'; return; }
+  if(empty)empty.style.display='none'; if(table)table.style.display='';
+  table.className='at-table'+(atEdit?' editing':'');
+
+  const daysIn=new Date(atYear,atMonth,0).getDate();
+  const today=panYmd();
+  const dows=['日','一','二','三','四','五','六'];
+  // 表頭
+  let thead=`<tr><th class="at-th-team">班組</th><th class="at-th-name">姓名</th>`;
+  for(let d=1;d<=daysIn;d++){
+    const wd=new Date(atYear,atMonth-1,d).getDay();
+    const we=(wd===0||wd===6)?' at-col-we':'';
+    const isT=(`${atYear}${String(atMonth).padStart(2,'0')}${String(d).padStart(2,'0')}`===today)?' at-col-today':'';
+    thead+=`<th class="${we}${isT}"><div class="at-daynum">${d}<small>${dows[wd]}</small></div></th>`;
+  }
+  thead+=`<th class="at-th-rate">出勤率</th></tr>`;
+  document.getElementById('at-thead').innerHTML=thead;
+  // 依班組排序
+  ids.sort((a,b)=>{ const ta=(people[a].team||''),tb=(people[b].team||''); return ta<tb?-1:ta>tb?1:(people[a].name<people[b].name?-1:1); });
+  let body='';
+  ids.forEach(eid=>{
+    const p=people[eid], days=AT_DATA[eid]||{};
+    body+=`<tr><td class="at-td-team">${p.team||''}</td><td class="at-td-name"><span class="eid">${eid}</span>${p.name||''}</td>`;
+    for(let d=1;d<=daysIn;d++){
+      const wd=new Date(atYear,atMonth-1,d).getDay(); const we=(wd===0||wd===6)?' at-col-we':'';
+      const code=days[String(d)]||'';
+      body+=`<td class="at-cell ${atClsOf(code)}${we}" onclick="atCellClick('${eid}',${d})">${code}</td>`;
+    }
+    body+=`<td class="at-td-rate">${atRate(days)}</td></tr>`;
+  });
+  document.getElementById('at-tbody').innerHTML=body;
+}
+
+function atCellClick(eid, day){
+  if(!atEdit) return;
+  if(!ensureAttendEdit()) return;
+  atPickCell={eid,day};
+  const box=document.getElementById('at-picker-box');
+  const person=(AT_ROSTER[atDept]||{})[eid]||{};
+  box.innerHTML=`<div class="at-picker-title">${person.name||eid} · ${atMonth}/${day}</div>`+
+    AT_CODES.map(x=>`<button class="at-pick ${x.cls}" onclick="atSetCode('${x.c}')">${x.c}<small>${x.zh}</small></button>`).join('')+
+    `<button class="at-pick clear" onclick="atSetCode('')">清除</button>`;
+  document.getElementById('at-picker').style.display='flex';
+}
+function atClosePicker(){ document.getElementById('at-picker').style.display='none'; atPickCell=null; }
+async function atSetCode(code){
+  if(!atPickCell) return;
+  const {eid,day}=atPickCell;
+  try{
+    if(code) await fetch(`${FB}/attendance/${atYm()}/${atDept}/${eid}/days/${day}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(code)});
+    else await fetch(`${FB}/attendance/${atYm()}/${atDept}/${eid}/days/${day}.json`,{method:'DELETE'});
+    if(!AT_DATA[eid]) AT_DATA[eid]={};
+    if(code) AT_DATA[eid][String(day)]=code; else delete AT_DATA[eid][String(day)];
+    // 也存 name/team 以便該月節點自含
+    const p=(AT_ROSTER[atDept]||{})[eid]||{};
+    fetch(`${FB}/attendance/${atYm()}/${atDept}/${eid}/name.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(p.name||'')}).catch(()=>{});
+    fetch(`${FB}/attendance/${atYm()}/${atDept}/${eid}/team.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(p.team||'')}).catch(()=>{});
+  }catch(e){ alert('儲存失敗：'+e.message); }
+  atClosePicker(); renderAttendance();
+}
+
+// 人員管理（14）
+function atAddPersonPrompt(){
+  if(!maintIsAdmin()){ alert('只有 14 能新增人員'); return; }
+  const eid=prompt('工號：'); if(!eid) return;
+  const name=prompt('姓名：'); if(!name) return;
+  const team=prompt('班組（例 GC/SP-12）：')||'';
+  atAddPerson(atDept, eid.trim(), name.trim(), team.trim());
+}
+async function atAddPerson(dept, eid, name, team){
+  try{
+    await fetch(`${FB}/roster/${dept}/${eid}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,team})});
+    if(!AT_ROSTER[dept]) AT_ROSTER[dept]={};
+    AT_ROSTER[dept][eid]={name,team};
+    renderAttendance();
+  }catch(e){ alert('新增失敗：'+e.message); }
+}
+async function atSeedMT1(){
+  if(!maintIsAdmin()){ alert('只有 14 能載入名冊'); return; }
+  if(!confirm('載入 MT1 名冊（約 50 人）到 roster/MT1？已存在的會被覆蓋名字。')) return;
+  const R={
+    '834583':['Danyelo Houlston','GC/SP-12'],'825083':['Olmedo Jones','GC/SP-12'],'946638':['Eric Prada','GC/SP-12'],'C03663':['Jahir Jessany','GC/SP-12'],'B35874':['Abdiel Ifill','GC/SP-12'],'B35273':['F. Santamaría','GC/SP-12'],'C70498':['Edkardo Rose','GC/SP-12'],'C70431':['Joel Santamaría','GC/SP-12'],'I40010':['Pablo Ortiz','GC/SP-12'],'I40007':['José Aguilar','GC/SP-12'],'I40369':['Fernando Grimes','GC/SP-12'],'825274':['Abdiel Espada','GC/SP-12'],
+    '834351':['Yahir Abrego','GC/SP-04'],'946961':['Virgilio Gonzalez','GC/SP-04'],'C70867':['Juanel Rodríguez','GC/SP-04'],'I40371':['Kevin Sánchez','GC/SP-04'],
+    '825348':['Eric Oliveros','RTG/ARMGC-11'],'834568':['Aritzel Allen','RTG/ARMGC-11'],'B34975':['Aris Barrios','RTG/ARMGC-11'],'946269':['Jesús García','RTG/ARMGC-11'],'C70854':['José Jaén','RTG/ARMGC-11'],'C70460':['Noel Rivera','RTG/ARMGC-11'],'C70870':['Michael Burton','RTG/ARMGC-11'],'I40022':['Ricardo Lucas','RTG/ARMGC-11'],'I40356':['Alejandro Cuadra','RTG/ARMGC-11'],'I39981':['David Vitola','RTG/ARMGC-11'],'C03650':['Delber Mendoza','RTG/ARMGC-11'],
+    '825541':['Mariano Holder','SL/RS/S-PH&HM'],'945770':['Carlos Moodie','SL/RS/S-PH&HM'],'825595':['Michael Riley','SL/RS/S-PH&HM'],'C41233':['E. Jiménez','SL/RS/S-PH&HM'],'I40896':['David Rodríguez','SL/RS/S-PH&HM'],
+    '946536':['Cesar Escorcia','Truck/Engine'],'834891':['Reynaldo Barría','Truck/Engine'],'930964':['Edgardo Valdés','Truck/Engine'],'C70444':['Santiago Sanjur','Truck/Engine'],'I39620':['Junier Cullins','Truck/Engine'],'C41274':['Paulo Abadía','Truck/Engine'],'I40343':['Rhyno Cameron','Truck/Engine'],'C70485':['Bladimir De León','Truck/Engine'],'834603':['Guillermo Vergara','Truck/Engine'],'946510':['Juan Becerra','Truck/Engine'],
+    'C70813':['Ruben Mendoza','Chassis'],'C41246':['Javier Toribio','Chassis'],'C70403':['Addiel James','Chassis'],
+    '825615':['Alonso Houlston','Inventory'],'B34962':['Boris Bustamante','Inventory'],'B34410':['Leroy Lewis','Inventory'],'B35890':['Anyelino Hernández','Inventory'],'C41923':['Euston Solís','Inventory']
+  };
+  const obj={}; Object.entries(R).forEach(([eid,[name,team]])=>obj[eid]={name,team});
+  try{
+    await fetch(`${FB}/roster/MT1.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
+    AT_ROSTER.MT1=obj; atDept='MT1'; renderAttendance();
+    alert('已載入 MT1 名冊 '+Object.keys(obj).length+' 人 ✓');
+  }catch(e){ alert('載入失敗：'+e.message); }
+}
+
+// 保留最近 36 個月，更舊自動刪
+async function atPruneOld(){
+  if(!maintIsAdmin()) return;
+  try{
+    const r=await fetch(`${FB}/attendance.json?shallow=true`); const d=await r.json();
+    if(!d) return;
+    const keys=Object.keys(d).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort();
+    if(keys.length<=36) return;
+    const drop=keys.slice(0, keys.length-36);
+    for(const k of drop){ await fetch(`${FB}/attendance/${k}.json`,{method:'DELETE'}); }
+  }catch(e){}
+}
+
 // ── Nav ──────────────────────────────────────────────────
 const PAGE_TITLES = {
   map:'地圖狀態', allEq:'全車機監控', secondary:'非主力車機', trailer:'拖車板台連結',
   realtime:'即時報表', history:'歷史查詢', maintenance:'保養計畫',
-  notify:'即時故障通知', changelog:'更新日誌', admin:'管理者介面'
+  notify:'即時故障通知', attendance:'點名簿', changelog:'更新日誌', admin:'管理者介面'
 };
 // 導航多語（沿用 maintLang 全站生效）
 const NAV_I18N = {
   es:{ groups:{monitor:'Monitoreo',reports:'Reportes',manage:'Administración'},
-    pages:{map:'Estado del mapa',allEq:'Monitor de equipos',maintenance:'Plan de mantenimiento',notify:'Alertas de fallas',secondary:'Equipos secundarios',trailer:'Enlace de remolques',realtime:'Reporte en vivo',history:'Historial',changelog:'Registro de cambios',admin:'Administración'} },
+    pages:{map:'Estado del mapa',allEq:'Monitor de equipos',maintenance:'Plan de mantenimiento',attendance:'Asistencia',notify:'Alertas de fallas',secondary:'Equipos secundarios',trailer:'Enlace de remolques',realtime:'Reporte en vivo',history:'Historial',changelog:'Registro de cambios',admin:'Administración'} },
   zh:{ groups:{monitor:'監控',reports:'報表',manage:'管理'},
-    pages:{map:'地圖狀態',allEq:'全車機監控',maintenance:'保養計畫',notify:'即時故障通知',secondary:'非主力車機',trailer:'拖車板台連結',realtime:'即時報表',history:'歷史查詢',changelog:'更新日誌',admin:'管理者介面'} },
+    pages:{map:'地圖狀態',allEq:'全車機監控',maintenance:'保養計畫',attendance:'點名簿',notify:'即時故障通知',secondary:'非主力車機',trailer:'拖車板台連結',realtime:'即時報表',history:'歷史查詢',changelog:'更新日誌',admin:'管理者介面'} },
   en:{ groups:{monitor:'Monitoring',reports:'Reports',manage:'Management'},
-    pages:{map:'Map status',allEq:'Equipment monitor',maintenance:'Maintenance plan',notify:'Fault alerts',secondary:'Secondary equipment',trailer:'Trailer link',realtime:'Live report',history:'History',changelog:'Changelog',admin:'Admin'} }
+    pages:{map:'Map status',allEq:'Equipment monitor',maintenance:'Maintenance plan',attendance:'Attendance',notify:'Fault alerts',secondary:'Secondary equipment',trailer:'Trailer link',realtime:'Live report',history:'History',changelog:'Changelog',admin:'Admin'} }
 };
 function navLabel(page){ const L=NAV_I18N[maintLang]||NAV_I18N.es; return (L.pages&&L.pages[page])||PAGE_TITLES[page]||page; }
 function applyNavLang(){
@@ -2667,6 +2942,7 @@ function navTo(page, el){
   if(page==='allEq') renderAllEq();
   if(page==='realtime') renderRealtime();
   if(page==='maintenance') initMaintPage();
+  if(page==='attendance') initAttendance();
   if(page==='changelog') loadChangelogPage();
   if(page==='admin') {
     // 每次進入管理者頁面都要重新登入
