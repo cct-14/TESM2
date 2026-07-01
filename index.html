@@ -272,11 +272,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-mach-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px}
 .mt-task{display:flex;align-items:flex-start;gap:10px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;background:var(--bg2)}
 .mt-task[draggable=true]{cursor:grab}
-.mt-task.done{opacity:.6}
+.mt-task.done{opacity:.6;background:var(--bg2)}
 .mt-task input{margin-top:2px;width:16px;height:16px;flex-shrink:0;cursor:pointer}
 .mt-task-body{flex:1;min-width:0}
 .mt-task-name{font-size:13px;font-weight:600;color:var(--text)}
-.mt-task.done .mt-task-name{text-decoration:line-through}
+.mt-task.done .mt-task-name{text-decoration:line-through;color:var(--text3)}
 .mt-task-sub{font-size:11px;color:var(--text3);margin-top:2px}
 .mt-badge{font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;background:var(--bg3);color:var(--text2);white-space:nowrap}
 .mt-badge.over{background:var(--red-l);color:var(--red)}
@@ -312,11 +312,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-mach-grp{margin-bottom:12px}
 .mt-mach-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px}
 .mt-task{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;background:var(--bg2)}
-.mt-task.done{opacity:.55}
+.mt-task.done{opacity:.6;background:var(--bg2)}
 .mt-task input{margin-top:2px;width:16px;height:16px;flex-shrink:0;cursor:pointer}
 .mt-task-body{flex:1;min-width:0}
 .mt-task-name{font-size:13px;font-weight:600;color:var(--text)}
-.mt-task.done .mt-task-name{text-decoration:line-through}
+.mt-task.done .mt-task-name{text-decoration:line-through;color:var(--text3)}
 .mt-task-sub{font-size:11px;color:var(--text3);margin-top:2px}
 .mt-badge{font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;background:var(--bg3);color:var(--text2)}
 .mt-badge.over{background:var(--red-l);color:var(--red)}
@@ -700,6 +700,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <button class="mt-up-btn mt2" id="mt-up2-btn" onclick="triggerMaintUpload('MT2')">⬆️ 上傳 MT-2</button>
             <input type="file" id="maint-file-MT2" accept="application/pdf" style="display:none" onchange="onMaintFile('MT2',this)"/>
             <button class="mt-edit-btn" id="mt-edit-btn" onclick="toggleMaintEdit()">✏️ 排程</button>
+            <button class="mt-edit-btn" id="mt-showdone-btn" onclick="toggleMaintShowDone()">✓ 顯示已完成</button>
             <div class="mt-month-nav">
               <button onclick="maintShiftMonth(-1)">‹</button>
               <div class="mt-month-label" id="mt-month-label">—</div>
@@ -1963,23 +1964,24 @@ let maintType = 'GC';
 let maintYear = null, maintMonth = null;
 let selMaintDate = null;   // 共用選取日 yyyymmdd 或 null
 let maintEdit = false;     // 排程模式
+let maintShowDone = true;  // 顯示已完成（可取消恢復）
 let maintUser = null;      // 登入的編輯者 {name} 或 null
 
 // ── 多語（西/中/英，預設西） ──
 const MT_I18N = {
-  es:{ up1:'⬆️ Subir MT-1', up2:'⬆️ Subir MT-2', sched:'✏️ Planificar', schedDone:'✓ Listo',
+  es:{ up1:'⬆️ Subir MT-1', up2:'⬆️ Subir MT-2', sched:'✏️ Planificar', schedDone:'✓ Listo', showDone:'Ver hechos',
     notUploaded:'Sin subir', dow:['D','L','M','X','J','V','S'],
     monthN:n=>`${n} este mes`, backlog:(d,n)=>`Pendientes hasta ${d}: <b>${n}</b>`,
     add:'＋ Nuevo', over:'Vencido', done:'Hecho', due:'Vence', noTasks:'Sin trabajos', allDone:'✓ Todo hecho',
     dueLabel:'vence', metaFmt:(c,u)=>`${c} ítems · ${u}`,
     addTitle:'Nuevo trabajo', mMachine:'Máquina', mName:'Nombre del trabajo', mInterval:'Ciclo (meses)', mDate:'Fecha límite', cancel:'Cancelar', save:'Añadir' },
-  zh:{ up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程',
+  zh:{ up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成',
     notUploaded:'尚未上傳', dow:['日','一','二','三','四','五','六'],
     monthN:n=>`本月 ${n} 件`, backlog:(d,n)=>`到 ${d} 未完成 <b>${n}</b> 件`,
     add:'＋ 新增', over:'逾期', done:'完成', due:'到期', noTasks:'尚無工程', allDone:'✓ 都做完了',
     dueLabel:'到期', metaFmt:(c,u)=>`${c} 件 · ${u}`,
     addTitle:'新增工程', mMachine:'機號', mName:'工程名稱', mInterval:'週期（月）', mDate:'到期日', cancel:'取消', save:'新增' },
-  en:{ up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done',
+  en:{ up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done',
     notUploaded:'Not uploaded', dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
     monthN:n=>`${n} this month`, backlog:(d,n)=>`Open until ${d}: <b>${n}</b>`,
     add:'＋ Add', over:'Overdue', done:'Done', due:'Due', noTasks:'No tasks', allDone:'✓ All done',
@@ -1997,6 +1999,12 @@ function setMaintLang(l){
   if(typeof initAnnounce==='function') initAnnounce();
   const cp=document.getElementById('page-changelog');
   if(cp&&cp.classList.contains('active')&&typeof loadChangelogPage==='function') loadChangelogPage();
+  // 管理介面裡開著的更新日誌／公告清單也一起重繪
+  if(document.getElementById('changelog-list')&&typeof loadChangelog==='function') loadChangelog();
+  ['opd','mtd','14'].forEach(r=>{
+    if(document.getElementById('announce-list-'+r)&&typeof loadAnnounceList==='function') loadAnnounceList(r);
+    if(document.getElementById('ann-list-'+r)&&typeof loadAnnounceListInPanel==='function') loadAnnounceListInPanel(r);
+  });
 }
 async function gasTranslate(text){
   const out={es:text,zh:text,en:text};
@@ -2172,6 +2180,8 @@ function renderMaintenance(){
   const b2=document.getElementById('mt-up2-btn'); if(b2) b2.textContent=L.up2;
   const editBtn=document.getElementById('mt-edit-btn');
   if(editBtn){ editBtn.textContent=maintEdit?L.schedDone:L.sched; editBtn.classList.toggle('on',maintEdit); }
+  const sdBtn=document.getElementById('mt-showdone-btn');
+  if(sdBtn){ sdBtn.textContent='✓ '+L.showDone; sdBtn.classList.toggle('on',maintShowDone); }
   // 語言鈕 active 狀態
   updateLangUI();
   // modal 靜態文字
@@ -2233,20 +2243,26 @@ function renderMaintCal(team){
 
 function selectMaintDay(ds){ selMaintDate=(selMaintDate===ds)?null:ds; renderMaintCal('MT1'); renderMaintCal('MT2'); renderMaintLists(); }
 
+function toggleMaintShowDone(){ maintShowDone=!maintShowDone; renderMaintenance(); }
+
 function renderMaintLists(){
   const today=todayYmd(); const L=mtL();
   MT_TEAMS.forEach(team=>{
     const el=document.getElementById('mt-list-'+team); if(!el) return;
-    let tasks=maintTasks(maintType,team).filter(t=>/^\d{8}$/.test(t.nextTime||''));
-    let headTxt;
+    const all=maintTasks(maintType,team).filter(t=>/^\d{8}$/.test(t.nextTime||''));
+    let tasks, headTxt;
     if(selMaintDate){
-      tasks=tasks.filter(t=>t.nextTime<=selMaintDate && !t.done);
-      headTxt=L.backlog(fmtYmd(selMaintDate), tasks.length);
+      const upto=all.filter(t=>t.nextTime<=selMaintDate);
+      const pending=upto.filter(t=>!t.done).length;
+      tasks = maintShowDone ? upto : upto.filter(t=>!t.done);
+      headTxt=L.backlog(fmtYmd(selMaintDate), pending);
     } else {
-      tasks=tasks.filter(t=>+t.nextTime.slice(0,4)===maintYear && +t.nextTime.slice(4,6)===maintMonth);
-      headTxt=L.monthN(tasks.length);
+      const inMonth=all.filter(t=>+t.nextTime.slice(0,4)===maintYear && +t.nextTime.slice(4,6)===maintMonth);
+      tasks = maintShowDone ? inMonth : inMonth.filter(t=>!t.done);
+      headTxt=L.monthN(inMonth.length);
     }
-    tasks.sort((a,b)=>a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:0);
+    // 未完成在前、已完成在後，各自依到期日
+    tasks.sort((a,b)=> ((a.done?1:0)-(b.done?1:0)) || (a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:0));
     const grp={}; tasks.forEach(t=>{(grp[t.machine]=grp[t.machine]||[]).push(t);});
     let body='';
     if(!tasks.length){ body=`<div class="mt-panel-empty">${selMaintDate?L.allDone:L.noTasks}</div>`; }
@@ -2347,7 +2363,7 @@ async function toggleMaintDone(team, id, checked){
     const g=mtGet(maintType,team);
     const t=g&&g.tasks&&g.tasks[id];
     if(t){ t.done=checked; t.doneAt=now; }
-    await maintLog(checked?'完成':'取消完成', `${maintType} ${team} ${t?t.machine:''} ${t?t.code:id}`);
+    await maintLog(checked?'完成':'恢復', `${maintType} ${team} ${t?t.machine:''} ${t?t.code:id}`);
     renderMaintenance();
   }catch(e){ alert('更新失敗：'+e.message); }
 }
