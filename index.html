@@ -235,9 +235,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-cal-title{font-size:13px;font-weight:700}
 .mt-cal-title .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .mt-cal-meta{font-size:11px;color:var(--text3)}
-.mt-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.mt-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .mt-dow{text-align:center;font-size:11px;color:var(--text3);font-weight:600;padding:1px 0}
-.mt-day{position:relative;min-height:34px;border-radius:6px;border:1px solid transparent;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:.12s;padding:3px 0}
+.mt-day{position:relative;min-width:0;min-height:34px;border-radius:6px;border:1px solid transparent;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:.12s;padding:3px 0}
 .mt-day:hover{border-color:var(--blue)}
 .mt-day.empty{background:transparent;cursor:default}
 .mt-day.today{outline:2px solid var(--blue);outline-offset:-2px}
@@ -251,8 +251,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-day.exp{min-height:66px;align-items:stretch;justify-content:flex-start;padding:2px 3px;gap:2px}
 .mt-daynum{font-size:11px;color:var(--text3);text-align:right;line-height:1;font-weight:700}
 .mt-day.sel .mt-daynum{color:#fff}
-.mt-chips{display:flex;flex-direction:column;gap:2px;overflow:hidden}
-.mt-chip{display:flex;align-items:center;gap:3px;font-size:9px;font-weight:700;background:var(--blue-l);color:var(--blue);border-radius:4px;padding:2px 3px;cursor:grab}
+.mt-chips{display:flex;flex-direction:column;gap:2px;overflow:hidden;min-width:0}
+.mt-chip{display:flex;align-items:center;gap:3px;min-width:0;font-size:9px;font-weight:700;background:var(--blue-l);color:var(--blue);border-radius:4px;padding:2px 3px;cursor:grab}
 .mt-chip.done{background:var(--green-l);color:var(--green);opacity:.75}
 .mt-chip.over{background:var(--red-l);color:var(--red)}
 .mt-chip-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
