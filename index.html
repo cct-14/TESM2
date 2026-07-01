@@ -224,6 +224,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-month-nav button{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:15px;color:var(--text2)}
 .mt-month-nav button:hover{background:var(--bg2)}
 .mt-month-label{font-size:14px;font-weight:600;min-width:90px;text-align:center}
+.mt-lang{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.mt-lang button{border:none;background:var(--bg);color:var(--text2);font-size:12px;font-weight:700;padding:6px 10px;cursor:pointer;border-left:1px solid var(--border)}
+.mt-lang button:first-child{border-left:none}
+.mt-lang button:hover{background:var(--bg2)}
+.mt-lang button.on{background:var(--blue);color:#fff}
 .mt-cals{display:flex;gap:12px;flex-wrap:nowrap;align-items:flex-start;flex-shrink:0}
 .mt-cal{flex:1 1 0;min-width:0;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 11px;box-shadow:var(--shadow)}
 .mt-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -685,15 +690,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="mt-type-tabs" id="mt-type-tabs"></div>
         <div class="mt-main">
           <div class="mt-toolbar">
-            <button class="mt-up-btn mt1" onclick="triggerMaintUpload('MT1')">⬆️ 上傳 MT-1</button>
+            <button class="mt-up-btn mt1" id="mt-up1-btn" onclick="triggerMaintUpload('MT1')">⬆️ 上傳 MT-1</button>
             <input type="file" id="maint-file-MT1" accept="application/pdf" style="display:none" onchange="onMaintFile('MT1',this)"/>
-            <button class="mt-up-btn mt2" onclick="triggerMaintUpload('MT2')">⬆️ 上傳 MT-2</button>
+            <button class="mt-up-btn mt2" id="mt-up2-btn" onclick="triggerMaintUpload('MT2')">⬆️ 上傳 MT-2</button>
             <input type="file" id="maint-file-MT2" accept="application/pdf" style="display:none" onchange="onMaintFile('MT2',this)"/>
             <button class="mt-edit-btn" id="mt-edit-btn" onclick="toggleMaintEdit()">✏️ 排程</button>
             <div class="mt-month-nav">
               <button onclick="maintShiftMonth(-1)">‹</button>
               <div class="mt-month-label" id="mt-month-label">—</div>
               <button onclick="maintShiftMonth(1)">›</button>
+            </div>
+            <div class="mt-lang" id="mt-lang">
+              <button data-l="es" onclick="setMaintLang('es')">ES</button>
+              <button data-l="zh" onclick="setMaintLang('zh')">中</button>
+              <button data-l="en" onclick="setMaintLang('en')">EN</button>
             </div>
           </div>
           <div class="mt-cals">
@@ -714,13 +724,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="mt-modal" id="mt-add-modal" style="display:none">
         <div class="mt-modal-box">
-          <div class="mt-modal-title">新增工程</div>
+          <div class="mt-modal-title" id="mt-add-title">新增工程</div>
           <input type="hidden" id="mt-add-team"/>
-          <label>機號<input id="mt-add-machine" placeholder="GC-03"/></label>
-          <label>工程名稱<input id="mt-add-name" placeholder="例：MONTHLY MAINTENANCE"/></label>
-          <label>週期（月）<input id="mt-add-interval" type="number" value="1" min="0"/></label>
-          <label>到期日<input id="mt-add-date" type="date"/></label>
-          <div class="mt-modal-btns"><button onclick="closeMtAdd()">取消</button><button class="btn-primary" onclick="submitMtAdd()">新增</button></div>
+          <label><span id="mt-lbl-machine">機號</span><input id="mt-add-machine" placeholder="GC-03"/></label>
+          <label><span id="mt-lbl-name">工程名稱</span><input id="mt-add-name" placeholder="MONTHLY MAINTENANCE"/></label>
+          <label><span id="mt-lbl-interval">週期（月）</span><input id="mt-add-interval" type="number" value="1" min="0"/></label>
+          <label><span id="mt-lbl-date">到期日</span><input id="mt-add-date" type="date"/></label>
+          <div class="mt-modal-btns"><button id="mt-add-cancel" onclick="closeMtAdd()">取消</button><button class="btn-primary" id="mt-add-save" onclick="submitMtAdd()">新增</button></div>
         </div>
       </div>
     </div>
@@ -1954,6 +1964,32 @@ let selMaintDate = null;   // 共用選取日 yyyymmdd 或 null
 let maintEdit = false;     // 排程模式
 let maintUser = null;      // 登入的編輯者 {name} 或 null
 
+// ── 多語（西/中/英，預設西） ──
+const MT_I18N = {
+  es:{ up1:'⬆️ Subir MT-1', up2:'⬆️ Subir MT-2', sched:'✏️ Planificar', schedDone:'✓ Listo',
+    notUploaded:'Sin subir', dow:['D','L','M','X','J','V','S'],
+    monthN:n=>`${n} este mes`, backlog:(d,n)=>`Pendientes hasta ${d}: <b>${n}</b>`,
+    add:'＋ Nuevo', over:'Vencido', done:'Hecho', due:'Vence', noTasks:'Sin trabajos', allDone:'✓ Todo hecho',
+    dueLabel:'vence', metaFmt:(c,u)=>`${c} ítems · ${u}`,
+    addTitle:'Nuevo trabajo', mMachine:'Máquina', mName:'Nombre del trabajo', mInterval:'Ciclo (meses)', mDate:'Fecha límite', cancel:'Cancelar', save:'Añadir' },
+  zh:{ up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程',
+    notUploaded:'尚未上傳', dow:['日','一','二','三','四','五','六'],
+    monthN:n=>`本月 ${n} 件`, backlog:(d,n)=>`到 ${d} 未完成 <b>${n}</b> 件`,
+    add:'＋ 新增', over:'逾期', done:'完成', due:'到期', noTasks:'尚無工程', allDone:'✓ 都做完了',
+    dueLabel:'到期', metaFmt:(c,u)=>`${c} 件 · ${u}`,
+    addTitle:'新增工程', mMachine:'機號', mName:'工程名稱', mInterval:'週期（月）', mDate:'到期日', cancel:'取消', save:'新增' },
+  en:{ up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done',
+    notUploaded:'Not uploaded', dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
+    monthN:n=>`${n} this month`, backlog:(d,n)=>`Open until ${d}: <b>${n}</b>`,
+    add:'＋ Add', over:'Overdue', done:'Done', due:'Due', noTasks:'No tasks', allDone:'✓ All done',
+    dueLabel:'due', metaFmt:(c,u)=>`${c} items · ${u}`,
+    addTitle:'New task', mMachine:'Machine', mName:'Task name', mInterval:'Cycle (months)', mDate:'Due date', cancel:'Cancel', save:'Add' }
+};
+let maintLang = 'es';
+try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }catch(_){}
+function mtL(){ return MT_I18N[maintLang]||MT_I18N.es; }
+function setMaintLang(l){ if(!MT_I18N[l]) return; maintLang=l; try{localStorage.setItem('mt_lang',l);}catch(_){}; renderMaintenance(); }
+
 function mtTypeOf(machine){
   let p = String(machine||'').split(/[-\/]/)[0].toUpperCase();
   if(p==='ARMGC') p='AR';
@@ -2104,6 +2140,7 @@ function fmtYmd(s){ return s&&s.length>=8?`${s.slice(0,4)}/${s.slice(4,6)}/${s.s
 
 function renderMaintenance(){
   if(maintYear===null) setMaintMonthFromData();
+  const L=mtL();
   const tabs=document.getElementById('mt-type-tabs');
   if(tabs){
     tabs.innerHTML = MT_TYPES.map(ty=>{
@@ -2112,8 +2149,17 @@ function renderMaintenance(){
     }).join('');
   }
   const lbl=document.getElementById('mt-month-label'); if(lbl) lbl.textContent=`${maintYear} / ${String(maintMonth).padStart(2,'0')}`;
+  const b1=document.getElementById('mt-up1-btn'); if(b1) b1.textContent=L.up1;
+  const b2=document.getElementById('mt-up2-btn'); if(b2) b2.textContent=L.up2;
   const editBtn=document.getElementById('mt-edit-btn');
-  if(editBtn){ editBtn.textContent=maintEdit?'✓ 完成排程':'✏️ 排程'; editBtn.classList.toggle('on',maintEdit); }
+  if(editBtn){ editBtn.textContent=maintEdit?L.schedDone:L.sched; editBtn.classList.toggle('on',maintEdit); }
+  // 語言鈕 active 狀態
+  const langBox=document.getElementById('mt-lang');
+  if(langBox) langBox.querySelectorAll('button').forEach(btn=>btn.classList.toggle('on', btn.getAttribute('data-l')===maintLang));
+  // modal 靜態文字
+  const set=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
+  set('mt-add-title',L.addTitle); set('mt-lbl-machine',L.mMachine); set('mt-lbl-name',L.mName);
+  set('mt-lbl-interval',L.mInterval); set('mt-lbl-date',L.mDate); set('mt-add-cancel',L.cancel); set('mt-add-save',L.save);
   renderMaintCal('MT1'); renderMaintCal('MT2');
   renderMaintLists();
 }
@@ -2123,7 +2169,7 @@ function renderMaintCal(team){
   const meta=document.getElementById('mt-meta-'+team);
   if(!grid) return;
   const g=mtGet(maintType,team);
-  if(meta) meta.textContent = g&&g.meta ? `${g.meta.count} 件 · ${g.meta.uploadedAt}` : '尚未上傳';
+  if(meta) meta.textContent = g&&g.meta ? mtL().metaFmt(g.meta.count, g.meta.uploadedAt) : mtL().notUploaded;
   const tasks=maintTasks(maintType,team);
   const byDay={};
   tasks.forEach(t=>{
@@ -2136,7 +2182,7 @@ function renderMaintCal(team){
   const firstDow=new Date(maintYear,maintMonth-1,1).getDay();
   const daysIn=new Date(maintYear,maintMonth,0).getDate();
   grid.className='mt-grid'+(maintEdit?' edit':'');
-  let html=MT_DOW.map(d=>`<div class="mt-dow">${d}</div>`).join('');
+  let html=mtL().dow.map(d=>`<div class="mt-dow">${d}</div>`).join('');
   for(let i=0;i<firstDow;i++) html+=`<div class="mt-day empty"></div>`;
   for(let day=1;day<=daysIn;day++){
     const ds=`${maintYear}${String(maintMonth).padStart(2,'0')}${String(day).padStart(2,'0')}`;
@@ -2170,22 +2216,22 @@ function renderMaintCal(team){
 function selectMaintDay(ds){ selMaintDate=(selMaintDate===ds)?null:ds; renderMaintCal('MT1'); renderMaintCal('MT2'); renderMaintLists(); }
 
 function renderMaintLists(){
-  const today=todayYmd();
+  const today=todayYmd(); const L=mtL();
   MT_TEAMS.forEach(team=>{
     const el=document.getElementById('mt-list-'+team); if(!el) return;
     let tasks=maintTasks(maintType,team).filter(t=>/^\d{8}$/.test(t.nextTime||''));
     let headTxt;
     if(selMaintDate){
       tasks=tasks.filter(t=>t.nextTime<=selMaintDate && !t.done);
-      headTxt=`到 ${fmtYmd(selMaintDate)} 未完成 <b>${tasks.length}</b> 件`;
+      headTxt=L.backlog(fmtYmd(selMaintDate), tasks.length);
     } else {
       tasks=tasks.filter(t=>+t.nextTime.slice(0,4)===maintYear && +t.nextTime.slice(4,6)===maintMonth);
-      headTxt=`本月 ${tasks.length} 件`;
+      headTxt=L.monthN(tasks.length);
     }
     tasks.sort((a,b)=>a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:0);
     const grp={}; tasks.forEach(t=>{(grp[t.machine]=grp[t.machine]||[]).push(t);});
     let body='';
-    if(!tasks.length){ body=`<div class="mt-panel-empty">${selMaintDate?'✓ 都做完了':'尚無工程'}</div>`; }
+    if(!tasks.length){ body=`<div class="mt-panel-empty">${selMaintDate?L.allDone:L.noTasks}</div>`; }
     else Object.keys(grp).sort().forEach(mac=>{
       body+=`<div class="mt-mach-grp"><div class="mt-mach-name">${mac}</div>`;
       grp[mac].forEach(t=>{
@@ -2193,16 +2239,16 @@ function renderMaintLists(){
         const drag=maintEdit?`draggable="true" ondragstart="mtDragStart(event,'${team}','${t.id}')"`:'';
         const right=maintEdit
           ? `<span class="mt-chip-x" onclick="mtDeleteTask('${team}','${t.id}')">×</span>`
-          : `<span class="mt-badge${over?' over':''}">${over?'逾期':(t.done?'完成':'到期')}</span>`;
+          : `<span class="mt-badge${over?' over':''}">${over?L.over:(t.done?L.done:L.due)}</span>`;
         body+=`<div class="mt-task${t.done?' done':''}" ${drag}>`+
           `<input type="checkbox" ${t.done?'checked':''} onchange="toggleMaintDone('${team}','${t.id}',this.checked)"/>`+
           `<div class="mt-task-body"><div class="mt-task-name">${t.name||t.code}</div>`+
-          `<div class="mt-task-sub">${t.code} · ${t.interval}${t.unit} · 到期 ${fmtYmd(t.nextTime)}</div></div>`+
+          `<div class="mt-task-sub">${t.code} · ${t.interval}${t.unit} · ${L.dueLabel} ${fmtYmd(t.nextTime)}</div></div>`+
           right+`</div>`;
       });
       body+=`</div>`;
     });
-    const addBtn = maintEdit?`<button class="mt-add-btn" onclick="mtAddTask('${team}')">＋ 新增</button>`:'';
+    const addBtn = maintEdit?`<button class="mt-add-btn" onclick="mtAddTask('${team}')">${L.add}</button>`:'';
     el.innerHTML=`<div class="mt-list-head"><span class="mt-list-team">${team}</span><span class="mt-list-sub">${headTxt}</span>${addBtn}</div>${body}`;
   });
 }
