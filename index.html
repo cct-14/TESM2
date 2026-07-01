@@ -206,34 +206,100 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .gc-c{cursor:pointer}.gc-c:hover rect:first-child{opacity:.8}
 
 /* ── MAINTENANCE ── */
-.mt-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px}
-.mt-up-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
-.mt-up-btn:hover{background:var(--bg2);border-color:var(--blue)}
+.mt-layout{flex:1;display:flex;overflow:hidden;min-height:0}
+.mt-type-tabs{width:80px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:8px 6px;display:flex;flex-direction:column;gap:4px;background:var(--bg)}
+.mt-type{padding:9px 4px;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;position:relative;transition:.12s}
+.mt-type:hover{background:var(--bg2)}
+.mt-type.active{background:var(--blue);color:#fff}
+.mt-type-dot{position:absolute;top:6px;right:9px;width:6px;height:6px;border-radius:50%;background:var(--green)}
+.mt-type.active .mt-type-dot{background:#fff}
+.mt-main{flex:1;min-width:0;display:flex;flex-direction:column;padding:12px 14px;gap:10px;overflow:hidden}
+.mt-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;flex-shrink:0}
+.mt-up-btn,.mt-edit-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.mt-up-btn:hover,.mt-edit-btn:hover{background:var(--bg2);border-color:var(--blue)}
 .mt-up-btn.mt1{border-color:#bfdbfe}.mt-up-btn.mt1:hover{background:var(--blue-l)}
 .mt-up-btn.mt2{border-color:#c4b5fd}.mt-up-btn.mt2:hover{background:var(--purple-l)}
+.mt-edit-btn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 .mt-month-nav{display:flex;align-items:center;gap:8px;margin-left:auto}
-.mt-month-nav button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:15px;color:var(--text2)}
+.mt-month-nav button{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:15px;color:var(--text2)}
 .mt-month-nav button:hover{background:var(--bg2)}
-.mt-month-label{font-size:14px;font-weight:600;min-width:96px;text-align:center}
-.mt-cals{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
-.mt-cal{flex:1 1 340px;min-width:300px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
-.mt-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.mt-cal-title{font-size:14px;font-weight:700}
+.mt-month-label{font-size:14px;font-weight:600;min-width:90px;text-align:center}
+.mt-cals{display:flex;gap:12px;flex-wrap:nowrap;align-items:flex-start;flex-shrink:0}
+.mt-cal{flex:1 1 0;min-width:0;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 11px;box-shadow:var(--shadow)}
+.mt-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mt-cal-title{font-size:13px;font-weight:700}
 .mt-cal-title .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .mt-cal-meta{font-size:11px;color:var(--text3)}
 .mt-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.mt-dow{text-align:center;font-size:11px;color:var(--text3);font-weight:600;padding:2px 0}
-.mt-day{position:relative;aspect-ratio:1;border-radius:7px;border:1px solid transparent;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--text2);cursor:pointer;transition:.12s}
+.mt-dow{text-align:center;font-size:11px;color:var(--text3);font-weight:600;padding:1px 0}
+.mt-day{position:relative;min-height:34px;border-radius:6px;border:1px solid transparent;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:.12s;padding:3px 0}
 .mt-day:hover{border-color:var(--blue)}
 .mt-day.empty{background:transparent;cursor:default}
 .mt-day.today{outline:2px solid var(--blue);outline-offset:-2px}
 .mt-day.sel{background:var(--blue);color:#fff}
-.mt-day .cnt{margin-top:2px;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;line-height:1.4}
+.mt-day .cnt{font-size:10px;font-weight:700;padding:0 6px;border-radius:9px;line-height:1.5}
 .mt-day.sel .cnt{background:rgba(255,255,255,.25);color:#fff}
 .cnt-done{background:var(--green-l);color:var(--green)}
 .cnt-pend{background:var(--orange-l);color:var(--orange)}
 .cnt-over{background:var(--red-l);color:var(--red)}
-.mt-panel{margin-top:16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+/* 排程模式：格子展開顯示小卡 */
+.mt-day.exp{min-height:66px;align-items:stretch;justify-content:flex-start;padding:2px 3px;gap:2px}
+.mt-daynum{font-size:11px;color:var(--text3);text-align:right;line-height:1;font-weight:700}
+.mt-day.sel .mt-daynum{color:#fff}
+.mt-chips{display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.mt-chip{display:flex;align-items:center;gap:3px;font-size:9px;font-weight:700;background:var(--blue-l);color:var(--blue);border-radius:4px;padding:2px 3px;cursor:grab}
+.mt-chip.done{background:var(--green-l);color:var(--green);opacity:.75}
+.mt-chip.over{background:var(--red-l);color:var(--red)}
+.mt-chip-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.mt-chip-x{cursor:pointer;font-weight:800;padding:0 2px;color:var(--text3)}
+.mt-chip-x:hover{color:var(--red)}
+.mt-day.drop{outline:2px dashed var(--blue);outline-offset:-2px;background:var(--blue-l)}
+/* 下方雙清單 */
+.mt-lists{flex:1;min-height:0;display:flex;gap:12px}
+.mt-list{flex:1 1 0;min-width:0;overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px 12px;box-shadow:var(--shadow)}
+.mt-list-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;position:sticky;top:0;background:var(--bg);padding:6px 0;border-bottom:1px solid var(--border);z-index:1}
+.mt-list-team{font-weight:800;font-size:13px}
+.mt-list-sub{font-size:12px;color:var(--text3)}
+.mt-list-sub b{color:var(--red);font-size:14px}
+.mt-add-btn{margin-left:auto;font-size:12px;padding:4px 10px;border:1px dashed var(--blue);color:var(--blue);background:var(--blue-l);border-radius:8px;cursor:pointer;font-weight:600}
+.mt-panel-empty{color:var(--text3);font-size:13px;text-align:center;padding:24px}
+.mt-mach-grp{margin-bottom:10px}
+.mt-mach-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px}
+.mt-task{display:flex;align-items:flex-start;gap:10px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;background:var(--bg2)}
+.mt-task[draggable=true]{cursor:grab}
+.mt-task.done{opacity:.6}
+.mt-task input{margin-top:2px;width:16px;height:16px;flex-shrink:0;cursor:pointer}
+.mt-task-body{flex:1;min-width:0}
+.mt-task-name{font-size:13px;font-weight:600;color:var(--text)}
+.mt-task.done .mt-task-name{text-decoration:line-through}
+.mt-task-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.mt-badge{font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;background:var(--bg3);color:var(--text2);white-space:nowrap}
+.mt-badge.over{background:var(--red-l);color:var(--red)}
+/* 新增工程 modal */
+.mt-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:400}
+.mt-modal-box{background:var(--bg);border-radius:var(--radius);padding:20px;width:320px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-md)}
+.mt-modal-title{font-size:15px;font-weight:700;margin-bottom:2px}
+.mt-modal-box label{font-size:12px;color:var(--text2);display:flex;flex-direction:column;gap:3px}
+.mt-modal-box input{padding:7px 9px;border:1px solid var(--border);border-radius:8px;font-size:13px}
+.mt-modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.mt-modal-btns button{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600}
+.mt-modal-btns .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* 管理介面：授權使用者 + LOG */
+.fp-sec-title{font-size:13px;font-weight:700;margin-bottom:8px}
+.mt-userform{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.mt-userform input{padding:6px 9px;border:1px solid var(--border);border-radius:8px;font-size:13px;flex:1;min-width:100px}
+.mt-userlist{display:flex;flex-direction:column;gap:5px;margin-bottom:6px}
+.mt-userrow{display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);font-size:13px}
+.mt-userrow>span:first-child{font-weight:600}
+.mt-userpw{color:var(--text3);font-family:monospace;margin-left:auto}
+.mt-user-del{border:none;background:none;color:var(--text3);cursor:pointer;font-size:12px}
+.mt-user-del:hover{color:var(--red)}
+.mt-loglist{display:flex;flex-direction:column;gap:3px;max-height:320px;overflow:auto}
+.mt-logrow{display:flex;gap:10px;font-size:12px;padding:5px 8px;border-radius:6px;background:var(--bg2);align-items:baseline}
+.mt-log-time{color:var(--text3);white-space:nowrap;font-size:11px}
+.mt-log-user{font-weight:700;white-space:nowrap}
+.mt-log-act{padding:0 7px;border-radius:8px;background:var(--blue-l);color:var(--blue);font-weight:600;white-space:nowrap}
+.mt-log-detail{color:var(--text2)}
 .mt-panel-empty{color:var(--text3);font-size:13px;text-align:center;padding:24px}
 .mt-panel-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:10px}
 .mt-panel-count{font-size:22px;font-weight:800;color:var(--red)}
@@ -274,6 +340,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="nav-icon">📟</div>
         <span class="nav-label">全車機監控</span>
       </div>
+      <div class="nav-item" data-page="maintenance" data-tip="保養計畫" onclick="navTo('maintenance',this)">
+        <div class="nav-icon">🔧</div>
+        <span class="nav-label">保養計畫</span>
+      </div>
+      <div class="nav-item" data-page="notify" data-tip="即時故障通知" onclick="navTo('notify',this)">
+        <div class="nav-icon">🔔</div>
+        <span class="nav-label">即時故障通知</span>
+        <span class="nav-badge">soon</span>
+      </div>
       <div class="nav-item" data-page="secondary" data-tip="非主力車機" onclick="navTo('secondary',this)">
         <div class="nav-icon">🚜</div>
         <span class="nav-label">非主力車機</span>
@@ -300,16 +375,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div class="nav-group">
       <div class="nav-group-label">管理</div>
-      <div class="nav-item" data-page="maintenance" data-tip="保養計畫" onclick="navTo('maintenance',this)">
-        <div class="nav-icon">🔧</div>
-        <span class="nav-label">保養計畫</span>
-        <span class="nav-badge">soon</span>
-      </div>
-      <div class="nav-item" data-page="notify" data-tip="即時故障通知" onclick="navTo('notify',this)">
-        <div class="nav-icon">🔔</div>
-        <span class="nav-label">即時故障通知</span>
-        <span class="nav-badge">soon</span>
-      </div>
       <div class="nav-item" data-page="changelog" data-tip="更新日誌" onclick="navTo('changelog',this)">
         <div class="nav-icon">📰</div>
         <span class="nav-label">更新日誌</span>
@@ -616,34 +681,48 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="page" id="page-secondary"><div class="placeholder"><div class="placeholder-icon">🚜</div><div class="placeholder-title">Non-primary equipment</div><div class="placeholder-sub">FL, SL, RS, PPG, ESL monitoring — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
     <div class="page" id="page-trailer"><div class="placeholder"><div class="placeholder-icon">🔗</div><div class="placeholder-title">TR / CH pairing</div><div class="placeholder-sub">Trailer chassis pairing monitor — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
     <div class="page" id="page-maintenance">
-      <div class="mt-toolbar">
-        <button class="mt-up-btn mt1" onclick="triggerMaintUpload('MT1')">⬆️ 上傳 MT-1</button>
-        <input type="file" id="maint-file-MT1" accept="application/pdf" style="display:none" onchange="onMaintFile('MT1',this)"/>
-        <button class="mt-up-btn mt2" onclick="triggerMaintUpload('MT2')">⬆️ 上傳 MT-2</button>
-        <input type="file" id="maint-file-MT2" accept="application/pdf" style="display:none" onchange="onMaintFile('MT2',this)"/>
-        <div class="mt-month-nav">
-          <button onclick="maintShiftMonth(-1)">‹</button>
-          <div class="mt-month-label" id="mt-month-label">—</div>
-          <button onclick="maintShiftMonth(1)">›</button>
+      <div class="mt-layout">
+        <div class="mt-type-tabs" id="mt-type-tabs"></div>
+        <div class="mt-main">
+          <div class="mt-toolbar">
+            <button class="mt-up-btn mt1" onclick="triggerMaintUpload('MT1')">⬆️ 上傳 MT-1</button>
+            <input type="file" id="maint-file-MT1" accept="application/pdf" style="display:none" onchange="onMaintFile('MT1',this)"/>
+            <button class="mt-up-btn mt2" onclick="triggerMaintUpload('MT2')">⬆️ 上傳 MT-2</button>
+            <input type="file" id="maint-file-MT2" accept="application/pdf" style="display:none" onchange="onMaintFile('MT2',this)"/>
+            <button class="mt-edit-btn" id="mt-edit-btn" onclick="toggleMaintEdit()">✏️ 排程</button>
+            <div class="mt-month-nav">
+              <button onclick="maintShiftMonth(-1)">‹</button>
+              <div class="mt-month-label" id="mt-month-label">—</div>
+              <button onclick="maintShiftMonth(1)">›</button>
+            </div>
+          </div>
+          <div class="mt-cals">
+            <div class="mt-cal">
+              <div class="mt-cal-head"><div class="mt-cal-title"><span class="dot" style="background:var(--blue)"></span>MT-1</div><div class="mt-cal-meta" id="mt-meta-MT1"></div></div>
+              <div class="mt-grid" id="mt-grid-MT1"></div>
+            </div>
+            <div class="mt-cal">
+              <div class="mt-cal-head"><div class="mt-cal-title"><span class="dot" style="background:var(--purple)"></span>MT-2</div><div class="mt-cal-meta" id="mt-meta-MT2"></div></div>
+              <div class="mt-grid" id="mt-grid-MT2"></div>
+            </div>
+          </div>
+          <div class="mt-lists">
+            <div class="mt-list" id="mt-list-MT1"></div>
+            <div class="mt-list" id="mt-list-MT2"></div>
+          </div>
         </div>
       </div>
-      <div class="mt-cals">
-        <div class="mt-cal">
-          <div class="mt-cal-head">
-            <div class="mt-cal-title"><span class="dot" style="background:var(--blue)"></span>MT-1</div>
-            <div class="mt-cal-meta" id="mt-meta-MT1"></div>
-          </div>
-          <div class="mt-grid" id="mt-grid-MT1"></div>
-        </div>
-        <div class="mt-cal">
-          <div class="mt-cal-head">
-            <div class="mt-cal-title"><span class="dot" style="background:var(--purple)"></span>MT-2</div>
-            <div class="mt-cal-meta" id="mt-meta-MT2"></div>
-          </div>
-          <div class="mt-grid" id="mt-grid-MT2"></div>
+      <div class="mt-modal" id="mt-add-modal" style="display:none">
+        <div class="mt-modal-box">
+          <div class="mt-modal-title">新增工程</div>
+          <input type="hidden" id="mt-add-team"/>
+          <label>機號<input id="mt-add-machine" placeholder="GC-03"/></label>
+          <label>工程名稱<input id="mt-add-name" placeholder="例：MONTHLY MAINTENANCE"/></label>
+          <label>週期（月）<input id="mt-add-interval" type="number" value="1" min="0"/></label>
+          <label>到期日<input id="mt-add-date" type="date"/></label>
+          <div class="mt-modal-btns"><button onclick="closeMtAdd()">取消</button><button class="btn-primary" onclick="submitMtAdd()">新增</button></div>
         </div>
       </div>
-      <div class="mt-panel" id="mt-panel"><div class="mt-panel-empty">點任一天，列出「那天（含）之前還沒做完的工程」</div></div>
     </div>
     <div class="page" id="page-notify"><div class="placeholder"><div class="placeholder-icon">🔔</div><div class="placeholder-title">Real-time fault notifications</div><div class="placeholder-sub">Push alerts for emergency events — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
 
@@ -1323,7 +1402,7 @@ function renderFeaturePanel(featureId, deptKey) {
   }
   if (featureId==='teu')      { panel.innerHTML='<div id="fp-teu"></div>'; renderTEUInPanel(); }
   if (featureId==='announce') { panel.innerHTML='<div id="fp-announce"></div>'; renderAnnounceInPanel(deptKey); }
-  if (featureId==='maintain') { panel.innerHTML=`<div class="placeholder" style="padding:60px 0"><div class="placeholder-icon">🔧</div><div class="placeholder-title">保養計畫</div><div class="placeholder-sub">即將推出</div><div class="placeholder-badge">In planning</div></div>`; }
+  if (featureId==='maintain') { panel.innerHTML='<div id="fp-maint"></div>'; renderMaintAdmin(); }
   if (featureId==='changelog'){ panel.innerHTML='<div id="fp-changelog"></div>'; renderChangelogInPanel(); }
   if (featureId==='email')    { panel.innerHTML='<div id="fp-email"></div>'; renderEmailPanel(); }
   if (featureId==='password') { panel.innerHTML=''; renderPasswordPanel(deptKey); }
@@ -1865,31 +1944,45 @@ if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
-let MAINT = { MT1:null, MT2:null };
-let maintYear=null, maintMonth=null;      // 目前顯示的年月 (month 1-12)
-let selMaintTeam=null, selMaintDate=null; // 被點選的隊伍 + 日期(yyyymmdd)
+const MT_TYPES = ['GC','RTG','AR','TT','CH','SL','ESL','PPG','SP'];
+const MT_TEAMS = ['MT1','MT2'];
+let MAINT = {};            // { TYPE: { MT1:{meta,tasks}, MT2:{...} } }
+let MAINT_USERS = {};      // id -> {name,password}
+let maintType = 'GC';
+let maintYear = null, maintMonth = null;
+let selMaintDate = null;   // 共用選取日 yyyymmdd 或 null
+let maintEdit = false;     // 排程模式
+let maintUser = null;      // 登入的編輯者 {name} 或 null
 
-function maintHasAccess(){
-  return currentRole && (
-    ROLES[currentRole]?.features?.includes('*') ||
-    ROLES[currentRole]?.features?.includes('maintain')
-  );
-}
-function ensureMaintAccess(){
-  if (maintHasAccess()) return true;
-  const pw = prompt('請輸入 MTD 密碼：');
-  if (pw===null) return false;
-  let matched=null;
-  Object.entries(ROLES).forEach(([key,cfg])=>{
-    if(pw===cfg.password && (cfg.features?.includes('*')||cfg.features?.includes('maintain'))) matched=key;
-  });
-  if(!matched){ alert('密碼錯誤或無保養權限'); return false; }
-  currentRole = matched;
-  return true;
+function mtTypeOf(machine){
+  let p = String(machine||'').split(/[-\/]/)[0].toUpperCase();
+  if(p==='ARMGC') p='AR';
+  return p;
 }
 
-// pdf.js 解析：這份報表是「轉90°的交叉表」——每個工程是一個固定 x 直欄，
-// 每種欄位是一條 y 水平帶。用 Task Code 的 x 當錨，收集同一欄各欄位，用 x 範圍配機號。
+// ── 權限 ──（看＝全開；編輯＝14主密碼或14核可帳號）
+function maintIsAdmin(){ return currentRole && ROLES[currentRole] && ROLES[currentRole].features && ROLES[currentRole].features.includes('*'); }
+function ensureMaintEdit(){
+  if(maintUser) return true;
+  if(maintIsAdmin()){ maintUser={name: (ROLES[currentRole]&&ROLES[currentRole].label)||'14'}; return true; }
+  const pw = prompt('編輯需要授權，請輸入你的密碼：');
+  if(pw===null) return false;
+  const adminPw = ROLES['14'] && ROLES['14'].password;
+  if(adminPw && pw===adminPw){ maintUser={name:'14'}; return true; }
+  const u = Object.values(MAINT_USERS).find(x=>x && x.password===pw);
+  if(u){ maintUser={name:u.name}; return true; }
+  alert('密碼錯誤或未被 14 授權');
+  return false;
+}
+
+async function maintLog(action, detail){
+  try{
+    await fetch(`${FB}/maint_log.json`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({time:new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}),user:(maintUser&&maintUser.name)||'?',action,detail})});
+  }catch(e){}
+}
+
+// pdf.js 解析：轉90°的交叉表——Task Code 的 x 當錨、收集同欄各欄位、用 x 範圍配機號
 function parseMaintPage(items){
   const machs = [];
   items.forEach(it=>{
@@ -1912,7 +2005,7 @@ function parseMaintPage(items){
       !/^\d{8}$/.test(it.s) && !/^MT\d+$/i.test(it.s) &&
       !/^(Month|Week|Day|Year|Hour)s?$/i.test(it.s) && !/^\d{1,3}$/.test(it.s)
     ).sort((a,b)=>a.y-b.y);
-    const name = texts.length ? texts[0].s : ci.s;   // 最低 y = 工程名稱
+    const name = texts.length ? texts[0].s : ci.s;
     const doneBy = texts.length>1 ? texts[1].s : '';
     out.push({ machine: machFor(ci.x)||'?', code: ci.s, name,
       interval: parseInt(interval||'0',10)||0, unit, doneBy, dept,
@@ -1920,7 +2013,6 @@ function parseMaintPage(items){
   });
   return out;
 }
-
 async function parseMaintPDF(file){
   if(!window.pdfjsLib) throw new Error('pdf.js 未載入（公司網路可能擋了 cdnjs）');
   const buf = await file.arrayBuffer();
@@ -1929,20 +2021,19 @@ async function parseMaintPDF(file){
   for(let p=1;p<=pdf.numPages;p++){
     const page = await pdf.getPage(p);
     const tc = await page.getTextContent();
-    const items = tc.items
-      .filter(it=>it.str && it.str.trim())
+    const items = tc.items.filter(it=>it.str && it.str.trim())
       .map(it=>({ x:it.transform[4], y:it.transform[5], s:it.str.trim() }));
     tasks = tasks.concat(parseMaintPage(items));
   }
   return tasks;
 }
 
+// ── 上傳（自動依機號前綴分流到型別）──
 function triggerMaintUpload(team){
-  if(!ensureMaintAccess()) return;
+  if(!ensureMaintEdit()) return;
   const inp = document.getElementById('maint-file-'+team);
   inp.value=''; inp.click();
 }
-
 async function onMaintFile(team, input){
   const file = input.files && input.files[0];
   if(!file) return;
@@ -1950,181 +2041,294 @@ async function onMaintFile(team, input){
   if(meta) meta.textContent = '解析中…';
   try{
     const tasks = await parseMaintPDF(file);
-    if(!tasks.length){ alert('沒有解析到任何工程，請確認 PDF 格式是否正確'); if(meta) meta.textContent=''; return; }
-    const existing = (MAINT[team] && MAINT[team].tasks) || {};
-    const obj = {};
-    tasks.forEach(t=>{
-      const id = (t.machine+'_'+t.code).replace(/[^A-Za-z0-9_]/g,'_');
-      const prev = existing[id];
-      obj[id] = Object.assign({}, t, { done: prev?prev.done||false:false, doneAt: prev?prev.doneAt||null:null });
-    });
-    const payload = {
-      meta: { fileName:file.name, count:tasks.length,
-              uploadedAt:new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}) },
-      tasks: obj
-    };
-    await fetch(`${FB}/maintenance/${team}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!tasks.length){ alert('沒有解析到任何工程，請確認 PDF 格式是否正確'); renderMaintenance(); return; }
+    const byType = {};
+    tasks.forEach(t=>{ const ty=mtTypeOf(t.machine); (byType[ty]=byType[ty]||[]).push(t); });
+    const types = Object.keys(byType);
+    for(const ty of types){
+      const existing = (MAINT[ty] && MAINT[ty][team] && MAINT[ty][team].tasks) || {};
+      const obj = {};
+      byType[ty].forEach(t=>{
+        const id = (t.machine+'_'+t.code).replace(/[^A-Za-z0-9_]/g,'_');
+        const prev = existing[id];
+        obj[id] = Object.assign({}, t, { done: prev?prev.done||false:false, doneAt: prev?prev.doneAt||null:null });
+      });
+      const payload = { meta:{ fileName:file.name, count:byType[ty].length,
+        uploadedAt:new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}) }, tasks:obj };
+      await fetch(`${FB}/maintenance/${ty}/${team}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    }
+    await maintLog('上傳', `${team}｜${file.name}｜${tasks.length}件｜型別:${types.join(',')}`);
     await loadMaint();
+    maintType = types[0] || maintType;
     setMaintMonthFromData();
     renderMaintenance();
-    alert(`${team} 已匯入 ${tasks.length} 件工程 ✓`);
-  }catch(e){
-    console.error(e);
-    alert('解析失敗：'+e.message);
-    if(meta) meta.textContent='';
-  }
+    alert(`已匯入 ${tasks.length} 件（${types.join('、')}）到 ${team} ✓`);
+  }catch(e){ console.error(e); alert('解析失敗：'+e.message); renderMaintenance(); }
 }
 
+// ── 載入 ──
 async function loadMaint(){
-  try{
-    const r = await fetch(`${FB}/maintenance.json`);
-    const d = await r.json();
-    MAINT = { MT1: d&&d.MT1?d.MT1:null, MT2: d&&d.MT2?d.MT2:null };
-  }catch(e){ /* keep current */ }
+  try{ const r=await fetch(`${FB}/maintenance.json`); const d=await r.json(); MAINT=(d&&typeof d==='object')?d:{}; }catch(e){}
+  try{ const r=await fetch(`${FB}/maint_users.json`); const d=await r.json(); MAINT_USERS=(d&&typeof d==='object')?d:{}; }catch(e){}
 }
+function mtGet(type,team){ return MAINT[type]&&MAINT[type][team] ? MAINT[type][team] : null; }
+function maintTasks(type,team){ const g=mtGet(type,team); return g&&g.tasks?Object.entries(g.tasks).map(([id,t])=>Object.assign({id},t)):[]; }
 
-function maintTasks(team){ return MAINT[team]&&MAINT[team].tasks ? Object.values(MAINT[team].tasks) : []; }
-
-// 從資料裡選出工程最多的那個月當預設
 function setMaintMonthFromData(){
-  const all = maintTasks('MT1').concat(maintTasks('MT2'));
-  if(!all.length){ const n=new Date(); maintYear=n.getFullYear(); maintMonth=n.getMonth()+1; return; }
-  const cnt = {};
-  all.forEach(t=>{ if(/^\d{8}$/.test(t.nextTime||'')){ const k=t.nextTime.slice(0,6); cnt[k]=(cnt[k]||0)+1; } });
-  const best = Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
-  if(best){ maintYear=+best[0].slice(0,4); maintMonth=+best[0].slice(4,6); }
-  else { const n=new Date(); maintYear=n.getFullYear(); maintMonth=n.getMonth()+1; }
+  const all = MT_TEAMS.reduce((a,tm)=>a.concat(maintTasks(maintType,tm)),[]);
+  const valid = all.filter(t=>/^\d{8}$/.test(t.nextTime||''));
+  if(!valid.length){ const n=new Date(); maintYear=n.getFullYear(); maintMonth=n.getMonth()+1; return; }
+  const cnt={}; valid.forEach(t=>{ const k=t.nextTime.slice(0,6); cnt[k]=(cnt[k]||0)+1; });
+  const best=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+  maintYear=+best[0].slice(0,4); maintMonth=+best[0].slice(4,6);
 }
-
-function maintShiftMonth(delta){
+function maintShiftMonth(d){
   if(maintYear===null){ const n=new Date(); maintYear=n.getFullYear(); maintMonth=n.getMonth()+1; }
-  maintMonth += delta;
+  maintMonth+=d;
   if(maintMonth<1){ maintMonth=12; maintYear--; }
   if(maintMonth>12){ maintMonth=1; maintYear++; }
   renderMaintenance();
 }
-
-async function initMaintPage(){
-  await loadMaint();
-  if(maintYear===null) setMaintMonthFromData();
+function selectMaintType(ty){ maintType=ty; selMaintDate=null; setMaintMonthFromData(); renderMaintenance(); }
+async function initMaintPage(){ await loadMaint(); if(maintYear===null) setMaintMonthFromData(); renderMaintenance(); }
+function toggleMaintEdit(){
+  if(!maintEdit){ if(!ensureMaintEdit()) return; maintEdit=true; }
+  else maintEdit=false;
   renderMaintenance();
 }
 
+// ── 渲染 ──
+const MT_DOW=['日','一','二','三','四','五','六'];
+function todayYmd(){ const n=new Date(); return `${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}`; }
+function fmtYmd(s){ return s&&s.length>=8?`${s.slice(0,4)}/${s.slice(4,6)}/${s.slice(6,8)}`:(s||''); }
+
 function renderMaintenance(){
   if(maintYear===null) setMaintMonthFromData();
-  const lbl = document.getElementById('mt-month-label');
-  if(lbl) lbl.textContent = `${maintYear} / ${String(maintMonth).padStart(2,'0')}`;
-  renderMaintCal('MT1');
-  renderMaintCal('MT2');
-  renderMaintPanel();
+  const tabs=document.getElementById('mt-type-tabs');
+  if(tabs){
+    tabs.innerHTML = MT_TYPES.map(ty=>{
+      const has = MT_TEAMS.some(tm=>maintTasks(ty,tm).length);
+      return `<div class="mt-type${ty===maintType?' active':''}" onclick="selectMaintType('${ty}')">${ty}${has?'<span class="mt-type-dot"></span>':''}</div>`;
+    }).join('');
+  }
+  const lbl=document.getElementById('mt-month-label'); if(lbl) lbl.textContent=`${maintYear} / ${String(maintMonth).padStart(2,'0')}`;
+  const editBtn=document.getElementById('mt-edit-btn');
+  if(editBtn){ editBtn.textContent=maintEdit?'✓ 完成排程':'✏️ 排程'; editBtn.classList.toggle('on',maintEdit); }
+  renderMaintCal('MT1'); renderMaintCal('MT2');
+  renderMaintLists();
 }
 
-const MT_DOW = ['日','一','二','三','四','五','六'];
 function renderMaintCal(team){
-  const grid = document.getElementById('mt-grid-'+team);
-  const meta = document.getElementById('mt-meta-'+team);
+  const grid=document.getElementById('mt-grid-'+team);
+  const meta=document.getElementById('mt-meta-'+team);
   if(!grid) return;
-  if(meta){
-    const m = MAINT[team]&&MAINT[team].meta;
-    meta.textContent = m ? `${m.count} 件 · ${m.uploadedAt}` : '尚未上傳';
-  }
-  const tasks = maintTasks(team);
-  // 依日彙整
-  const byDay = {}; // day -> {due, done}
+  const g=mtGet(maintType,team);
+  if(meta) meta.textContent = g&&g.meta ? `${g.meta.count} 件 · ${g.meta.uploadedAt}` : '尚未上傳';
+  const tasks=maintTasks(maintType,team);
+  const byDay={};
   tasks.forEach(t=>{
     if(!/^\d{8}$/.test(t.nextTime||'')) return;
     if(+t.nextTime.slice(0,4)!==maintYear || +t.nextTime.slice(4,6)!==maintMonth) return;
-    const d = +t.nextTime.slice(6,8);
-    (byDay[d] = byDay[d]||{due:0,done:0}).due++;
-    if(t.done) byDay[d].done++;
+    const d=+t.nextTime.slice(6,8);
+    (byDay[d]=byDay[d]||[]).push(t);
   });
-  const todayStr = (()=>{const n=new Date();return `${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}`;})();
-  const firstDow = new Date(maintYear, maintMonth-1, 1).getDay();
-  const daysIn = new Date(maintYear, maintMonth, 0).getDate();
-  let html = MT_DOW.map(d=>`<div class="mt-dow">${d}</div>`).join('');
-  for(let i=0;i<firstDow;i++) html += `<div class="mt-day empty"></div>`;
-  for(let day=1; day<=daysIn; day++){
-    const ds = `${maintYear}${String(maintMonth).padStart(2,'0')}${String(day).padStart(2,'0')}`;
-    const info = byDay[day];
-    const isToday = ds===todayStr;
-    const isSel = selMaintTeam===team && selMaintDate===ds;
-    let cnt='';
-    if(info){
-      let cls='cnt-pend';
-      if(info.done>=info.due) cls='cnt-done';
-      else if(ds<todayStr) cls='cnt-over';
-      const pend = info.due-info.done;
-      cnt = `<span class="cnt ${cls}">${pend>0?pend:'✓'}</span>`;
+  const today=todayYmd();
+  const firstDow=new Date(maintYear,maintMonth-1,1).getDay();
+  const daysIn=new Date(maintYear,maintMonth,0).getDate();
+  grid.className='mt-grid'+(maintEdit?' edit':'');
+  let html=MT_DOW.map(d=>`<div class="mt-dow">${d}</div>`).join('');
+  for(let i=0;i<firstDow;i++) html+=`<div class="mt-day empty"></div>`;
+  for(let day=1;day<=daysIn;day++){
+    const ds=`${maintYear}${String(maintMonth).padStart(2,'0')}${String(day).padStart(2,'0')}`;
+    const list=byDay[day]||[];
+    const isToday=ds===today, isSel=selMaintDate===ds;
+    const drop = maintEdit?`ondragover="mtDragOver(event)" ondragleave="mtDragLeave(event)" ondrop="mtDrop(event,'${team}','${ds}')"`:'';
+    let inner;
+    if(maintEdit){
+      const chips=list.map(t=>{
+        const over=t.nextTime<today && !t.done;
+        const nm=(t.name||'').replace(/"/g,'&quot;');
+        return `<div class="mt-chip${t.done?' done':''}${over?' over':''}" draggable="true" ondragstart="mtDragStart(event,'${team}','${t.id}')" title="${nm}">`+
+          `<span class="mt-chip-txt">${t.machine} ${t.code}</span>`+
+          `<span class="mt-chip-x" onclick="event.stopPropagation();mtDeleteTask('${team}','${t.id}')">×</span></div>`;
+      }).join('');
+      inner=`<div class="mt-daynum">${day}</div><div class="mt-chips">${chips}</div>`;
+    } else {
+      let cnt='';
+      if(list.length){
+        const done=list.filter(t=>t.done).length, pend=list.length-done;
+        let cls='cnt-pend'; if(done>=list.length)cls='cnt-done'; else if(ds<today)cls='cnt-over';
+        cnt=`<span class="cnt ${cls}">${pend>0?pend:'✓'}</span>`;
+      }
+      inner=`${day}${cnt}`;
     }
-    html += `<div class="mt-day${isToday?' today':''}${isSel?' sel':''}" onclick="selectMaintDay('${team}','${ds}')">${day}${cnt}</div>`;
+    html+=`<div class="mt-day${isToday?' today':''}${isSel?' sel':''}${maintEdit?' exp':''}" ${drop} onclick="selectMaintDay('${ds}')">${inner}</div>`;
   }
-  grid.innerHTML = html;
+  grid.innerHTML=html;
 }
 
-function selectMaintDay(team, ds){
-  selMaintTeam = team; selMaintDate = ds;
-  renderMaintCal('MT1'); renderMaintCal('MT2'); renderMaintPanel();
-}
+function selectMaintDay(ds){ selMaintDate=(selMaintDate===ds)?null:ds; renderMaintCal('MT1'); renderMaintCal('MT2'); renderMaintLists(); }
 
-function fmtYmd(s){ return `${s.slice(0,4)}/${s.slice(4,6)}/${s.slice(6,8)}`; }
-
-function renderMaintPanel(){
-  const el = document.getElementById('mt-panel');
-  if(!el) return;
-  if(!selMaintTeam || !selMaintDate){
-    el.innerHTML = `<div class="mt-panel-empty">點任一天，列出「那天（含）之前還沒做完的工程」</div>`;
-    return;
-  }
-  const team = selMaintTeam, D = selMaintDate;
-  // backlog：Next Time <= D 且 未完成（yyyymmdd 字串比大小＝時間比大小）
-  const backlog = maintTasks(team).filter(t=>/^\d{8}$/.test(t.nextTime||'') && t.nextTime<=D && !t.done);
-  backlog.sort((a,b)=> a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:0);
-  const todayStr = (()=>{const n=new Date();return `${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}`;})();
-  // 依機號分組
-  const grp = {};
-  backlog.forEach(t=>{ (grp[t.machine]=grp[t.machine]||[]).push(t); });
-  let body = '';
-  if(!backlog.length){
-    body = `<div class="mt-panel-empty" style="padding:12px">✓ 到 ${fmtYmd(D)} 為止都做完了</div>`;
-  } else {
-    Object.keys(grp).sort().forEach(mac=>{
-      body += `<div class="mt-mach-grp"><div class="mt-mach-name">${mac}</div>`;
+function renderMaintLists(){
+  const today=todayYmd();
+  MT_TEAMS.forEach(team=>{
+    const el=document.getElementById('mt-list-'+team); if(!el) return;
+    let tasks=maintTasks(maintType,team).filter(t=>/^\d{8}$/.test(t.nextTime||''));
+    let headTxt;
+    if(selMaintDate){
+      tasks=tasks.filter(t=>t.nextTime<=selMaintDate && !t.done);
+      headTxt=`到 ${fmtYmd(selMaintDate)} 未完成 <b>${tasks.length}</b> 件`;
+    } else {
+      tasks=tasks.filter(t=>+t.nextTime.slice(0,4)===maintYear && +t.nextTime.slice(4,6)===maintMonth);
+      headTxt=`本月 ${tasks.length} 件`;
+    }
+    tasks.sort((a,b)=>a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:0);
+    const grp={}; tasks.forEach(t=>{(grp[t.machine]=grp[t.machine]||[]).push(t);});
+    let body='';
+    if(!tasks.length){ body=`<div class="mt-panel-empty">${selMaintDate?'✓ 都做完了':'尚無工程'}</div>`; }
+    else Object.keys(grp).sort().forEach(mac=>{
+      body+=`<div class="mt-mach-grp"><div class="mt-mach-name">${mac}</div>`;
       grp[mac].forEach(t=>{
-        const id = (t.machine+'_'+t.code).replace(/[^A-Za-z0-9_]/g,'_');
-        const over = t.nextTime<todayStr;
-        body += `<div class="mt-task">
-          <input type="checkbox" onchange="toggleMaintDone('${team}','${id}',this.checked)"/>
-          <div class="mt-task-body">
-            <div class="mt-task-name">${t.name||t.code}</div>
-            <div class="mt-task-sub">${t.code} · 週期 ${t.interval} ${t.unit} · 到期 ${fmtYmd(t.nextTime)}</div>
-          </div>
-          <span class="mt-badge${over?' over':''}">${over?'逾期':'到期'}</span>
-        </div>`;
+        const over=t.nextTime<today && !t.done;
+        const drag=maintEdit?`draggable="true" ondragstart="mtDragStart(event,'${team}','${t.id}')"`:'';
+        const right=maintEdit
+          ? `<span class="mt-chip-x" onclick="mtDeleteTask('${team}','${t.id}')">×</span>`
+          : `<span class="mt-badge${over?' over':''}">${over?'逾期':(t.done?'完成':'到期')}</span>`;
+        body+=`<div class="mt-task${t.done?' done':''}" ${drag}>`+
+          `<input type="checkbox" ${t.done?'checked':''} onchange="toggleMaintDone('${team}','${t.id}',this.checked)"/>`+
+          `<div class="mt-task-body"><div class="mt-task-name">${t.name||t.code}</div>`+
+          `<div class="mt-task-sub">${t.code} · ${t.interval}${t.unit} · 到期 ${fmtYmd(t.nextTime)}</div></div>`+
+          right+`</div>`;
       });
-      body += `</div>`;
+      body+=`</div>`;
     });
-  }
-  el.innerHTML = `
-    <div class="mt-panel-head">
-      <span class="mt-panel-count${backlog.length?'':' zero'}">${backlog.length}</span>
-      <span style="font-size:13px;color:var(--text2)">件未完成 · ${team} · 到 ${fmtYmd(D)} 為止</span>
-    </div>${body}`;
+    const addBtn = maintEdit?`<button class="mt-add-btn" onclick="mtAddTask('${team}')">＋ 新增</button>`:'';
+    el.innerHTML=`<div class="mt-list-head"><span class="mt-list-team">${team}</span><span class="mt-list-sub">${headTxt}</span>${addBtn}</div>${body}`;
+  });
+}
+
+// ── 拖曳改期 ──
+let mtDragData=null;
+function mtDragStart(e,team,id){ mtDragData={team,id}; try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){} }
+function mtDragOver(e){ e.preventDefault(); if(e.currentTarget.classList) e.currentTarget.classList.add('drop'); }
+function mtDragLeave(e){ if(e.currentTarget.classList) e.currentTarget.classList.remove('drop'); }
+async function mtDrop(e,team,ds){
+  e.preventDefault(); if(e.currentTarget.classList) e.currentTarget.classList.remove('drop');
+  if(!mtDragData) return;
+  const from=mtDragData; mtDragData=null;
+  await mtReschedule(from.team, from.id, ds);
+}
+async function mtReschedule(team,id,newDate){
+  if(!ensureMaintEdit()) return;
+  const g=mtGet(maintType,team); if(!g||!g.tasks||!g.tasks[id]) return;
+  const t=g.tasks[id]; const oldDate=t.nextTime;
+  if(oldDate===newDate) return;
+  try{
+    await fetch(`${FB}/maintenance/${maintType}/${team}/tasks/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({nextTime:newDate})});
+    t.nextTime=newDate;
+    await maintLog('改期', `${maintType} ${team} ${t.machine} ${t.code}：${fmtYmd(oldDate)} → ${fmtYmd(newDate)}`);
+    renderMaintenance();
+  }catch(e){ alert('改期失敗：'+e.message); }
+}
+async function mtDeleteTask(team,id){
+  if(!ensureMaintEdit()) return;
+  const g=mtGet(maintType,team); const t=g&&g.tasks&&g.tasks[id]; if(!t) return;
+  if(!confirm(`刪除 ${t.machine} ${t.code}？`)) return;
+  try{
+    await fetch(`${FB}/maintenance/${maintType}/${team}/tasks/${id}.json`,{method:'DELETE'});
+    delete g.tasks[id];
+    await maintLog('刪除', `${maintType} ${team} ${t.machine} ${t.code}`);
+    renderMaintenance();
+  }catch(e){ alert('刪除失敗：'+e.message); }
+}
+
+// ── 新增臨時工程 ──
+function mtAddTask(team){
+  if(!ensureMaintEdit()) return;
+  document.getElementById('mt-add-team').value=team;
+  document.getElementById('mt-add-machine').value=maintType+'-';
+  document.getElementById('mt-add-name').value='';
+  document.getElementById('mt-add-interval').value='1';
+  document.getElementById('mt-add-date').value='';
+  document.getElementById('mt-add-modal').style.display='flex';
+}
+function closeMtAdd(){ document.getElementById('mt-add-modal').style.display='none'; }
+async function submitMtAdd(){
+  const team=document.getElementById('mt-add-team').value;
+  const machine=document.getElementById('mt-add-machine').value.trim().toUpperCase();
+  const name=document.getElementById('mt-add-name').value.trim();
+  const interval=parseInt(document.getElementById('mt-add-interval').value,10)||0;
+  const dateVal=document.getElementById('mt-add-date').value;
+  if(!machine || machine.endsWith('-') || !name || !dateVal){ alert('機號、名稱、到期日都要填'); return; }
+  const nextTime=dateVal.replace(/-/g,'');
+  const ty=mtTypeOf(machine);
+  const id=(machine+'_MANUAL_'+Date.now()).replace(/[^A-Za-z0-9_]/g,'_');
+  const t={machine,code:'MANUAL',name,interval,unit:'Month',doneBy:'',dept:team,lastTime:'',nextTime,overdue:'',done:false,doneAt:null,manual:true};
+  try{
+    await fetch(`${FB}/maintenance/${ty}/${team}/tasks/${id}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(t)});
+    if(!MAINT[ty]) MAINT[ty]={};
+    if(!MAINT[ty][team]) MAINT[ty][team]={meta:{count:0,uploadedAt:'手動新增',fileName:'-'},tasks:{}};
+    if(!MAINT[ty][team].tasks) MAINT[ty][team].tasks={};
+    MAINT[ty][team].tasks[id]=t;
+    await maintLog('新增', `${ty} ${team} ${machine} ${name} 到期 ${fmtYmd(nextTime)}`);
+    closeMtAdd(); maintType=ty; renderMaintenance();
+  }catch(e){ alert('新增失敗：'+e.message); }
 }
 
 async function toggleMaintDone(team, id, checked){
-  if(!ensureMaintAccess()){ renderMaintPanel(); return; }
+  if(!ensureMaintEdit()){ renderMaintenance(); return; }
   const now = checked ? new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}) : null;
   try{
-    await fetch(`${FB}/maintenance/${team}/tasks/${id}.json`,{
-      method:'PATCH',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({done:checked, doneAt:now})
-    });
-    if(MAINT[team] && MAINT[team].tasks && MAINT[team].tasks[id]){
-      MAINT[team].tasks[id].done = checked;
-      MAINT[team].tasks[id].doneAt = now;
-    }
-    renderMaintCal('MT1'); renderMaintCal('MT2'); renderMaintPanel();
+    await fetch(`${FB}/maintenance/${maintType}/${team}/tasks/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({done:checked,doneAt:now})});
+    const g=mtGet(maintType,team);
+    const t=g&&g.tasks&&g.tasks[id];
+    if(t){ t.done=checked; t.doneAt=now; }
+    await maintLog(checked?'完成':'取消完成', `${maintType} ${team} ${t?t.machine:''} ${t?t.code:id}`);
+    renderMaintenance();
   }catch(e){ alert('更新失敗：'+e.message); }
+}
+
+// ── 管理介面：授權使用者 + 操作紀錄 ──
+async function renderMaintAdmin(){
+  const el=document.getElementById('fp-maint'); if(!el) return;
+  const isAdmin = maintIsAdmin();
+  try{ const r=await fetch(`${FB}/maint_users.json`); const d=await r.json(); MAINT_USERS=(d&&typeof d==='object')?d:{}; }catch(e){}
+  let logs=[];
+  try{ const r=await fetch(`${FB}/maint_log.json`); const d=await r.json(); if(d) logs=Object.values(d).reverse(); }catch(e){}
+  let usersHtml;
+  if(isAdmin){
+    const rows = Object.entries(MAINT_USERS).map(([id,u])=>
+      `<div class="mt-userrow"><span>${u.name}</span><span class="mt-userpw">${u.password}</span><button class="mt-user-del" onclick="delMaintUser('${id}')">刪除</button></div>`
+    ).join('') || '<div style="color:var(--text3);font-size:12px;padding:6px">尚無授權使用者</div>';
+    usersHtml = `<div class="fp-sec-title">保養授權使用者</div>
+      <div class="mt-userform"><input id="mu-name" placeholder="人名"/><input id="mu-pw" placeholder="密碼"/><button class="btn-sm btn-primary" onclick="addMaintUser()">新增</button></div>
+      <div class="mt-userlist">${rows}</div>`;
+  } else {
+    usersHtml = `<div style="color:var(--text3);font-size:12px;margin-bottom:12px">只有 14 能管理授權使用者</div>`;
+  }
+  const logRows = logs.slice(0,150).map(l=>
+    `<div class="mt-logrow"><span class="mt-log-time">${l.time||''}</span><span class="mt-log-user">${l.user||''}</span><span class="mt-log-act">${l.action||''}</span><span class="mt-log-detail">${l.detail||''}</span></div>`
+  ).join('') || '<div style="color:var(--text3);font-size:12px;padding:6px">尚無紀錄</div>';
+  el.innerHTML = usersHtml + `<div class="fp-sec-title" style="margin-top:18px">操作紀錄</div><div class="mt-loglist">${logRows}</div>`;
+}
+async function addMaintUser(){
+  const name=document.getElementById('mu-name').value.trim();
+  const pw=document.getElementById('mu-pw').value.trim();
+  if(!name||!pw){ alert('人名和密碼都要填'); return; }
+  const id='u'+Date.now();
+  try{
+    await fetch(`${FB}/maint_users/${id}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,password:pw})});
+    MAINT_USERS[id]={name,password:pw};
+    renderMaintAdmin();
+  }catch(e){ alert('新增失敗：'+e.message); }
+}
+async function delMaintUser(id){
+  if(!confirm('刪除這個使用者？')) return;
+  try{
+    await fetch(`${FB}/maint_users/${id}.json`,{method:'DELETE'});
+    delete MAINT_USERS[id];
+    renderMaintAdmin();
+  }catch(e){ alert('刪除失敗：'+e.message); }
 }
 
 // ── Nav ──────────────────────────────────────────────────
