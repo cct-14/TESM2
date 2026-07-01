@@ -2575,7 +2575,7 @@ function showPingBubble(id,m){
     `<div class="msg-bubble-text"></div>`+
     `<div class="msg-bubble-actions"><input placeholder="${mtL().msgReply}"/><button>${mtL().msgGot}</button></div>`;
   div.querySelector('.msg-bubble-text').textContent=m.text||'';
-  const inp=div.querySelector('input'); const btn=div.querySelector('button');
+  const inp=div.querySelector('.msg-bubble-actions input'); const btn=div.querySelector('.msg-bubble-actions button');
   btn.onclick=()=>ackPing(id, m.from, inp.value.trim(), div);
   inp.onkeydown=(e)=>{ if(e.key==='Enter') ackPing(id, m.from, inp.value.trim(), div); };
   div.querySelector('.msg-bubble-x').onclick=async()=>{
