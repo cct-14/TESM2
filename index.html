@@ -305,6 +305,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-log-user{font-weight:700;white-space:nowrap}
 .mt-log-act{padding:0 7px;border-radius:8px;background:var(--blue-l);color:var(--blue);font-weight:600;white-space:nowrap}
 .mt-log-detail{color:var(--text2)}
+/* ── 站內訊息 ── */
+.msg-fab{position:fixed;right:20px;bottom:20px;z-index:500;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;border:none;box-shadow:var(--shadow-md);cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center}
+.msg-fab .msg-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.msg-panel{position:fixed;right:20px;bottom:82px;z-index:510;width:300px;background:var(--bg);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);padding:14px;display:none;flex-direction:column;gap:8px}
+.msg-panel.open{display:flex}
+.msg-panel-title{font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.msg-panel-title .x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px}
+.msg-panel select,.msg-panel textarea{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;width:100%;font-family:inherit;box-sizing:border-box}
+.msg-panel textarea{resize:none;height:64px}
+.msg-send-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer}
+.msg-noperm{font-size:12px;color:var(--text3);padding:6px 0}
+.msg-bubbles{position:fixed;right:20px;bottom:82px;z-index:520;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.msg-bubble{width:280px;background:var(--bg);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:12px;box-shadow:var(--shadow-md);padding:12px 14px;animation:msgIn .25s ease}
+.msg-bubble.ack{border-left-color:var(--green)}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg-bubble-from{font-size:12px;font-weight:700;color:var(--blue)}
+.msg-bubble.ack .msg-bubble-from{color:var(--green)}
+.msg-bubble-text{font-size:13px;color:var(--text);margin:4px 0 8px;word-break:break-word}
+.msg-bubble-actions{display:flex;gap:6px;align-items:center}
+.msg-bubble-actions input{flex:1;min-width:0;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px}
+.msg-bubble-actions button{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.mt-user-send{margin-left:auto;font-size:11px;padding:2px 8px;border-radius:10px;border:1px solid var(--border);background:var(--bg);cursor:pointer;color:var(--text3)}
+.mt-user-send.on{background:var(--blue-l);color:var(--blue);border-color:#bfdbfe}
+.mt-user-perms{display:flex;gap:5px;margin-left:auto}
+.mt-perm{font-size:11px;padding:3px 9px;border-radius:10px;border:1px solid var(--border);background:var(--bg);cursor:pointer;color:var(--text3);white-space:nowrap}
+.mt-perm.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.mt-userform label{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--text2);white-space:nowrap}
+.mt-userform label input{width:15px;height:15px}
+.mt-userrow .mt-userpw{margin-left:14px}
 .mt-panel-empty{color:var(--text3);font-size:13px;text-align:center;padding:24px}
 .mt-panel-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:10px}
 .mt-panel-count{font-size:22px;font-weight:800;color:var(--red)}
@@ -437,6 +466,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         ＋ 加到首頁
       </button>
     </div>
+    <button class="btn-sm" id="msg-top-btn" onclick="openMsgPanel()" title="訊息" style="margin-left:10px;display:none">💬 訊息</button>
+    <button class="btn-sm" id="msg-logout-btn" onclick="logoutMaintUser()" style="margin-left:6px;display:none">登出</button>
     <div class="mt-lang" id="app-lang" style="margin-left:10px">
       <button data-l="es" onclick="setMaintLang('es')">ES</button>
       <button data-l="zh" onclick="setMaintLang('zh')">中</button>
@@ -781,6 +812,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   </div>
 </div>
+
+<button class="msg-fab" id="msg-fab" onclick="toggleMsgPanel()">💬<span class="msg-badge" id="msg-badge" style="display:none">0</span></button>
+<div class="msg-panel" id="msg-panel">
+  <div class="msg-panel-title"><span id="msg-panel-title">傳訊息</span><button class="x" onclick="closeMsgPanel()">✕</button></div>
+  <div id="msg-compose">
+    <select id="msg-to"></select>
+    <textarea id="msg-text" placeholder="輸入訊息…"></textarea>
+    <button class="msg-send-btn" id="msg-send-btn" onclick="sendMsg()">送出</button>
+  </div>
+  <div class="msg-noperm" id="msg-noperm" style="display:none">你沒有發訊息權限，只能接收。</div>
+</div>
+<div class="msg-bubbles" id="msg-bubbles"></div>
 
 <script>
 const FB = 'https://tesm-c9396-default-rtdb.firebaseio.com';
@@ -2026,14 +2069,19 @@ function mtTypeOf(machine){
 // ── 權限 ──（看＝全開；編輯＝14主密碼或14核可帳號）
 function maintIsAdmin(){ return currentRole && ROLES[currentRole] && ROLES[currentRole].features && ROLES[currentRole].features.includes('*'); }
 function ensureMaintEdit(){
-  if(maintUser) return true;
+  if(maintUser){
+    if(maintUser.name==='14'||maintIsAdmin()) return true;
+    const cu=Object.values(MAINT_USERS).find(x=>x&&x.name===maintUser.name);
+    if(cu&&cu.canMaint===false){ alert('此帳號沒有保養編輯權限'); return false; }
+    return true;
+  }
   if(maintIsAdmin()){ maintUser={name: (ROLES[currentRole]&&ROLES[currentRole].label)||'14'}; return true; }
   const pw = prompt('編輯需要授權，請輸入你的密碼：');
   if(pw===null) return false;
   const adminPw = ROLES['14'] && ROLES['14'].password;
   if(adminPw && pw===adminPw){ maintUser={name:'14'}; return true; }
   const u = Object.values(MAINT_USERS).find(x=>x && x.password===pw);
-  if(u){ maintUser={name:u.name}; return true; }
+  if(u){ if(u.canMaint===false){ alert('此帳號沒有保養編輯權限'); return false; } maintUser={name:u.name}; saveRememberedUser(u.name); if(typeof updateMsgAuthUI==='function')updateMsgAuthUI(); return true; }
   alert('密碼錯誤或未被 14 授權');
   return false;
 }
@@ -2377,11 +2425,23 @@ async function renderMaintAdmin(){
   try{ const r=await fetch(`${FB}/maint_log.json`); const d=await r.json(); if(d) logs=Object.values(d).reverse(); }catch(e){}
   let usersHtml;
   if(isAdmin){
-    const rows = Object.entries(MAINT_USERS).map(([id,u])=>
-      `<div class="mt-userrow"><span>${u.name}</span><span class="mt-userpw">${u.password}</span><button class="mt-user-del" onclick="delMaintUser('${id}')">刪除</button></div>`
-    ).join('') || '<div style="color:var(--text3);font-size:12px;padding:6px">尚無授權使用者</div>';
-    usersHtml = `<div class="fp-sec-title">保養授權使用者</div>
-      <div class="mt-userform"><input id="mu-name" placeholder="人名"/><input id="mu-pw" placeholder="密碼"/><button class="btn-sm btn-primary" onclick="addMaintUser()">新增</button></div>
+    const rows = Object.entries(MAINT_USERS).map(([id,u])=>{
+      const cm=u.canMaint!==false; // 舊使用者預設有保養編輯權
+      return `<div class="mt-userrow"><span class="mt-user-name">${u.name}</span>`+
+      `<span class="mt-userpw">${u.password}</span>`+
+      `<div class="mt-user-perms">`+
+        `<button class="mt-perm${cm?' on':''}" onclick="toggleUserPerm('${id}','canMaint')">保養</button>`+
+        `<button class="mt-perm${u.canSend?' on':''}" onclick="toggleUserPerm('${id}','canSend')">訊息</button>`+
+        `<button class="mt-perm${u.canAnnounce?' on':''}" onclick="toggleUserPerm('${id}','canAnnounce')">公告</button>`+
+      `</div>`+
+      `<button class="mt-user-del" onclick="delMaintUser('${id}')">刪除</button></div>`;
+    }).join('') || '<div style="color:var(--text3);font-size:12px;padding:6px">尚無使用者</div>';
+    usersHtml = `<div class="fp-sec-title">一般使用者管理</div>
+      <div class="mt-userform"><input id="mu-name" placeholder="名字"/><input id="mu-pw" placeholder="密碼"/>`+
+      `<label><input type="checkbox" id="mu-maint" checked/>保養</label>`+
+      `<label><input type="checkbox" id="mu-send"/>訊息</label>`+
+      `<label><input type="checkbox" id="mu-ann"/>公告</label>`+
+      `<button class="btn-sm btn-primary" onclick="addMaintUser()">新增</button></div>
       <div class="mt-userlist">${rows}</div>`;
   } else {
     usersHtml = `<div style="color:var(--text3);font-size:12px;margin-bottom:12px">只有 14 能管理授權使用者</div>`;
@@ -2394,13 +2454,25 @@ async function renderMaintAdmin(){
 async function addMaintUser(){
   const name=document.getElementById('mu-name').value.trim();
   const pw=document.getElementById('mu-pw').value.trim();
-  if(!name||!pw){ alert('人名和密碼都要填'); return; }
+  const canMaint=!(document.getElementById('mu-maint')&&!document.getElementById('mu-maint').checked);
+  const canSend=!!(document.getElementById('mu-send')&&document.getElementById('mu-send').checked);
+  const canAnnounce=!!(document.getElementById('mu-ann')&&document.getElementById('mu-ann').checked);
+  if(!name||!pw){ alert('名字和密碼都要填'); return; }
   const id='u'+Date.now();
   try{
-    await fetch(`${FB}/maint_users/${id}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,password:pw})});
-    MAINT_USERS[id]={name,password:pw};
+    await fetch(`${FB}/maint_users/${id}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,password:pw,canMaint,canSend,canAnnounce})});
+    MAINT_USERS[id]={name,password:pw,canMaint,canSend,canAnnounce};
     renderMaintAdmin();
   }catch(e){ alert('新增失敗：'+e.message); }
+}
+async function toggleUserPerm(id, field){
+  const u=MAINT_USERS[id]; if(!u) return;
+  const cur = field==='canMaint' ? (u.canMaint!==false) : !!u[field];
+  const nv=!cur;
+  try{
+    await fetch(`${FB}/maint_users/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({[field]:nv})});
+    u[field]=nv; renderMaintAdmin();
+  }catch(e){ alert('更新失敗：'+e.message); }
 }
 async function delMaintUser(id){
   if(!confirm('刪除這個使用者？')) return;
@@ -2409,6 +2481,133 @@ async function delMaintUser(id){
     delete MAINT_USERS[id];
     renderMaintAdmin();
   }catch(e){ alert('刪除失敗：'+e.message); }
+}
+
+// ── 站內訊息（閱後即刪，不留歷史）────────────────────────
+function msgKey(name){ return String(name||'').replace(/[.#$\[\]\/\s]/g,'_'); }
+function msgMe(){ return maintUser && maintUser.name; }
+function canSendMsg(){
+  if(!maintUser) return false;
+  if(maintUser.name==='14' || maintIsAdmin()) return true;
+  const u=Object.values(MAINT_USERS).find(x=>x && x.name===maintUser.name);
+  return !!(u && u.canSend);
+}
+function ensureMsgLogin(){
+  if(maintUser) return true;
+  if(maintIsAdmin()){ maintUser={name:(ROLES[currentRole]&&ROLES[currentRole].label)||'14'}; return true; }
+  const pw=prompt('請輸入你的密碼登入訊息：');
+  if(pw===null) return false;
+  const adminPw=ROLES['14']&&ROLES['14'].password;
+  if(adminPw&&pw===adminPw){ maintUser={name:'14'}; return true; }
+  const u=Object.values(MAINT_USERS).find(x=>x&&x.password===pw);
+  if(u){ maintUser={name:u.name}; saveRememberedUser(u.name); updateMsgAuthUI(); return true; }
+  alert('密碼錯誤'); return false;
+}
+function toggleMsgPanel(){ const p=document.getElementById('msg-panel'); if(p.classList.contains('open')) closeMsgPanel(); else openMsgPanel(); }
+function closeMsgPanel(){ document.getElementById('msg-panel').classList.remove('open'); }
+async function openMsgPanel(){
+  if(!ensureMsgLogin()) return;
+  try{ const r=await fetch(`${FB}/maint_users.json`); const d=await r.json(); MAINT_USERS=(d&&typeof d==='object')?d:{}; }catch(e){}
+  const compose=document.getElementById('msg-compose'), noperm=document.getElementById('msg-noperm');
+  if(canSendMsg()){
+    compose.style.display=''; noperm.style.display='none';
+    const sel=document.getElementById('msg-to');
+    const names=['14', ...Object.values(MAINT_USERS).map(u=>u.name)].filter(n=>n && n!==msgMe());
+    sel.innerHTML=[...new Set(names)].map(n=>`<option value="${n}">${n}</option>`).join('');
+  } else {
+    compose.style.display='none'; noperm.style.display='';
+  }
+  document.getElementById('msg-panel').classList.add('open');
+  pollMessages();
+}
+async function sendMsg(){
+  if(!canSendMsg()){ alert('你沒有發訊息權限'); return; }
+  const to=document.getElementById('msg-to').value;
+  const text=document.getElementById('msg-text').value.trim();
+  if(!to||!text) return;
+  const id='m'+Date.now()+Math.random().toString(36).slice(2,5);
+  try{
+    await fetch(`${FB}/ping/${msgKey(to)}/${id}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({from:msgMe(),text,time:Date.now()})});
+    document.getElementById('msg-text').value='';
+    closeMsgPanel();
+  }catch(e){ alert('傳送失敗：'+e.message); }
+}
+const shownPings=new Set();
+async function pollMessages(){
+  if(!maintUser) return;
+  const me=msgKey(maintUser.name);
+  // 收到別人傳來的 ping
+  try{
+    const r=await fetch(`${FB}/ping/${me}.json`); const d=await r.json();
+    if(d) Object.entries(d).forEach(([id,m])=>{ if(!shownPings.has(id)){ shownPings.add(id); showPingBubble(id,m); } });
+  }catch(e){}
+  // 收到對方的確認/回覆 ack
+  try{
+    const r=await fetch(`${FB}/ack/${me}.json`); const d=await r.json();
+    if(d) for(const [id,m] of Object.entries(d)){ showAckBubble(m); try{ await fetch(`${FB}/ack/${me}/${id}.json`,{method:'DELETE'}); }catch(_){}}
+  }catch(e){}
+  updateMsgBadge();
+}
+function updateMsgBadge(){
+  const badge=document.getElementById('msg-badge');
+  const n=document.querySelectorAll('#msg-bubbles .msg-bubble:not(.ack)').length;
+  if(badge){ if(n>0){ badge.style.display='flex'; badge.textContent=n; } else badge.style.display='none'; }
+}
+function showPingBubble(id,m){
+  const box=document.getElementById('msg-bubbles'); if(!box) return;
+  const div=document.createElement('div'); div.className='msg-bubble'; div.dataset.pid=id;
+  div.innerHTML=`<div class="msg-bubble-from">${m.from||''}</div>`+
+    `<div class="msg-bubble-text"></div>`+
+    `<div class="msg-bubble-actions"><input placeholder="回一句…"/><button>收到</button></div>`;
+  div.querySelector('.msg-bubble-text').textContent=m.text||'';
+  const inp=div.querySelector('input'); const btn=div.querySelector('button');
+  btn.onclick=()=>ackPing(id, m.from, inp.value.trim(), div);
+  inp.onkeydown=(e)=>{ if(e.key==='Enter') ackPing(id, m.from, inp.value.trim(), div); };
+  box.appendChild(div); updateMsgBadge();
+}
+async function ackPing(id, from, reply, div){
+  const me=msgKey(maintUser.name);
+  try{ await fetch(`${FB}/ping/${me}/${id}.json`,{method:'DELETE'}); }catch(e){}
+  const aid='a'+Date.now()+Math.random().toString(36).slice(2,5);
+  try{ await fetch(`${FB}/ack/${msgKey(from)}/${aid}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({from:msgMe(),text:reply||'已收到',time:Date.now()})}); }catch(e){}
+  if(div&&div.parentNode) div.parentNode.removeChild(div);
+  shownPings.delete(id); updateMsgBadge();
+}
+function showAckBubble(m){
+  const box=document.getElementById('msg-bubbles'); if(!box) return;
+  const div=document.createElement('div'); div.className='msg-bubble ack';
+  div.innerHTML=`<div class="msg-bubble-from"></div><div class="msg-bubble-text"></div>`;
+  div.querySelector('.msg-bubble-from').textContent=(m.from||'')+'：';
+  div.querySelector('.msg-bubble-text').textContent=m.text||'已收到';
+  box.appendChild(div);
+  setTimeout(()=>{ if(div.parentNode) div.parentNode.removeChild(div); }, 6000);
+}
+function initMessaging(){
+  const fab=document.getElementById('msg-fab'); if(fab) fab.style.display='flex';
+  const tb=document.getElementById('msg-top-btn'); if(tb) tb.style.display='';
+  updateMsgAuthUI();
+}
+// ── 登入記住（只記一般使用者身分，不記管理者）──
+function saveRememberedUser(name){ try{ localStorage.setItem('tesm_user', name); }catch(_){} }
+function clearRememberedUser(){ try{ localStorage.removeItem('tesm_user'); }catch(_){} }
+function updateMsgAuthUI(){
+  const lo=document.getElementById('msg-logout-btn');
+  if(lo){ if(maintUser){ lo.style.display=''; lo.textContent='登出 '+maintUser.name; } else lo.style.display='none'; }
+}
+function logoutMaintUser(){
+  maintUser=null; clearRememberedUser();
+  shownPings.clear();
+  const box=document.getElementById('msg-bubbles'); if(box) box.innerHTML='';
+  closeMsgPanel(); updateMsgAuthUI(); updateMsgBadge();
+}
+async function restoreMaintUser(){
+  let name=null; try{ name=localStorage.getItem('tesm_user'); }catch(_){}
+  if(!name){ updateMsgAuthUI(); return; }
+  try{ const r=await fetch(`${FB}/maint_users.json`); const d=await r.json(); MAINT_USERS=(d&&typeof d==='object')?d:{}; }catch(e){}
+  if(Object.values(MAINT_USERS).some(u=>u&&u.name===name)) maintUser={name};
+  else clearRememberedUser();
+  updateMsgAuthUI();
+  pollMessages();
 }
 
 // ── Nav ──────────────────────────────────────────────────
@@ -2749,8 +2948,11 @@ loadRTGPositions();
 initMarquee();
 initAnnounce();
 applyNavLang();
+initMessaging();
+restoreMaintUser();
 poll();
 setInterval(poll,3000);
+setInterval(pollMessages,3000);
 </script>
 </body>
 </html>
