@@ -336,7 +336,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <nav class="sidebar-nav">
     <div class="nav-group">
-      <div class="nav-group-label">監控</div>
+      <div class="nav-group-label" data-g="monitor">監控</div>
       <div class="nav-item active" data-page="map" data-tip="地圖狀態" onclick="navTo('map',this)">
         <div class="nav-icon">🗺</div>
         <span class="nav-label">地圖狀態</span>
@@ -367,7 +367,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <div class="nav-group">
-      <div class="nav-group-label">報表</div>
+      <div class="nav-group-label" data-g="reports">報表</div>
       <div class="nav-item" data-page="realtime" data-tip="即時報表" onclick="navTo('realtime',this)">
         <div class="nav-icon">📊</div>
         <span class="nav-label">即時報表</span>
@@ -379,7 +379,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <div class="nav-group">
-      <div class="nav-group-label">管理</div>
+      <div class="nav-group-label" data-g="manage">管理</div>
       <div class="nav-item" data-page="changelog" data-tip="更新日誌" onclick="navTo('changelog',this)">
         <div class="nav-icon">📰</div>
         <span class="nav-label">更新日誌</span>
@@ -436,6 +436,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="btn-sm" id="topbar-action" onclick="addToHome()" title="加到首頁">
         ＋ 加到首頁
       </button>
+    </div>
+    <div class="mt-lang" id="app-lang" style="margin-left:10px">
+      <button data-l="es" onclick="setMaintLang('es')">ES</button>
+      <button data-l="zh" onclick="setMaintLang('zh')">中</button>
+      <button data-l="en" onclick="setMaintLang('en')">EN</button>
     </div>
   </div>
 
@@ -699,11 +704,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <button onclick="maintShiftMonth(-1)">‹</button>
               <div class="mt-month-label" id="mt-month-label">—</div>
               <button onclick="maintShiftMonth(1)">›</button>
-            </div>
-            <div class="mt-lang" id="mt-lang">
-              <button data-l="es" onclick="setMaintLang('es')">ES</button>
-              <button data-l="zh" onclick="setMaintLang('zh')">中</button>
-              <button data-l="en" onclick="setMaintLang('en')">EN</button>
             </div>
           </div>
           <div class="mt-cals">
@@ -1619,7 +1619,7 @@ async function loadAnnounceListInPanel(role) {
     el.innerHTML = entries.map(e=>`
       <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--bg3)">
         <div style="flex:1">
-          <div style="font-size:13px;color:var(--text)">${e.content||''}</div>
+          <div style="font-size:13px;color:var(--text)">${pickLang(e)}</div>
           <div style="font-size:11px;color:var(--text3);margin-top:3px">${e.time||''} · ${e.from||''}</div>
         </div>
         <button onclick="deleteAnnounce('${e.key}','${role}')"
@@ -1642,7 +1642,7 @@ async function loadAnnounceList(role) {
     el.innerHTML = entries.map(e=>`
       <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--bg3)">
         <div style="flex:1">
-          <div style="font-size:13px;color:var(--text)">${e.content||''}</div>
+          <div style="font-size:13px;color:var(--text)">${pickLang(e)}</div>
           <div style="font-size:11px;color:var(--text3);margin-top:3px">${e.time||''}${e.from?' · '+e.from:''}</div>
         </div>
         <button onclick="deleteAnnounce('${e.key}','${role}')"
@@ -1655,10 +1655,11 @@ async function addAnnounce(content, time, fromRole) {
   if (!content) return;
   const now = time || getNow();
   const roleLabel = {mtd:'MTD',opd:'OPD','14':'Admin'};
+  const i18n = await gasTranslate(content);
   try {
     await fetch(`${FB}/announce.json`,{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({content, time: now, from: roleLabel[fromRole]||fromRole})
+      body: JSON.stringify({content, time: now, from: roleLabel[fromRole]||fromRole, i18n})
     });
     initAnnounce();
     // 重新載入所有已開啟的 announce panel
@@ -1813,7 +1814,7 @@ async function loadChangelog() {
             <span style="font-size:12px;font-weight:700;color:${typeColor[e.type]||'var(--text)'}">${e.version||''}</span>
             <span style="font-size:11px;color:var(--text3)">${e.date||''}</span>
           </div>
-          <div style="font-size:13px;color:var(--text)">${e.content||''}</div>
+          <div style="font-size:13px;color:var(--text)">${pickLang(e)}</div>
         </div>
         ${currentRole==='14'?`<button onclick="deleteLog('${e.key}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0;flex-shrink:0">✕</button>`:''}
       </div>`).join('');
@@ -1828,7 +1829,8 @@ async function addChangeLog() {
   const content = document.getElementById('log-content').value.trim();
   if (!version || !content) return;
   const now = document.getElementById('log-date-display')?.value || getNow();
-  const entry = { date: now, version, type, content };
+  const i18n = await gasTranslate(content);
+  const entry = { date: now, version, type, content, i18n };
   try {
     await fetch(`${FB}/changelog.json`, {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -1837,8 +1839,7 @@ async function addChangeLog() {
     document.getElementById('log-version').value='';
     document.getElementById('log-content').value='';
     loadChangelog();
-    initMarquee();
-  } catch(e) {}
+    initMarquee();  } catch(e) {}
 }
 
 async function deleteLog(key) {
@@ -1882,7 +1883,7 @@ async function initMarquee() {
     const typeIcon = {feature:'✨',improve:'🔧',fix:'🐛'};
     const entries = Object.values(d).reverse().slice(0,3);
     const text = entries.map(e =>
-      `${typeIcon[e.type]||'📌'} [${e.date||''}] ${e.version}  ${e.content}`
+      `${typeIcon[e.type]||'📌'} [${e.date||''}] ${e.version}  ${pickLang(e)}`
     ).join('　　·　　');
     const t1 = document.getElementById('marquee-text');
     const t2 = document.getElementById('marquee-text2');
@@ -1904,7 +1905,7 @@ async function initAnnounce() {
       .sort((a,b) => (b.time||'').localeCompare(a.time||''))
       .slice(0,5);
     if (!entries.length) return;
-    const text = entries.map(e => `[${e.time||''}] ${e.content||''}`).join('　　·　　');
+    const text = entries.map(e => `[${e.time||''}] ${pickLang(e)}`).join('　　·　　');
     const t1 = document.getElementById('announce-text');
     const t2 = document.getElementById('announce-text2');
     if (t1) t1.textContent = text;
@@ -1939,7 +1940,7 @@ async function loadChangelogPage() {
             <span style="font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;background:${typeColor[e.type]||'var(--bg3)'};color:${typeTxt[e.type]||'var(--text)'}">${typeLabel[e.type]||''}</span>
             <span style="font-size:11px;color:var(--text3);margin-left:auto">${e.date||''}</span>
           </div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.6">${e.content||''}</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6">${pickLang(e)}</div>
         </div>
       </div>`).join('');
   } catch(e) { el.innerHTML='<div style="color:var(--red);font-size:13px;padding:20px">載入失敗</div>'; }
@@ -1988,7 +1989,25 @@ const MT_I18N = {
 let maintLang = 'es';
 try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }catch(_){}
 function mtL(){ return MT_I18N[maintLang]||MT_I18N.es; }
-function setMaintLang(l){ if(!MT_I18N[l]) return; maintLang=l; try{localStorage.setItem('mt_lang',l);}catch(_){}; renderMaintenance(); }
+function updateLangUI(){ document.querySelectorAll('.mt-lang').forEach(box=>box.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.getAttribute('data-l')===maintLang))); }
+function setMaintLang(l){
+  if(!MT_I18N[l]) return; maintLang=l; try{localStorage.setItem('mt_lang',l);}catch(_){}
+  renderMaintenance(); applyNavLang(); updateLangUI();
+  if(typeof initMarquee==='function') initMarquee();
+  if(typeof initAnnounce==='function') initAnnounce();
+  const cp=document.getElementById('page-changelog');
+  if(cp&&cp.classList.contains('active')&&typeof loadChangelogPage==='function') loadChangelogPage();
+}
+async function gasTranslate(text){
+  const out={es:text,zh:text,en:text};
+  try{
+    const r=await fetch(`${GAS}?action=translate&text=${encodeURIComponent(text)}`);
+    const d=await r.json();
+    if(d){ if(d.es)out.es=d.es; if(d.zh)out.zh=d.zh; if(d.en)out.en=d.en; }
+  }catch(e){}
+  return out;
+}
+function pickLang(entry){ if(entry&&entry.i18n&&entry.i18n[maintLang]) return entry.i18n[maintLang]; return (entry&&entry.content)||''; }
 
 function mtTypeOf(machine){
   let p = String(machine||'').split(/[-\/]/)[0].toUpperCase();
@@ -2154,8 +2173,7 @@ function renderMaintenance(){
   const editBtn=document.getElementById('mt-edit-btn');
   if(editBtn){ editBtn.textContent=maintEdit?L.schedDone:L.sched; editBtn.classList.toggle('on',maintEdit); }
   // 語言鈕 active 狀態
-  const langBox=document.getElementById('mt-lang');
-  if(langBox) langBox.querySelectorAll('button').forEach(btn=>btn.classList.toggle('on', btn.getAttribute('data-l')===maintLang));
+  updateLangUI();
   // modal 靜態文字
   const set=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
   set('mt-add-title',L.addTitle); set('mt-lbl-machine',L.mMachine); set('mt-lbl-name',L.mName);
@@ -2383,12 +2401,33 @@ const PAGE_TITLES = {
   realtime:'即時報表', history:'歷史查詢', maintenance:'保養計畫',
   notify:'即時故障通知', changelog:'更新日誌', admin:'管理者介面'
 };
+// 導航多語（沿用 maintLang 全站生效）
+const NAV_I18N = {
+  es:{ groups:{monitor:'Monitoreo',reports:'Reportes',manage:'Administración'},
+    pages:{map:'Estado del mapa',allEq:'Monitor de equipos',maintenance:'Plan de mantenimiento',notify:'Alertas de fallas',secondary:'Equipos secundarios',trailer:'Enlace de remolques',realtime:'Reporte en vivo',history:'Historial',changelog:'Registro de cambios',admin:'Administración'} },
+  zh:{ groups:{monitor:'監控',reports:'報表',manage:'管理'},
+    pages:{map:'地圖狀態',allEq:'全車機監控',maintenance:'保養計畫',notify:'即時故障通知',secondary:'非主力車機',trailer:'拖車板台連結',realtime:'即時報表',history:'歷史查詢',changelog:'更新日誌',admin:'管理者介面'} },
+  en:{ groups:{monitor:'Monitoring',reports:'Reports',manage:'Management'},
+    pages:{map:'Map status',allEq:'Equipment monitor',maintenance:'Maintenance plan',notify:'Fault alerts',secondary:'Secondary equipment',trailer:'Trailer link',realtime:'Live report',history:'History',changelog:'Changelog',admin:'Admin'} }
+};
+function navLabel(page){ const L=NAV_I18N[maintLang]||NAV_I18N.es; return (L.pages&&L.pages[page])||PAGE_TITLES[page]||page; }
+function applyNavLang(){
+  const L=NAV_I18N[maintLang]||NAV_I18N.es;
+  document.querySelectorAll('.nav-item[data-page]').forEach(it=>{
+    const p=it.getAttribute('data-page'); const lab=L.pages&&L.pages[p];
+    if(lab){ const s=it.querySelector('.nav-label'); if(s) s.textContent=lab; it.setAttribute('data-tip',lab); }
+  });
+  document.querySelectorAll('.nav-group-label[data-g]').forEach(el=>{ const g=el.getAttribute('data-g'); if(L.groups&&L.groups[g]) el.textContent=L.groups[g]; });
+  const active=document.querySelector('.nav-item.active'); const t=document.getElementById('topbar-title');
+  if(active&&t) t.textContent=navLabel(active.getAttribute('data-page'));
+  if(typeof updateLangUI==='function') updateLangUI();
+}
 function navTo(page, el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   el.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  document.getElementById('topbar-title').textContent = PAGE_TITLES[page]||page;
+  document.getElementById('topbar-title').textContent = navLabel(page);
   if(page==='allEq') renderAllEq();
   if(page==='realtime') renderRealtime();
   if(page==='maintenance') initMaintPage();
@@ -2693,6 +2732,7 @@ loadRoles();
 loadRTGPositions();
 initMarquee();
 initAnnounce();
+applyNavLang();
 poll();
 setInterval(poll,3000);
 </script>
