@@ -1888,39 +1888,51 @@ function ensureMaintAccess(){
   return true;
 }
 
-// pdf.js 解析：粗體 Mach.No 分組，逐列抓 9 欄，用 Next Time 當到期日
+// pdf.js 解析：這份報表是「轉90°的交叉表」——每個工程是一個固定 x 直欄，
+// 每種欄位是一條 y 水平帶。用 Task Code 的 x 當錨，收集同一欄各欄位，用 x 範圍配機號。
+function parseMaintPage(items){
+  const machs = [];
+  items.forEach(it=>{
+    const m = it.s.match(/Mach\.?\s*No\.?\s*:?\s*([A-Za-z0-9][A-Za-z0-9\-\/]*)/i);
+    if(m) machs.push({x:it.x, machine:m[1].toUpperCase()});
+  });
+  machs.sort((a,b)=>a.x-b.x);
+  const machFor = x => { let b=null; for(const m of machs){ if(m.x<=x) b=m.machine; } return b; };
+  const codes = items.filter(it=>/^[A-Z]{2,}\d{2,}$/.test(it.s) && !/^\d{8}$/.test(it.s) && it.s.length>=6);
+  const XT = 9, out = [];
+  codes.forEach(ci=>{
+    const col = items.filter(it=>it!==ci && Math.abs(it.x-ci.x)<=XT);
+    const dates = col.filter(it=>/^\d{8}$/.test(it.s)).sort((a,b)=>a.y-b.y);
+    const lastTime = dates.length ? dates[0].s : '';
+    const nextTime = dates.length>=2 ? dates[dates.length-1].s : '';
+    const dept = (col.find(it=>/^MT\d+$/i.test(it.s))||{}).s || '';
+    const unit = (col.find(it=>/^(Month|Week|Day|Year|Hour)s?$/i.test(it.s))||{}).s || '';
+    const interval = (col.find(it=>/^\d{1,3}$/.test(it.s))||{}).s || '';
+    const texts = col.filter(it=>
+      !/^\d{8}$/.test(it.s) && !/^MT\d+$/i.test(it.s) &&
+      !/^(Month|Week|Day|Year|Hour)s?$/i.test(it.s) && !/^\d{1,3}$/.test(it.s)
+    ).sort((a,b)=>a.y-b.y);
+    const name = texts.length ? texts[0].s : ci.s;   // 最低 y = 工程名稱
+    const doneBy = texts.length>1 ? texts[1].s : '';
+    out.push({ machine: machFor(ci.x)||'?', code: ci.s, name,
+      interval: parseInt(interval||'0',10)||0, unit, doneBy, dept,
+      lastTime, nextTime, overdue:'' });
+  });
+  return out;
+}
+
 async function parseMaintPDF(file){
-  if(!window.pdfjsLib) throw new Error('pdf.js 未載入');
+  if(!window.pdfjsLib) throw new Error('pdf.js 未載入（公司網路可能擋了 cdnjs）');
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({data:buf}).promise;
-  const tasks = [];
-  let curMachine = null;
+  let tasks = [];
   for(let p=1;p<=pdf.numPages;p++){
     const page = await pdf.getPage(p);
     const tc = await page.getTextContent();
-    // 依 y 座標分列
-    const rows = [];
-    tc.items.forEach(it=>{
-      if(!it.str || !it.str.trim()) return;
-      const y = it.transform[5], x = it.transform[4];
-      let row = rows.find(r=>Math.abs(r.y-y)<=2.5);
-      if(!row){ row={y,items:[]}; rows.push(row); }
-      row.items.push({x,s:it.str});
-    });
-    rows.sort((a,b)=>b.y-a.y);
-    rows.forEach(row=>{
-      const line = row.items.sort((a,b)=>a.x-b.x).map(o=>o.s).join(' ').replace(/\s+/g,' ').trim();
-      const mm = line.match(/Mach\.?\s*No\.?\s*:?\s*([A-Za-z]+-?\d+)/i);
-      if(mm){ curMachine = mm[1].toUpperCase(); return; }
-      const tm = line.match(/^([A-Z0-9]{6,})\s+(.+?)\s+(\d+)\s+(Month|Months|Week|Weeks|Day|Days|Year|Years|Hour|Hours)\s+(\S+)\s+(\S+)\s+(\d{8})\s+(\d{8})(?:\s+(\S+))?$/i);
-      if(tm && curMachine){
-        tasks.push({
-          machine: curMachine, code: tm[1], name: tm[2].trim(),
-          interval: parseInt(tm[3],10), unit: tm[4], doneBy: tm[5],
-          dept: tm[6], lastTime: tm[7], nextTime: tm[8], overdue: tm[9]||''
-        });
-      }
-    });
+    const items = tc.items
+      .filter(it=>it.str && it.str.trim())
+      .map(it=>({ x:it.transform[4], y:it.transform[5], s:it.str.trim() }));
+    tasks = tasks.concat(parseMaintPage(items));
   }
   return tasks;
 }
