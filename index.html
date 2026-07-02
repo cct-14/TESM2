@@ -207,6 +207,64 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── MAINTENANCE ── */
 .mt-layout{flex:1;display:flex;overflow:hidden;min-height:0}
+.mt-subtabs{display:flex;gap:8px;padding:10px 14px 0;flex-shrink:0;border-bottom:1px solid var(--border)}
+.mt-subtab{padding:9px 16px;border:none;background:none;font-size:14px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.mt-subtab:hover{color:var(--text)}
+.mt-subtab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.mt-tabpane{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.mt-jump{padding:6px 9px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text2)}
+.mt-search{padding:6px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;width:150px}
+.mt-search:focus{outline:none;border-color:var(--blue)}
+.mt-overdue{margin:0 0 8px;padding:8px 14px;background:var(--red-l);color:var(--red);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.mt-overdue:hover{filter:brightness(.97)}
+.mt-info-modal{position:fixed;inset:0;background:rgba(15,23,42,.4);display:flex;align-items:center;justify-content:center;z-index:620;padding:20px}
+.mt-info-box{background:var(--bg);border-radius:14px;box-shadow:var(--shadow-md);width:560px;max-width:100%;max-height:80vh;display:flex;flex-direction:column}
+.mt-info-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);font-size:15px;font-weight:700}
+.mt-info-x{border:none;background:none;font-size:18px;cursor:pointer;color:var(--text3);line-height:1}
+.mt-info-body{padding:12px 18px 18px;overflow-y:auto}
+.mt-res{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:13px}
+.mt-res .m{font-weight:700;min-width:64px}
+.mt-res .nm{flex:1;min-width:0}
+.mt-res .dt{color:var(--text3);font-size:12px;white-space:nowrap}
+.mt-res .tag{font-size:11px;font-weight:700;padding:1px 7px;border-radius:8px}
+.mt-res .tag.MT1{background:var(--blue-l);color:var(--blue)}
+.mt-res .tag.MT2{background:var(--purple-l);color:#7c3aed}
+.mt-res .ty{font-size:11px;color:var(--text3);font-weight:700;min-width:26px}
+.mt-log-row{display:flex;gap:10px;padding:7px 10px;border-bottom:1px solid var(--bg3);font-size:12px;align-items:baseline}
+.mt-log-row .a{font-weight:700;min-width:36px}
+.mt-log-row .a.done{color:var(--green)}.mt-log-row .a.undo{color:var(--text3)}
+.mt-log-row .u{font-weight:600;min-width:50px}
+.mt-log-row .d{flex:1;color:var(--text2)}
+.mt-log-row .t{color:var(--text3);white-space:nowrap}
+.mt-info-empty{color:var(--text3);text-align:center;padding:30px;font-size:13px}
+.plan-wrap{flex:1;display:flex;flex-direction:column;padding:12px 14px;gap:10px;overflow:hidden;min-height:0}
+.plan-toolbar{display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
+.plan-count{font-size:13px;color:var(--text3);font-weight:600}
+.plan-cal{flex-shrink:0;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow)}
+.plan-cal .mt-day{min-height:46px}
+.plan-cal .mt-day.exp2{align-items:stretch;justify-content:flex-start;padding:3px 4px;gap:2px}
+.plan-daynum{font-size:11px;font-weight:700;color:var(--text3);text-align:right;line-height:1}
+.mt-day.sel .plan-daynum{color:#fff}
+.plan-cnts{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
+.plan-cnt{font-size:10px;font-weight:800;padding:0 5px;border-radius:8px;line-height:1.6}
+.plan-cnt.MT1{background:var(--blue-l);color:var(--blue)}
+.plan-cnt.MT2{background:var(--purple-l);color:#7c3aed}
+.mt-day.sel .plan-cnt{background:rgba(255,255,255,.25);color:#fff}
+.plan-detail{flex:1;min-height:0;overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
+.plan-detail-head{font-size:14px;font-weight:700;margin-bottom:10px;position:sticky;top:-12px;background:var(--bg);padding:4px 0;border-bottom:1px solid var(--border)}
+.plan-team-sec{margin-bottom:12px}
+.plan-team-title{font-size:12px;font-weight:800;padding:2px 10px;border-radius:10px;display:inline-block;margin-bottom:6px}
+.plan-team-title.MT1{background:var(--blue-l);color:var(--blue)}
+.plan-team-title.MT2{background:var(--purple-l);color:#7c3aed}
+.plan-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;background:var(--bg2)}
+.plan-row .m{font-weight:700;min-width:66px}
+.plan-row .nm{flex:1;min-width:0;font-size:13px}
+.plan-row .ty{font-size:11px;color:var(--text3);font-weight:700}
+.plan-empty{padding:40px;text-align:center;color:var(--text3)}
+.plan-st{font-size:11px;font-weight:700;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.plan-st.done{background:var(--green-l);color:var(--green)}
+.plan-st.over{background:var(--red-l);color:var(--red)}
+.plan-st.todo{background:var(--bg3);color:var(--text2)}
 .mt-type-tabs{width:80px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:8px 6px;display:flex;flex-direction:column;gap:4px;background:var(--bg)}
 .mt-type{padding:9px 4px;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;position:relative;transition:.12s}
 .mt-type:hover{background:var(--bg2)}
@@ -794,6 +852,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="page" id="page-secondary"><div class="placeholder"><div class="placeholder-icon">🚜</div><div class="placeholder-title">Non-primary equipment</div><div class="placeholder-sub">FL, SL, RS, PPG, ESL monitoring — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
     <div class="page" id="page-trailer"><div class="placeholder"><div class="placeholder-icon">🔗</div><div class="placeholder-title">TR / CH pairing</div><div class="placeholder-sub">Trailer chassis pairing monitor — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
     <div class="page" id="page-maintenance">
+      <div class="mt-subtabs">
+        <button class="mt-subtab active" data-tab="confirm" onclick="mtSwitchTab('confirm')">工程完成確認系統</button>
+        <button class="mt-subtab" data-tab="plan" onclick="mtSwitchTab('plan')">保養工程計畫系統</button>
+      </div>
+      <div class="mt-tabpane" id="mt-tab-confirm">
       <div class="mt-layout">
         <div class="mt-type-tabs" id="mt-type-tabs"></div>
         <div class="mt-main">
@@ -809,7 +872,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <div class="mt-month-label" id="mt-month-label">—</div>
               <button onclick="maintShiftMonth(1)">›</button>
             </div>
+            <input type="date" id="mt-jump" class="mt-jump" onchange="mtJumpDate(this.value)" title="跳到指定日期"/>
+            <input type="text" id="mt-search" class="mt-search" placeholder="🔍 搜尋機號" oninput="mtSearch(this.value)"/>
+            <button class="mt-edit-btn" onclick="openMaintLog()">📋 完成紀錄</button>
           </div>
+          <div id="mt-overdue-banner" class="mt-overdue" style="display:none" onclick="showOverdue()"></div>
           <div class="mt-cals">
             <div class="mt-cal">
               <div class="mt-cal-head"><div class="mt-cal-title"><span class="dot" style="background:var(--blue)"></span>MT-1</div><div class="mt-cal-meta" id="mt-meta-MT1"></div></div>
@@ -824,6 +891,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <div class="mt-list" id="mt-list-MT1"></div>
             <div class="mt-list" id="mt-list-MT2"></div>
           </div>
+        </div>
+      </div>
+      </div>
+      <div class="mt-tabpane" id="mt-tab-plan" style="display:none">
+        <div class="plan-wrap">
+          <div class="plan-toolbar">
+            <div class="mt-month-nav">
+              <button onclick="planShiftMonth(-1)">‹</button>
+              <div class="mt-month-label" id="plan-month-label">—</div>
+              <button onclick="planShiftMonth(1)">›</button>
+            </div>
+            <select id="plan-type" class="at-sel" onchange="planSetType(this.value)"></select>
+            <span class="plan-count" id="plan-count"></span>
+            <button class="mt-up-btn" onclick="planExcel()" style="margin-left:auto">📊 Excel</button>
+            <button class="mt-up-btn" onclick="planPrint()">🖨️ 列印清單</button>
+          </div>
+          <div class="plan-cal"><div class="mt-grid" id="plan-grid"></div></div>
+          <div class="plan-detail" id="plan-detail"></div>
+        </div>
+      </div>
+      <div class="mt-info-modal" id="mt-info-modal" style="display:none" onclick="if(event.target===this)closeMtModal()">
+        <div class="mt-info-box">
+          <div class="mt-info-head"><span id="mt-info-title">—</span><button class="mt-info-x" onclick="closeMtModal()">✕</button></div>
+          <div class="mt-info-body" id="mt-info-body"></div>
         </div>
       </div>
       <div class="mt-modal" id="mt-add-modal" style="display:none">
@@ -2309,7 +2400,140 @@ function maintShiftMonth(d){
   renderMaintenance();
 }
 function selectMaintType(ty){ maintType=ty; selMaintDate=null; setMaintMonthFromData(); renderMaintenance(); }
+function mtJumpDate(val){
+  if(!val) return;
+  const a=val.split('-'); if(a.length!==3) return;
+  maintYear=+a[0]; maintMonth=+a[1];
+  selMaintDate=`${a[0]}${a[1]}${a[2]}`;
+  renderMaintenance();
+}
 async function initMaintPage(){ await loadMaint(); if(maintYear===null) setMaintMonthFromData(); renderMaintenance(); }
+function mtSwitchTab(tab){
+  document.querySelectorAll('#page-maintenance .mt-subtab').forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===tab));
+  const conf=document.getElementById('mt-tab-confirm'), plan=document.getElementById('mt-tab-plan');
+  if(conf) conf.style.display = tab==='confirm'?'flex':'none';
+  if(plan) plan.style.display = tab==='plan'?'flex':'none';
+  if(tab==='plan') initPlan();
+}
+
+// ── 保養工程計畫系統（合併 MT1+MT2 成一份計劃表）──
+let planYear=null, planMonth=null, planTypeFilter='all';
+function initPlan(){
+  if(planYear===null){ planYear=maintYear||panParts().y; planMonth=maintMonth||panParts().m; }
+  renderPlan();
+}
+function planShiftMonth(d){
+  if(planYear===null){ const p=panParts(); planYear=p.y; planMonth=p.m; }
+  planMonth+=d; if(planMonth<1){planMonth=12;planYear--;} if(planMonth>12){planMonth=1;planYear++;}
+  renderPlan();
+}
+function planSetType(t){ planTypeFilter=t; renderPlan(); }
+function planGather(){
+  const rows=[];
+  const types = planTypeFilter==='all' ? MT_TYPES : [planTypeFilter];
+  types.forEach(ty=>{
+    MT_TEAMS.forEach(team=>{
+      maintTasks(ty,team).forEach(t=>{
+        if(!/^\d{8}$/.test(t.nextTime||'')) return;
+        if(+t.nextTime.slice(0,4)!==planYear || +t.nextTime.slice(4,6)!==planMonth) return;
+        rows.push(Object.assign({team,type:ty},t));
+      });
+    });
+  });
+  rows.sort((a,b)=> a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:(a.machine<b.machine?-1:1));
+  return rows;
+}
+let planSelDate=null;
+function renderPlan(){
+  if(planYear===null){ const p=panParts(); planYear=p.y; planMonth=p.m; }
+  const lbl=document.getElementById('plan-month-label'); if(lbl) lbl.textContent=`${planYear} / ${String(planMonth).padStart(2,'0')}`;
+  const sel=document.getElementById('plan-type');
+  if(sel && !sel.dataset.built){ sel.innerHTML=`<option value="all">全部機型</option>`+MT_TYPES.map(t=>`<option value="${t}">${t}</option>`).join(''); sel.dataset.built='1'; }
+  if(sel) sel.value=planTypeFilter;
+  const rows=planGather();
+  const cnt=document.getElementById('plan-count'); if(cnt) cnt.textContent=`本月 ${rows.length} 件（MT1 ${rows.filter(r=>r.team==='MT1').length} · MT2 ${rows.filter(r=>r.team==='MT2').length}）`;
+  // 依日彙整
+  const byDay={};
+  rows.forEach(r=>{ const d=+r.nextTime.slice(6,8); (byDay[d]=byDay[d]||[]).push(r); });
+  const grid=document.getElementById('plan-grid');
+  const today=todayYmd();
+  const firstDow=new Date(planYear,planMonth-1,1).getDay();
+  const daysIn=new Date(planYear,planMonth,0).getDate();
+  const DOW=mtL().dow;
+  let html=DOW.map(d=>`<div class="mt-dow">${d}</div>`).join('');
+  for(let i=0;i<firstDow;i++) html+=`<div class="mt-day empty"></div>`;
+  for(let day=1;day<=daysIn;day++){
+    const ds=`${planYear}${String(planMonth).padStart(2,'0')}${String(day).padStart(2,'0')}`;
+    const list=byDay[day]||[];
+    const m1=list.filter(r=>r.team==='MT1').length, m2=list.filter(r=>r.team==='MT2').length;
+    const isT=ds===today, isSel=planSelDate===ds;
+    let cnts='';
+    if(m1) cnts+=`<span class="plan-cnt MT1">${m1}</span>`;
+    if(m2) cnts+=`<span class="plan-cnt MT2">${m2}</span>`;
+    let tip='';
+    if(list.length){
+      const g=t=>list.filter(r=>r.team===t).map(r=>r.machine).join(', ');
+      const p1=g('MT1'), p2=g('MT2');
+      tip=(p1?`MT1: ${p1}`:'')+(p1&&p2?'\n':'')+(p2?`MT2: ${p2}`:'');
+    }
+    html+=`<div class="mt-day exp2${isT?' today':''}${isSel?' sel':''}"${tip?` title="${tip.replace(/"/g,'')}"`:''} onclick="planSelectDay('${ds}')"><div class="plan-daynum">${day}</div><div class="plan-cnts">${cnts}</div></div>`;
+  }
+  grid.innerHTML=html;
+  grid.className='mt-grid';
+  renderPlanDetail();
+}
+function planSelectDay(ds){ planSelDate=(planSelDate===ds)?null:ds; renderPlan(); }
+function renderPlanDetail(){
+  const el=document.getElementById('plan-detail'); if(!el) return;
+  const today=todayYmd();
+  if(!planSelDate){ el.innerHTML=`<div class="plan-empty">點月曆上任一天，看 MT1、MT2 當天要做的保養工程</div>`; return; }
+  const rows=planGather().filter(r=>r.nextTime===planSelDate);
+  let html=`<div class="plan-detail-head">${fmtYmd(planSelDate)} · 共 ${rows.length} 件</div>`;
+  if(!rows.length){ html+=`<div class="plan-empty">這天沒有排定保養工程</div>`; el.innerHTML=html; return; }
+  ['MT1','MT2'].forEach(team=>{
+    const tr=rows.filter(r=>r.team===team);
+    if(!tr.length) return;
+    html+=`<div class="plan-team-sec"><span class="plan-team-title ${team}">${team}　${tr.length} 件</span>`;
+    tr.sort((a,b)=>a.machine<b.machine?-1:1).forEach(r=>{
+      const st=r.done?'<span class="plan-st done">完成</span>':(r.nextTime<today?'<span class="plan-st over">逾期</span>':'<span class="plan-st todo">待辦</span>');
+      html+=`<div class="plan-row"><span class="m">${r.machine}</span><span class="ty">${r.type}</span><span class="nm">${r.name||r.code}</span>${st}</div>`;
+    });
+    html+=`</div>`;
+  });
+  el.innerHTML=html;
+}
+function planPrint(){
+  const rows=planGather();
+  const today=todayYmd();
+  const stTxt=r=>r.done?'完成':(r.nextTime<today?'逾期':'待辦');
+  const scope=planTypeFilter==='all'?'全部機型':planTypeFilter;
+  const title=`保養工程計劃表 ${planYear}/${String(planMonth).padStart(2,'0')} · ${scope}`;
+  const types=(planTypeFilter==='all'?MT_TYPES:[planTypeFilter]).filter(ty=>rows.some(r=>r.type===ty));
+  let sections='';
+  if(!rows.length){ sections=`<p class="empty">本月無保養工程</p>`; }
+  types.forEach(ty=>{
+    const tr=rows.filter(r=>r.type===ty).sort((a,b)=> a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:(a.machine<b.machine?-1:1));
+    const m1=tr.filter(r=>r.team==='MT1').length, m2=tr.filter(r=>r.team==='MT2').length;
+    const body=tr.map(r=>`<tr><td>${fmtYmd(r.nextTime)}</td><td>${r.team}</td><td>${r.machine}</td><td>${r.name||r.code}</td><td>${r.interval}${r.unit}</td><td>${stTxt(r)}</td></tr>`).join('');
+    sections+=`<h3>機型 ${ty}　<span class="sub">${tr.length} 件（MT1 ${m1}、MT2 ${m2}）</span></h3>
+      <table><thead><tr><th>到期日</th><th>隊伍</th><th>機號</th><th>工程</th><th>週期</th><th>狀態</th></tr></thead><tbody>${body}</tbody></table>`;
+  });
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>${title}</title><meta charset="utf-8"><style>
+    body{font-family:sans-serif;padding:24px;color:#111}
+    h2{margin:0 0 4px}.meta{color:#666;font-size:13px;margin:0 0 18px}
+    h3{margin:22px 0 8px;font-size:15px;border-left:4px solid #2563eb;padding-left:8px;page-break-after:avoid}
+    h3 .sub{font-weight:400;color:#666;font-size:12px}
+    table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:6px;page-break-inside:auto}
+    th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}th{background:#f1f5f9}
+    tr{page-break-inside:avoid}.empty{color:#666}
+    @media print{h3{page-break-before:auto}}
+  </style></head><body>
+    <h2>${title}</h2><p class="meta">共 ${rows.length} 件　·　產生時間 ${fmtYmd(today)}</p>
+    ${sections}
+  </body></html>`);
+  w.document.close(); w.focus(); setTimeout(()=>w.print(),300);
+}
 function toggleMaintEdit(){
   if(!maintEdit){ if(!ensureMaintEdit()) return; maintEdit=true; }
   else maintEdit=false;
@@ -2346,6 +2570,7 @@ function renderMaintenance(){
   set('mt-lbl-interval',L.mInterval); set('mt-lbl-date',L.mDate); set('mt-add-cancel',L.cancel); set('mt-add-save',L.save);
   renderMaintCal('MT1'); renderMaintCal('MT2');
   renderMaintLists();
+  renderOverdueBanner();
 }
 
 function renderMaintCal(team){
@@ -2522,6 +2747,94 @@ async function toggleMaintDone(team, id, checked){
     await maintLog(checked?'完成':'恢復', `${maintType} ${team} ${t?t.machine:''} ${t?t.code:id}`);
     renderMaintenance();
   }catch(e){ alert('更新失敗：'+e.message); }
+}
+
+// ── 通用資訊 modal ──
+function openMtModal(title, html){
+  const t=document.getElementById('mt-info-title'), b=document.getElementById('mt-info-body');
+  if(t) t.textContent=title; if(b) b.innerHTML=html;
+  document.getElementById('mt-info-modal').style.display='flex';
+}
+function closeMtModal(){ document.getElementById('mt-info-modal').style.display='none'; }
+
+// ── 逾期提示（當前機型、兩隊）──
+function overdueTasks(type){
+  const today=todayYmd(); const out=[];
+  MT_TEAMS.forEach(team=>{
+    maintTasks(type,team).forEach(t=>{
+      if(!/^\d{8}$/.test(t.nextTime||'')) return;
+      if(!t.done && t.nextTime<today) out.push(Object.assign({team,type},t));
+    });
+  });
+  return out.sort((a,b)=>a.nextTime<b.nextTime?-1:1);
+}
+function renderOverdueBanner(){
+  const el=document.getElementById('mt-overdue-banner'); if(!el) return;
+  const n=overdueTasks(maintType).length;
+  if(!n){ el.style.display='none'; return; }
+  el.style.display='flex';
+  el.innerHTML=`⚠️ ${maintType} 逾期未完成 ${n} 件　<span style="font-weight:400;text-decoration:underline">點擊查看</span>`;
+}
+function showOverdue(){
+  const rows=overdueTasks(maintType);
+  let html = rows.length ? rows.map(r=>
+    `<div class="mt-res"><span class="tag ${r.team}">${r.team}</span><span class="m">${r.machine}</span><span class="nm">${r.name||r.code}</span><span class="dt">到期 ${fmtYmd(r.nextTime)}</span></div>`
+  ).join('') : `<div class="mt-info-empty">沒有逾期工程 🎉</div>`;
+  openMtModal(`${maintType} 逾期未完成（${rows.length}）`, html);
+}
+
+// ── 搜尋機號（全機型、全隊）──
+function mtSearch(q){
+  q=(q||'').trim().toUpperCase();
+  if(q.length<1){ closeMtModal(); return; }
+  const today=todayYmd(); const out=[];
+  MT_TYPES.forEach(ty=>MT_TEAMS.forEach(team=>{
+    maintTasks(ty,team).forEach(t=>{
+      if((t.machine||'').toUpperCase().includes(q)) out.push(Object.assign({team,type:ty},t));
+    });
+  }));
+  out.sort((a,b)=> (a.machine<b.machine?-1:a.machine>b.machine?1: (a.nextTime<b.nextTime?-1:1)));
+  let html = out.length ? out.slice(0,300).map(r=>{
+    const st=r.done?'✓完成':(/^\d{8}$/.test(r.nextTime)&&r.nextTime<today?'逾期':'待辦');
+    return `<div class="mt-res"><span class="tag ${r.team}">${r.team}</span><span class="ty">${r.type}</span><span class="m">${r.machine}</span><span class="nm">${r.name||r.code}</span><span class="dt">${fmtYmd(r.nextTime)}｜${st}</span></div>`;
+  }).join('')+(out.length>300?`<div class="mt-info-empty">僅顯示前 300 筆</div>`:'') : `<div class="mt-info-empty">找不到「${q}」的保養工程</div>`;
+  openMtModal(`搜尋機號：${q}（${out.length}）`, html);
+}
+
+// ── 完成紀錄回看 ──
+async function openMaintLog(){
+  openMtModal('完成紀錄', `<div class="mt-info-empty">載入中…</div>`);
+  let logs=[];
+  try{ const r=await fetch(`${FB}/maint_log.json`); const d=await r.json(); if(d) logs=Object.values(d).reverse(); }catch(e){}
+  logs=logs.filter(l=>l.action==='完成'||l.action==='恢復');
+  const body=document.getElementById('mt-info-body');
+  if(!body) return;
+  body.innerHTML = logs.length ? logs.slice(0,150).map(l=>
+    `<div class="mt-log-row"><span class="a ${l.action==='完成'?'done':'undo'}">${l.action}</span><span class="u">${l.user||'?'}</span><span class="d">${l.detail||''}</span><span class="t">${l.time||''}</span></div>`
+  ).join('')+(logs.length>150?`<div class="mt-info-empty">僅顯示最近 150 筆</div>`:'') : `<div class="mt-info-empty">尚無完成紀錄</div>`;
+}
+
+// ── 計畫系統匯出 Excel（.xls，依機型分表，免外部套件）──
+function planExcel(){
+  const rows=planGather();
+  const today=todayYmd();
+  const stTxt=r=>r.done?'完成':(r.nextTime<today?'逾期':'待辦');
+  const scope=planTypeFilter==='all'?'全部機型':planTypeFilter;
+  const types=(planTypeFilter==='all'?MT_TYPES:[planTypeFilter]).filter(ty=>rows.some(r=>r.type===ty));
+  let tbls='';
+  types.forEach(ty=>{
+    const tr=rows.filter(r=>r.type===ty).sort((a,b)=> a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:(a.machine<b.machine?-1:1));
+    const body=tr.map(r=>`<tr><td>${ty}</td><td>${fmtYmd(r.nextTime)}</td><td>${r.team}</td><td>${r.machine}</td><td>${(r.name||r.code)}</td><td>${r.interval}${r.unit}</td><td>${stTxt(r)}</td></tr>`).join('');
+    tbls+=`<tr><td colspan="7" style="background:#dbeafe;font-weight:bold">機型 ${ty}（${tr.length} 件）</td></tr>${body}`;
+  });
+  const head=`<tr style="background:#f1f5f9;font-weight:bold"><th>機型</th><th>到期日</th><th>隊伍</th><th>機號</th><th>工程</th><th>週期</th><th>狀態</th></tr>`;
+  const htmlDoc=`<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table border="1">${head}${tbls||'<tr><td colspan=7>本月無資料</td></tr>'}</table></body></html>`;
+  const blob=new Blob(['\ufeff'+htmlDoc],{type:'application/vnd.ms-excel'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`保養計劃表_${planYear}${String(planMonth).padStart(2,'0')}_${scope}.xls`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
 // ── 管理介面：授權使用者 + 操作紀錄 ──
