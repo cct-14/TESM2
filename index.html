@@ -305,6 +305,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-log-user{font-weight:700;white-space:nowrap}
 .mt-log-act{padding:0 7px;border-radius:8px;background:var(--blue-l);color:var(--blue);font-weight:600;white-space:nowrap}
 .mt-log-detail{color:var(--text2)}
+/* ── 線上人數 ── */
+.online-box{margin:0 8px 8px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--bg)}
+.online-box.admin{margin:0 0 16px;max-width:360px}
+.online-head{font-size:12px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:6px}
+.online-head b{color:var(--green);font-size:14px}
+.online-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(5,150,105,.5);animation:onlinePulse 2s infinite}
+@keyframes onlinePulse{0%{box-shadow:0 0 0 0 rgba(5,150,105,.5)}70%{box-shadow:0 0 0 6px rgba(5,150,105,0)}100%{box-shadow:0 0 0 0 rgba(5,150,105,0)}}
+.online-list{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.online-list:empty{display:none}
+.online-name{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--green-l);color:var(--green)}
+.sidebar.collapsed .online-box{padding:6px;margin:0 4px 8px}
+.sidebar.collapsed .online-list,.sidebar.collapsed #online-label{display:none}
+.sidebar.collapsed .online-head{justify-content:center}
 /* ── 點名簿 ── */
 .at-wrap{flex:1;display:flex;flex-direction:column;padding:12px 14px;gap:10px;overflow:hidden;min-height:0}
 .at-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;flex-shrink:0}
@@ -476,6 +489,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </nav>
 
   <div class="sidebar-bottom">
+    <div class="online-box" id="online-box">
+      <div class="online-head"><span class="online-dot"></span><b id="online-count">0</b> <span id="online-label">在線</span></div>
+      <div class="online-list" id="online-list"></div>
+    </div>
     <div id="sig-wrap" style="padding:6px 8px;border-radius:8px;transition:background .3s">
       <svg width="100%" viewBox="0 0 176 52" id="sig-svg" style="display:block;overflow:visible">
         <defs>
@@ -886,6 +903,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
               <div style="font-size:15px;font-weight:600">⚙️ 管理者介面 <span id="admin-role-badge" style="font-size:12px;font-weight:400;color:var(--text3)"></span></div>
               <button class="btn-sm" onclick="adminLogout()">登出</button>
+            </div>
+            <div class="online-box admin" id="online-box-admin">
+              <div class="online-head"><span class="online-dot"></span>目前在線 <b id="online-count-admin">0</b></div>
+              <div class="online-list" id="online-list-admin"></div>
             </div>
             <div id="admin-shell"></div>
           </div>
@@ -2698,12 +2719,15 @@ function clearRememberedUser(){ try{ localStorage.removeItem('tesm_user'); }catc
 function updateMsgAuthUI(){
   const lo=document.getElementById('msg-logout-btn');
   if(lo){ if(maintUser){ lo.style.display=''; lo.textContent='登出 '+maintUser.name; } else lo.style.display='none'; }
+  if(maintUser && typeof presenceHeartbeat==='function') presenceHeartbeat();
 }
 function logoutMaintUser(){
   maintUser=null; clearRememberedUser();
   shownPings.clear();
   const box=document.getElementById('msg-bubbles'); if(box) box.innerHTML='';
+  presenceLeave();
   closeMsgPanel(); updateMsgAuthUI(); updateMsgBadge();
+  if(typeof presencePoll==='function') setTimeout(presencePoll,300);
 }
 async function restoreMaintUser(){
   let name=null; try{ name=localStorage.getItem('tesm_user'); }catch(_){}
@@ -2904,6 +2928,44 @@ async function atPruneOld(){
     const drop=keys.slice(0, keys.length-36);
     for(const k of drop){ await fetch(`${FB}/attendance/${k}.json`,{method:'DELETE'}); }
   }catch(e){}
+}
+
+// ── 線上人數（心跳偵測，只算登入者） ──
+const PRES_SID='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+async function presenceHeartbeat(){
+  if(!maintUser) return;
+  try{ await fetch(`${FB}/presence/${PRES_SID}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:maintUser.name,t:Date.now()})}); }catch(e){}
+}
+async function presencePoll(){
+  try{
+    const r=await fetch(`${FB}/presence.json`); const d=await r.json();
+    const now=Date.now(); const names=[]; const stale=[];
+    if(d&&typeof d==='object'){
+      Object.entries(d).forEach(([sid,v])=>{
+        if(v&&typeof v.t==='number'){
+          if(now-v.t<30000){ if(v.name && !names.includes(v.name)) names.push(v.name); }
+          else if(now-v.t>120000) stale.push(sid);
+        } else stale.push(sid);
+      });
+    }
+    if(maintUser) stale.forEach(sid=>{ fetch(`${FB}/presence/${sid}.json`,{method:'DELETE'}).catch(()=>{}); });
+    updatePresenceUI(names.sort());
+  }catch(e){}
+}
+function updatePresenceUI(names){
+  const n=names.length;
+  const setC=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  setC('online-count',n); setC('online-count-admin',n);
+  const chips=names.map(x=>`<span class="online-name">${x}</span>`).join('');
+  const l1=document.getElementById('online-list'); if(l1) l1.innerHTML=chips;
+  const l2=document.getElementById('online-list-admin'); if(l2) l2.innerHTML=chips;
+}
+function presenceLeave(){ try{ fetch(`${FB}/presence/${PRES_SID}.json`,{method:'DELETE',keepalive:true}); }catch(e){} }
+function initPresence(){
+  presenceHeartbeat(); presencePoll();
+  setInterval(presenceHeartbeat,15000);
+  setInterval(presencePoll,15000);
+  window.addEventListener('beforeunload',presenceLeave);
 }
 
 // ── Nav ──────────────────────────────────────────────────
@@ -3247,6 +3309,7 @@ initAnnounce();
 applyNavLang();
 initMessaging();
 restoreMaintUser();
+initPresence();
 poll();
 setInterval(poll,3000);
 setInterval(pollMessages,3000);
