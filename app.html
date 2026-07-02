@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<title>CCT · Registro en campo</title>
+<style>
+:root{
+  --bg:#f4f6f9; --card:#ffffff; --line:#e2e8f0; --line2:#cbd5e1;
+  --text:#0f172a; --text2:#475569; --text3:#94a3b8;
+  --blue:#1f6feb; --blue-d:#1550b3; --green:#16a34a; --red:#dc2626;
+  --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans TC","Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--blue);color:#fff}
+.hdr .brand{font-size:17px;font-weight:800;letter-spacing:.02em}
+.hdr .brand small{font-weight:500;opacity:.85;font-size:12px;margin-left:6px}
+.lang{display:flex;gap:2px;background:rgba(255,255,255,.18);border-radius:10px;padding:2px}
+.lang button{border:none;background:none;color:#fff;font-size:12px;font-weight:700;padding:5px 8px;border-radius:8px;cursor:pointer;opacity:.7}
+.lang button.on{background:#fff;color:var(--blue);opacity:1}
+.body{flex:1;padding:18px 16px;display:flex;flex-direction:column}
+.view{display:none;flex:1;flex-direction:column}
+.view.on{display:flex}
+/* 首頁 */
+.home{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8vh}
+.home button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:48px 12px;border:2px solid var(--line);border-radius:20px;background:var(--card);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:transform .1s}
+.home button:active{transform:scale(.97)}
+.home .ic{font-size:54px;line-height:1}
+.home .tx{font-size:22px;font-weight:800}
+.home .status .ic{color:var(--blue)} .home .hours .ic{color:var(--green)}
+/* 表單 */
+.back{align-self:flex-start;border:none;background:none;color:var(--blue);font-size:16px;font-weight:700;padding:4px 0 10px;cursor:pointer}
+.lbl{font-size:14px;font-weight:800;color:var(--text2);margin:14px 2px 6px}
+.inp,select.inp{width:100%;padding:16px;font-size:18px;border:1.5px solid var(--line2);border-radius:var(--radius);background:var(--card);color:var(--text);outline:none;-webkit-appearance:none}
+select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 14px center}
+.inp:focus,select.inp:focus{border-color:var(--blue)}
+.inp[type=number]{text-transform:none}
+.up{text-transform:uppercase}
+.cur{font-size:14px;font-weight:600;margin:6px 2px 0;min-height:20px}
+.cur .st{padding:2px 10px;border-radius:10px;font-weight:800}
+.cur .hrs{color:var(--blue)}
+.pname{font-size:17px;font-weight:800;color:var(--green);min-height:22px;margin:6px 2px 0}
+.pname.miss{color:var(--text3);font-weight:600}
+.hrow{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.hrow .hl{flex:0 0 42%;font-size:16px;font-weight:800;color:var(--text2)}
+.hrow .hl small{display:block;font-size:11px;color:var(--text3);font-weight:500}
+.hrow input{flex:1;padding:15px;font-size:18px;border:1.5px solid var(--line2);border-radius:12px;background:var(--card);color:var(--text);outline:none}
+.hrow input:focus{border-color:var(--blue)}
+.btn{width:100%;padding:18px;font-size:18px;font-weight:800;border:none;border-radius:var(--radius);cursor:pointer;margin-top:18px}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.primary:active{background:var(--blue-d)}
+.btn.ghost{background:var(--card);color:var(--text);border:1.5px solid var(--line2)}
+.err{color:var(--red);font-size:14px;font-weight:600;margin:8px 2px;min-height:18px}
+/* 卡片（密碼/完成） */
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:32px 22px;text-align:center;margin-top:6vh;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card .ic{font-size:48px}
+.card .t{font-size:22px;font-weight:800;margin:10px 0 4px}
+.card .s{font-size:14px;color:var(--text3);margin-bottom:18px;white-space:pre-line}
+.row2{display:flex;gap:10px;margin-top:10px}
+.row2 .btn{flex:1;margin-top:0}
+.foot{text-align:center;font-size:11px;color:var(--text3);padding:12px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div class="brand">CCT <small id="hdr-sub">Registro en campo</small></div>
+    <div class="lang">
+      <button data-l="es" onclick="setLang('es')">ES</button>
+      <button data-l="zh" onclick="setLang('zh')">中</button>
+      <button data-l="en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+  <div class="body">
+    <!-- 首頁 -->
+    <div class="view on" id="v-home">
+      <div class="home">
+        <button class="status" onclick="goStatus()"><div class="ic">🔧</div><div class="tx" id="t-status">Estado</div></button>
+        <button class="hours" onclick="goHours()"><div class="ic">⏱️</div><div class="tx" id="t-hours">Horas</div></button>
+      </div>
+    </div>
+    <!-- 狀態 -->
+    <div class="view" id="v-status">
+      <button class="back" onclick="home()" id="b-back1">‹</button>
+      <label class="lbl" id="l-s-kind">Tipo</label>
+      <select class="inp" id="s-kind" onchange="statusCur()"></select>
+      <label class="lbl" id="l-s-num">Número</label>
+      <input class="inp up" id="s-num" inputmode="text" autocomplete="off" oninput="statusCur()"/>
+      <div class="cur" id="s-cur"></div>
+      <label class="lbl" id="l-s-status">Estado</label>
+      <select class="inp" id="s-status"></select>
+      <label class="lbl" id="l-s-person">Personal</label>
+      <input class="inp" id="s-person" inputmode="numeric" autocomplete="off" oninput="personLookup()"/>
+      <div class="pname" id="s-pname"></div>
+      <div class="err" id="s-err"></div>
+      <button class="btn primary" id="s-submit" onclick="submitStatus()">Enviar</button>
+    </div>
+    <!-- 時數密碼 -->
+    <div class="view" id="v-hgate">
+      <button class="back" onclick="home()" id="b-back-hg">‹</button>
+      <div class="card">
+        <div class="ic">🔒</div>
+        <div class="t" id="hg-t">Horas</div>
+        <div class="s" id="hg-s">Ingrese la contraseña</div>
+        <input type="password" class="inp" id="h-pass" onkeydown="if(event.key==='Enter')hoursUnlock()"/>
+        <div class="err" id="hg-err"></div>
+        <button class="btn primary" id="hg-btn" onclick="hoursUnlock()">Entrar</button>
+      </div>
+    </div>
+    <!-- 時數 -->
+    <div class="view" id="v-hours">
+      <button class="back" onclick="home()" id="b-back2">‹</button>
+      <label class="lbl" id="l-h-kind">Tipo</label>
+      <select class="inp" id="h-kind" onchange="hoursRender()"></select>
+      <label class="lbl" id="l-h-num">Número</label>
+      <input class="inp up" id="h-num" inputmode="text" autocomplete="off" oninput="hoursRender()"/>
+      <div id="h-fields" style="margin-top:12px"></div>
+      <div class="err" id="h-err"></div>
+      <button class="btn primary" id="h-submit" onclick="submitHours()">Enviar</button>
+    </div>
+    <!-- 完成 -->
+    <div class="view" id="v-done">
+      <div class="card">
+        <div class="ic">✅</div>
+        <div class="t" id="d-t">¡Enviado!</div>
+        <div class="s" id="d-detail"></div>
+        <div class="row2">
+          <button class="btn primary" id="d-again" onclick="again()">Otro</button>
+          <button class="btn ghost" id="d-end" onclick="home()">Fin</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">CCT · Colon Container Terminal</div>
+</div>
+<script>
+const FB='https://tesm-c9396-default-rtdb.firebaseio.com';
+const GAS='https://script.google.com/macros/s/AKfycbxliEkHrCaCXAiHza1N0r4Ji80we61tDGbF_kg3GGjAkt-e93zznlFYGrj2lwHcRK5b/exec';
+const PA_TZ='America/Panama';
+const DEFAULT_KINDS=['GC','RTG','AR','SL','ESL','TR','CH','FL','PPG','SP'];
+const DEFAULT_STATUSES=['Available','Running','Emergency Maintenance','Out Of Service','Planned Maintenance','Damaged'];
+const ALIAS={AR:'ARMGC'};
+const SC={'Available':{bg:'#dcfce7',fg:'#166534'},'Running':{bg:'#dbeafe',fg:'#1e40af'},'Emergency Maintenance':{bg:'#ffedd5',fg:'#9a3412'},'Out Of Service':{bg:'#e2e8f0',fg:'#334155'},'Planned Maintenance':{bg:'#ede9fe',fg:'#5b21b6'},'Damaged':{bg:'#fee2e2',fg:'#991b1b'}};
+const I18N={
+  es:{sub:'Registro en campo',status:'Estado',hours:'Horas',kind:'Tipo de equipo',num:'Número',statusL:'Estado',person:'Personal (N.º de empleado)',submit:'Enviar',again:'Otro registro',end:'Finalizar',done:'¡Enviado!',pass:'Contraseña',enter:'Entrar',hgSub:'Ingrese la contraseña',wrong:'Contraseña incorrecta',noPass:'Contraseña no configurada',errS:'Complete tipo, número, estado y personal',errH:'Ingrese número y al menos una hora',noCats:'Este tipo no tiene categorías',last:'Ant.:',cur:'Actual:',notFound:'No está en la lista — se usará el texto'},
+  zh:{sub:'現場登錄',status:'狀態',hours:'時數',kind:'車機種類',num:'編號',statusL:'狀態',person:'人員（員工編號）',submit:'送出',again:'再填一筆',end:'結束',done:'已送出',pass:'密碼',enter:'進入',hgSub:'請輸入密碼',wrong:'密碼錯誤',noPass:'尚未設定密碼',errS:'請填種類、編號、狀態、人員',errH:'請填編號、至少一個時數',noCats:'此機型未設定時數種類',last:'上次：',cur:'目前：',notFound:'不在名單 — 將直接使用此文字'},
+  en:{sub:'Field entry',status:'Status',hours:'Hours',kind:'Equipment type',num:'Number',statusL:'Status',person:'Staff (employee no.)',submit:'Submit',again:'New entry',end:'Finish',done:'Submitted!',pass:'Password',enter:'Enter',hgSub:'Enter password',wrong:'Wrong password',noPass:'Password not set',errS:'Fill type, number, status and staff',errH:'Enter number and at least one hour',noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used'}
+};
+let LANG=localStorage.getItem('app_lang')||'es';
+let KINDS=DEFAULT_KINDS.slice(), STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, HDEFS={};
+let flow='status', hoursOK=false;
+function L(){ return I18N[LANG]||I18N.es; }
+function canon(k){ return ALIAS[k]||k; }
+function key(k,n){ return (k+'-'+n).replace(/[^a-zA-Z0-9_]/g,'_'); }
+function now(){ return new Date().toLocaleString('zh-TW',{timeZone:PA_TZ}); }
+function cats(t){ return (HDEFS[t]||[]).filter(Boolean); }
+function $(id){ return document.getElementById(id); }
+function show(v){ ['home','status','hgate','hours','done'].forEach(x=>$('v-'+x).classList.toggle('on',x===v)); }
+
+async function load(){
+  try{ const r=await fetch(FB+'/field_kinds.json'); const d=await r.json(); if(Array.isArray(d)&&d.length) KINDS=d; }catch(e){}
+  try{ const r=await fetch(FB+'/field_statuses.json'); const d=await r.json(); if(Array.isArray(d)&&d.length) STATUSES=d; }catch(e){}
+  try{ const r=await fetch(FB+'/hours_defs.json'); HDEFS=(await r.json())||{}; }catch(e){}
+  try{ const r=await fetch(FB+'/staff.json'); STAFF=(await r.json())||{}; }catch(e){}
+  buildSelects(); applyLang();
+}
+function buildSelects(){
+  $('s-kind').innerHTML=KINDS.map(k=>`<option value="${k}">${k}</option>`).join('');
+  $('s-status').innerHTML=STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('');
+  const hk=KINDS.filter(k=>cats(canon(k)).length>0);
+  $('h-kind').innerHTML=hk.map(k=>`<option value="${k}">${k}</option>`).join('');
+}
+function setLang(l){ LANG=l; localStorage.setItem('app_lang',l); applyLang(); }
+function applyLang(){
+  const t=L(); document.documentElement.lang=LANG;
+  document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===LANG));
+  const set=(id,v)=>{ const e=$(id); if(e) e.textContent=v; };
+  set('hdr-sub',t.sub); set('t-status',t.status); set('t-hours',t.hours);
+  set('l-s-kind',t.kind); set('l-s-num',t.num); set('l-s-status',t.statusL); set('l-s-person',t.person);
+  set('l-h-kind',t.kind); set('l-h-num',t.num);
+  set('s-submit',t.submit); set('h-submit',t.submit);
+  set('hg-t',t.hours); set('hg-s',t.hgSub); set('hg-btn',t.enter);
+  set('d-t',t.done); set('d-again',t.again); set('d-end',t.end);
+}
+function home(){ show('home'); }
+function goStatus(){
+  flow='status'; $('s-num').value=''; $('s-person').value=''; $('s-pname').textContent=''; $('s-cur').innerHTML=''; $('s-err').textContent='';
+  show('status');
+}
+function goHours(){
+  flow='hours';
+  if(hoursOK){ enterHours(); } else { $('hg-err').textContent=''; $('h-pass').value=''; show('hgate'); }
+}
+async function hoursUnlock(){
+  const t=L(); let pass=null;
+  try{ const r=await fetch(FB+'/field_pass.json'); pass=await r.json(); }catch(e){}
+  const val=($('h-pass').value||'').trim();
+  if(!pass){ $('hg-err').textContent=t.noPass; return; }
+  if(val!==String(pass)){ $('hg-err').textContent=t.wrong; return; }
+  hoursOK=true; enterHours();
+}
+function enterHours(){ $('h-num').value=''; $('h-err').textContent=''; show('hours'); hoursRender(); }
+
+async function statusCur(){
+  const el=$('s-cur'); const k=canon($('s-kind').value); const n=($('s-num').value||'').trim().toUpperCase();
+  if(!n){ el.innerHTML=''; return; }
+  const kk=key(k,n); let html='';
+  try{ const r=await fetch(FB+'/equipment/'+kk+'.json'); const d=await r.json();
+    if(d&&d.status){ const s=SC[d.status]; html+=`${L().cur} <span class="st" style="${s?`background:${s.bg};color:${s.fg}`:''}">${d.status}</span>`; } }catch(e){}
+  try{ const r=await fetch(FB+'/eq_hours/'+kk+'.json'); const d=await r.json();
+    if(d&&d.vals){ const cs=cats(k).filter(c=>d.vals[c]!=null); if(cs.length) html+=` <span class="hrs">｜${cs.map(c=>c+':'+d.vals[c]).join('  ')}</span>`; } }catch(e){}
+  el.innerHTML=html;
+}
+function personLookup(){
+  const el=$('s-pname'); const id=($('s-person').value||'').trim();
+  if(!id){ el.textContent=''; el.className='pname'; return; }
+  const name=STAFF[id];
+  if(name){ el.textContent=name; el.className='pname'; }
+  else { el.textContent=L().notFound; el.className='pname miss'; }
+}
+async function hoursRender(){
+  const c=canon($('h-kind').value); const n=($('h-num').value||'').trim().toUpperCase();
+  const wrap=$('h-fields'); const cs=cats(c);
+  if(!cs.length){ wrap.innerHTML=`<div class="cur">${L().noCats}</div>`; return; }
+  let prev={};
+  if(n){ try{ const r=await fetch(FB+'/eq_hours/'+key(c,n)+'.json'); const d=await r.json(); if(d&&d.vals) prev=d.vals; }catch(e){} }
+  wrap.innerHTML=cs.map(cat=>{
+    const last=(prev[cat]!=null)?`<small>${L().last} ${prev[cat]}</small>`:'';
+    return `<div class="hrow"><div class="hl">${cat}${last}</div><input class="hcat" data-cat="${cat.replace(/"/g,'')}" type="number" inputmode="numeric" placeholder="—"/></div>`;
+  }).join('');
+}
+async function submitStatus(){
+  const t=L(); const dk=$('s-kind').value, k=canon(dk);
+  const n=($('s-num').value||'').trim().toUpperCase();
+  const st=$('s-status').value; const pid=($('s-person').value||'').trim();
+  if(!n||!st||!pid){ $('s-err').textContent=t.errS; return; }
+  $('s-err').textContent='';
+  const person=STAFF[pid]||pid; const id=k+'-'+n, kk=key(k,n), tnow=now();
+  const btn=$('s-submit'); btn.disabled=true;
+  try{
+    await fetch(FB+'/equipment/'+kk+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,machine_type:k,status:st,crew:person,note:'',last_updated:tnow})});
+    fetch(GAS+'?'+new URLSearchParams({action:'write',machine_kind:k,number:n,status:st,process:'Field',crew:person}),{method:'GET',mode:'no-cors'});
+  }catch(e){ $('s-err').textContent='✗ '+e.message; btn.disabled=false; return; }
+  btn.disabled=false; $('d-detail').textContent=`${id} — ${st}　(${person})`; show('done');
+}
+async function submitHours(){
+  const t=L(); const c=canon($('h-kind').value); const n=($('h-num').value||'').trim().toUpperCase();
+  const ins=[...document.querySelectorAll('#h-fields .hcat')]; const filled={};
+  ins.forEach(i=>{ const v=i.value.trim(); if(v!=='') filled[i.getAttribute('data-cat')]=Number(v); });
+  if(!n||!Object.keys(filled).length){ $('h-err').textContent=t.errH; return; }
+  $('h-err').textContent='';
+  const id=c+'-'+n, kk=key(c,n), tnow=now();
+  const btn=$('h-submit'); btn.disabled=true;
+  try{
+    let vals={};
+    try{ const r=await fetch(FB+'/eq_hours/'+kk+'.json'); const d=await r.json(); if(d&&d.vals) vals=d.vals; }catch(e){}
+    Object.assign(vals,filled);
+    await fetch(FB+'/eq_hours/'+kk+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({vals,time:tnow})});
+    Object.entries(filled).forEach(([k2,hv])=>{ fetch(FB+'/eq_hours_log.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,kind:k2,hours:hv,time:tnow})}).catch(()=>{}); });
+  }catch(e){ $('h-err').textContent='✗ '+e.message; btn.disabled=false; return; }
+  btn.disabled=false; $('d-detail').textContent=`${id} — ${Object.entries(filled).map(([k,v])=>k+':'+v).join('  ')}`; show('done');
+}
+function again(){ if(flow==='status') goStatus(); else enterHours(); }
+load();
+</script>
+</body>
+</html>
