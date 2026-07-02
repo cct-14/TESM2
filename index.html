@@ -363,6 +363,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-log-user{font-weight:700;white-space:nowrap}
 .mt-log-act{padding:0 7px;border-radius:8px;background:var(--blue-l);color:var(--blue);font-weight:600;white-space:nowrap}
 .mt-log-detail{color:var(--text2)}
+/* 純現場模式（?field 直接進登入頁） */
+body.field-only .sidebar,
+body.field-only .topbar,
+body.field-only #msg-fab,
+body.field-only #msg-top-btn,
+body.field-only #app-lang{display:none !important}
+body.field-only .fld-wrap{padding-top:16px}
 /* ── 現場登錄 APP ── */
 .fld-wrap{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:20px 16px;min-height:0}
 .fld-view{width:100%;max-width:440px}
@@ -383,6 +390,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fld-menu-btn:active{transform:scale(.98)}
 .fld-menu-ic{font-size:40px}
 .fld-menu-tx{font-size:17px;font-weight:700;color:var(--text)}
+/* 新版：首頁雙框 + 放大表單 */
+.fld-home-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8vh}
+.fld-home-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:44px 12px;border:2px solid var(--border);border-radius:20px;background:var(--bg);cursor:pointer;box-shadow:var(--shadow);transition:transform .1s}
+.fld-home-btn:active{transform:scale(.97)}
+.fld-home-ic{font-size:52px}
+.fld-home-tx{font-size:22px;font-weight:800;color:var(--text)}
+.fld-lbl{display:block;font-size:14px;font-weight:700;color:var(--text2);margin:14px 2px 6px}
+.fld-input.big{padding:16px 16px;font-size:18px;border-radius:14px}
+.fld-btn.big{padding:18px;font-size:18px;border-radius:14px;margin-top:16px}
+select.fld-input.big{height:56px}
+.fld-cur{font-size:14px;font-weight:600;margin:2px 2px 0;min-height:20px}
+.fld-cur .st{padding:2px 10px;border-radius:10px;font-weight:700}
+.fld-cur .hrs{color:var(--blue)}
+.fld-person{font-size:16px;font-weight:800;color:var(--green);min-height:22px;margin:6px 2px 0}
+.fld-person.miss{color:var(--text3);font-weight:600}
+.fld-hcat-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.fld-hcat-row label{flex:0 0 40%;font-size:16px;font-weight:800;color:var(--text2)}
+.fld-hcat-row .lastv{font-size:11px;color:var(--text3);font-weight:500;display:block}
+.fld-hcat-row input{flex:1;padding:14px;font-size:18px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text)}
 .fld-logout{margin-top:20px;width:100%;padding:10px;border:none;background:none;color:var(--text3);font-size:13px;cursor:pointer;text-decoration:underline}
 .fld-back{border:none;background:none;color:var(--blue);font-size:15px;font-weight:600;cursor:pointer;padding:4px 0;margin-bottom:12px}
 .fld-step-title{font-size:13px;font-weight:700;color:var(--text2);margin:8px 0 8px;text-transform:uppercase;letter-spacing:.04em}
@@ -971,62 +997,64 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="page" id="page-notify"><div class="placeholder"><div class="placeholder-icon">🔔</div><div class="placeholder-title">Real-time fault notifications</div><div class="placeholder-sub">Push alerts for emergency events — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
     <div class="page" id="page-field">
       <div class="fld-wrap">
-        <!-- 登入 -->
-        <div class="fld-view" id="fld-gate">
-          <div class="fld-card">
-            <div class="fld-icon">📲</div>
-            <div class="fld-title" id="fld-gate-title">現場登錄</div>
-            <div class="fld-sub" id="fld-gate-sub">請輸入工程師密碼</div>
-            <input type="password" class="fld-input" id="fld-pass" placeholder="••••" onkeydown="if(event.key==='Enter')fldUnlock()"/>
-            <div class="fld-err" id="fld-gate-err" style="display:none"></div>
-            <button class="fld-btn primary" id="fld-unlock-btn" onclick="fldUnlock()">登入</button>
-          </div>
-        </div>
-        <!-- 主選單 -->
-        <div class="fld-view" id="fld-menu" style="display:none">
-          <div class="fld-menu-grid">
-            <button class="fld-menu-btn" onclick="fldShow('status')">
-              <div class="fld-menu-ic">🔧</div><div class="fld-menu-tx" id="fld-m-status">車機狀態更改</div>
+        <!-- 首頁：兩個大框 -->
+        <div class="fld-view" id="fld-home">
+          <div class="fld-home-grid">
+            <button class="fld-home-btn" onclick="fldGoStatus()">
+              <div class="fld-home-ic">🔧</div><div class="fld-home-tx" id="fld-home-status">狀態</div>
             </button>
-            <button class="fld-menu-btn" onclick="fldShow('hours')">
-              <div class="fld-menu-ic">⏱️</div><div class="fld-menu-tx" id="fld-m-hours">時數登錄</div>
+            <button class="fld-home-btn" onclick="fldGoHours()">
+              <div class="fld-home-ic">⏱️</div><div class="fld-home-tx" id="fld-home-hours">時數</div>
             </button>
           </div>
-          <button class="fld-logout" id="fld-logout" onclick="fldLogout()">登出</button>
         </div>
-        <!-- 車機狀態更改 -->
+        <!-- 狀態（免密碼） -->
         <div class="fld-view" id="fld-status" style="display:none">
-          <button class="fld-back" onclick="fldShow('menu')" id="fld-back1">‹ 返回</button>
-          <div class="fld-step-title" id="fld-st-t1">選擇車機</div>
-          <div class="fld-row">
-            <select class="fld-input" id="fld-s-kind"></select>
-            <input class="fld-input" id="fld-s-num" placeholder="機號 (例 01)" autocomplete="off" style="text-transform:uppercase"/>
-          </div>
-          <div class="fld-step-title" id="fld-st-t2">狀態</div>
-          <div class="fld-status-list" id="fld-status-list"></div>
-          <input class="fld-input" id="fld-s-reporter" placeholder="回報人"/>
-          <input class="fld-input" id="fld-s-note" placeholder="備註（可留空）"/>
-          <button class="fld-btn primary" id="fld-s-submit" onclick="fldSubmitStatus()">送出</button>
+          <button class="fld-back" onclick="fldHome()" id="fld-back1">‹ 返回</button>
+          <label class="fld-lbl" id="fld-s-l1">車機種類</label>
+          <select class="fld-input big" id="fld-s-kind" onchange="fldStatusCur()"></select>
+          <label class="fld-lbl" id="fld-s-l2">編號</label>
+          <input class="fld-input big" id="fld-s-num" placeholder="例 01" autocomplete="off" style="text-transform:uppercase" oninput="fldStatusCur()"/>
+          <div class="fld-cur" id="fld-s-cur"></div>
+          <label class="fld-lbl" id="fld-s-l3">狀態</label>
+          <select class="fld-input big" id="fld-s-status"></select>
+          <label class="fld-lbl" id="fld-s-l4">人員（員工編號）</label>
+          <input class="fld-input big" id="fld-s-person" placeholder="輸入編號" autocomplete="off" oninput="fldPersonLookup()"/>
+          <div class="fld-person" id="fld-s-pname"></div>
+          <button class="fld-btn primary big" id="fld-s-submit" onclick="fldSubmitStatus()">送出</button>
         </div>
-        <!-- 時數登錄 -->
+        <!-- 時數密碼 -->
+        <div class="fld-view" id="fld-hgate" style="display:none">
+          <button class="fld-back" onclick="fldHome()" id="fld-back-hg">‹ 返回</button>
+          <div class="fld-card">
+            <div class="fld-icon">🔒</div>
+            <div class="fld-title" id="fld-hgate-title">時數登錄</div>
+            <div class="fld-sub" id="fld-hgate-sub">請輸入密碼</div>
+            <input type="password" class="fld-input big" id="fld-hpass" placeholder="••••" onkeydown="if(event.key==='Enter')fldHoursUnlock()"/>
+            <div class="fld-err" id="fld-hgate-err" style="display:none"></div>
+            <button class="fld-btn primary big" id="fld-hgate-btn" onclick="fldHoursUnlock()">進入</button>
+          </div>
+        </div>
+        <!-- 時數（密碼過後） -->
         <div class="fld-view" id="fld-hours" style="display:none">
-          <button class="fld-back" onclick="fldShow('menu')" id="fld-back2">‹ 返回</button>
-          <div class="fld-step-title" id="fld-hr-t1">選擇車機</div>
-          <div class="fld-row">
-            <select class="fld-input" id="fld-h-kind"></select>
-            <input class="fld-input" id="fld-h-num" placeholder="機號 (例 01)" autocomplete="off" style="text-transform:uppercase"/>
-          </div>
+          <button class="fld-back" onclick="fldHome()" id="fld-back2">‹ 返回</button>
+          <label class="fld-lbl" id="fld-h-l1">車機種類</label>
+          <select class="fld-input big" id="fld-h-kind" onchange="fldHoursRender()"></select>
+          <label class="fld-lbl" id="fld-h-l2">編號</label>
+          <input class="fld-input big" id="fld-h-num" placeholder="例 01" autocomplete="off" style="text-transform:uppercase" oninput="fldHoursRender()"/>
           <div id="fld-h-fields"></div>
-          <input class="fld-input" id="fld-h-by" placeholder="登錄人"/>
-          <button class="fld-btn primary" id="fld-h-submit" onclick="fldSubmitHours()">送出</button>
+          <button class="fld-btn primary big" id="fld-h-submit" onclick="fldSubmitHours()">送出</button>
         </div>
-        <!-- 成功 -->
+        <!-- 完成 -->
         <div class="fld-view" id="fld-done" style="display:none">
           <div class="fld-card">
             <div class="fld-icon">✅</div>
             <div class="fld-title" id="fld-done-title">已送出</div>
             <div class="fld-sub" id="fld-done-detail"></div>
-            <button class="fld-btn" id="fld-done-again" onclick="fldShow('menu')">繼續</button>
+            <div style="display:flex;gap:10px;width:100%;margin-top:8px">
+              <button class="fld-btn primary big" style="flex:1" id="fld-again" onclick="fldAgain()">再填一筆</button>
+              <button class="fld-btn big" style="flex:1" id="fld-end" onclick="fldHome()">結束</button>
+            </div>
           </div>
         </div>
       </div>
@@ -3024,74 +3052,129 @@ async function saveFieldPass(){
   try{ await fetch(`${FB}/field_pass.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)}); alert('現場密碼已更新 ✓'); }
   catch(e){ alert('儲存失敗：'+e.message); }
 }
-function appTypeOn(kind,which){ const a=(APP_TYPES&&APP_TYPES[which])||{}; return a[kind]!==false; }
-let appMgTab='status';
+let appMgTab='kinds';
 async function renderAppManage(){
   const el=document.getElementById('fp-app'); if(!el) return;
-  if(APP_TYPES===null){ try{ const r=await fetch(`${FB}/app_types.json`); APP_TYPES=(await r.json())||{status:{},hours:{}}; }catch(e){ APP_TYPES={status:{},hours:{}}; } }
+  await fldLoadConfig();
   el.innerHTML=`
-    <div class="fp-sec-title">現場登錄密碼（工程師共用）</div>
-    <div style="display:flex;gap:8px;margin-bottom:4px"><input id="fp-field-pass" placeholder="設定密碼" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/><button class="mt-perm on" onclick="saveFieldPass()">儲存</button></div>
-    <div style="font-size:11px;color:var(--text3);margin-bottom:18px">工程師在「現場登錄」頁用這組密碼進入</div>
-    <div class="mt-subtabs" style="border-bottom:1px solid var(--border);padding:0">
-      <button class="mt-subtab" id="appmg-t-status" onclick="appMgSwitch('status')">狀態</button>
-      <button class="mt-subtab" id="appmg-t-hours" onclick="appMgSwitch('hours')">時數</button>
+    <div class="mt-subtabs" style="border-bottom:1px solid var(--border);padding:0;flex-wrap:wrap">
+      <button class="mt-subtab" id="appmg-t-kinds" onclick="appMgSwitch('kinds')">車機種類</button>
+      <button class="mt-subtab" id="appmg-t-statuses" onclick="appMgSwitch('statuses')">狀態選項</button>
+      <button class="mt-subtab" id="appmg-t-hours" onclick="appMgSwitch('hours')">時數種類</button>
+      <button class="mt-subtab" id="appmg-t-staff" onclick="appMgSwitch('staff')">人員清單</button>
+      <button class="mt-subtab" id="appmg-t-pass" onclick="appMgSwitch('pass')">密碼</button>
     </div>
-    <div id="appmg-body" style="padding-top:12px"></div>`;
-  fetch(`${FB}/field_pass.json`).then(r=>r.json()).then(v=>{ const e=document.getElementById('fp-field-pass'); if(e&&v) e.value=v; }).catch(()=>{});
+    <div id="appmg-body" style="padding-top:14px"></div>`;
   appMgSwitch(appMgTab);
 }
-let hoursDefType='RTG';
 function appMgSwitch(which){
   appMgTab=which;
-  ['status','hours'].forEach(w=>{ const b=document.getElementById('appmg-t-'+w); if(b) b.classList.toggle('active', w===which); });
+  ['kinds','statuses','hours','staff','pass'].forEach(w=>{ const b=document.getElementById('appmg-t-'+w); if(b) b.classList.toggle('active', w===which); });
   const body=document.getElementById('appmg-body'); if(!body) return;
-  if(which==='status'){
-    const cur=(APP_TYPES&&APP_TYPES.status)||{};
-    body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:10px">可用「車機狀態更改」的機型</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">`+
-      FIELD_KINDS.map(k=>{const on=cur[k]!==false; return `<label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid ${on?'var(--blue)':'var(--border)'};border-radius:9px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" ${on?'checked':''} onchange="appToggle('status','${k}',this.checked)"/>${k}</label>`;}).join('')+
-      `</div>`;
-    return;
-  }
-  // 時數：每型自訂種類（預設 5 格）
-  const defs=(HOURS_DEFS[hoursDefType]||[]).slice(); while(defs.length<5) defs.push('');
-  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">選機型後，設定該型的時數種類（例 POWER、ENGINE）。不需要時數的機型留空即可。</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-      <select id="hd-type" onchange="hoursDefsPick(this.value)" style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;background:var(--bg)">
-        ${FIELD_KINDS.map(k=>`<option value="${k}"${k===hoursDefType?' selected':''}>${k}${(HOURS_DEFS[k]||[]).filter(Boolean).length?' ●':''}</option>`).join('')}
-      </select>
-      <span style="font-size:12px;color:var(--text3)">${hoursDefType} 的時數種類</span>
-    </div>
-    <div id="hd-rows">${defs.map((d,i)=>`<input class="hd-cat" data-i="${i}" value="${(d||'').replace(/"/g,'&quot;')}" placeholder="種類 ${i+1}（留空=不用）" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:6px;background:var(--bg);text-transform:uppercase"/>`).join('')}</div>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="mt-perm" onclick="hoursDefsAddRow()">＋ 加一格</button>
-      <button class="mt-perm on" onclick="saveHoursDefs()">儲存 ${hoursDefType} 種類</button>
-    </div>`;
+  if(which==='kinds') body.innerHTML=amListEditor('車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）', FIELD_KINDS, 'saveKinds');
+  else if(which==='statuses') body.innerHTML=amListEditor('車機狀態選項（現場「狀態更改」的下拉）', FIELD_STATUSES, 'saveStatuses');
+  else if(which==='hours') amRenderHoursDefs(body);
+  else if(which==='staff') amRenderStaff(body);
+  else if(which==='pass') amRenderPass(body);
+}
+// 通用清單編輯器（種類 / 狀態）
+function amListEditor(desc, arr, saveFn){
+  const rows=(arr&&arr.length?arr:['']).map((v,i)=>`<div style="display:flex;gap:6px;margin-bottom:6px"><input class="am-item" value="${(v||'').replace(/"/g,'&quot;')}" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm" onclick="this.parentNode.remove()">✕</button></div>`).join('');
+  return `<div style="font-size:12px;color:var(--text3);margin-bottom:10px">${desc}</div>
+    <div id="am-rows">${rows}</div>
+    <div style="display:flex;gap:8px;margin-top:4px"><button class="mt-perm" onclick="amAddItem()">＋ 加一項</button><button class="mt-perm on" onclick="${saveFn}()">儲存</button></div>`;
+}
+function amAddItem(){
+  const rows=document.getElementById('am-rows'); if(!rows) return;
+  const div=document.createElement('div'); div.style.cssText='display:flex;gap:6px;margin-bottom:6px';
+  div.innerHTML=`<input class="am-item" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm" onclick="this.parentNode.remove()">✕</button>`;
+  rows.appendChild(div);
+}
+function amCollect(){ return [...document.querySelectorAll('#am-rows .am-item')].map(i=>i.value.trim()).filter(Boolean); }
+async function saveKinds(){
+  const arr=amCollect(); FIELD_KINDS=arr;
+  try{ await fetch(`${FB}/field_kinds.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); alert(`車機種類已儲存（${arr.length}）✓`); }
+  catch(e){ alert('儲存失敗：'+e.message); }
+}
+async function saveStatuses(){
+  const arr=amCollect(); FIELD_STATUSES=arr;
+  try{ await fetch(`${FB}/field_statuses.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); alert(`狀態選項已儲存（${arr.length}）✓`); }
+  catch(e){ alert('儲存失敗：'+e.message); }
+}
+// 時數種類（每型）
+let hoursDefType='RTG';
+function amRenderHoursDefs(body){
+  if(!FIELD_KINDS.includes(hoursDefType)) hoursDefType=fieldCanon(FIELD_KINDS[0]||'RTG');
+  const canon=fieldCanon(hoursDefType);
+  const defs=(HOURS_DEFS[canon]||[]).slice(); while(defs.length<5) defs.push('');
+  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">選機型 → 設定該型的時數種類（例 POWER、ENGINE）。留空＝該型免時數。</div>
+    <div style="margin-bottom:12px"><select id="hd-type" onchange="hoursDefsPick(this.value)" style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;background:var(--bg)">
+      ${FIELD_KINDS.map(k=>`<option value="${k}"${k===hoursDefType?' selected':''}>${k}${(HOURS_DEFS[fieldCanon(k)]||[]).filter(Boolean).length?' ●':''}</option>`).join('')}
+    </select></div>
+    <div id="hd-rows">${defs.map((d,i)=>`<input class="hd-cat" value="${(d||'').replace(/"/g,'&quot;')}" placeholder="種類 ${i+1}（留空＝不用）" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:6px;background:var(--bg);text-transform:uppercase"/>`).join('')}</div>
+    <div style="display:flex;gap:8px;margin-top:4px"><button class="mt-perm" onclick="hoursDefsAddRow()">＋ 加一格</button><button class="mt-perm on" onclick="saveHoursDefs()">儲存 ${hoursDefType} 種類</button></div>`;
 }
 function hoursDefsPick(t){ hoursDefType=t; appMgSwitch('hours'); }
 function hoursDefsAddRow(){
   const rows=document.getElementById('hd-rows'); if(!rows) return;
-  const i=rows.querySelectorAll('.hd-cat').length;
-  const inp=document.createElement('input');
-  inp.className='hd-cat'; inp.setAttribute('data-i',i); inp.placeholder=`種類 ${i+1}（留空=不用）`;
+  const inp=document.createElement('input'); inp.className='hd-cat'; inp.placeholder='種類（留空＝不用）';
   inp.style.cssText='width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:6px;background:var(--bg);text-transform:uppercase';
   rows.appendChild(inp);
 }
 async function saveHoursDefs(){
   const cats=[...document.querySelectorAll('#hd-rows .hd-cat')].map(i=>i.value.trim().toUpperCase()).filter(Boolean);
-  HOURS_DEFS[hoursDefType]=cats;
-  try{ await fetch(`${FB}/hours_defs/${hoursDefType}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cats)});
-    alert(`${hoursDefType} 時數種類已儲存（${cats.length} 種）✓`); appMgSwitch('hours'); }
+  const canon=fieldCanon(hoursDefType); HOURS_DEFS[canon]=cats;
+  try{ await fetch(`${FB}/hours_defs/${canon}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cats)}); alert(`${hoursDefType} 時數種類已儲存（${cats.length}）✓`); appMgSwitch('hours'); }
   catch(e){ alert('儲存失敗：'+e.message); }
 }
-async function appToggle(which,kind,on){
-  if(!APP_TYPES) APP_TYPES={status:{},hours:{}};
-  if(!APP_TYPES[which]) APP_TYPES[which]={};
-  APP_TYPES[which][kind]=on;
-  appMgSwitch(which);
-  try{ await fetch(`${FB}/app_types.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(APP_TYPES)}); }
-  catch(e){ alert('儲存失敗：'+e.message); }
+// 人員清單
+function amRenderStaff(body){
+  const ids=Object.keys(STAFF);
+  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">共 ${ids.length} 人。現場輸入編號會自動帶出名字。</div>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <input id="st-id" placeholder="編號" style="width:100px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
+      <input id="st-name" placeholder="名字" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
+      <button class="mt-perm on" onclick="staffAdd()">新增</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:4px">整批匯入：從 Excel 複製兩欄（編號、名字）貼下面，一行一筆（用逗號或 Tab 分隔），按匯入：</div>
+    <textarea id="st-bulk" placeholder="123, 王小明&#10;124, 李大華" style="width:100%;height:80px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg);margin-bottom:6px"></textarea>
+    <div style="display:flex;gap:8px;margin-bottom:12px"><button class="mt-perm" onclick="staffBulk()">匯入</button><input id="st-search" placeholder="🔍 搜尋編號/名字" oninput="staffFilter(this.value)" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/></div>
+    <div id="st-list" style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px"></div>`;
+  staffFilter('');
+}
+function staffFilter(q){
+  q=(q||'').toLowerCase(); const el=document.getElementById('st-list'); if(!el) return;
+  const rows=Object.entries(STAFF).filter(([id,n])=>!q||id.toLowerCase().includes(q)||String(n).toLowerCase().includes(q)).sort((a,b)=>a[0].localeCompare(b[0]));
+  el.innerHTML=rows.length?rows.map(([id,n])=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bg3);font-size:13px"><span style="font-weight:700;min-width:60px">${id}</span><span style="flex:1">${n}</span><button class="mt-perm" onclick="staffDel('${id.replace(/'/g,"")}')">✕</button></div>`).join(''):`<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">尚無人員</div>`;
+}
+async function staffAdd(){
+  const id=(document.getElementById('st-id').value||'').trim(); const name=(document.getElementById('st-name').value||'').trim();
+  if(!id||!name){ alert('編號和名字都要填'); return; }
+  STAFF[id]=name;
+  try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(name)}); }catch(e){ alert('失敗：'+e.message); return; }
+  document.getElementById('st-id').value=''; document.getElementById('st-name').value=''; staffFilter(document.getElementById('st-search').value||'');
+}
+async function staffDel(id){
+  if(!confirm('刪除 '+id+'？')) return;
+  delete STAFF[id];
+  try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(e){}
+  staffFilter(document.getElementById('st-search').value||'');
+}
+async function staffBulk(){
+  const txt=(document.getElementById('st-bulk').value||'').trim(); if(!txt){ return; }
+  const obj={}; let n=0;
+  txt.split(/\r?\n/).forEach(line=>{ const p=line.split(/[\t,;]+/).map(x=>x.trim()).filter(Boolean); if(p.length>=2){ obj[p[0]]=p.slice(1).join(' '); n++; } });
+  if(!n){ alert('格式不對：每行「編號, 名字」'); return; }
+  Object.assign(STAFF, obj);
+  try{ await fetch(`${FB}/staff.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}); alert(`匯入 ${n} 人 ✓`); }
+  catch(e){ alert('匯入失敗：'+e.message); return; }
+  document.getElementById('st-bulk').value=''; staffFilter('');
+}
+// 密碼（僅時數用）
+function amRenderPass(body){
+  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">現場「時數」需要這組密碼才能進入（狀態不需要）。</div>
+    <div style="display:flex;gap:8px"><input id="fp-field-pass" placeholder="設定密碼" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm on" onclick="saveFieldPass()">儲存</button></div>`;
+  fetch(`${FB}/field_pass.json`).then(r=>r.json()).then(v=>{ const e=document.getElementById('fp-field-pass'); if(e&&v) e.value=v; }).catch(()=>{});
 }
 async function addMaintUser(){
   const name=document.getElementById('mu-name').value.trim();
@@ -3506,156 +3589,175 @@ function initPresence(){
   window.addEventListener('beforeunload',presenceLeave);
 }
 
-// ── 現場登錄 APP ──
-const FIELD_KINDS=['RTG','GC','ARMGC','TR','CH','FL','SL','ESL','SP','RS','PPG'];
-const FIELD_STATUSES=[
-  {v:'Available',c:'#16a34a'},{v:'Running',c:'#2563eb'},{v:'Emergency Maintenance',c:'#ea580c'},
-  {v:'Out Of Service',c:'#64748b'},{v:'Planned Maintenance',c:'#7c3aed'},{v:'Damaged',c:'#dc2626'}
-];
+// ── 現場登錄 APP（新版：首頁雙框、狀態免密碼、時數要密碼、人員帶名字） ──
+const DEFAULT_KINDS=['GC','RTG','AR','SL','ESL','TR','CH','FL','PPG','SP'];
+const DEFAULT_STATUSES=['Available','Running','Emergency Maintenance','Out Of Service','Planned Maintenance','Damaged'];
+const FIELD_ALIAS={AR:'ARMGC'};                 // 顯示 AR、存 ARMGC
+function fieldCanon(k){ return FIELD_ALIAS[k]||k; }
+let FIELD_KINDS=DEFAULT_KINDS.slice(), FIELD_STATUSES=DEFAULT_STATUSES.slice(), STAFF={};
+let fldFlow='status', fldHoursUnlocked=false, fldStatus=null;
+
 const FIELD_I18N={
-  es:{gateTitle:'Registro en campo',gateSub:'Ingrese la contraseña de técnico',unlock:'Entrar',logout:'Salir',
-    mStatus:'Cambiar estado',mHours:'Registrar horas',back:'‹ Volver',pickEq:'Seleccionar equipo',statusT:'Estado',
-    numPh:'N.º (ej. 01)',hoursOpt:'Horas (opcional)',reporter:'Reportado por',notePh:'Nota (opcional)',
-    hoursPh:'Horas (lectura del horómetro)',byPh:'Registrado por',submit:'Enviar',done:'¡Enviado!',cont:'Continuar',
-    errPass:'Contraseña incorrecta',errNoPass:'Contraseña no configurada. Contacte al administrador.',
-    errFields:'Complete equipo, estado y su nombre',errHours:'Ingrese equipo, horas y su nombre',
-    last:'Última lectura:',noCats:'Este tipo no tiene categorías de horas'},
-  zh:{gateTitle:'現場登錄',gateSub:'請輸入工程師密碼',unlock:'登入',logout:'登出',
-    mStatus:'車機狀態更改',mHours:'時數登錄',back:'‹ 返回',pickEq:'選擇車機',statusT:'狀態',
-    numPh:'機號 (例 01)',hoursOpt:'時數（可留空）',reporter:'回報人',notePh:'備註（可留空）',
-    hoursPh:'時數（小時表讀數）',byPh:'登錄人',submit:'送出',done:'已送出',cont:'繼續',
-    errPass:'密碼錯誤',errNoPass:'尚未設定密碼，請管理者先設定',
-    errFields:'請填機號、狀態、回報人',errHours:'請填機號、時數、登錄人',
-    last:'上次讀數：',noCats:'此機型未設定時數種類'},
-  en:{gateTitle:'Field entry',gateSub:'Enter technician password',unlock:'Sign in',logout:'Sign out',
-    mStatus:'Change status',mHours:'Log hours',back:'‹ Back',pickEq:'Select equipment',statusT:'Status',
-    numPh:'No. (e.g. 01)',hoursOpt:'Hours (optional)',reporter:'Reporter',notePh:'Note (optional)',
-    hoursPh:'Hours (hour-meter reading)',byPh:'Logged by',submit:'Submit',done:'Submitted!',cont:'Continue',
-    errPass:'Wrong password',errNoPass:'Password not set. Ask the admin to set it.',
-    errFields:'Fill equipment, status and your name',errHours:'Fill equipment, hours and your name',
-    last:'Last reading:',noCats:'No hour categories for this type'}
+  es:{home:'Inicio',status:'Estado',hours:'Horas',back:'‹ Volver',kind:'Tipo de equipo',num:'Número',
+    statusL:'Estado',person:'Personal (N.º de empleado)',personPh:'Ingrese el número',numPh:'ej. 01',
+    submit:'Enviar',again:'Otro registro',end:'Finalizar',done:'¡Enviado!',pass:'Contraseña',enter:'Entrar',
+    hgateSub:'Ingrese la contraseña',wrongPass:'Contraseña incorrecta',noPass:'Contraseña no configurada',
+    errStatus:'Complete tipo, número, estado y personal',errHours:'Ingrese número y al menos una hora',
+    noCats:'Este tipo no tiene categorías',last:'Anterior:',cur:'Actual:',notFound:'No en la lista — se usará el texto'},
+  zh:{home:'首頁',status:'狀態',hours:'時數',back:'‹ 返回',kind:'車機種類',num:'編號',
+    statusL:'狀態',person:'人員（員工編號）',personPh:'輸入編號',numPh:'例 01',
+    submit:'送出',again:'再填一筆',end:'結束',done:'已送出',pass:'密碼',enter:'進入',
+    hgateSub:'請輸入密碼',wrongPass:'密碼錯誤',noPass:'尚未設定密碼',
+    errStatus:'請填種類、編號、狀態、人員',errHours:'請填編號、至少一個時數',
+    noCats:'此機型未設定時數種類',last:'上次：',cur:'目前：',notFound:'不在名單 — 將直接使用此文字'},
+  en:{home:'Home',status:'Status',hours:'Hours',back:'‹ Back',kind:'Equipment type',num:'Number',
+    statusL:'Status',person:'Staff (employee no.)',personPh:'Enter number',numPh:'e.g. 01',
+    submit:'Submit',again:'New entry',end:'Finish',done:'Submitted!',pass:'Password',enter:'Enter',
+    hgateSub:'Enter password',wrongPass:'Wrong password',noPass:'Password not set',
+    errStatus:'Fill type, number, status and staff',errHours:'Enter number and at least one hour',
+    noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used'}
 };
 function fldL(){ return FIELD_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||FIELD_I18N.es; }
-let fldStatus=null, fldBuilt=false;
-
-function fldKey(kind,num){ return (kind+'-'+num).replace(/[^a-zA-Z0-9_]/g,'_'); }
+function fldKey(canonKind,num){ return (canonKind+'-'+num).replace(/[^a-zA-Z0-9_]/g,'_'); }
 function fldPanNow(){ return new Date().toLocaleString('zh-TW',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}); }
+function hoursCats(canonType){ return (HOURS_DEFS[canonType]||[]).filter(Boolean); }
 
-async function initField(){
-  if(APP_TYPES===null){ try{ const r=await fetch(`${FB}/app_types.json`); APP_TYPES=(await r.json())||{status:{},hours:{}}; }catch(e){ APP_TYPES={status:{},hours:{}}; } }
-  try{ const rd=await fetch(`${FB}/hours_defs.json`); HOURS_DEFS=(await rd.json())||HOURS_DEFS||{}; }catch(e){}
-  if(!fldBuilt){
-    const list=document.getElementById('fld-status-list');
-    if(list) list.innerHTML=FIELD_STATUSES.map(s=>`<button class="fld-st-btn" data-v="${s.v}" onclick="fldPickStatus('${s.v}',this)"><span class="dot" style="background:${s.c}"></span>${s.v}</button>`).join('');
-    const hk=document.getElementById('fld-h-kind'), hn=document.getElementById('fld-h-num');
-    if(hk) hk.onchange=fldHoursRender; if(hn) hn.oninput=fldHoursRender;
-    fldBuilt=true;
-  }
-  const statusOn=k=>{ const a=(APP_TYPES&&APP_TYPES.status)||{}; return a[k]!==false; };
-  const sK=FIELD_KINDS.filter(statusOn);
-  const hK=FIELD_KINDS.filter(k=>hoursCats(k).length>0);
-  const sk=document.getElementById('fld-s-kind'); if(sk) sk.innerHTML=sK.map(k=>`<option value="${k}">${k}</option>`).join('');
-  const hkSel=document.getElementById('fld-h-kind'); if(hkSel) hkSel.innerHTML=hK.map(k=>`<option value="${k}">${k}</option>`).join('');
-  applyFieldLang();
-  fldShow(localStorage.getItem('field_ok')==='1'?'menu':'gate');
+async function fldLoadConfig(){
+  try{ const r=await fetch(`${FB}/field_kinds.json`); const d=await r.json(); if(Array.isArray(d)&&d.length) FIELD_KINDS=d; }catch(e){}
+  try{ const r=await fetch(`${FB}/field_statuses.json`); const d=await r.json(); if(Array.isArray(d)&&d.length) FIELD_STATUSES=d; }catch(e){}
+  try{ const r=await fetch(`${FB}/hours_defs.json`); HOURS_DEFS=(await r.json())||HOURS_DEFS||{}; }catch(e){}
+  try{ const r=await fetch(`${FB}/staff.json`); STAFF=(await r.json())||{}; }catch(e){}
 }
-function hoursCats(type){ return (HOURS_DEFS[type]||[]).filter(Boolean); }
+async function initField(){
+  await fldLoadConfig();
+  // 種類下拉
+  const sk=document.getElementById('fld-s-kind'); if(sk) sk.innerHTML=FIELD_KINDS.map(k=>`<option value="${k}">${k}</option>`).join('');
+  const hKinds=FIELD_KINDS.filter(k=>hoursCats(fieldCanon(k)).length>0);
+  const hk=document.getElementById('fld-h-kind'); if(hk) hk.innerHTML=hKinds.map(k=>`<option value="${k}">${k}</option>`).join('');
+  // 狀態下拉
+  const ss=document.getElementById('fld-s-status'); if(ss) ss.innerHTML=FIELD_STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('');
+  applyFieldLang();
+  fldHome();
+}
 function applyFieldLang(){
   const L=fldL(), set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  set('fld-gate-title',L.gateTitle); set('fld-gate-sub',L.gateSub); set('fld-unlock-btn',L.unlock);
-  set('fld-m-status',L.mStatus); set('fld-m-hours',L.mHours); set('fld-logout',L.logout);
-  set('fld-back1',L.back); set('fld-back2',L.back);
-  set('fld-st-t1',L.pickEq); set('fld-st-t2',L.statusT); set('fld-hr-t1',L.pickEq);
+  set('fld-home-status',L.status); set('fld-home-hours',L.hours);
+  set('fld-back1',L.back); set('fld-back2',L.back); set('fld-back-hg',L.back);
+  set('fld-s-l1',L.kind); set('fld-s-l2',L.num); set('fld-s-l3',L.statusL); set('fld-s-l4',L.person);
+  set('fld-h-l1',L.kind); set('fld-h-l2',L.num);
   set('fld-s-submit',L.submit); set('fld-h-submit',L.submit);
-  set('fld-done-title',L.done); set('fld-done-again',L.cont);
+  set('fld-hgate-title',L.hours); set('fld-hgate-sub',L.hgateSub); set('fld-hgate-btn',L.enter);
+  set('fld-done-title',L.done); set('fld-again',L.again); set('fld-end',L.end);
   const ph=(id,v)=>{const e=document.getElementById(id);if(e)e.placeholder=v;};
-  ph('fld-s-num',L.numPh); ph('fld-h-num',L.numPh);
-  ph('fld-s-reporter',L.reporter); ph('fld-s-note',L.notePh);
-  ph('fld-h-by',L.byPh);
+  ph('fld-s-num',L.numPh); ph('fld-h-num',L.numPh); ph('fld-s-person',L.personPh);
 }
-function fldShow(view){
-  ['gate','menu','status','hours','done'].forEach(v=>{const e=document.getElementById('fld-'+v); if(e) e.style.display=(v===view)?'':'none';});
-  if(view==='status'){ fldStatus=null; document.querySelectorAll('#fld-status-list .fld-st-btn').forEach(b=>b.classList.remove('sel')); }
-  if(view==='hours'){ fldHoursRender(); }
+function fldViews(){ return ['home','status','hgate','hours','done']; }
+function fldShow(view){ fldViews().forEach(v=>{const e=document.getElementById('fld-'+v); if(e) e.style.display=(v===view)?'':'none';}); }
+function fldHome(){ fldShow('home'); }
+function fldGoStatus(){
+  fldFlow='status'; fldStatus=null;
+  document.getElementById('fld-s-num').value='';
+  document.getElementById('fld-s-person').value=''; document.getElementById('fld-s-pname').textContent='';
+  document.getElementById('fld-s-cur').innerHTML='';
+  fldShow('status');
 }
-async function fldUnlock(){
-  const err=document.getElementById('fld-gate-err'), L=fldL();
-  const val=(document.getElementById('fld-pass').value||'').trim();
-  let pass=null;
-  try{ const r=await fetch(`${FB}/field_pass.json`); pass=await r.json(); }catch(e){}
-  if(!pass){ err.textContent=L.errNoPass; err.style.display='block'; return; }
-  if(val!==String(pass)){ err.textContent=L.errPass; err.style.display='block'; return; }
-  err.style.display='none'; document.getElementById('fld-pass').value='';
-  try{ localStorage.setItem('field_ok','1'); }catch(_){}
-  fldShow('menu');
+function fldGoHours(){
+  fldFlow='hours';
+  if(fldHoursUnlocked){ fldEnterHours(); }
+  else { const e=document.getElementById('fld-hgate-err'); if(e) e.style.display='none'; document.getElementById('fld-hpass').value=''; fldShow('hgate'); }
 }
-function fldLogout(){ try{ localStorage.removeItem('field_ok'); }catch(_){} fldShow('gate'); }
-function fldPickStatus(v, btn){
-  fldStatus=v;
-  document.querySelectorAll('#fld-status-list .fld-st-btn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
+async function fldHoursUnlock(){
+  const L=fldL(), err=document.getElementById('fld-hgate-err');
+  const val=(document.getElementById('fld-hpass').value||'').trim();
+  let pass=null; try{ const r=await fetch(`${FB}/field_pass.json`); pass=await r.json(); }catch(e){}
+  if(!pass){ err.textContent=L.noPass; err.style.display='block'; return; }
+  if(val!==String(pass)){ err.textContent=L.wrongPass; err.style.display='block'; return; }
+  err.style.display='none'; fldHoursUnlocked=true; fldEnterHours();
 }
+function fldEnterHours(){
+  document.getElementById('fld-h-num').value='';
+  fldShow('hours'); fldHoursRender();
+}
+// 目前狀態/時數對照（狀態頁）
+function fldStatusCur(){
+  const el=document.getElementById('fld-s-cur'); if(!el) return;
+  const kind=fieldCanon(document.getElementById('fld-s-kind').value);
+  const num=(document.getElementById('fld-s-num').value||'').trim().toUpperCase();
+  if(!num){ el.innerHTML=''; return; }
+  const key=fldKey(kind,num), eq=(typeof data!=='undefined'&&data[key])||null;
+  const L=fldL();
+  let html='';
+  if(eq&&eq.status){ const s=(typeof SC!=='undefined'&&SC[eq.status])||null; html+=`${L.cur} <span class="st" style="${s?`background:${s.fill};color:${s.text}`:''}">${eq.status}</span>`; }
+  const hr=(typeof EQ_HOURS!=='undefined'&&EQ_HOURS[key]&&EQ_HOURS[key].vals)||null;
+  if(hr){ const cats=hoursCats(kind).filter(c=>hr[c]!=null); if(cats.length) html+=` <span class="hrs">｜${cats.map(c=>c+':'+hr[c]).join('  ')}</span>`; }
+  el.innerHTML=html;
+}
+// 人員：編號帶名字
+function fldPersonLookup(){
+  const el=document.getElementById('fld-s-pname'); if(!el) return;
+  const id=(document.getElementById('fld-s-person').value||'').trim();
+  if(!id){ el.textContent=''; el.className='fld-person'; return; }
+  const name=STAFF[id];
+  if(name){ el.textContent=name; el.className='fld-person'; }
+  else { el.textContent=fldL().notFound; el.className='fld-person miss'; }
+}
+// 時數：依種類渲染
 async function fldHoursRender(){
   const kSel=document.getElementById('fld-h-kind'); if(!kSel) return;
-  const kind=kSel.value;
+  const canon=fieldCanon(kSel.value);
   const num=(document.getElementById('fld-h-num').value||'').trim().toUpperCase();
   const wrap=document.getElementById('fld-h-fields'); if(!wrap) return;
-  const cats=hoursCats(kind);
-  if(!cats.length){ wrap.innerHTML=`<div class="fld-lastread">${fldL().noCats||'此機型未設定時數種類'}</div>`; return; }
+  const cats=hoursCats(canon);
+  if(!cats.length){ wrap.innerHTML=`<div class="fld-cur">${fldL().noCats}</div>`; return; }
   let prev={};
-  if(num){ try{ const r=await fetch(`${FB}/eq_hours/${fldKey(kind,num)}.json`); const d=await r.json(); if(d&&d.vals) prev=d.vals; }catch(e){} }
+  if(num){ try{ const r=await fetch(`${FB}/eq_hours/${fldKey(canon,num)}.json`); const d=await r.json(); if(d&&d.vals) prev=d.vals; }catch(e){} }
   wrap.innerHTML=cats.map(c=>{
-    const last=(prev[c]!=null)?`<div class="fld-lastread">${fldL().last} <b>${prev[c]}</b></div>`:'';
-    return `<label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin:4px 2px">${c}</label>
-      ${last}
-      <input class="fld-input fld-hcat" data-cat="${c.replace(/"/g,'')}" type="number" inputmode="numeric" placeholder="${c}"/>`;
+    const last=(prev[c]!=null)?`<span class="lastv">${fldL().last} ${prev[c]}</span>`:'';
+    return `<div class="fld-hcat-row"><label>${c}${last}</label><input class="fld-hcat" data-cat="${c.replace(/"/g,'')}" type="number" inputmode="numeric" placeholder="—"/></div>`;
   }).join('');
 }
 async function fldSubmitStatus(){
   const L=fldL();
-  const kind=document.getElementById('fld-s-kind').value;
+  const dispKind=document.getElementById('fld-s-kind').value, kind=fieldCanon(dispKind);
   const num=(document.getElementById('fld-s-num').value||'').trim().toUpperCase();
-  const reporter=(document.getElementById('fld-s-reporter').value||'').trim();
-  const note=(document.getElementById('fld-s-note').value||'').trim();
-  if(!num||!fldStatus||!reporter){ alert(L.errFields); return; }
+  const status=document.getElementById('fld-s-status').value;
+  const pid=(document.getElementById('fld-s-person').value||'').trim();
+  if(!num||!status||!pid){ alert(L.errStatus); return; }
+  const person=STAFF[pid]||pid;
   const id=kind+'-'+num, key=fldKey(kind,num), now=fldPanNow();
   const btn=document.getElementById('fld-s-submit'); btn.disabled=true;
   try{
     await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({machine_id:id,machine_type:kind,status:fldStatus,crew:reporter,note,last_updated:now})});
-    fetch(`${GAS}?${new URLSearchParams({action:'write',machine_kind:kind,number:num,status:fldStatus,process:note||'Field',crew:reporter})}`,{method:'GET',mode:'no-cors'});
+      body:JSON.stringify({machine_id:id,machine_type:kind,status,crew:person,note:'',last_updated:now})});
+    fetch(`${GAS}?${new URLSearchParams({action:'write',machine_kind:kind,number:num,status,process:'Field',crew:person})}`,{method:'GET',mode:'no-cors'});
   }catch(e){ alert('送出失敗：'+e.message); btn.disabled=false; return; }
   btn.disabled=false;
-  ['fld-s-num','fld-s-reporter','fld-s-note'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('fld-done-detail').textContent=`${id} — ${fldStatus}`;
+  document.getElementById('fld-done-detail').textContent=`${id} — ${status}　(${person})`;
   fldShow('done');
 }
 async function fldSubmitHours(){
   const L=fldL();
-  const kind=document.getElementById('fld-h-kind').value;
+  const canon=fieldCanon(document.getElementById('fld-h-kind').value);
   const num=(document.getElementById('fld-h-num').value||'').trim().toUpperCase();
-  const by=(document.getElementById('fld-h-by').value||'').trim();
   const inputs=[...document.querySelectorAll('#fld-h-fields .fld-hcat')];
-  const filled={};
-  inputs.forEach(i=>{ const v=i.value.trim(); if(v!=='') filled[i.getAttribute('data-cat')]=Number(v); });
-  if(!num||!by||!Object.keys(filled).length){ alert(L.errHours); return; }
-  const id=kind+'-'+num, key=fldKey(kind,num), now=fldPanNow();
+  const filled={}; inputs.forEach(i=>{ const v=i.value.trim(); if(v!=='') filled[i.getAttribute('data-cat')]=Number(v); });
+  if(!num||!Object.keys(filled).length){ alert(L.errHours); return; }
+  const id=canon+'-'+num, key=fldKey(canon,num), now=fldPanNow();
   const btn=document.getElementById('fld-h-submit'); btn.disabled=true;
   try{
-    // 合併既有 vals（沒填的種類保留舊值）
     let vals={};
     try{ const r=await fetch(`${FB}/eq_hours/${key}.json`); const d=await r.json(); if(d&&d.vals) vals=d.vals; }catch(e){}
     Object.assign(vals, filled);
-    await fetch(`${FB}/eq_hours/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({vals,by,time:now})});
-    Object.entries(filled).forEach(([kind2,hv])=>{
-      fetch(`${FB}/eq_hours_log.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,kind:kind2,hours:hv,by,time:now})}).catch(()=>{});
-    });
+    await fetch(`${FB}/eq_hours/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({vals,time:now})});
+    Object.entries(filled).forEach(([k2,hv])=>{ fetch(`${FB}/eq_hours_log.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,kind:k2,hours:hv,time:now})}).catch(()=>{}); });
   }catch(e){ alert('送出失敗：'+e.message); btn.disabled=false; return; }
   btn.disabled=false;
-  document.getElementById('fld-h-num').value=''; document.getElementById('fld-h-by').value='';
-  document.getElementById('fld-h-fields').innerHTML='';
   document.getElementById('fld-done-detail').textContent=`${id} — ${Object.entries(filled).map(([k,v])=>k+':'+v).join('  ')}`;
   fldShow('done');
+}
+function fldAgain(){
+  if(fldFlow==='status') fldGoStatus();
+  else fldEnterHours();      // 時數：這次已解鎖不再問密碼
 }
 
 // ── Nav ──────────────────────────────────────────────────
@@ -4021,6 +4123,14 @@ applyNavLang();
 initMessaging();
 restoreMaintUser();
 initPresence();
+(function(){
+  const q=(location.search||'')+(location.hash||'');
+  if(/(^|[?&#])field(\b|=|$)/i.test(q)){
+    document.body.classList.add('field-only');
+    const fi=document.querySelector('.nav-item[data-page="field"]');
+    navTo('field', fi||document.createElement('div'));
+  }
+})();
 poll();
 setInterval(poll,3000);
 setInterval(pollMessages,3000);
