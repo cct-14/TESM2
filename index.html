@@ -363,6 +363,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-log-user{font-weight:700;white-space:nowrap}
 .mt-log-act{padding:0 7px;border-radius:8px;background:var(--blue-l);color:var(--blue);font-weight:600;white-space:nowrap}
 .mt-log-detail{color:var(--text2)}
+/* hover 資訊卡 */
+#eq-tip{position:fixed;z-index:900;display:none;pointer-events:none;background:var(--bg);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);padding:9px 12px;min-width:120px;max-width:220px;font-size:12px}
+#eq-tip .ti-name{font-size:13px;font-weight:800;margin-bottom:5px}
+#eq-tip .ti-pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:8px;margin-bottom:5px}
+#eq-tip .ti-h{color:var(--text2);line-height:1.5}
+#eq-tip .ti-h b{color:var(--blue)}
+#eq-tip .ti-m{color:var(--text3);font-size:11px;margin-top:5px;border-top:1px solid var(--bg3);padding-top:4px}
+#eq-tip .ti-empty{color:var(--text3)}
 /* 純現場模式（?field 直接進登入頁） */
 body.field-only .sidebar,
 body.field-only .topbar,
@@ -762,20 +770,20 @@ select.fld-input.big{height:56px}
 <rect x="55" y="22" width="148" height="58" rx="3" fill="#faf5ff" stroke="#a78bfa" stroke-width="1"/>
 <text x="129" y="34" text-anchor="middle" fill="#7c3aed" font-size="10" font-weight="600">ARMGC</text>
 <!-- 上排：AR-03, AR-05 -->
-<g id="c-ARMGC-03" onclick="selEq('ARMGC-03','ARMGC')" style="cursor:pointer">
+<g id="c-ARMGC-03" data-eq="ARMGC-03" onclick="selEq('ARMGC-03','ARMGC')" style="cursor:pointer">
   <rect x="59" y="38" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
   <text x="90" y="50" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-03</text>
 </g>
-<g id="c-ARMGC-05" onclick="selEq('ARMGC-05','ARMGC')" style="cursor:pointer">
+<g id="c-ARMGC-05" data-eq="ARMGC-05" onclick="selEq('ARMGC-05','ARMGC')" style="cursor:pointer">
   <rect x="127" y="38" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
   <text x="158" y="50" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-05</text>
 </g>
 <!-- 下排：AR-01, AR-02 -->
-<g id="c-ARMGC-01" onclick="selEq('ARMGC-01','ARMGC')" style="cursor:pointer">
+<g id="c-ARMGC-01" data-eq="ARMGC-01" onclick="selEq('ARMGC-01','ARMGC')" style="cursor:pointer">
   <rect x="59" y="58" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
   <text x="90" y="70" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-01</text>
 </g>
-<g id="c-ARMGC-02" onclick="selEq('ARMGC-02','ARMGC')" style="cursor:pointer">
+<g id="c-ARMGC-02" data-eq="ARMGC-02" onclick="selEq('ARMGC-02','ARMGC')" style="cursor:pointer">
   <rect x="127" y="58" width="62" height="18" rx="2" fill="#dcfce7" stroke="#86efac" stroke-width="0.8"/>
   <text x="158" y="70" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">AR-02</text>
 </g>
@@ -804,6 +812,7 @@ select.fld-input.big{height:56px}
     </div>
 
     <!-- 設備詳情抽屜（底部滑出，手機友善）-->
+    <div id="eq-tip"></div>
     <div id="eq-drawer" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--bg);border-top:1px solid var(--border);border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.12);max-height:70vh;overflow-y:auto">
       <div style="display:flex;align-items:center;padding:12px 16px 8px;border-bottom:1px solid var(--border)">
         <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 0 0"></div>
@@ -1309,7 +1318,7 @@ function renderRTGLayer() {
     const s=SC[eq.status]||SC['Available'];
     const cx=pos.x, cy=pos.y, w=28, h=22;
     const isGrab=dragMode&&dragNum===num;
-    svg+=`<g id="rtg-${num}" onmousedown="rtgMouseDown(event,'RTG-${num}')" oncontextmenu="event.preventDefault()" style="cursor:${dragMode?'grab':'pointer'}">`;
+    svg+=`<g id="rtg-${num}" data-eq="RTG-${num}" onmousedown="rtgMouseDown(event,'RTG-${num}')" oncontextmenu="event.preventDefault()" style="cursor:${dragMode?'grab':'pointer'}">`;
     svg+=`<rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="3" fill="${s.fill}" stroke="${isGrab?'#1a56db':s.stroke}" stroke-width="${isGrab?2:0.8}" opacity="${isGrab?0.4:1}"/>`;
     svg+=`<text x="${cx}" y="${cy+5}" text-anchor="middle" fill="${s.text}" font-size="${num.length>2?8:10}" font-weight="700">${num}</text>`;
     svg+=`</g>`;
@@ -1363,7 +1372,7 @@ function renderGCLayer() {
     const cx=pos.x, cy=pos.y;
     const isMoving = dragGC===num;
     const cursor = dragMode ? 'grab' : 'pointer';
-    svg += `<g id="gc-${num}"
+    svg += `<g id="gc-${num}" data-eq="GC-${num}"
       onmousedown="gcMouseDown(event,'${num}')"
       oncontextmenu="event.preventDefault()"
       style="cursor:${cursor}">
@@ -3952,6 +3961,35 @@ function selEq(id,type){
   loadEqHist(id,type);
 }
 function selGC(id){ selEq(id,'GC'); }
+// ── hover 資訊卡（監控卡片 + 地圖標籤，停留 1 秒） ──
+function eqTipHtml(id){
+  const key=String(id).replace(/[^a-zA-Z0-9_]/g,'_');
+  const eq=(typeof data!=='undefined'&&data[key])||null;
+  const type=eq?eq.machine_type:String(id).split('-')[0];
+  let h=`<div class="ti-name">${id}</div>`;
+  if(eq&&eq.status){ const s=SC[eq.status]||SC['Out Of Service']; h+=`<div><span class="ti-pill" style="background:${s.fill};color:${s.text}">${eq.status}</span></div>`; }
+  const hr=(typeof EQ_HOURS!=='undefined'&&EQ_HOURS[key]&&EQ_HOURS[key].vals)||null;
+  let anyH=false;
+  if(hr){ ((typeof HOURS_DEFS!=='undefined'&&HOURS_DEFS[type])||[]).forEach(c=>{ if(hr[c]!=null){ h+=`<div class="ti-h">${c}: <b>${hr[c]}</b></div>`; anyH=true; } }); }
+  if(eq&&eq.crew){ h+=`<div class="ti-m">${eq.crew}${eq.last_updated?' · '+eq.last_updated:''}</div>`; }
+  if(!eq&&!anyH){ h+=`<div class="ti-empty">—</div>`; }
+  return h;
+}
+let _tipId=null,_tipTimer=null,_tipX=0,_tipY=0;
+function positionEqTip(){ const t=document.getElementById('eq-tip'); if(!t||t.style.display!=='block') return; const w=t.offsetWidth,h=t.offsetHeight; let x=_tipX+14,y=_tipY+14; if(x+w>window.innerWidth-8) x=_tipX-w-14; if(y+h>window.innerHeight-8) y=_tipY-h-14; t.style.left=Math.max(8,x)+'px'; t.style.top=Math.max(8,y)+'px'; }
+function showEqTip(id){ const t=document.getElementById('eq-tip'); if(!t) return; t.innerHTML=eqTipHtml(id); t.style.display='block'; positionEqTip(); }
+function hideEqTip(){ const t=document.getElementById('eq-tip'); if(t) t.style.display='none'; }
+function initEqTip(){
+  document.addEventListener('mousemove',e=>{ _tipX=e.clientX; _tipY=e.clientY; positionEqTip(); },{passive:true});
+  document.addEventListener('mouseover',e=>{
+    const el=e.target.closest?e.target.closest('[data-eq]'):null;
+    const id=el?el.getAttribute('data-eq'):null;
+    if(id===_tipId) return;
+    _tipId=id; clearTimeout(_tipTimer); hideEqTip();
+    if(id) _tipTimer=setTimeout(()=>{ if(_tipId===id) showEqTip(id); },1000);
+  },{passive:true});
+  document.addEventListener('scroll',hideEqTip,true);
+}
 function closeEq(){
   document.getElementById('eq-drawer').style.display='none';
   selId=null; pendSt=null;
@@ -4018,15 +4056,10 @@ function renderAllEq(){
   if(!filtered.length){grid.innerHTML='<div style="padding:40px;color:var(--text3);text-align:center">No results</div>';return;}
   grid.innerHTML=filtered.map(e=>{
     const s=SC[e.status]||SC['Out Of Service'];
-    const hk=(e.machine_id||'').replace(/[^a-zA-Z0-9_]/g,'_');
-    const hv=(EQ_HOURS[hk]&&EQ_HOURS[hk].vals)||{};
-    const hcats=(HOURS_DEFS[e.machine_type]||[]).filter(c=>hv[c]!=null);
-    const hrs=hcats.length?`<div style="font-size:8px;font-weight:700;color:var(--blue);line-height:1.3;text-align:center">${hcats.map(c=>`${c}:${hv[c]}`).join('<br>')}</div>`:'';
-    return `<div class="eq-card" style="background:${s.fill};border-color:${s.stroke}"
+    return `<div class="eq-card" data-eq="${e.machine_id}" style="background:${s.fill};border-color:${s.stroke}"
       onclick="selEq('${e.machine_id}','${e.machine_type}')">
       <div class="eq-card-icon" style="position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center">${getTypeIcon(e.machine_type)}</div>
       <div class="eq-card-name" style="font-size:11px;font-weight:600;color:${s.text};text-align:center">${e.machine_id||'—'}</div>
-      ${hrs}
       <div><span class="pill ${s.pill}" style="font-size:9px">${e.status?.replace(' Maintenance','')}</span></div>
     </div>`;
   }).join('');
@@ -4123,6 +4156,7 @@ applyNavLang();
 initMessaging();
 restoreMaintUser();
 initPresence();
+initEqTip();
 (function(){
   const q=(location.search||'')+(location.hash||'');
   if(/(^|[?&#])field(\b|=|$)/i.test(q)){
