@@ -364,11 +364,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-log-act{padding:0 7px;border-radius:8px;background:var(--blue-l);color:var(--blue);font-weight:600;white-space:nowrap}
 .mt-log-detail{color:var(--text2)}
 /* ── 線上人數 ── */
-.online-box{margin:0 8px 8px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--bg)}
-.online-box.admin{margin:0 0 16px;max-width:360px}
-.online-head{font-size:12px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:6px}
-.online-head b{color:var(--green);font-size:14px}
-.online-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(5,150,105,.5);animation:onlinePulse 2s infinite}
+.online-box{margin:4px 8px 6px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.online-box.admin{margin:0 0 16px;max-width:420px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);justify-content:flex-start}
+.online-seg{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--text2)}
+.online-box.admin .online-head{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2)}
+.online-head b,.online-seg b{color:var(--green);font-size:12px}
+.online-box.admin .online-head b{font-size:14px}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(5,150,105,.5);animation:onlinePulse 2s infinite}
+.online-dot.guest{background:var(--text3);animation:none}
+.online-seg .online-dot.guest~b,.online-head .online-dot.guest~b{color:var(--text2)}
 @keyframes onlinePulse{0%{box-shadow:0 0 0 0 rgba(5,150,105,.5)}70%{box-shadow:0 0 0 6px rgba(5,150,105,0)}100%{box-shadow:0 0 0 0 rgba(5,150,105,0)}}
 .online-list{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
 .online-list:empty{display:none}
@@ -546,11 +550,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </nav>
 
+  <div class="online-box" id="online-box">
+    <span class="online-seg"><span class="online-dot"></span><b id="online-count">0</b> <span id="online-label">登入</span></span>
+    <span class="online-seg"><span class="online-dot guest"></span><b id="online-count-guest">0</b> <span id="online-label-guest">訪客</span></span>
+  </div>
+
   <div class="sidebar-bottom">
-    <div class="online-box" id="online-box">
-      <div class="online-head"><span class="online-dot"></span><b id="online-count">0</b> <span id="online-label">在線</span></div>
-      <div class="online-list" id="online-list"></div>
-    </div>
     <div id="sig-wrap" style="padding:6px 8px;border-radius:8px;transition:background .3s">
       <svg width="100%" viewBox="0 0 176 52" id="sig-svg" style="display:block;overflow:visible">
         <defs>
@@ -853,8 +858,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="page" id="page-trailer"><div class="placeholder"><div class="placeholder-icon">🔗</div><div class="placeholder-title">TR / CH pairing</div><div class="placeholder-sub">Trailer chassis pairing monitor — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
     <div class="page" id="page-maintenance">
       <div class="mt-subtabs">
-        <button class="mt-subtab active" data-tab="confirm" onclick="mtSwitchTab('confirm')">工程完成確認系統</button>
-        <button class="mt-subtab" data-tab="plan" onclick="mtSwitchTab('plan')">保養工程計畫系統</button>
+        <button class="mt-subtab active" data-tab="confirm" id="mt-subtab-confirm" onclick="mtSwitchTab('confirm')">工程完成確認系統</button>
+        <button class="mt-subtab" data-tab="plan" id="mt-subtab-plan" onclick="mtSwitchTab('plan')">保養工程計畫系統</button>
       </div>
       <div class="mt-tabpane" id="mt-tab-confirm">
       <div class="mt-layout">
@@ -874,7 +879,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </div>
             <input type="date" id="mt-jump" class="mt-jump" onchange="mtJumpDate(this.value)" title="跳到指定日期"/>
             <input type="text" id="mt-search" class="mt-search" placeholder="🔍 搜尋機號" oninput="mtSearch(this.value)"/>
-            <button class="mt-edit-btn" onclick="openMaintLog()">📋 完成紀錄</button>
+            <button class="mt-edit-btn" id="mt-donelog-btn" onclick="openMaintLog()">📋 完成紀錄</button>
           </div>
           <div id="mt-overdue-banner" class="mt-overdue" style="display:none" onclick="showOverdue()"></div>
           <div class="mt-cals">
@@ -904,8 +909,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </div>
             <select id="plan-type" class="at-sel" onchange="planSetType(this.value)"></select>
             <span class="plan-count" id="plan-count"></span>
-            <button class="mt-up-btn" onclick="planExcel()" style="margin-left:auto">📊 Excel</button>
-            <button class="mt-up-btn" onclick="planPrint()">🖨️ 列印清單</button>
+            <button class="mt-up-btn" id="plan-excel-btn" onclick="planExcel()" style="margin-left:auto">📊 Excel</button>
+            <button class="mt-up-btn" id="plan-pdf-btn" onclick="planPrint()">🧾 匯出 PDF</button>
           </div>
           <div class="plan-cal"><div class="mt-grid" id="plan-grid"></div></div>
           <div class="plan-detail" id="plan-detail"></div>
@@ -996,7 +1001,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <button class="btn-sm" onclick="adminLogout()">登出</button>
             </div>
             <div class="online-box admin" id="online-box-admin">
-              <div class="online-head"><span class="online-dot"></span>目前在線 <b id="online-count-admin">0</b></div>
+              <div class="online-head"><span class="online-dot"></span><span id="online-label-admin">目前在線</span> <b id="online-count-admin">0</b>　<span class="online-dot guest"></span><span id="online-label-guest-adm">訪客</span> <b id="online-count-guest-admin">0</b></div>
               <div class="online-list" id="online-list-admin"></div>
             </div>
             <div id="admin-shell"></div>
@@ -2215,19 +2220,31 @@ const MT_I18N = {
     monthN:n=>`${n} este mes`, backlog:(d,n)=>`Pendientes hasta ${d}: <b>${n}</b>`,
     add:'＋ Nuevo', over:'Vencido', done:'Hecho', due:'Vence', noTasks:'Sin trabajos', allDone:'✓ Todo hecho',
     dueLabel:'vence', metaFmt:(c,u)=>`${c} ítems · ${u}`,
-    addTitle:'Nuevo trabajo', mMachine:'Máquina', mName:'Nombre del trabajo', mInterval:'Ciclo (meses)', mDate:'Fecha límite', cancel:'Cancelar', save:'Añadir' },
+    addTitle:'Nuevo trabajo', mMachine:'Máquina', mName:'Nombre del trabajo', mInterval:'Ciclo (meses)', mDate:'Fecha límite', cancel:'Cancelar', save:'Añadir',
+    tabConfirm:'Confirmación de trabajos', tabPlan:'Plan de mantenimiento', allTypes:'Todos los tipos', expPdf:'🧾 PDF', expExcel:'📊 Excel',
+    planHint:'Toca un día para ver los trabajos de MT1 y MT2', planNoDay:'Sin trabajos ese día',
+    planCount:(n,m1,m2)=>`${n} este mes（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} tareas`, teamCnt:(t,n)=>`${t}　${n}`,
+    searchPh:'🔍 Buscar máquina', doneLog:'📋 Historial', overdueBanner:(ty,n)=>`⚠️ ${ty}: ${n} vencidos`, viewMore:'ver', jumpTitle:'Ir a fecha', todo:'Pendiente' },
   zh:{ up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成', msgTitle:'傳訊息', msgPh:'輸入訊息…', msgSend:'送出', msgNoperm:'你沒有發訊息權限，只能接收。', msgReply:'回一句…', msgGot:'收到', msgOk:'已收到',
     notUploaded:'尚未上傳', dow:['日','一','二','三','四','五','六'],
     monthN:n=>`本月 ${n} 件`, backlog:(d,n)=>`到 ${d} 未完成 <b>${n}</b> 件`,
     add:'＋ 新增', over:'逾期', done:'完成', due:'到期', noTasks:'尚無工程', allDone:'✓ 都做完了',
     dueLabel:'到期', metaFmt:(c,u)=>`${c} 件 · ${u}`,
-    addTitle:'新增工程', mMachine:'機號', mName:'工程名稱', mInterval:'週期（月）', mDate:'到期日', cancel:'取消', save:'新增' },
+    addTitle:'新增工程', mMachine:'機號', mName:'工程名稱', mInterval:'週期（月）', mDate:'到期日', cancel:'取消', save:'新增',
+    tabConfirm:'工程完成確認系統', tabPlan:'保養工程計畫系統', allTypes:'全部機型', expPdf:'🧾 匯出 PDF', expExcel:'📊 Excel',
+    planHint:'點月曆上任一天，看 MT1、MT2 當天要做的保養工程', planNoDay:'這天沒有排定保養工程',
+    planCount:(n,m1,m2)=>`本月 ${n} 件（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · 共 ${n} 件`, teamCnt:(t,n)=>`${t}　${n} 件`,
+    searchPh:'🔍 搜尋機號', doneLog:'📋 完成紀錄', overdueBanner:(ty,n)=>`⚠️ ${ty} 逾期未完成 ${n} 件`, viewMore:'點擊查看', jumpTitle:'跳到指定日期', todo:'待辦' },
   en:{ up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done', msgTitle:'Send message', msgPh:'Type a message…', msgSend:'Send', msgNoperm:'You can only receive, not send.', msgReply:'Reply…', msgGot:'Got it', msgOk:'Received',
     notUploaded:'Not uploaded', dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
     monthN:n=>`${n} this month`, backlog:(d,n)=>`Open until ${d}: <b>${n}</b>`,
     add:'＋ Add', over:'Overdue', done:'Done', due:'Due', noTasks:'No tasks', allDone:'✓ All done',
     dueLabel:'due', metaFmt:(c,u)=>`${c} items · ${u}`,
-    addTitle:'New task', mMachine:'Machine', mName:'Task name', mInterval:'Cycle (months)', mDate:'Due date', cancel:'Cancel', save:'Add' }
+    addTitle:'New task', mMachine:'Machine', mName:'Task name', mInterval:'Cycle (months)', mDate:'Due date', cancel:'Cancel', save:'Add',
+    tabConfirm:'Completion confirmation', tabPlan:'Maintenance planning', allTypes:'All types', expPdf:'🧾 Export PDF', expExcel:'📊 Excel',
+    planHint:'Tap any day to see MT1 & MT2 tasks', planNoDay:'No tasks scheduled that day',
+    planCount:(n,m1,m2)=>`${n} this month（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} items`, teamCnt:(t,n)=>`${t}　${n}`,
+    searchPh:'🔍 Search machine', doneLog:'📋 Completion log', overdueBanner:(ty,n)=>`⚠️ ${ty}: ${n} overdue`, viewMore:'view', jumpTitle:'Jump to date', todo:'Pending' }
 };
 let maintLang = 'es';
 try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }catch(_){}
@@ -2236,6 +2253,8 @@ function updateLangUI(){ document.querySelectorAll('.mt-lang').forEach(box=>box.
 function setMaintLang(l){
   if(!MT_I18N[l]) return; maintLang=l; try{localStorage.setItem('mt_lang',l);}catch(_){}
   renderMaintenance(); applyNavLang(); updateLangUI();
+  { const pp=document.getElementById('mt-tab-plan'); if(pp&&pp.style.display!=='none'&&typeof renderPlan==='function') renderPlan(); }
+  if(typeof updateOnlineLang==='function') updateOnlineLang();
   if(typeof updateMsgLang==='function') updateMsgLang();
   if(typeof initMarquee==='function') initMarquee();
   if(typeof initAnnounce==='function') initAnnounce();
@@ -2449,9 +2468,9 @@ function renderPlan(){
   const lbl=document.getElementById('plan-month-label'); if(lbl) lbl.textContent=`${planYear} / ${String(planMonth).padStart(2,'0')}`;
   const sel=document.getElementById('plan-type');
   if(sel && !sel.dataset.built){ sel.innerHTML=`<option value="all">全部機型</option>`+MT_TYPES.map(t=>`<option value="${t}">${t}</option>`).join(''); sel.dataset.built='1'; }
-  if(sel) sel.value=planTypeFilter;
+  if(sel){ const opt0=sel.querySelector('option[value="all"]'); if(opt0) opt0.textContent=mtL().allTypes; sel.value=planTypeFilter; }
   const rows=planGather();
-  const cnt=document.getElementById('plan-count'); if(cnt) cnt.textContent=`本月 ${rows.length} 件（MT1 ${rows.filter(r=>r.team==='MT1').length} · MT2 ${rows.filter(r=>r.team==='MT2').length}）`;
+  const cnt=document.getElementById('plan-count'); if(cnt) cnt.textContent=mtL().planCount(rows.length, rows.filter(r=>r.team==='MT1').length, rows.filter(r=>r.team==='MT2').length);
   // 依日彙整
   const byDay={};
   rows.forEach(r=>{ const d=+r.nextTime.slice(6,8); (byDay[d]=byDay[d]||[]).push(r); });
@@ -2485,54 +2504,78 @@ function renderPlan(){
 function planSelectDay(ds){ planSelDate=(planSelDate===ds)?null:ds; renderPlan(); }
 function renderPlanDetail(){
   const el=document.getElementById('plan-detail'); if(!el) return;
-  const today=todayYmd();
-  if(!planSelDate){ el.innerHTML=`<div class="plan-empty">點月曆上任一天，看 MT1、MT2 當天要做的保養工程</div>`; return; }
+  const today=todayYmd(); const L=mtL();
+  if(!planSelDate){ el.innerHTML=`<div class="plan-empty">${L.planHint}</div>`; return; }
   const rows=planGather().filter(r=>r.nextTime===planSelDate);
-  let html=`<div class="plan-detail-head">${fmtYmd(planSelDate)} · 共 ${rows.length} 件</div>`;
-  if(!rows.length){ html+=`<div class="plan-empty">這天沒有排定保養工程</div>`; el.innerHTML=html; return; }
+  let html=`<div class="plan-detail-head">${L.planHead(fmtYmd(planSelDate), rows.length)}</div>`;
+  if(!rows.length){ html+=`<div class="plan-empty">${L.planNoDay}</div>`; el.innerHTML=html; return; }
   ['MT1','MT2'].forEach(team=>{
     const tr=rows.filter(r=>r.team===team);
     if(!tr.length) return;
-    html+=`<div class="plan-team-sec"><span class="plan-team-title ${team}">${team}　${tr.length} 件</span>`;
+    html+=`<div class="plan-team-sec"><span class="plan-team-title ${team}">${L.teamCnt(team, tr.length)}</span>`;
     tr.sort((a,b)=>a.machine<b.machine?-1:1).forEach(r=>{
-      const st=r.done?'<span class="plan-st done">完成</span>':(r.nextTime<today?'<span class="plan-st over">逾期</span>':'<span class="plan-st todo">待辦</span>');
+      const st=r.done?`<span class="plan-st done">${L.done}</span>`:(r.nextTime<today?`<span class="plan-st over">${L.over}</span>`:`<span class="plan-st todo">${L.todo}</span>`);
       html+=`<div class="plan-row"><span class="m">${r.machine}</span><span class="ty">${r.type}</span><span class="nm">${r.name||r.code}</span>${st}</div>`;
     });
     html+=`</div>`;
   });
   el.innerHTML=html;
 }
+function planExportL(){
+  const L={
+    es:{title:'Plan de mantenimiento',team:'Equipo',type:'Tipo',machine:'Máquina',work:'Trabajo',cycle:'Ciclo',status:'Estado',pending:'Pendiente',overdue:'Vencido',done:'Hecho',items:'tareas',gen:'Generado',all:'Todos los tipos',empty:'Sin trabajos este mes'},
+    zh:{title:'保養工程計劃表',team:'隊伍',type:'機型',machine:'機號',work:'工程',cycle:'週期',status:'狀態',pending:'待辦',overdue:'逾期',done:'完成',items:'件',gen:'產生時間',all:'全部機型',empty:'本月無保養工程'},
+    en:{title:'Maintenance Plan',team:'Team',type:'Type',machine:'Machine',work:'Task',cycle:'Cycle',status:'Status',pending:'Pending',overdue:'Overdue',done:'Done',items:'items',gen:'Generated',all:'All types',empty:'No maintenance this month'}
+  };
+  return L[(typeof maintLang!=='undefined'?maintLang:'es')]||L.es;
+}
 function planPrint(){
   const rows=planGather();
   const today=todayYmd();
-  const stTxt=r=>r.done?'完成':(r.nextTime<today?'逾期':'待辦');
-  const scope=planTypeFilter==='all'?'全部機型':planTypeFilter;
-  const title=`保養工程計劃表 ${planYear}/${String(planMonth).padStart(2,'0')} · ${scope}`;
-  const types=(planTypeFilter==='all'?MT_TYPES:[planTypeFilter]).filter(ty=>rows.some(r=>r.type===ty));
-  let sections='';
-  if(!rows.length){ sections=`<p class="empty">本月無保養工程</p>`; }
-  types.forEach(ty=>{
-    const tr=rows.filter(r=>r.type===ty).sort((a,b)=> a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:(a.machine<b.machine?-1:1));
-    const m1=tr.filter(r=>r.team==='MT1').length, m2=tr.filter(r=>r.team==='MT2').length;
-    const body=tr.map(r=>`<tr><td>${fmtYmd(r.nextTime)}</td><td>${r.team}</td><td>${r.machine}</td><td>${r.name||r.code}</td><td>${r.interval}${r.unit}</td><td>${stTxt(r)}</td></tr>`).join('');
-    sections+=`<h3>機型 ${ty}　<span class="sub">${tr.length} 件（MT1 ${m1}、MT2 ${m2}）</span></h3>
-      <table><thead><tr><th>到期日</th><th>隊伍</th><th>機號</th><th>工程</th><th>週期</th><th>狀態</th></tr></thead><tbody>${body}</tbody></table>`;
-  });
+  const L=planExportL();
+  const scope=planTypeFilter==='all'?L.all:planTypeFilter;
+  const title=`${L.title} ${planYear}/${String(planMonth).padStart(2,'0')} · ${scope}`;
+  const stPill=r=> r.done?`<span class="pill done">${L.done}</span>`:(r.nextTime<today?`<span class="pill over">${L.overdue}</span>`:`<span class="pill todo">${L.pending}</span>`);
+  let body='';
+  if(!rows.length){
+    body=`<tr><td colspan="6" class="empty">${L.empty}</td></tr>`;
+  } else {
+    let lastDay='';
+    rows.forEach(r=>{
+      if(r.nextTime!==lastDay){ lastDay=r.nextTime; body+=`<tr class="daysep"><td colspan="6">${fmtYmd(r.nextTime)}</td></tr>`; }
+      body+=`<tr><td><span class="pill ${r.team}">${r.team}</span></td><td class="mut">${r.type}</td><td class="mac">${r.machine}</td><td>${r.name||r.code}</td><td class="mut">${r.interval}${r.unit}</td><td>${stPill(r)}</td></tr>`;
+    });
+  }
   const w=window.open('','_blank');
   w.document.write(`<html><head><title>${title}</title><meta charset="utf-8"><style>
-    body{font-family:sans-serif;padding:24px;color:#111}
-    h2{margin:0 0 4px}.meta{color:#666;font-size:13px;margin:0 0 18px}
-    h3{margin:22px 0 8px;font-size:15px;border-left:4px solid #2563eb;padding-left:8px;page-break-after:avoid}
-    h3 .sub{font-weight:400;color:#666;font-size:12px}
-    table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:6px;page-break-inside:auto}
-    th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}th{background:#f1f5f9}
-    tr{page-break-inside:avoid}.empty{color:#666}
-    @media print{h3{page-break-before:auto}}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}
+    body{font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;padding:28px;color:#0f172a}
+    h2{margin:0 0 4px;font-size:19px;font-weight:600}
+    .meta{color:#64748b;font-size:13px;margin:0 0 18px}
+    .wrap{border:1px solid #e2e8f0;border-radius:12px;overflow:hidden}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    thead th{background:#f8fafc;color:#64748b;font-weight:500;text-align:left;padding:9px 12px;border-bottom:1px solid #e2e8f0}
+    tbody td{padding:9px 12px;border-bottom:1px solid #eef2f7;vertical-align:middle}
+    tr{page-break-inside:avoid}
+    .daysep td{background:#f8fafc;font-weight:600;color:#0f172a;padding:6px 12px}
+    .mut{color:#64748b}.mac{font-weight:600}
+    .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:10px;white-space:nowrap}
+    .pill.MT1{background:#e6f1fb;color:#185fa5}
+    .pill.MT2{background:#eeedfe;color:#534ab7}
+    .pill.todo{background:#f1efe8;color:#5f5e5a}
+    .pill.over{background:#fcebeb;color:#a32d2d}
+    .pill.done{background:#eaf3de;color:#3b6d11}
+    .empty{color:#94a3b8;text-align:center;padding:30px}
+    @media print{body{padding:0}}
   </style></head><body>
-    <h2>${title}</h2><p class="meta">共 ${rows.length} 件　·　產生時間 ${fmtYmd(today)}</p>
-    ${sections}
+    <h2>${title}</h2>
+    <p class="meta">${rows.length} ${L.items}　·　${L.gen} ${fmtYmd(today)}</p>
+    <div class="wrap"><table>
+      <thead><tr><th>${L.team}</th><th>${L.type}</th><th>${L.machine}</th><th>${L.work}</th><th>${L.cycle}</th><th>${L.status}</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table></div>
   </body></html>`);
-  w.document.close(); w.focus(); setTimeout(()=>w.print(),300);
+  w.document.close(); w.focus(); setTimeout(()=>w.print(),350);
 }
 function toggleMaintEdit(){
   if(!maintEdit){ if(!ensureMaintEdit()) return; maintEdit=true; }
@@ -2568,6 +2611,10 @@ function renderMaintenance(){
   const set=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
   set('mt-add-title',L.addTitle); set('mt-lbl-machine',L.mMachine); set('mt-lbl-name',L.mName);
   set('mt-lbl-interval',L.mInterval); set('mt-lbl-date',L.mDate); set('mt-add-cancel',L.cancel); set('mt-add-save',L.save);
+  set('mt-subtab-confirm',L.tabConfirm); set('mt-subtab-plan',L.tabPlan); set('mt-donelog-btn',L.doneLog);
+  set('plan-excel-btn',L.expExcel); set('plan-pdf-btn',L.expPdf);
+  const sInp=document.getElementById('mt-search'); if(sInp) sInp.placeholder=L.searchPh;
+  const jInp=document.getElementById('mt-jump'); if(jInp) jInp.title=L.jumpTitle;
   renderMaintCal('MT1'); renderMaintCal('MT2');
   renderMaintLists();
   renderOverdueBanner();
@@ -2773,7 +2820,8 @@ function renderOverdueBanner(){
   const n=overdueTasks(maintType).length;
   if(!n){ el.style.display='none'; return; }
   el.style.display='flex';
-  el.innerHTML=`⚠️ ${maintType} 逾期未完成 ${n} 件　<span style="font-weight:400;text-decoration:underline">點擊查看</span>`;
+  const L=mtL();
+  el.innerHTML=`${L.overdueBanner(maintType,n)}　<span style="font-weight:400;text-decoration:underline">${L.viewMore}</span>`;
 }
 function showOverdue(){
   const rows=overdueTasks(maintType);
@@ -2818,21 +2866,17 @@ async function openMaintLog(){
 function planExcel(){
   const rows=planGather();
   const today=todayYmd();
-  const stTxt=r=>r.done?'完成':(r.nextTime<today?'逾期':'待辦');
-  const scope=planTypeFilter==='all'?'全部機型':planTypeFilter;
-  const types=(planTypeFilter==='all'?MT_TYPES:[planTypeFilter]).filter(ty=>rows.some(r=>r.type===ty));
-  let tbls='';
-  types.forEach(ty=>{
-    const tr=rows.filter(r=>r.type===ty).sort((a,b)=> a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:(a.machine<b.machine?-1:1));
-    const body=tr.map(r=>`<tr><td>${ty}</td><td>${fmtYmd(r.nextTime)}</td><td>${r.team}</td><td>${r.machine}</td><td>${(r.name||r.code)}</td><td>${r.interval}${r.unit}</td><td>${stTxt(r)}</td></tr>`).join('');
-    tbls+=`<tr><td colspan="7" style="background:#dbeafe;font-weight:bold">機型 ${ty}（${tr.length} 件）</td></tr>${body}`;
-  });
-  const head=`<tr style="background:#f1f5f9;font-weight:bold"><th>機型</th><th>到期日</th><th>隊伍</th><th>機號</th><th>工程</th><th>週期</th><th>狀態</th></tr>`;
-  const htmlDoc=`<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table border="1">${head}${tbls||'<tr><td colspan=7>本月無資料</td></tr>'}</table></body></html>`;
+  const L=planExportL();
+  const stTxt=r=>r.done?L.done:(r.nextTime<today?L.overdue:L.pending);
+  const scope=planTypeFilter==='all'?L.all:planTypeFilter;
+  const sorted=rows.slice().sort((a,b)=> a.nextTime<b.nextTime?-1:a.nextTime>b.nextTime?1:(a.type<b.type?-1:a.type>b.type?1:(a.machine<b.machine?-1:1)));
+  const head=`<tr style="background:#f1f5f9;font-weight:bold"><th>${L.type}</th><th>${L.due||L.cycle}</th><th>${L.team}</th><th>${L.machine}</th><th>${L.work}</th><th>${L.cycle}</th><th>${L.status}</th></tr>`;
+  const body=sorted.map(r=>`<tr><td>${r.type}</td><td>${fmtYmd(r.nextTime)}</td><td>${r.team}</td><td>${r.machine}</td><td>${(r.name||r.code)}</td><td>${r.interval}${r.unit}</td><td>${stTxt(r)}</td></tr>`).join('') || `<tr><td colspan=7>${L.empty}</td></tr>`;
+  const htmlDoc=`<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table border="1">${head}${body}</table></body></html>`;
   const blob=new Blob(['\ufeff'+htmlDoc],{type:'application/vnd.ms-excel'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url; a.download=`保養計劃表_${planYear}${String(planMonth).padStart(2,'0')}_${scope}.xls`;
+  a.href=url; a.download=`${L.title}_${planYear}${String(planMonth).padStart(2,'0')}_${scope}.xls`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
@@ -3032,13 +3076,12 @@ function clearRememberedUser(){ try{ localStorage.removeItem('tesm_user'); }catc
 function updateMsgAuthUI(){
   const lo=document.getElementById('msg-logout-btn');
   if(lo){ if(maintUser){ lo.style.display=''; lo.textContent='登出 '+maintUser.name; } else lo.style.display='none'; }
-  if(maintUser && typeof presenceHeartbeat==='function') presenceHeartbeat();
+  if(typeof presenceHeartbeat==='function') presenceHeartbeat();
 }
 function logoutMaintUser(){
   maintUser=null; clearRememberedUser();
   shownPings.clear();
   const box=document.getElementById('msg-bubbles'); if(box) box.innerHTML='';
-  presenceLeave();
   closeMsgPanel(); updateMsgAuthUI(); updateMsgBadge();
   if(typeof presencePoll==='function') setTimeout(presencePoll,300);
 }
@@ -3246,32 +3289,39 @@ async function atPruneOld(){
 // ── 線上人數（心跳偵測，只算登入者） ──
 const PRES_SID='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 async function presenceHeartbeat(){
-  if(!maintUser) return;
-  try{ await fetch(`${FB}/presence/${PRES_SID}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:maintUser.name,t:Date.now()})}); }catch(e){}
+  try{ await fetch(`${FB}/presence/${PRES_SID}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:(maintUser&&maintUser.name)||null,t:Date.now()})}); }catch(e){}
 }
 async function presencePoll(){
   try{
     const r=await fetch(`${FB}/presence.json`); const d=await r.json();
-    const now=Date.now(); const names=[]; const stale=[];
+    const now=Date.now(); const names=[]; let guests=0; const stale=[];
     if(d&&typeof d==='object'){
       Object.entries(d).forEach(([sid,v])=>{
         if(v&&typeof v.t==='number'){
-          if(now-v.t<30000){ if(v.name && !names.includes(v.name)) names.push(v.name); }
+          if(now-v.t<30000){ if(v.name){ if(!names.includes(v.name)) names.push(v.name); } else guests++; }
           else if(now-v.t>120000) stale.push(sid);
         } else stale.push(sid);
       });
     }
-    if(maintUser) stale.forEach(sid=>{ fetch(`${FB}/presence/${sid}.json`,{method:'DELETE'}).catch(()=>{}); });
-    updatePresenceUI(names.sort());
+    stale.forEach(sid=>{ fetch(`${FB}/presence/${sid}.json`,{method:'DELETE'}).catch(()=>{}); });
+    updatePresenceUI(names.sort(), guests);
   }catch(e){}
 }
-function updatePresenceUI(names){
-  const n=names.length;
+function updatePresenceUI(names, guests){
+  guests=guests||0;
   const setC=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  setC('online-count',n); setC('online-count-admin',n);
+  setC('online-count',names.length); setC('online-count-guest',guests);
+  setC('online-count-admin',names.length); setC('online-count-guest-admin',guests);
   const chips=names.map(x=>`<span class="online-name">${x}</span>`).join('');
-  const l1=document.getElementById('online-list'); if(l1) l1.innerHTML=chips;
   const l2=document.getElementById('online-list-admin'); if(l2) l2.innerHTML=chips;
+  updateOnlineLang();
+}
+const ONLINE_I18N={ es:{lbl:'conectados', guest:'visitantes', adm:'En línea'}, zh:{lbl:'登入', guest:'訪客', adm:'目前在線'}, en:{lbl:'signed in', guest:'guests', adm:'Online now'} };
+function updateOnlineLang(){
+  const t=ONLINE_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||ONLINE_I18N.es;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('online-label',t.lbl); set('online-label-guest',t.guest);
+  set('online-label-admin',t.adm); set('online-label-guest-adm',t.guest);
 }
 function presenceLeave(){ try{ fetch(`${FB}/presence/${PRES_SID}.json`,{method:'DELETE',keepalive:true}); }catch(e){} }
 function initPresence(){
