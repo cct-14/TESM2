@@ -95,7 +95,7 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <label class="lbl" id="l-s-status">Estado</label>
       <select class="inp" id="s-status"></select>
       <label class="lbl" id="l-s-person">Personal</label>
-      <input class="inp" id="s-person" inputmode="numeric" autocomplete="off" oninput="personLookup()"/>
+      <input class="inp" id="s-person" inputmode="text" autocomplete="off" oninput="personLookup()"/>
       <div class="pname" id="s-pname"></div>
       <div class="err" id="s-err"></div>
       <button class="btn primary" id="s-submit" onclick="submitStatus()">Enviar</button>
@@ -219,7 +219,7 @@ async function statusCur(){
 function personLookup(){
   const el=$('s-pname'); const id=($('s-person').value||'').trim();
   if(!id){ el.textContent=''; el.className='pname'; return; }
-  const name=STAFF[id];
+  const name=STAFF[id]||STAFF[id.toUpperCase()];
   if(name){ el.textContent=name; el.className='pname'; }
   else { el.textContent=L().notFound; el.className='pname miss'; }
 }
@@ -240,7 +240,7 @@ async function submitStatus(){
   const st=$('s-status').value; const pid=($('s-person').value||'').trim();
   if(!n||!st||!pid){ $('s-err').textContent=t.errS; return; }
   $('s-err').textContent='';
-  const person=STAFF[pid]||pid; const id=k+'-'+n, kk=key(k,n), tnow=now();
+  const person=STAFF[pid]||STAFF[pid.toUpperCase()]||pid; const id=k+'-'+n, kk=key(k,n), tnow=now();
   const btn=$('s-submit'); btn.disabled=true;
   try{
     await fetch(FB+'/equipment/'+kk+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,machine_type:k,status:st,crew:person,note:'',last_updated:tnow})});

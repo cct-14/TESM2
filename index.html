@@ -3148,13 +3148,21 @@ function amRenderStaff(body){
     <div style="font-size:11px;color:var(--text3);margin-bottom:4px">整批匯入：從 Excel 複製兩欄（編號、名字）貼下面，一行一筆（用逗號或 Tab 分隔），按匯入：</div>
     <textarea id="st-bulk" placeholder="123, 王小明&#10;124, 李大華" style="width:100%;height:80px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg);margin-bottom:6px"></textarea>
     <div style="display:flex;gap:8px;margin-bottom:12px"><button class="mt-perm" onclick="staffBulk()">匯入</button><input id="st-search" placeholder="🔍 搜尋編號/名字" oninput="staffFilter(this.value)" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/></div>
-    <div id="st-list" style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px"></div>`;
+    <div id="st-list" style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px"></div>
+    <div style="margin-top:8px"><button class="mt-perm" onclick="staffDelSelected()" style="color:var(--red);border-color:var(--red)">🗑 刪除選取</button></div>`;
   staffFilter('');
 }
 function staffFilter(q){
   q=(q||'').toLowerCase(); const el=document.getElementById('st-list'); if(!el) return;
   const rows=Object.entries(STAFF).filter(([id,n])=>!q||id.toLowerCase().includes(q)||String(n).toLowerCase().includes(q)).sort((a,b)=>a[0].localeCompare(b[0]));
-  el.innerHTML=rows.length?rows.map(([id,n])=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bg3);font-size:13px"><span style="font-weight:700;min-width:60px">${id}</span><span style="flex:1">${n}</span><button class="mt-perm" onclick="staffDel('${id.replace(/'/g,"")}')">✕</button></div>`).join(''):`<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">尚無人員</div>`;
+  el.innerHTML=rows.length?rows.map(([id,n])=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bg3);font-size:13px"><input type="checkbox" class="st-chk" value="${id.replace(/"/g,'')}" style="width:16px;height:16px;flex-shrink:0"/><span style="font-weight:700;min-width:60px">${id}</span><span style="flex:1">${n}</span><button class="mt-perm" onclick="staffDel('${id.replace(/'/g,"")}')">✕</button></div>`).join(''):`<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">尚無人員</div>`;
+}
+async function staffDelSelected(){
+  const ids=[...document.querySelectorAll('#st-list .st-chk:checked')].map(c=>c.value);
+  if(!ids.length){ alert('請先勾選要刪除的人員'); return; }
+  if(!confirm(`確定刪除選取的 ${ids.length} 人？`)) return;
+  for(const id of ids){ delete STAFF[id]; try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(e){} }
+  staffFilter(document.getElementById('st-search').value||'');
 }
 async function staffAdd(){
   const id=(document.getElementById('st-id').value||'').trim(); const name=(document.getElementById('st-name').value||'').trim();
@@ -3706,7 +3714,7 @@ function fldPersonLookup(){
   const el=document.getElementById('fld-s-pname'); if(!el) return;
   const id=(document.getElementById('fld-s-person').value||'').trim();
   if(!id){ el.textContent=''; el.className='fld-person'; return; }
-  const name=STAFF[id];
+  const name=STAFF[id]||STAFF[id.toUpperCase()];
   if(name){ el.textContent=name; el.className='fld-person'; }
   else { el.textContent=fldL().notFound; el.className='fld-person miss'; }
 }
@@ -3732,7 +3740,7 @@ async function fldSubmitStatus(){
   const status=document.getElementById('fld-s-status').value;
   const pid=(document.getElementById('fld-s-person').value||'').trim();
   if(!num||!status||!pid){ alert(L.errStatus); return; }
-  const person=STAFF[pid]||pid;
+  const person=STAFF[pid]||STAFF[pid.toUpperCase()]||pid;
   const id=kind+'-'+num, key=fldKey(kind,num), now=fldPanNow();
   const btn=document.getElementById('fld-s-submit'); btn.disabled=true;
   try{
