@@ -1769,7 +1769,7 @@ function renderDeptTabs(deptKey) {
       style="padding:10px 14px;border:none;border-bottom:2px solid ${i===0?'var(--blue)':'transparent'};
       background:none;font-size:12px;font-weight:${i===0?600:500};
       color:${i===0?'var(--blue)':'var(--text2)'};cursor:pointer;white-space:nowrap;flex-shrink:0">
-      ${t.label}
+      ${aT('feat_'+t.id)}
     </button>`).join('');
   if (tabs.length) switchFeatureTab(tabs[0].id, deptKey, document.getElementById('ftab-'+tabs[0].id));
 }
@@ -2386,6 +2386,83 @@ const MT_I18N = {
 };
 let maintLang = 'es';
 try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }catch(_){}
+// ── 管理介面三語字典 ──
+const ADMIN_I18N={
+  zh:{
+    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_password:'密碼管理',feat_roles:'部門管理',
+    st_kinds:'車機種類',st_statuses:'狀態選項',st_hours:'時數種類',st_staff:'人員清單',st_pass:'密碼',
+    desc_kinds:'車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）',
+    desc_statuses:'車機狀態選項（現場「狀態更改」的下拉）',
+    btn_additem:'＋ 加一項',btn_save:'儲存',btn_addrow:'＋ 加一格',btn_import:'匯入',btn_add:'新增',btn_selall:'全選',
+    hd_desc:'選機型 → 設定該型的時數種類（例 POWER、ENGINE）。留空＝該型免時數。',
+    hd_save:'儲存 {k} 種類',cat_ph:'種類 {i}（留空＝不用）',cat_ph2:'種類（留空＝不用）',
+    staff_count:'共 {n} 人。現場輸入編號會自動帶出名字。',ph_empno:'編號',ph_name:'名字',
+    staff_import:'整批匯入：從 Excel 複製兩欄（編號、名字）貼下面，一行一筆（用逗號或 Tab 分隔），按匯入：',
+    ph_search:'🔍 搜尋編號/名字',staff_none:'尚無人員',btn_delsel:'🗑 刪除選取',
+    pass_desc:'現場「時數」需要這組密碼才能進入（狀態不需要）。',ph_setpass:'設定密碼',
+    ae_title:'新增車機到全車機監控',
+    ae_desc:'選機型後，編號可用三種寫法：單台 <b>01</b>、多台 <b>01,02,03</b>、整排範圍 <b>01-38</b>（會自動補零對齊）。',
+    ae_kind:'機型',ae_num:'編號（單台 / 多台逗號 / 範圍 01-38）',ae_numph:'例 01　或　01,02,03　或　01-38',ae_status:'初始狀態',ae_addbtn:'➕ 新增',
+    ae_bulktitle:'批次貼上匯入（跨機型）',
+    ae_bulkdesc:'一行一台，格式「機號」或「機號,狀態」。例：<br>RTG-01<br>GC-05,Running<br>ARMGC-02,Available（沒寫狀態就用預設 Out Of Service）',
+    ae_skip:'只補建不存在的（不覆蓋現有車機的狀態）',ae_importbtn:'📥 批次匯入',
+    m_kinds:'車機種類',m_statuses:'狀態選項',m_saved:'{name}已儲存（{n}）✓',m_savefail:'儲存失敗：',
+    m_hsaved:'{k} 時數種類已儲存（{n}）✓',m_pickdel:'請先勾選要刪除的人員',m_delconfirm:'確定刪除選取的 {n} 人？',m_delfail:'刪除失敗：',
+    m_needname:'編號和名字都要填',m_fail:'失敗：',m_delone:'刪除 {id}？',m_badformat:'格式不對：每行「編號, 名字」',m_imported:'匯入 {n} 人 ✓',m_importfail:'匯入失敗：',
+    m_passsaved:'現場密碼已更新 ✓',m_needpass:'請輸入密碼',m_enternum:'請輸入編號',m_added:'已新增 {n} 台 ✓',
+    m_built:'補建 {n} 台 ✓',m_skipped:'（略過已存在 {n} 台）',m_bad:'（{n} 筆格式不符）'
+  },
+  es:{
+    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_password:'Contraseñas',feat_roles:'Departamentos',
+    st_kinds:'Tipos',st_statuses:'Estados',st_hours:'Cat. horas',st_staff:'Personal',st_pass:'Contraseña',
+    desc_kinds:'Tipos de equipo (para «Estado» y «Horas» en campo. AR se asigna a ARMGC).',
+    desc_statuses:'Opciones de estado (menú de «Cambiar estado» en campo).',
+    btn_additem:'＋ Añadir',btn_save:'Guardar',btn_addrow:'＋ Fila',btn_import:'Importar',btn_add:'Añadir',btn_selall:'Todos',
+    hd_desc:'Elija el tipo → defina sus categorías de horas (ej. POWER, ENGINE). Vacío = sin horas.',
+    hd_save:'Guardar categorías de {k}',cat_ph:'Categoría {i} (vacío = no usar)',cat_ph2:'Categoría (vacío = no usar)',
+    staff_count:'{n} personas. Al ingresar el número en campo se muestra el nombre.',ph_empno:'N.º',ph_name:'Nombre',
+    staff_import:'Importar en lote: copie dos columnas (número, nombre) de Excel y pegue abajo, una por línea (coma o Tab):',
+    ph_search:'🔍 Buscar número/nombre',staff_none:'Sin personal',btn_delsel:'🗑 Eliminar selección',
+    pass_desc:'La sección «Horas» en campo requiere esta contraseña (Estado no la requiere).',ph_setpass:'Definir contraseña',
+    ae_title:'Añadir equipo al monitor',
+    ae_desc:'Tras elegir el tipo, el número admite: uno <b>01</b>, varios <b>01,02,03</b>, o rango <b>01-38</b> (con ceros automáticos).',
+    ae_kind:'Tipo',ae_num:'Número (uno / varios con coma / rango 01-38)',ae_numph:'ej. 01  o  01,02,03  o  01-38',ae_status:'Estado inicial',ae_addbtn:'➕ Añadir',
+    ae_bulktitle:'Importar pegando (varios tipos)',
+    ae_bulkdesc:'Una por línea, formato «equipo» o «equipo,estado». Ej.:<br>RTG-01<br>GC-05,Running<br>ARMGC-02,Available (sin estado usa Out Of Service).',
+    ae_skip:'Solo crear los que faltan (no sobrescribir estados existentes)',ae_importbtn:'📥 Importar',
+    m_kinds:'Tipos',m_statuses:'Estados',m_saved:'{name} guardado ({n}) ✓',m_savefail:'Error al guardar: ',
+    m_hsaved:'Categorías de {k} guardadas ({n}) ✓',m_pickdel:'Seleccione primero el personal a eliminar',m_delconfirm:'¿Eliminar {n} seleccionados?',m_delfail:'Error al eliminar: ',
+    m_needname:'Número y nombre son obligatorios',m_fail:'Error: ',m_delone:'¿Eliminar {id}?',m_badformat:'Formato incorrecto: «número, nombre» por línea',m_imported:'{n} importados ✓',m_importfail:'Error al importar: ',
+    m_passsaved:'Contraseña actualizada ✓',m_needpass:'Ingrese la contraseña',m_enternum:'Ingrese el número',m_added:'{n} añadidos ✓',
+    m_built:'{n} creados ✓',m_skipped:'({n} existentes omitidos)',m_bad:'({n} con formato inválido)'
+  },
+  en:{
+    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_password:'Passwords',feat_roles:'Departments',
+    st_kinds:'Types',st_statuses:'Statuses',st_hours:'Hour cats',st_staff:'Staff',st_pass:'Password',
+    desc_kinds:'Equipment types (used by field Status & Hours. AR maps to ARMGC).',
+    desc_statuses:'Status options (the field «Change status» dropdown).',
+    btn_additem:'＋ Add',btn_save:'Save',btn_addrow:'＋ Row',btn_import:'Import',btn_add:'Add',btn_selall:'All',
+    hd_desc:'Pick a type → set its hour categories (e.g. POWER, ENGINE). Empty = no hours.',
+    hd_save:'Save {k} categories',cat_ph:'Category {i} (empty = unused)',cat_ph2:'Category (empty = unused)',
+    staff_count:'{n} people. Entering the ID in the field shows the name.',ph_empno:'ID',ph_name:'Name',
+    staff_import:'Bulk import: copy two columns (ID, name) from Excel and paste below, one per line (comma or Tab):',
+    ph_search:'🔍 Search ID/name',staff_none:'No staff',btn_delsel:'🗑 Delete selected',
+    pass_desc:'The field «Hours» section needs this password (Status does not).',ph_setpass:'Set password',
+    ae_title:'Add equipment to the monitor',
+    ae_desc:'After picking a type, the number accepts: single <b>01</b>, multiple <b>01,02,03</b>, or range <b>01-38</b> (auto zero-padded).',
+    ae_kind:'Type',ae_num:'Number (single / comma / range 01-38)',ae_numph:'e.g. 01  or  01,02,03  or  01-38',ae_status:'Initial status',ae_addbtn:'➕ Add',
+    ae_bulktitle:'Paste to import (any type)',
+    ae_bulkdesc:'One per line, format «id» or «id,status». E.g.:<br>RTG-01<br>GC-05,Running<br>ARMGC-02,Available (no status uses Out Of Service).',
+    ae_skip:'Only create missing ones (don\u2019t overwrite existing statuses)',ae_importbtn:'📥 Import',
+    m_kinds:'Types',m_statuses:'Statuses',m_saved:'{name} saved ({n}) ✓',m_savefail:'Save failed: ',
+    m_hsaved:'{k} hour categories saved ({n}) ✓',m_pickdel:'Select staff to delete first',m_delconfirm:'Delete {n} selected?',m_delfail:'Delete failed: ',
+    m_needname:'ID and name are required',m_fail:'Failed: ',m_delone:'Delete {id}?',m_badformat:'Bad format: «ID, name» per line',m_imported:'{n} imported ✓',m_importfail:'Import failed: ',
+    m_passsaved:'Field password updated ✓',m_needpass:'Enter the password',m_enternum:'Enter the number',m_added:'{n} added ✓',
+    m_built:'{n} created ✓',m_skipped:'({n} existing skipped)',m_bad:'({n} invalid format)'
+  }
+};
+function aT(k){ const L=ADMIN_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||ADMIN_I18N.zh; return (k in L)?L[k]:(ADMIN_I18N.zh[k]||k); }
+function aTn(k,map){ let s=aT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
 function mtL(){ return MT_I18N[maintLang]||MT_I18N.es; }
 function updateLangUI(){ document.querySelectorAll('.mt-lang').forEach(box=>box.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.getAttribute('data-l')===maintLang))); }
 function setMaintLang(l){
@@ -2395,6 +2472,11 @@ function setMaintLang(l){
   if(typeof updateOnlineLang==='function') updateOnlineLang();
   if(typeof applyFieldLang==='function') applyFieldLang();
   if(typeof updateMsgLang==='function') updateMsgLang();
+  if(typeof aT==='function'){
+    ['movelog','teu','announce','maintain','app','addeq','changelog','email','password','roles'].forEach(id=>{ const b=document.getElementById('ftab-'+id); if(b) b.textContent=aT('feat_'+id); });
+    if(document.getElementById('fp-app')) renderAppManage();
+    if(document.getElementById('fp-addeq')) renderAddEq();
+  }
   if(typeof initMarquee==='function') initMarquee();
   if(typeof initAnnounce==='function') initAnnounce();
   const cp=document.getElementById('page-changelog');
@@ -3069,11 +3151,11 @@ async function renderAppManage(){
   await fldLoadConfig();
   el.innerHTML=`
     <div class="mt-subtabs" style="border-bottom:1px solid var(--border);padding:0;flex-wrap:wrap">
-      <button class="mt-subtab" id="appmg-t-kinds" onclick="appMgSwitch('kinds')">車機種類</button>
-      <button class="mt-subtab" id="appmg-t-statuses" onclick="appMgSwitch('statuses')">狀態選項</button>
-      <button class="mt-subtab" id="appmg-t-hours" onclick="appMgSwitch('hours')">時數種類</button>
-      <button class="mt-subtab" id="appmg-t-staff" onclick="appMgSwitch('staff')">人員清單</button>
-      <button class="mt-subtab" id="appmg-t-pass" onclick="appMgSwitch('pass')">密碼</button>
+      <button class="mt-subtab" id="appmg-t-kinds" onclick="appMgSwitch('kinds')">${aT('st_kinds')}</button>
+      <button class="mt-subtab" id="appmg-t-statuses" onclick="appMgSwitch('statuses')">${aT('st_statuses')}</button>
+      <button class="mt-subtab" id="appmg-t-hours" onclick="appMgSwitch('hours')">${aT('st_hours')}</button>
+      <button class="mt-subtab" id="appmg-t-staff" onclick="appMgSwitch('staff')">${aT('st_staff')}</button>
+      <button class="mt-subtab" id="appmg-t-pass" onclick="appMgSwitch('pass')">${aT('st_pass')}</button>
     </div>
     <div id="appmg-body" style="padding-top:14px"></div>`;
   appMgSwitch(appMgTab);
@@ -3082,18 +3164,17 @@ function appMgSwitch(which){
   appMgTab=which;
   ['kinds','statuses','hours','staff','pass'].forEach(w=>{ const b=document.getElementById('appmg-t-'+w); if(b) b.classList.toggle('active', w===which); });
   const body=document.getElementById('appmg-body'); if(!body) return;
-  if(which==='kinds') body.innerHTML=amListEditor('車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）', FIELD_KINDS, 'saveKinds');
-  else if(which==='statuses') body.innerHTML=amListEditor('車機狀態選項（現場「狀態更改」的下拉）', FIELD_STATUSES, 'saveStatuses');
+  if(which==='kinds') body.innerHTML=amListEditor(aT('desc_kinds'), FIELD_KINDS, 'saveKinds');
+  else if(which==='statuses') body.innerHTML=amListEditor(aT('desc_statuses'), FIELD_STATUSES, 'saveStatuses');
   else if(which==='hours') amRenderHoursDefs(body);
   else if(which==='staff') amRenderStaff(body);
   else if(which==='pass') amRenderPass(body);
 }
-// 通用清單編輯器（種類 / 狀態）
 function amListEditor(desc, arr, saveFn){
   const rows=(arr&&arr.length?arr:['']).map((v,i)=>`<div style="display:flex;gap:6px;margin-bottom:6px"><input class="am-item" value="${(v||'').replace(/"/g,'&quot;')}" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm" onclick="this.parentNode.remove()">✕</button></div>`).join('');
   return `<div style="font-size:12px;color:var(--text3);margin-bottom:10px">${desc}</div>
     <div id="am-rows">${rows}</div>
-    <div style="display:flex;gap:8px;margin-top:4px"><button class="mt-perm" onclick="amAddItem()">＋ 加一項</button><button class="mt-perm on" onclick="${saveFn}()">儲存</button></div>`;
+    <div style="display:flex;gap:8px;margin-top:4px"><button class="mt-perm" onclick="amAddItem()">${aT('btn_additem')}</button><button class="mt-perm on" onclick="${saveFn}()">${aT('btn_save')}</button></div>`;
 }
 function amAddItem(){
   const rows=document.getElementById('am-rows'); if(!rows) return;
@@ -3104,56 +3185,54 @@ function amAddItem(){
 function amCollect(){ return [...document.querySelectorAll('#am-rows .am-item')].map(i=>i.value.trim()).filter(Boolean); }
 async function saveKinds(){
   const arr=amCollect(); FIELD_KINDS=arr;
-  try{ await fetch(`${FB}/field_kinds.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); alert(`車機種類已儲存（${arr.length}）✓`); }
-  catch(e){ alert('儲存失敗：'+e.message); }
+  try{ await fetch(`${FB}/field_kinds.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); alert(aTn('m_saved',{name:aT('m_kinds'),n:arr.length})); }
+  catch(e){ alert(aT('m_savefail')+e.message); }
 }
 async function saveStatuses(){
   const arr=amCollect(); FIELD_STATUSES=arr;
-  try{ await fetch(`${FB}/field_statuses.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); alert(`狀態選項已儲存（${arr.length}）✓`); }
-  catch(e){ alert('儲存失敗：'+e.message); }
+  try{ await fetch(`${FB}/field_statuses.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); alert(aTn('m_saved',{name:aT('m_statuses'),n:arr.length})); }
+  catch(e){ alert(aT('m_savefail')+e.message); }
 }
-// 時數種類（每型）
 let hoursDefType='RTG';
 function amRenderHoursDefs(body){
   if(!FIELD_KINDS.includes(hoursDefType)) hoursDefType=fieldCanon(FIELD_KINDS[0]||'RTG');
   const canon=fieldCanon(hoursDefType);
   const defs=(HOURS_DEFS[canon]||[]).slice(); while(defs.length<5) defs.push('');
-  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">選機型 → 設定該型的時數種類（例 POWER、ENGINE）。留空＝該型免時數。</div>
+  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">${aT('hd_desc')}</div>
     <div style="margin-bottom:12px"><select id="hd-type" onchange="hoursDefsPick(this.value)" style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;background:var(--bg)">
       ${FIELD_KINDS.map(k=>`<option value="${k}"${k===hoursDefType?' selected':''}>${k}${(HOURS_DEFS[fieldCanon(k)]||[]).filter(Boolean).length?' ●':''}</option>`).join('')}
     </select></div>
-    <div id="hd-rows">${defs.map((d,i)=>`<input class="hd-cat" value="${(d||'').replace(/"/g,'&quot;')}" placeholder="種類 ${i+1}（留空＝不用）" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:6px;background:var(--bg);text-transform:uppercase"/>`).join('')}</div>
-    <div style="display:flex;gap:8px;margin-top:4px"><button class="mt-perm" onclick="hoursDefsAddRow()">＋ 加一格</button><button class="mt-perm on" onclick="saveHoursDefs()">儲存 ${hoursDefType} 種類</button></div>`;
+    <div id="hd-rows">${defs.map((d,i)=>`<input class="hd-cat" value="${(d||'').replace(/"/g,'&quot;')}" placeholder="${aTn('cat_ph',{i:i+1})}" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:6px;background:var(--bg);text-transform:uppercase"/>`).join('')}</div>
+    <div style="display:flex;gap:8px;margin-top:4px"><button class="mt-perm" onclick="hoursDefsAddRow()">${aT('btn_addrow')}</button><button class="mt-perm on" onclick="saveHoursDefs()">${aTn('hd_save',{k:hoursDefType})}</button></div>`;
 }
 function hoursDefsPick(t){ hoursDefType=t; appMgSwitch('hours'); }
 function hoursDefsAddRow(){
   const rows=document.getElementById('hd-rows'); if(!rows) return;
-  const inp=document.createElement('input'); inp.className='hd-cat'; inp.placeholder='種類（留空＝不用）';
+  const inp=document.createElement('input'); inp.className='hd-cat'; inp.placeholder=aT('cat_ph2');
   inp.style.cssText='width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:6px;background:var(--bg);text-transform:uppercase';
   rows.appendChild(inp);
 }
 async function saveHoursDefs(){
   const cats=[...document.querySelectorAll('#hd-rows .hd-cat')].map(i=>i.value.trim().toUpperCase()).filter(Boolean);
   const canon=fieldCanon(hoursDefType); HOURS_DEFS[canon]=cats;
-  try{ await fetch(`${FB}/hours_defs/${canon}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cats)}); alert(`${hoursDefType} 時數種類已儲存（${cats.length}）✓`); appMgSwitch('hours'); }
-  catch(e){ alert('儲存失敗：'+e.message); }
+  try{ await fetch(`${FB}/hours_defs/${canon}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cats)}); alert(aTn('m_hsaved',{k:hoursDefType,n:cats.length})); appMgSwitch('hours'); }
+  catch(e){ alert(aT('m_savefail')+e.message); }
 }
-// 人員清單
 function amRenderStaff(body){
   const ids=Object.keys(STAFF);
-  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">共 ${ids.length} 人。現場輸入編號會自動帶出名字。</div>
+  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">${aTn('staff_count',{n:ids.length})}</div>
     <div style="display:flex;gap:6px;margin-bottom:10px">
-      <input id="st-id" placeholder="編號" style="width:100px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
-      <input id="st-name" placeholder="名字" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
-      <button class="mt-perm on" onclick="staffAdd()">新增</button>
+      <input id="st-id" placeholder="${aT('ph_empno')}" style="width:100px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
+      <input id="st-name" placeholder="${aT('ph_name')}" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
+      <button class="mt-perm on" onclick="staffAdd()">${aT('btn_add')}</button>
     </div>
-    <div style="font-size:11px;color:var(--text3);margin-bottom:4px">整批匯入：從 Excel 複製兩欄（編號、名字）貼下面，一行一筆（用逗號或 Tab 分隔），按匯入：</div>
-    <textarea id="st-bulk" placeholder="123, 王小明&#10;124, 李大華" style="width:100%;height:80px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg);margin-bottom:6px"></textarea>
-    <div style="display:flex;gap:8px;margin-bottom:12px"><button class="mt-perm" onclick="staffBulk()">匯入</button><input id="st-search" placeholder="🔍 搜尋編號/名字" oninput="staffFilter(this.value)" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/></div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${aT('staff_import')}</div>
+    <textarea id="st-bulk" placeholder="123, ${aT('ph_name')}&#10;124, ${aT('ph_name')}" style="width:100%;height:80px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg);margin-bottom:6px"></textarea>
+    <div style="display:flex;gap:8px;margin-bottom:12px"><button class="mt-perm" onclick="staffBulk()">${aT('btn_import')}</button><input id="st-search" placeholder="${aT('ph_search')}" oninput="staffFilter(this.value)" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/></div>
     <div id="st-list" style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px"></div>
     <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="st-all" onclick="staffToggleAll(this.checked)" style="width:16px;height:16px"/>全選</label>
-      <button class="mt-perm" onclick="staffDelSelected()" style="color:var(--red);border-color:var(--red)">🗑 刪除選取 (<span id="st-selcount">0</span>)</button>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="st-all" onclick="staffToggleAll(this.checked)" style="width:16px;height:16px"/>${aT('btn_selall')}</label>
+      <button class="mt-perm" onclick="staffDelSelected()" style="color:var(--red);border-color:var(--red)">${aT('btn_delsel')} (<span id="st-selcount">0</span>)</button>
     </div>`;
   staffFilter('');
 }
@@ -3162,27 +3241,27 @@ function staffToggleAll(on){ document.querySelectorAll('#st-list .st-chk').forEa
 function staffFilter(q){
   q=(q||'').toLowerCase(); const el=document.getElementById('st-list'); if(!el) return;
   const rows=Object.entries(STAFF).filter(([id,n])=>!q||id.toLowerCase().includes(q)||String(n).toLowerCase().includes(q)).sort((a,b)=>a[0].localeCompare(b[0]));
-  el.innerHTML=rows.length?rows.map(([id,n])=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bg3);font-size:13px"><input type="checkbox" class="st-chk" value="${id.replace(/"/g,'')}" onchange="staffCount()" style="width:16px;height:16px;flex-shrink:0"/><span style="font-weight:700;min-width:60px">${id}</span><span style="flex:1">${n}</span><button class="mt-perm" onclick="staffDel('${id.replace(/'/g,"")}')">✕</button></div>`).join(''):`<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">尚無人員</div>`;
+  el.innerHTML=rows.length?rows.map(([id,n])=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bg3);font-size:13px"><input type="checkbox" class="st-chk" value="${id.replace(/"/g,'')}" onchange="staffCount()" style="width:16px;height:16px;flex-shrink:0"/><span style="font-weight:700;min-width:60px">${id}</span><span style="flex:1">${n}</span><button class="mt-perm" onclick="staffDel('${id.replace(/'/g,"")}')">✕</button></div>`).join(''):`<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">${aT('staff_none')}</div>`;
   const all=document.getElementById('st-all'); if(all) all.checked=false; staffCount();
 }
 async function staffDelSelected(){
   const ids=[...document.querySelectorAll('#st-list .st-chk:checked')].map(c=>c.value);
-  if(!ids.length){ alert('請先勾選要刪除的人員'); return; }
-  if(!confirm(`確定刪除選取的 ${ids.length} 人？`)) return;
+  if(!ids.length){ alert(aT('m_pickdel')); return; }
+  if(!confirm(aTn('m_delconfirm',{n:ids.length}))) return;
   const patch={}; ids.forEach(id=>{ delete STAFF[id]; patch[id]=null; });
   try{ await fetch(`${FB}/staff.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }
-  catch(e){ alert('刪除失敗：'+e.message); }
+  catch(e){ alert(aT('m_delfail')+e.message); }
   staffFilter(document.getElementById('st-search').value||'');
 }
 async function staffAdd(){
   const id=(document.getElementById('st-id').value||'').trim(); const name=(document.getElementById('st-name').value||'').trim();
-  if(!id||!name){ alert('編號和名字都要填'); return; }
+  if(!id||!name){ alert(aT('m_needname')); return; }
   STAFF[id]=name;
-  try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(name)}); }catch(e){ alert('失敗：'+e.message); return; }
+  try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(name)}); }catch(e){ alert(aT('m_fail')+e.message); return; }
   document.getElementById('st-id').value=''; document.getElementById('st-name').value=''; staffFilter(document.getElementById('st-search').value||'');
 }
 async function staffDel(id){
-  if(!confirm('刪除 '+id+'？')) return;
+  if(!confirm(aTn('m_delone',{id:id}))) return;
   delete STAFF[id];
   try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(e){}
   staffFilter(document.getElementById('st-search').value||'');
@@ -3191,40 +3270,37 @@ async function staffBulk(){
   const txt=(document.getElementById('st-bulk').value||'').trim(); if(!txt){ return; }
   const obj={}; let n=0;
   txt.split(/\r?\n/).forEach(line=>{ const p=line.split(/[\t,;]+/).map(x=>x.trim()).filter(Boolean); if(p.length>=2){ obj[p[0]]=p.slice(1).join(' '); n++; } });
-  if(!n){ alert('格式不對：每行「編號, 名字」'); return; }
+  if(!n){ alert(aT('m_badformat')); return; }
   Object.assign(STAFF, obj);
-  try{ await fetch(`${FB}/staff.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}); alert(`匯入 ${n} 人 ✓`); }
-  catch(e){ alert('匯入失敗：'+e.message); return; }
+  try{ await fetch(`${FB}/staff.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}); alert(aTn('m_imported',{n:n})); }
+  catch(e){ alert(aT('m_importfail')+e.message); return; }
   document.getElementById('st-bulk').value=''; staffFilter('');
 }
-// 密碼（僅時數用）
 function amRenderPass(body){
-  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">現場「時數」需要這組密碼才能進入（狀態不需要）。</div>
-    <div style="display:flex;gap:8px"><input id="fp-field-pass" placeholder="設定密碼" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm on" onclick="saveFieldPass()">儲存</button></div>`;
+  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">${aT('pass_desc')}</div>
+    <div style="display:flex;gap:8px"><input id="fp-field-pass" placeholder="${aT('ph_setpass')}" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm on" onclick="saveFieldPass()">${aT('btn_save')}</button></div>`;
   fetch(`${FB}/field_pass.json`).then(r=>r.json()).then(v=>{ const e=document.getElementById('fp-field-pass'); if(e&&v) e.value=v; }).catch(()=>{});
 }
-// ── 新增車機（手動加入監控） ──
 async function renderAddEq(){
   const el=document.getElementById('fp-addeq'); if(!el) return;
   await fldLoadConfig();
-  el.innerHTML=`<div class="fp-sec-title">新增車機到全車機監控</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">選機型後，編號可用三種寫法：單台 <b>01</b>、多台 <b>01,02,03</b>、整排範圍 <b>01-38</b>（會自動補零對齊）。</div>
-    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">機型</label>
+  el.innerHTML=`<div class="fp-sec-title">${aT('ae_title')}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">${aT('ae_desc')}</div>
+    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">${aT('ae_kind')}</label>
     <select id="ae-kind" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px">${FIELD_KINDS.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
-    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">編號（單台 / 多台逗號 / 範圍 01-38）</label>
-    <input id="ae-num" placeholder="例 01　或　01,02,03　或　01-38" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px;text-transform:uppercase"/>
-    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">初始狀態</label>
+    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">${aT('ae_num')}</label>
+    <input id="ae-num" placeholder="${aT('ae_numph')}" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px;text-transform:uppercase"/>
+    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">${aT('ae_status')}</label>
     <select id="ae-status" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:14px">${FIELD_STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
-    <button class="mt-perm on" onclick="addEqSubmit()">➕ 新增</button>
+    <button class="mt-perm on" onclick="addEqSubmit()">${aT('ae_addbtn')}</button>
     <div id="ae-msg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>
-    <div class="fp-sec-title" style="margin-top:22px">批次貼上匯入（跨機型）</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">一行一台，格式「機號」或「機號,狀態」。例：<br>RTG-01<br>GC-05,Running<br>ARMGC-02,Available（沒寫狀態就用預設 Out Of Service）</div>
+    <div class="fp-sec-title" style="margin-top:22px">${aT('ae_bulktitle')}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${aT('ae_bulkdesc')}</div>
     <textarea id="ae-bulk" placeholder="RTG-01&#10;RTG-02&#10;GC-05,Running" style="width:100%;height:110px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--bg);margin-bottom:8px"></textarea>
-    <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:8px;cursor:pointer"><input type="checkbox" id="ae-skip" checked style="width:15px;height:15px"/>只補建不存在的（不覆蓋現有車機的狀態）</label>
-    <button class="mt-perm on" onclick="addEqBulk()">📥 批次匯入</button>
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:8px;cursor:pointer"><input type="checkbox" id="ae-skip" checked style="width:15px;height:15px"/>${aT('ae_skip')}</label>
+    <button class="mt-perm on" onclick="addEqBulk()">${aT('ae_importbtn')}</button>
     <div id="ae-bmsg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>`;
 }
-// 展開編號：支援 01-38 範圍、逗號多台，自動補零對齊寬度
 function aeExpandNums(raw){
   const out=[];
   raw.split(/[,，\s]+/).map(x=>x.trim()).filter(Boolean).forEach(part=>{
@@ -3244,12 +3320,12 @@ async function addEqSubmit(){
   const raw=(document.getElementById('ae-num').value||'').trim().toUpperCase();
   const status=document.getElementById('ae-status').value;
   const msg=document.getElementById('ae-msg');
-  if(!raw){ alert('請輸入編號'); return; }
+  if(!raw){ alert(aT('m_enternum')); return; }
   const nums=aeExpandNums(raw);
   const now=(typeof fldPanNow==='function')?fldPanNow():new Date().toLocaleString('zh-TW',{timeZone:'America/Panama'});
   const by=(typeof maintUser!=='undefined'&&maintUser&&maintUser.name)?maintUser.name:'Admin';
   let ok=0; for(const num of nums){ if(await aeWrite(kind,num,status,by,now)) ok++; }
-  if(msg) msg.textContent=`已新增 ${ok} 台 ✓`;
+  if(msg) msg.textContent=aTn('m_added',{n:ok});
   document.getElementById('ae-num').value='';
   if(typeof renderAllEq==='function') renderAllEq();
 }
@@ -3269,10 +3345,10 @@ async function addEqBulk(){
     if(!m){ bad.push(t); continue; }
     const kind=fieldCanon(m[1]); const num=m[2].replace(/\s+/g,'');
     const key=(kind+'-'+num).replace(/[\/\.\#\$\[\]]/g,'_');
-    if(skip && data[key]){ skipped++; continue; }        // 已存在→跳過，不覆蓋
+    if(skip && data[key]){ skipped++; continue; }
     if(await aeWrite(kind,num,status,by,now)) ok++; else bad.push(t);
   }
-  if(msg) msg.textContent=`補建 ${ok} 台 ✓${skipped?`（略過已存在 ${skipped} 台）`:''}${bad.length?`（${bad.length} 筆格式不符）`:''}`;
+  if(msg) msg.textContent=aTn('m_built',{n:ok})+(skipped?aTn('m_skipped',{n:skipped}):'')+(bad.length?aTn('m_bad',{n:bad.length}):'');
   if(typeof renderAllEq==='function') renderAllEq();
 }
 async function addMaintUser(){
