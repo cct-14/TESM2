@@ -64,6 +64,8 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .row2{display:flex;gap:10px;margin-top:10px}
 .row2 .btn{flex:1;margin-top:0}
 .foot{text-align:center;font-size:11px;color:var(--text3);padding:12px}
+.chip{display:inline-block;background:var(--card);border:1px solid var(--line2);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.home .ot .ic{color:#ea580c}
 </style>
 </head>
 <body>
@@ -82,6 +84,7 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <div class="home">
         <button class="status" onclick="goStatus()"><div class="ic">🔧</div><div class="tx" id="t-status">Estado</div></button>
         <button class="hours" onclick="goHours()"><div class="ic">⏱️</div><div class="tx" id="t-hours">Horas</div></button>
+        <button class="ot" onclick="goOt()" style="grid-column:1/-1"><div class="ic">📝</div><div class="tx" id="t-ot">Overtime</div></button>
       </div>
     </div>
     <!-- 狀態 -->
@@ -123,6 +126,45 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <div class="err" id="h-err"></div>
       <button class="btn primary" id="h-submit" onclick="submitHours()">Enviar</button>
     </div>
+    <!-- 加班密碼 -->
+    <div class="view" id="v-otgate">
+      <button class="back" onclick="home()">‹</button>
+      <div class="card">
+        <div class="ic">🔒</div>
+        <div class="t" id="otg-t">Overtime</div>
+        <div class="s" id="otg-s">Ingrese la contraseña</div>
+        <input type="password" class="inp" id="ot-pass" onkeydown="if(event.key==='Enter')otUnlock()"/>
+        <div class="err" id="otg-err"></div>
+        <button class="btn primary" id="otg-btn" onclick="otUnlock()">Entrar</button>
+      </div>
+    </div>
+    <!-- 加班申請 -->
+    <div class="view" id="v-ot">
+      <button class="back" onclick="home()">‹</button>
+      <label class="lbl" id="l-ot-group">Grupo</label>
+      <input class="inp" id="ot-group" autocomplete="off"/>
+      <label class="lbl" id="l-ot-people">Personal (N.º)</label>
+      <div style="display:flex;gap:8px">
+        <input class="inp" id="ot-p-id" inputmode="text" autocomplete="off" style="flex:1" oninput="otPidLookup()" onkeydown="if(event.key==='Enter'){event.preventDefault();otAddP();}"/>
+        <button class="btn ghost" id="ot-addp" style="width:auto;margin:0;padding:0 16px" onclick="otAddP()">＋</button>
+      </div>
+      <div class="pname" id="ot-p-name" style="min-height:18px"></div>
+      <div id="ot-people-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>
+      <label class="lbl" id="l-ot-date">Fecha</label>
+      <input class="inp" type="date" id="ot-date"/>
+      <label class="lbl" id="l-ot-kind">Tipo de equipo</label>
+      <select class="inp" id="ot-kind"></select>
+      <label class="lbl" id="l-ot-num">Número</label>
+      <input class="inp up" id="ot-num" inputmode="text" autocomplete="off"/>
+      <label class="lbl" id="l-ot-reason">Motivo</label>
+      <input class="inp" id="ot-reason" autocomplete="off"/>
+      <label class="lbl" id="l-ot-app">Solicitante (N.º jefe)</label>
+      <input class="inp" id="ot-app" inputmode="text" autocomplete="off" oninput="otAppLookup()"/>
+      <div class="pname" id="ot-app-name" style="min-height:18px"></div>
+      <div class="err" id="ot-err"></div>
+      <button class="btn primary" id="ot-submit" onclick="submitOt()">Enviar</button>
+      <div id="ot-remind" style="font-size:12px;color:var(--text3);margin-top:14px;white-space:pre-line;text-align:center"></div>
+    </div>
     <!-- 完成 -->
     <div class="view" id="v-done">
       <div class="card">
@@ -147,26 +189,29 @@ const DEFAULT_STATUSES=['Available','Running','Emergency Maintenance','Out Of Se
 const ALIAS={AR:'ARMGC'};
 const SC={'Available':{bg:'#dcfce7',fg:'#166534'},'Running':{bg:'#dbeafe',fg:'#1e40af'},'Emergency Maintenance':{bg:'#ffedd5',fg:'#9a3412'},'Out Of Service':{bg:'#e2e8f0',fg:'#334155'},'Planned Maintenance':{bg:'#ede9fe',fg:'#5b21b6'},'Damaged':{bg:'#fee2e2',fg:'#991b1b'}};
 const I18N={
-  es:{sub:'Registro en campo',status:'Estado',hours:'Horas',kind:'Tipo de equipo',num:'Número',statusL:'Estado',person:'Personal (N.º de empleado)',submit:'Enviar',again:'Otro registro',end:'Finalizar',done:'¡Enviado!',pass:'Contraseña',enter:'Entrar',hgSub:'Ingrese la contraseña',wrong:'Contraseña incorrecta',noPass:'Contraseña no configurada',errS:'Complete tipo, número, estado y personal',errH:'Ingrese número y al menos una hora',noCats:'Este tipo no tiene categorías',last:'Ant.:',cur:'Actual:',notFound:'No está en la lista — se usará el texto'},
-  zh:{sub:'現場登錄',status:'狀態',hours:'時數',kind:'車機種類',num:'編號',statusL:'狀態',person:'人員（員工編號）',submit:'送出',again:'再填一筆',end:'結束',done:'已送出',pass:'密碼',enter:'進入',hgSub:'請輸入密碼',wrong:'密碼錯誤',noPass:'尚未設定密碼',errS:'請填種類、編號、狀態、人員',errH:'請填編號、至少一個時數',noCats:'此機型未設定時數種類',last:'上次：',cur:'目前：',notFound:'不在名單 — 將直接使用此文字'},
-  en:{sub:'Field entry',status:'Status',hours:'Hours',kind:'Equipment type',num:'Number',statusL:'Status',person:'Staff (employee no.)',submit:'Submit',again:'New entry',end:'Finish',done:'Submitted!',pass:'Password',enter:'Enter',hgSub:'Enter password',wrong:'Wrong password',noPass:'Password not set',errS:'Fill type, number, status and staff',errH:'Enter number and at least one hour',noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used'}
+  es:{sub:'Registro en campo',status:'Estado',hours:'Horas',kind:'Tipo de equipo',num:'Número',statusL:'Estado',person:'Personal (N.º de empleado)',submit:'Enviar',again:'Otro registro',end:'Finalizar',done:'¡Enviado!',pass:'Contraseña',enter:'Entrar',hgSub:'Ingrese la contraseña',wrong:'Contraseña incorrecta',noPass:'Contraseña no configurada',errS:'Complete tipo, número, estado y personal',errH:'Ingrese número y al menos una hora',noCats:'Este tipo no tiene categorías',last:'Ant.:',cur:'Actual:',notFound:'No está en la lista — se usará el texto',ot:'Horas extra',otPass:'Contraseña de horas extra',group:'Grupo',people:'Personal (N.º)',date:'Fecha',reason:'Motivo',applicant:'Solicitante (N.º jefe)',otErr:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso de horas extra'},
+  zh:{sub:'現場登錄',status:'狀態',hours:'時數',kind:'車機種類',num:'編號',statusL:'狀態',person:'人員（員工編號）',submit:'送出',again:'再填一筆',end:'結束',done:'已送出',pass:'密碼',enter:'進入',hgSub:'請輸入密碼',wrong:'密碼錯誤',noPass:'尚未設定密碼',errS:'請填種類、編號、狀態、人員',errH:'請填編號、至少一個時數',noCats:'此機型未設定時數種類',last:'上次：',cur:'目前：',notFound:'不在名單 — 將直接使用此文字',ot:'加班',otPass:'加班密碼',group:'組別',people:'人員（編號）',date:'加班日期',reason:'原因',applicant:'申請人（組長編號）',otErr:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限'},
+  en:{sub:'Field entry',status:'Status',hours:'Hours',kind:'Equipment type',num:'Number',statusL:'Status',person:'Staff (employee no.)',submit:'Submit',again:'New entry',end:'Finish',done:'Submitted!',pass:'Password',enter:'Enter',hgSub:'Enter password',wrong:'Wrong password',noPass:'Password not set',errS:'Fill type, number, status and staff',errH:'Enter number and at least one hour',noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used',ot:'Overtime',otPass:'Overtime password',group:'Group',people:'Personnel (ID)',date:'Date',reason:'Reason',applicant:'Applicant (leader ID)',otErr:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no overtime permission'}
 };
 let LANG=localStorage.getItem('app_lang')||'es';
 let KINDS=DEFAULT_KINDS.slice(), STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, HDEFS={};
-let flow='status', hoursOK=false;
+let flow='status', hoursOK=false, otOK=false;
+let OTC={allowed:{},reminder:{}}, otPeople=[];
+function panamaDate(){ return new Date().toLocaleString('en-CA',{timeZone:PA_TZ}).slice(0,10); }
 function L(){ return I18N[LANG]||I18N.es; }
 function canon(k){ return ALIAS[k]||k; }
 function key(k,n){ return (k+'-'+n).replace(/[\/\.\#\$\[\]]/g,'_'); }
 function now(){ return new Date().toLocaleString('zh-TW',{timeZone:PA_TZ}); }
 function cats(t){ return (HDEFS[t]||[]).filter(Boolean); }
 function $(id){ return document.getElementById(id); }
-function show(v){ ['home','status','hgate','hours','done'].forEach(x=>$('v-'+x).classList.toggle('on',x===v)); }
+function show(v){ ['home','status','hgate','hours','otgate','ot','done'].forEach(x=>$('v-'+x).classList.toggle('on',x===v)); }
 
 async function load(){
   try{ const r=await fetch(FB+'/field_kinds.json'); const d=await r.json(); if(Array.isArray(d)&&d.length) KINDS=d; }catch(e){}
   try{ const r=await fetch(FB+'/field_statuses.json'); const d=await r.json(); if(Array.isArray(d)&&d.length) STATUSES=d; }catch(e){}
   try{ const r=await fetch(FB+'/hours_defs.json'); HDEFS=(await r.json())||{}; }catch(e){}
   try{ const r=await fetch(FB+'/staff.json'); STAFF=(await r.json())||{}; }catch(e){}
+  try{ const r=await fetch(FB+'/ot_config.json'); OTC=(await r.json())||{}; }catch(e){ OTC={}; } if(!OTC.allowed)OTC.allowed={}; if(!OTC.reminder)OTC.reminder={};
   buildSelects(); applyLang();
 }
 function buildSelects(){
@@ -174,6 +219,7 @@ function buildSelects(){
   $('s-status').innerHTML=STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('');
   const hk=KINDS.filter(k=>cats(canon(k)).length>0);
   $('h-kind').innerHTML=hk.map(k=>`<option value="${k}">${k}</option>`).join('');
+  $('ot-kind').innerHTML=KINDS.map(k=>`<option value="${k}">${k}</option>`).join('');
 }
 function setLang(l){ LANG=l; localStorage.setItem('app_lang',l); applyLang(); }
 function applyLang(){
@@ -186,6 +232,8 @@ function applyLang(){
   set('s-submit',t.submit); set('h-submit',t.submit);
   set('hg-t',t.hours); set('hg-s',t.hgSub); set('hg-btn',t.enter);
   set('d-t',t.done); set('d-again',t.again); set('d-end',t.end);
+  set('t-ot',t.ot); set('otg-t',t.ot); set('otg-s',t.hgSub); set('otg-btn',t.enter);
+  set('l-ot-group',t.group); set('l-ot-people',t.people); set('l-ot-date',t.date); set('l-ot-kind',t.kind); set('l-ot-num',t.num); set('l-ot-reason',t.reason); set('l-ot-app',t.applicant); set('ot-submit',t.submit);
 }
 function home(){ show('home'); }
 function goStatus(){
@@ -265,7 +313,25 @@ async function submitHours(){
   }catch(e){ $('h-err').textContent='✗ '+e.message; btn.disabled=false; return; }
   btn.disabled=false; $('d-detail').textContent=`${id} — ${Object.entries(filled).map(([k,v])=>k+':'+v).join('  ')}`; show('done');
 }
-function again(){ if(flow==='status') goStatus(); else enterHours(); }
+function goOt(){ flow='ot'; if(otOK){ enterOt(); } else { $('otg-err').textContent=''; $('ot-pass').value=''; show('otgate'); } }
+async function otUnlock(){ const t=L(); let pass=null; try{ const r=await fetch(FB+'/ot_config/pass/leader.json'); pass=await r.json(); }catch(e){} const v=($('ot-pass').value||'').trim(); if(!pass){ $('otg-err').textContent=t.noPass; return; } if(v!==String(pass)){ $('otg-err').textContent=t.wrong; return; } otOK=true; enterOt(); }
+function enterOt(){ otPeople=[]; ['ot-group','ot-num','ot-reason','ot-app','ot-p-id'].forEach(i=>$(i).value=''); $('ot-app-name').textContent=''; $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); }
+function renderOtPeople(){ const el=$('ot-people-list'); el.innerHTML=otPeople.map((p,i)=>`<span class="chip" onclick="otDelP(${i})">${p.id}·${p.name} ✕</span>`).join(''); }
+function otDelP(i){ otPeople.splice(i,1); renderOtPeople(); }
+function otPidLookup(){ const id=($('ot-p-id').value||'').trim(); $('ot-p-name').textContent=id?(STAFF[id]||STAFF[id.toUpperCase()]||L().notFound):''; }
+function otAddP(){ const id=($('ot-p-id').value||'').trim(); if(!id) return; const name=STAFF[id]||STAFF[id.toUpperCase()]||id; otPeople.push({id,name}); $('ot-p-id').value=''; $('ot-p-name').textContent=''; renderOtPeople(); }
+function otAppLookup(){ const id=($('ot-app').value||'').trim(); $('ot-app-name').textContent=id?(STAFF[id]||STAFF[id.toUpperCase()]||L().notFound):''; }
+async function submitOt(){ const t=L();
+  const group=($('ot-group').value||'').trim(); const date=$('ot-date').value; const type=canon($('ot-kind').value); const num=($('ot-num').value||'').trim().toUpperCase(); const reason=($('ot-reason').value||'').trim(); const appId=($('ot-app').value||'').trim();
+  if(!group||!otPeople.length||!num||!reason||!appId){ $('ot-err').textContent=t.otErr; return; }
+  if(!(OTC.allowed&&(OTC.allowed[appId]||OTC.allowed[appId.toUpperCase()]))){ $('ot-err').textContent=t.notAllowed; return; }
+  const appName=STAFF[appId]||STAFF[appId.toUpperCase()]||appId;
+  const rec={group,people:otPeople.slice(),date,machine_type:type,machine_num:num,reason,applicant:{id:appId,name:appName},status:'pending',stage:'section',created:now()};
+  const btn=$('ot-submit'); btn.disabled=true;
+  try{ await fetch(FB+'/ot_requests.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); }catch(e){ $('ot-err').textContent='✗ '+e.message; btn.disabled=false; return; }
+  btn.disabled=false; $('d-detail').textContent=`${type}-${num} · ${date} · ${appName}`; show('done');
+}
+function again(){ if(flow==='status') goStatus(); else if(flow==='ot') enterOt(); else enterHours(); }
 load();
 </script>
 </body>
