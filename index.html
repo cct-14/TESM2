@@ -1636,6 +1636,7 @@ const ALL_FEATURES = [
   {id:'announce', label:'📢 公告'},
   {id:'maintain', label:'🔧 保養計畫'},
   {id:'app',      label:'📱 手機APP管理'},
+  {id:'addeq',    label:'➕ 新增車機'},
   {id:'changelog',label:'📝 更新日誌'},
   {id:'email',    label:'📧 Email 設定'},
   {id:'password', label:'🔑 密碼管理'},
@@ -1796,6 +1797,7 @@ function renderFeaturePanel(featureId, deptKey) {
   if (featureId==='announce') { panel.innerHTML='<div id="fp-announce"></div>'; renderAnnounceInPanel(deptKey); }
   if (featureId==='maintain') { panel.innerHTML='<div id="fp-maint"></div>'; renderMaintAdmin(); }
   if (featureId==='app')      { panel.innerHTML='<div id="fp-app"></div>'; renderAppManage(); }
+  if (featureId==='addeq')    { panel.innerHTML='<div id="fp-addeq"></div>'; renderAddEq(); }
   if (featureId==='changelog'){ panel.innerHTML='<div id="fp-changelog"></div>'; renderChangelogInPanel(); }
   if (featureId==='email')    { panel.innerHTML='<div id="fp-email"></div>'; renderEmailPanel(); }
   if (featureId==='password') { panel.innerHTML=''; renderPasswordPanel(deptKey); }
@@ -3149,19 +3151,27 @@ function amRenderStaff(body){
     <textarea id="st-bulk" placeholder="123, 王小明&#10;124, 李大華" style="width:100%;height:80px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg);margin-bottom:6px"></textarea>
     <div style="display:flex;gap:8px;margin-bottom:12px"><button class="mt-perm" onclick="staffBulk()">匯入</button><input id="st-search" placeholder="🔍 搜尋編號/名字" oninput="staffFilter(this.value)" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/></div>
     <div id="st-list" style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px"></div>
-    <div style="margin-top:8px"><button class="mt-perm" onclick="staffDelSelected()" style="color:var(--red);border-color:var(--red)">🗑 刪除選取</button></div>`;
+    <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="st-all" onclick="staffToggleAll(this.checked)" style="width:16px;height:16px"/>全選</label>
+      <button class="mt-perm" onclick="staffDelSelected()" style="color:var(--red);border-color:var(--red)">🗑 刪除選取 (<span id="st-selcount">0</span>)</button>
+    </div>`;
   staffFilter('');
 }
+function staffCount(){ const el=document.getElementById('st-selcount'); if(el) el.textContent=document.querySelectorAll('#st-list .st-chk:checked').length; }
+function staffToggleAll(on){ document.querySelectorAll('#st-list .st-chk').forEach(c=>c.checked=on); staffCount(); }
 function staffFilter(q){
   q=(q||'').toLowerCase(); const el=document.getElementById('st-list'); if(!el) return;
   const rows=Object.entries(STAFF).filter(([id,n])=>!q||id.toLowerCase().includes(q)||String(n).toLowerCase().includes(q)).sort((a,b)=>a[0].localeCompare(b[0]));
-  el.innerHTML=rows.length?rows.map(([id,n])=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bg3);font-size:13px"><input type="checkbox" class="st-chk" value="${id.replace(/"/g,'')}" style="width:16px;height:16px;flex-shrink:0"/><span style="font-weight:700;min-width:60px">${id}</span><span style="flex:1">${n}</span><button class="mt-perm" onclick="staffDel('${id.replace(/'/g,"")}')">✕</button></div>`).join(''):`<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">尚無人員</div>`;
+  el.innerHTML=rows.length?rows.map(([id,n])=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bg3);font-size:13px"><input type="checkbox" class="st-chk" value="${id.replace(/"/g,'')}" onchange="staffCount()" style="width:16px;height:16px;flex-shrink:0"/><span style="font-weight:700;min-width:60px">${id}</span><span style="flex:1">${n}</span><button class="mt-perm" onclick="staffDel('${id.replace(/'/g,"")}')">✕</button></div>`).join(''):`<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">尚無人員</div>`;
+  const all=document.getElementById('st-all'); if(all) all.checked=false; staffCount();
 }
 async function staffDelSelected(){
   const ids=[...document.querySelectorAll('#st-list .st-chk:checked')].map(c=>c.value);
   if(!ids.length){ alert('請先勾選要刪除的人員'); return; }
   if(!confirm(`確定刪除選取的 ${ids.length} 人？`)) return;
-  for(const id of ids){ delete STAFF[id]; try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(e){} }
+  const patch={}; ids.forEach(id=>{ delete STAFF[id]; patch[id]=null; });
+  try{ await fetch(`${FB}/staff.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }
+  catch(e){ alert('刪除失敗：'+e.message); }
   staffFilter(document.getElementById('st-search').value||'');
 }
 async function staffAdd(){
@@ -3192,6 +3202,40 @@ function amRenderPass(body){
   body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">現場「時數」需要這組密碼才能進入（狀態不需要）。</div>
     <div style="display:flex;gap:8px"><input id="fp-field-pass" placeholder="設定密碼" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm on" onclick="saveFieldPass()">儲存</button></div>`;
   fetch(`${FB}/field_pass.json`).then(r=>r.json()).then(v=>{ const e=document.getElementById('fp-field-pass'); if(e&&v) e.value=v; }).catch(()=>{});
+}
+// ── 新增車機（手動加入監控） ──
+async function renderAddEq(){
+  const el=document.getElementById('fp-addeq'); if(!el) return;
+  await fldLoadConfig();
+  el.innerHTML=`<div class="fp-sec-title">新增車機到全車機監控</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">手動把車機加進監控（選機型＋編號＋狀態）。編號可一次多台，用逗號分隔（例 01,02,03）。</div>
+    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">機型</label>
+    <select id="ae-kind" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px">${FIELD_KINDS.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
+    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">編號（可逗號分隔多台）</label>
+    <input id="ae-num" placeholder="例 01 或 01,02,03" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px;text-transform:uppercase"/>
+    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">初始狀態</label>
+    <select id="ae-status" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:14px">${FIELD_STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+    <button class="mt-perm on" onclick="addEqSubmit()">➕ 新增</button>
+    <div id="ae-msg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>`;
+}
+async function addEqSubmit(){
+  const dispKind=document.getElementById('ae-kind').value, kind=fieldCanon(dispKind);
+  const raw=(document.getElementById('ae-num').value||'').trim().toUpperCase();
+  const status=document.getElementById('ae-status').value;
+  const msg=document.getElementById('ae-msg');
+  if(!raw){ alert('請輸入編號'); return; }
+  const nums=raw.split(/[,，\s]+/).map(x=>x.trim()).filter(Boolean);
+  const now=(typeof fldPanNow==='function')?fldPanNow():new Date().toLocaleString('zh-TW',{timeZone:'America/Panama'});
+  const by=(typeof maintUser!=='undefined'&&maintUser&&maintUser.name)?maintUser.name:'Admin';
+  let ok=0;
+  for(const num of nums){
+    const id=kind+'-'+num, key=id.replace(/[^a-zA-Z0-9_]/g,'_');
+    const rec={machine_id:id,machine_type:kind,status,crew:by,note:'',last_updated:now};
+    try{ await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); data[key]=rec; ok++; }catch(e){}
+  }
+  if(msg) msg.textContent=`已新增 ${ok} 台 ✓`;
+  document.getElementById('ae-num').value='';
+  if(typeof renderAllEq==='function') renderAllEq();
 }
 async function addMaintUser(){
   const name=document.getElementById('mu-name').value.trim();
