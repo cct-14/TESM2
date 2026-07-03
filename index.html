@@ -623,6 +623,7 @@ select.fld-input.big{height:56px}
   </div>
 
   <div class="sidebar-bottom">
+    <div id="um-login-bar" style="padding:6px 8px 8px"></div>
     <div id="sig-wrap" style="padding:6px 8px;border-radius:8px;transition:background .3s">
       <svg width="100%" viewBox="0 0 176 52" id="sig-svg" style="display:block;overflow:visible">
         <defs>
@@ -1638,6 +1639,7 @@ const ALL_FEATURES = [
   {id:'maintain', label:'🔧 保養計畫'},
   {id:'app',      label:'📱 手機APP管理'},
   {id:'addeq',    label:'➕ 新增車機'},
+  {id:'overtime', label:'⏰ 加班申請設定'},
   {id:'changelog',label:'📝 更新日誌'},
   {id:'email',    label:'📧 Email 設定'},
   {id:'password', label:'🔑 密碼管理'},
@@ -1693,10 +1695,11 @@ async function adminLogin() {
 function applyNavPerms(){
   const feats=(currentRole&&ROLES[currentRole]&&ROLES[currentRole].features)||[];
   const all=feats.includes('*');
+  const indiv=(typeof umCurrentUser!=='undefined') && umCurrentUser;
   ALL_FEATURES.filter(f=>f.page).forEach(f=>{
     const nav=document.querySelector('.nav-item[data-page="'+f.id+'"]');
     if(!nav) return;
-    const ok=all||feats.includes(f.id);
+    const ok = indiv ? umCan(f.id,'v') : (all||feats.includes(f.id));
     nav.style.display=ok?'':'none';
     // 若目前正停在被擋的頁 → 導回地圖
     if(!ok){ const pg=document.getElementById('page-'+f.id); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } }
@@ -1784,6 +1787,7 @@ function renderDeptTabs(deptKey) {
     features = cfg.features || [];
   }
 
+  if(typeof umCurrentUser!=='undefined' && umCurrentUser){ features = ALL_FEATURES.filter(f=>umCan(f.id,'v')).map(f=>f.id); }
   const tabs = ALL_FEATURES.filter(f=>!f.page && features.includes(f.id));
   const bar  = document.getElementById('dept-tab-bar');
   bar.innerHTML = tabs.map((t,i)=>`
@@ -1792,7 +1796,7 @@ function renderDeptTabs(deptKey) {
       style="padding:10px 14px;border:none;border-bottom:2px solid ${i===0?'var(--blue)':'transparent'};
       background:none;font-size:12px;font-weight:${i===0?600:500};
       color:${i===0?'var(--blue)':'var(--text2)'};cursor:pointer;white-space:nowrap;flex-shrink:0">
-      ${aT('feat_'+t.id)}
+      ${t.id==='overtime'?otT('feat'):aT('feat_'+t.id)}
     </button>`).join('');
   if (tabs.length) switchFeatureTab(tabs[0].id, deptKey, document.getElementById('ftab-'+tabs[0].id));
 }
@@ -1803,6 +1807,21 @@ function switchFeatureTab(featureId, deptKey, btn) {
   });
   if(btn){btn.style.borderBottomColor='var(--blue)';btn.style.color='var(--blue)';btn.style.fontWeight='600';}
   renderFeaturePanel(featureId, deptKey);
+  if(typeof umApplyPanelLock==='function') umApplyPanelLock(featureId);
+}
+
+
+function umApplyPanelLock(featureId){
+  const panel=document.getElementById('dept-panel'); if(!panel) return;
+  const old=document.getElementById('um-ro-badge'); if(old) old.remove();
+  const locked = (typeof umCurrentUser!=='undefined') && umCurrentUser && !umCan(featureId,'e');
+  if(!locked) return;
+  const disableAll=()=>{ panel.querySelectorAll('input,select,textarea,button').forEach(el=>{ if(el.id==='um-ro-badge') return; el.disabled=true; el.style.opacity='0.55'; el.style.cursor='not-allowed'; }); };
+  disableAll(); setTimeout(disableAll,200); setTimeout(disableAll,600);
+  const badge=document.createElement('div'); badge.id='um-ro-badge';
+  badge.textContent='🔒 '+umT('readonly');
+  badge.style.cssText='position:sticky;top:0;background:#fff7ed;color:#9a3412;font-size:12px;font-weight:700;padding:6px 10px;border:1px solid #fed7aa;border-radius:8px;margin-bottom:10px;z-index:5';
+  panel.insertBefore(badge, panel.firstChild);
 }
 
 function renderFeaturePanel(featureId, deptKey) {
@@ -1821,6 +1840,7 @@ function renderFeaturePanel(featureId, deptKey) {
   if (featureId==='maintain') { panel.innerHTML='<div id="fp-maint"></div>'; renderMaintAdmin(); }
   if (featureId==='app')      { panel.innerHTML='<div id="fp-app"></div>'; renderAppManage(); }
   if (featureId==='addeq')    { panel.innerHTML='<div id="fp-addeq"></div>'; renderAddEq(); }
+  if (featureId==='overtime') { panel.innerHTML='<div id="fp-ot"></div>'; renderOtConfig(); }
   if (featureId==='changelog'){ panel.innerHTML='<div id="fp-changelog"></div>'; renderChangelogInPanel(); }
   if (featureId==='email')    { panel.innerHTML='<div id="fp-email"></div>'; renderEmailPanel(); }
   if (featureId==='password') { panel.innerHTML=''; renderPasswordPanel(deptKey); }
@@ -1914,22 +1934,251 @@ async function deleteRole(key) {
 }
 
 // ── 密碼管理 Panel ───────────────────────────
-function renderPasswordPanel(deptKey) {
+// ── 使用者管理（密碼管理頁內）──
+const UM_I18N={
+  zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼',add:'新增人員',
+    newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
+    needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
+    hint:'新增後系統會要求此人首次登入先改密碼。'},
+  es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial',add:'Añadir usuario',
+    newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
+    needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
+    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.'},
+  en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password',add:'Add user',
+    newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
+    needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
+    hint:'After creating, the user will be asked to change the password on first login.'}
+};
+function umT(k){ const L=UM_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||UM_I18N.zh; return L[k]||UM_I18N.zh[k]||k; }
+function umTn(k,map){ let s=umT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
+let USERS={}, umOpen={};
+async function loadUsers(){ try{ const r=await fetch(`${FB}/users.json`); USERS=(await r.json())||{}; }catch(e){ USERS={}; } }
+function featLabel(f){
+  if(f.id==='overtime') return otT('feat');
+  const t=(typeof aT==='function')?aT('feat_'+f.id):null;
+  return (t&&t!=='feat_'+f.id)?t:f.label;
+}
+function renderUsers(){
+  const el=document.getElementById('um-list'); if(!el) return;
+  const ids=Object.keys(USERS).sort();
+  el.innerHTML = ids.length ? ids.map(id=>{
+    const u=USERS[id]||{}; const open=umOpen[id];
+    return `<div style="border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--bg2);cursor:pointer" onclick="umToggle('${id}')">
+        <span style="width:14px;color:var(--text3)">${open?'▼':'▶'}</span>
+        <span style="font-weight:700;min-width:70px">${id}</span><span style="flex:1">${u.name||''}</span>
+        ${u.mustChange?`<span style="font-size:11px;color:var(--orange,#ea580c);font-weight:600">${umT('mustchg')}</span>`:''}
+        <button class="mt-perm" onclick="event.stopPropagation();umDel('${id}')">✕</button>
+      </div>
+      ${open?`<div style="padding:10px">
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <input id="um-pw-${id}" type="password" placeholder="${umT('newpw')}" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
+          <button class="mt-perm" onclick="umSetPass('${id}')">${umT('resetpw')}</button>
+        </div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse">
+          <tr style="color:var(--text3)"><td style="padding:4px 6px">${umT('func')}</td><td style="text-align:center;width:60px">${umT('view')}</td><td style="text-align:center;width:60px">${umT('edit')}</td></tr>
+          ${ALL_FEATURES.map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
+        </table>
+      </div>`:''}
+    </div>`;
+  }).join('') : `<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px">${umT('nousers')}</div>`;
+}
+function umToggle(id){ umOpen[id]=!umOpen[id]; renderUsers(); }
+async function umAdd(){
+  const id=(document.getElementById('um-add-id').value||'').trim();
+  const name=(document.getElementById('um-add-name').value||'').trim();
+  const pass=(document.getElementById('um-add-pass').value||'').trim();
+  if(!id||!name||!pass){ alert(umT('needAll')); return; }
+  if(USERS[id]){ alert(umT('dup')); return; }
+  const u={name,pass,mustChange:true,perms:{}};
+  USERS[id]=u;
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(u)}); }catch(e){ alert('✗ '+e.message); return; }
+  document.getElementById('um-add-id').value=''; document.getElementById('um-add-name').value=''; document.getElementById('um-add-pass').value='';
+  umOpen[id]=true; renderUsers();
+}
+async function umDel(id){
+  if(!confirm(umTn('delQ',{id}))) return;
+  delete USERS[id]; delete umOpen[id];
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(e){}
+  renderUsers();
+}
+async function umSetPass(id){
+  const inp=document.getElementById('um-pw-'+id); const val=inp&&inp.value.trim();
+  if(!val){ return; }
+  USERS[id].pass=val; USERS[id].mustChange=true;
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:val,mustChange:true})}); }catch(e){ alert('✗ '+e.message); return; }
+  inp.value=''; renderUsers();
+}
+async function umPerm(id,fid,which,on){
+  if(!USERS[id].perms) USERS[id].perms={};
+  if(!USERS[id].perms[fid]) USERS[id].perms[fid]={};
+  USERS[id].perms[fid][which]=on;
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/perms/${fid}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(USERS[id].perms[fid])}); }catch(e){}
+}
+// ── 使用者登入（點功能跳出、遮碼、首次強制改密碼）──
+Object.assign(UM_I18N.zh,{ulogin:'👤 使用者登入',ulogout:'登出',uidph:'編號',upassph:'密碼',ucancel:'取消',uok:'登入',
+  uwrong:'編號或密碼錯誤',uchgtitle:'設定新密碼',usetnew:'首次登入，請先設定新密碼',unew1:'新密碼',unew2:'再輸入一次',
+  ushort:'密碼至少 4 碼',umis:'兩次密碼不一致',uconfirm:'確定',uloginTitle:'使用者登入',noperm:'你沒有此功能的權限',readonly:'唯讀（無細節調整權限）'});
+Object.assign(UM_I18N.es,{ulogin:'👤 Iniciar sesión',ulogout:'Salir',uidph:'N.º',upassph:'Contraseña',ucancel:'Cancelar',uok:'Entrar',
+  uwrong:'N.º o contraseña incorrectos',uchgtitle:'Definir nueva contraseña',usetnew:'Primer inicio: defina una nueva contraseña',unew1:'Nueva contraseña',unew2:'Repita la contraseña',
+  ushort:'Mínimo 4 caracteres',umis:'Las contraseñas no coinciden',uconfirm:'Confirmar',uloginTitle:'Iniciar sesión',noperm:'No tiene permiso para esta función',readonly:'Solo lectura (sin permiso de edición)'});
+Object.assign(UM_I18N.en,{ulogin:'👤 Sign in',ulogout:'Sign out',uidph:'ID',upassph:'Password',ucancel:'Cancel',uok:'Sign in',
+  uwrong:'Wrong ID or password',uchgtitle:'Set a new password',usetnew:'First login: please set a new password',unew1:'New password',unew2:'Repeat password',
+  ushort:'At least 4 characters',umis:'Passwords do not match',uconfirm:'Confirm',uloginTitle:'Sign in',noperm:'You don\u2019t have permission for this',readonly:'Read-only (no edit permission)'});
+
+let umCurrentUser=null;   // {id,name,perms}
+let umPendingCb=null, umPendingId=null;
+
+function umUpdateBar(){
+  const bar=document.getElementById('um-login-bar'); if(!bar) return;
+  if(umCurrentUser){
+    bar.innerHTML=`<div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:var(--text2);font-weight:600">👤 ${umCurrentUser.name}</span><button onclick="umLogout()" style="margin-left:auto;font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline">${umT('ulogout')}</button></div>`;
+  } else {
+    bar.innerHTML=`<button onclick="umLoginOpen()" style="width:100%;font-size:12px;color:var(--blue);background:none;border:1px solid var(--border);border-radius:6px;padding:6px;cursor:pointer">${umT('ulogin')}</button>`;
+  }
+}
+function umEnsureModal(){
+  if(document.getElementById('um-modal')) return;
+  const d=document.createElement('div'); d.id='um-modal';
+  d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;display:none;align-items:center;justify-content:center';
+  d.innerHTML=`<div style="background:var(--bg);border-radius:14px;box-shadow:0 12px 48px rgba(0,0,0,.35);padding:22px;width:300px;max-width:90vw">
+    <div id="um-modal-title" style="font-size:16px;font-weight:800;margin-bottom:14px"></div>
+    <div id="um-step1">
+      <input id="um-in-id" autocomplete="off" style="width:100%;padding:11px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:8px;background:var(--bg);color:var(--text)"/>
+      <input id="um-in-pass" type="password" autocomplete="off" style="width:100%;padding:11px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:4px;background:var(--bg);color:var(--text)" onkeydown="if(event.key==='Enter')umDoLogin()"/>
+    </div>
+    <div id="um-step2" style="display:none">
+      <div id="um-chg-hint" style="font-size:12px;color:var(--text3);margin-bottom:8px"></div>
+      <input id="um-in-new1" type="password" style="width:100%;padding:11px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:8px;background:var(--bg);color:var(--text)"/>
+      <input id="um-in-new2" type="password" style="width:100%;padding:11px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:4px;background:var(--bg);color:var(--text)" onkeydown="if(event.key==='Enter')umDoChange()"/>
+    </div>
+    <div id="um-modal-err" style="color:var(--red);font-size:13px;min-height:18px;margin:4px 0"></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="umModalClose()" style="flex:1;padding:11px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);cursor:pointer" id="um-btn-cancel"></button>
+      <button id="um-btn-ok" style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer"></button>
+    </div>
+  </div>`;
+  document.body.appendChild(d);
+}
+// featId/level：若要求某功能的權限才開登入（可選）；cb(true) 成功後呼叫
+function umLoginOpen(cb, needFeat, needLevel){
+  umEnsureModal();
+  umPendingCb=cb||null; umPendingId=null; umNeed={feat:needFeat||null,level:needLevel||null};
+  document.getElementById('um-modal-title').textContent=umT('uloginTitle');
+  document.getElementById('um-step1').style.display='';
+  document.getElementById('um-step2').style.display='none';
+  document.getElementById('um-in-id').placeholder=umT('uidph');
+  document.getElementById('um-in-pass').placeholder=umT('upassph');
+  document.getElementById('um-in-id').value=''; document.getElementById('um-in-pass').value='';
+  document.getElementById('um-modal-err').textContent='';
+  document.getElementById('um-btn-cancel').textContent=umT('ucancel');
+  const ok=document.getElementById('um-btn-ok'); ok.textContent=umT('uok'); ok.onclick=umDoLogin;
+  document.getElementById('um-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('um-in-id').focus(),50);
+}
+let umNeed={feat:null,level:null};
+function umModalClose(){ const m=document.getElementById('um-modal'); if(m) m.style.display='none'; }
+async function umDoLogin(){
+  const id=(document.getElementById('um-in-id').value||'').trim();
+  const pass=(document.getElementById('um-in-pass').value||'').trim();
+  const err=document.getElementById('um-modal-err');
+  if(!USERS||!Object.keys(USERS).length){ try{ await loadUsers(); }catch(e){} }
+  const u=USERS[id];
+  if(!u||String(u.pass)!==pass){ err.textContent=umT('uwrong'); return; }
+  umPendingId=id;
+  if(u.mustChange){
+    document.getElementById('um-modal-title').textContent=umT('uchgtitle');
+    document.getElementById('um-step1').style.display='none';
+    document.getElementById('um-step2').style.display='';
+    document.getElementById('um-chg-hint').textContent=umT('usetnew');
+    document.getElementById('um-in-new1').placeholder=umT('unew1');
+    document.getElementById('um-in-new2').placeholder=umT('unew2');
+    document.getElementById('um-in-new1').value=''; document.getElementById('um-in-new2').value='';
+    err.textContent='';
+    const ok=document.getElementById('um-btn-ok'); ok.textContent=umT('uconfirm'); ok.onclick=umDoChange;
+    setTimeout(()=>document.getElementById('um-in-new1').focus(),50);
+    return;
+  }
+  umFinish(id,u);
+}
+async function umDoChange(){
+  const id=umPendingId; const err=document.getElementById('um-modal-err');
+  const n1=(document.getElementById('um-in-new1').value||'').trim();
+  const n2=(document.getElementById('um-in-new2').value||'').trim();
+  if(n1.length<4){ err.textContent=umT('ushort'); return; }
+  if(n1!==n2){ err.textContent=umT('umis'); return; }
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:n1,mustChange:false})}); }catch(e){ err.textContent='✗ '+e.message; return; }
+  if(USERS[id]){ USERS[id].pass=n1; USERS[id].mustChange=false; }
+  umFinish(id,USERS[id]);
+}
+function umFinish(id,u){
+  umCurrentUser={id,name:u.name||id,perms:u.perms||{}};
+  umModalClose(); umUpdateBar();
+  if(typeof applyNavPerms==='function') applyNavPerms();
+  if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell();
+  const cb=umPendingCb; umPendingCb=null;
+  if(umNeed.feat && !umCan(umNeed.feat,umNeed.level||'v')){ alert(umT('noperm')); return; }
+  if(cb) cb(true);
+}
+function umLogout(){ umCurrentUser=null; umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell(); }
+function umCan(featId,level){ return !!(umCurrentUser&&umCurrentUser.perms&&umCurrentUser.perms[featId]&&umCurrentUser.perms[featId][level||'v']); }
+const PW_I18N={
+  zh:{title:'🔑 密碼管理',dept:'部門密碼',app:'現場 / 加班密碼',field:'現場時數',otLeader:'組長（手機加班）',otSec:'課長審核',otMgr:'經理審核',newpw:'新密碼',change:'更改',updated:'✓ 已更新',need:'請輸入密碼'},
+  es:{title:'🔑 Contraseñas',dept:'Departamentos',app:'Campo / Horas extra',field:'Horas (campo)',otLeader:'Jefe de grupo (móvil)',otSec:'Jefe de sección',otMgr:'Gerente',newpw:'Nueva contraseña',change:'Cambiar',updated:'✓ Actualizado',need:'Ingrese la contraseña'},
+  en:{title:'🔑 Passwords',dept:'Departments',app:'Field / Overtime',field:'Hours (field)',otLeader:'Group leader (mobile)',otSec:'Section chief',otMgr:'Manager',newpw:'New password',change:'Change',updated:'✓ Updated',need:'Enter the password'}
+};
+function pwT(k){ const L=PW_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||PW_I18N.zh; return L[k]||PW_I18N.zh[k]||k; }
+async function renderPasswordPanel(deptKey) {
   const panel = document.getElementById('dept-panel');
   const allRoles = Object.entries(ROLES);
+  await loadUsers();
   panel.innerHTML = `
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:480px">
-      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">🔑 密碼管理</div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:480px;margin-bottom:16px">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${pwT('title')} — ${pwT('dept')}</div>
       <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
         ${allRoles.map(([key,cfg])=>`
           <div style="display:flex;gap:8px;align-items:center">
-            <span style="font-size:12px;font-weight:600;width:70px;color:var(--text2)">${cfg.label||key}</span>
-            <input id="pw-input-${key}" type="password" placeholder="新密碼" class="eq-input" style="flex:1"/>
-            <button class="btn-sm" onclick="changeRolePw('${key}')">更改</button>
+            <span style="font-size:12px;font-weight:600;width:110px;color:var(--text2)">${cfg.label||key}</span>
+            <input id="pw-input-${key}" type="password" placeholder="${pwT('newpw')}" class="eq-input" style="flex:1"/>
+            <button class="btn-sm" onclick="changeRolePw('${key}')">${pwT('change')}</button>
           </div>`).join('')}
-        <div id="pw-msg" style="font-size:12px;color:var(--green);display:none">✓ 已更新</div>
+        <div id="pw-msg" style="font-size:12px;color:var(--green);display:none">${pwT('updated')}</div>
+      </div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:480px">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${pwT('app')}</div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+        ${[['field','field'],['otLeader','otLeader'],['otSec','otSec'],['otMgr','otMgr']].map(([kind,lbl])=>`
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:12px;font-weight:600;width:110px;color:var(--text2)">${pwT(lbl)}</span>
+            <input id="pw-misc-${kind}" type="password" placeholder="${pwT('newpw')}" class="eq-input" style="flex:1"/>
+            <button class="btn-sm" onclick="changeMiscPw('${kind}')">${pwT('change')}</button>
+          </div>`).join('')}
+        <div id="pw-misc-msg" style="font-size:12px;color:var(--green);display:none">${pwT('updated')}</div>
+      </div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:560px;margin-top:16px">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${umT('title')}</div>
+      <div style="padding:16px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${umT('hint')}</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+          <input id="um-add-id" placeholder="${umT('addId')}" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
+          <input id="um-add-name" placeholder="${umT('addName')}" style="flex:1;min-width:100px;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
+          <input id="um-add-pass" placeholder="${umT('addPass')}" style="width:110px;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
+          <button class="mt-perm on" onclick="umAdd()">${umT('add')}</button>
+        </div>
+        <div id="um-list"></div>
       </div>
     </div>`;
+  renderUsers();
+}
+async function changeMiscPw(kind){
+  const input=document.getElementById('pw-misc-'+kind); const val=input&&input.value.trim();
+  if(!val){ alert(pwT('need')); return; }
+  const path = kind==='field' ? '/field_pass' : '/ot_config/pass/'+({otLeader:'leader',otSec:'sec',otMgr:'mgr'}[kind]);
+  try{ await fetch(`${FB}${path}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); input.value='';
+    const m=document.getElementById('pw-misc-msg'); if(m){ m.style.display='block'; setTimeout(()=>m.style.display='none',2000);} }
+  catch(e){ alert('✗ '+e.message); }
 }
 
 async function changeRolePw(key) {
@@ -2499,6 +2748,8 @@ function setMaintLang(l){
     ['movelog','teu','announce','maintain','app','addeq','changelog','email','password','roles'].forEach(id=>{ const b=document.getElementById('ftab-'+id); if(b) b.textContent=aT('feat_'+id); });
     if(document.getElementById('fp-app')) renderAppManage();
     if(document.getElementById('fp-addeq')) renderAddEq();
+    if(document.getElementById('fp-ot')) renderOtConfig();
+    if(document.getElementById('um-list')) renderPasswordPanel();
   }
   if(typeof initMarquee==='function') initMarquee();
   if(typeof initAnnounce==='function') initAnnounce();
@@ -3178,20 +3429,18 @@ async function renderAppManage(){
       <button class="mt-subtab" id="appmg-t-statuses" onclick="appMgSwitch('statuses')">${aT('st_statuses')}</button>
       <button class="mt-subtab" id="appmg-t-hours" onclick="appMgSwitch('hours')">${aT('st_hours')}</button>
       <button class="mt-subtab" id="appmg-t-staff" onclick="appMgSwitch('staff')">${aT('st_staff')}</button>
-      <button class="mt-subtab" id="appmg-t-pass" onclick="appMgSwitch('pass')">${aT('st_pass')}</button>
     </div>
     <div id="appmg-body" style="padding-top:14px"></div>`;
   appMgSwitch(appMgTab);
 }
 function appMgSwitch(which){
   appMgTab=which;
-  ['kinds','statuses','hours','staff','pass'].forEach(w=>{ const b=document.getElementById('appmg-t-'+w); if(b) b.classList.toggle('active', w===which); });
+  ['kinds','statuses','hours','staff'].forEach(w=>{ const b=document.getElementById('appmg-t-'+w); if(b) b.classList.toggle('active', w===which); });
   const body=document.getElementById('appmg-body'); if(!body) return;
   if(which==='kinds') body.innerHTML=amListEditor(aT('desc_kinds'), FIELD_KINDS, 'saveKinds');
   else if(which==='statuses') body.innerHTML=amListEditor(aT('desc_statuses'), FIELD_STATUSES, 'saveStatuses');
   else if(which==='hours') amRenderHoursDefs(body);
   else if(which==='staff') amRenderStaff(body);
-  else if(which==='pass') amRenderPass(body);
 }
 function amListEditor(desc, arr, saveFn){
   const rows=(arr&&arr.length?arr:['']).map((v,i)=>`<div style="display:flex;gap:6px;margin-bottom:6px"><input class="am-item" value="${(v||'').replace(/"/g,'&quot;')}" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm" onclick="this.parentNode.remove()">✕</button></div>`).join('');
@@ -3374,6 +3623,105 @@ async function addEqBulk(){
   if(msg) msg.textContent=aTn('m_built',{n:ok})+(skipped?aTn('m_skipped',{n:skipped}):'')+(bad.length?aTn('m_bad',{n:bad.length}):'');
   if(typeof renderAllEq==='function') renderAllEq();
 }
+// ── 加班申請系統：設定與三語 ──
+const OT_I18N={
+  zh:{feat:'⏰ 加班申請設定',secWho:'可申請人員',secReasons:'駁回理由',secRemind:'溫馨小提醒',secPass:'密碼設定',
+    whoDesc:'勾選哪些人（員工編號）可以送出加班申請。',search:'🔍 搜尋編號/名字',selall:'全選',save:'儲存',saved:'已儲存 ✓',
+    reasonsDesc:'審核駁回時可選的理由（下拉選單）。',additem:'＋ 加一項',
+    remindDesc:'顯示在申請頁最下方的小提醒（三語各一份）。',
+    passDesc:'組長手機申請、課長審核、經理審核各自的密碼。',
+    pLeader:'組長（手機申請）密碼',pSec:'課長審核密碼',pMgr:'經理審核密碼',
+    noStaff:'尚無人員（先到「人員清單」匯入）',needsave:'請先填內容'},
+  es:{feat:'⏰ Config. horas extra',secWho:'Quién puede solicitar',secReasons:'Motivos de rechazo',secRemind:'Recordatorio',secPass:'Contraseñas',
+    whoDesc:'Marque quién (por número) puede enviar solicitudes de horas extra.',search:'🔍 Buscar número/nombre',selall:'Todos',save:'Guardar',saved:'Guardado ✓',
+    reasonsDesc:'Motivos disponibles al rechazar (menú desplegable).',additem:'＋ Añadir',
+    remindDesc:'Recordatorio al pie del formulario (uno por idioma).',
+    passDesc:'Contraseñas para: jefe de grupo (móvil), jefe de sección y gerente.',
+    pLeader:'Contraseña jefe de grupo (móvil)',pSec:'Contraseña jefe de sección',pMgr:'Contraseña gerente',
+    noStaff:'Sin personal (importe primero en «Personal»)',needsave:'Complete el contenido'},
+  en:{feat:'⏰ Overtime settings',secWho:'Who can apply',secReasons:'Reject reasons',secRemind:'Reminder',secPass:'Passwords',
+    whoDesc:'Check who (by ID) may submit overtime requests.',search:'🔍 Search ID/name',selall:'All',save:'Save',saved:'Saved ✓',
+    reasonsDesc:'Reasons available when rejecting (dropdown).',additem:'＋ Add',
+    remindDesc:'Reminder shown at the bottom of the form (one per language).',
+    passDesc:'Passwords for group leader (mobile), section chief and manager.',
+    pLeader:'Group-leader (mobile) password',pSec:'Section-chief password',pMgr:'Manager password',
+    noStaff:'No staff (import in «Staff» first)',needsave:'Fill in the content first'}
+};
+function otT(k){ const L=OT_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||OT_I18N.zh; return L[k]||OT_I18N.zh[k]||k; }
+const OT_DEFAULT_REASONS=['人力已足夠，不需加班','加班時段/時間不正確','事由不充分','重複申請','超出加班時數/預算上限','資料填寫不完整','其他（自行填寫）'];
+let OT_CONFIG=null;
+async function otLoadConfig(){
+  try{ const r=await fetch(`${FB}/ot_config.json`); OT_CONFIG=(await r.json())||{}; }catch(e){ OT_CONFIG={}; }
+  if(!OT_CONFIG.allowed) OT_CONFIG.allowed={};
+  if(!Array.isArray(OT_CONFIG.reject_reasons)||!OT_CONFIG.reject_reasons.length) OT_CONFIG.reject_reasons=OT_DEFAULT_REASONS.slice();
+  if(!OT_CONFIG.reminder) OT_CONFIG.reminder={zh:'',es:'',en:''};
+  if(!OT_CONFIG.pass) OT_CONFIG.pass={leader:'',sec:'',mgr:''};
+  return OT_CONFIG;
+}
+async function renderOtConfig(){
+  const el=document.getElementById('fp-ot'); if(!el) return;
+  await otLoadConfig(); await fldLoadConfig();  // fldLoadConfig 載入 STAFF
+  const r=OT_CONFIG;
+  el.innerHTML=`
+    <div class="fp-sec-title">${otT('secWho')}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${otT('whoDesc')}</div>
+    <input id="ot-who-search" placeholder="${otT('search')}" oninput="otWhoFilter(this.value)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg);margin-bottom:6px"/>
+    <div id="ot-who-list" style="max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:8px"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="ot-who-all" onclick="otWhoAll(this.checked)" style="width:16px;height:16px"/>${otT('selall')}</label>
+      <button class="mt-perm on" onclick="otSaveWho()">${otT('save')}</button>
+      <span style="font-size:12px;color:var(--text3)">(<span id="ot-who-count">0</span>)</span>
+    </div>
+
+    <div class="fp-sec-title" style="margin-top:22px">${otT('secReasons')}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px">${otT('reasonsDesc')}</div>
+    <div id="ot-reasons">${r.reject_reasons.map(x=>otReasonRow(x)).join('')}</div>
+    <div style="display:flex;gap:8px;margin-top:4px"><button class="mt-perm" onclick="otAddReason()">${otT('additem')}</button><button class="mt-perm on" onclick="otSaveReasons()">${otT('save')}</button></div>
+
+    <div class="fp-sec-title" style="margin-top:22px">${otT('secRemind')}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px">${otT('remindDesc')}</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <textarea id="ot-rem-zh" placeholder="中文" style="width:100%;height:52px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)">${(r.reminder.zh||'').replace(/</g,'&lt;')}</textarea>
+      <textarea id="ot-rem-es" placeholder="Español" style="width:100%;height:52px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)">${(r.reminder.es||'').replace(/</g,'&lt;')}</textarea>
+      <textarea id="ot-rem-en" placeholder="English" style="width:100%;height:52px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)">${(r.reminder.en||'').replace(/</g,'&lt;')}</textarea>
+    </div>
+    <button class="mt-perm on" style="margin-top:8px" onclick="otSaveRemind()">${otT('save')}</button>
+
+`;
+  otWhoFilter('');
+}
+function otReasonRow(v){ return `<div style="display:flex;gap:6px;margin-bottom:6px"><input class="ot-reason" value="${(v||'').replace(/"/g,'&quot;')}" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm" onclick="this.parentNode.remove()">✕</button></div>`; }
+function otAddReason(){ const c=document.getElementById('ot-reasons'); if(!c) return; const d=document.createElement('div'); d.innerHTML=otReasonRow(''); c.appendChild(d.firstChild); }
+function otWhoCount(){ const e=document.getElementById('ot-who-count'); if(e) e.textContent=document.querySelectorAll('#ot-who-list .ot-who:checked').length; }
+function otWhoAll(on){ document.querySelectorAll('#ot-who-list .ot-who').forEach(c=>c.checked=on); otWhoCount(); }
+function otWhoFilter(q){
+  q=(q||'').toLowerCase(); const el=document.getElementById('ot-who-list'); if(!el) return;
+  const rows=Object.entries(STAFF).filter(([id,n])=>!q||id.toLowerCase().includes(q)||String(n).toLowerCase().includes(q)).sort((a,b)=>a[0].localeCompare(b[0]));
+  el.innerHTML=rows.length?rows.map(([id,n])=>`<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--bg3);font-size:13px;cursor:pointer"><input type="checkbox" class="ot-who" value="${id.replace(/"/g,'')}" ${OT_CONFIG.allowed[id]?'checked':''} onchange="otWhoCount()" style="width:16px;height:16px"/><span style="font-weight:700;min-width:60px">${id}</span><span>${n}</span></label>`).join(''):`<div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">${otT('noStaff')}</div>`;
+  otWhoCount();
+}
+async function otSaveWho(){
+  // 保留未在目前搜尋結果中的既有勾選：先以現有 allowed 為底，再用畫面上顯示的覆蓋
+  const shown={}; document.querySelectorAll('#ot-who-list .ot-who').forEach(c=>{ shown[c.value]=c.checked; });
+  Object.keys(shown).forEach(id=>{ if(shown[id]) OT_CONFIG.allowed[id]=true; else delete OT_CONFIG.allowed[id]; });
+  try{ await fetch(`${FB}/ot_config/allowed.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(OT_CONFIG.allowed)}); alert(otT('saved')); }catch(e){ alert('✗ '+e.message); }
+}
+async function otSaveReasons(){
+  const arr=[...document.querySelectorAll('#ot-reasons .ot-reason')].map(i=>i.value.trim()).filter(Boolean);
+  OT_CONFIG.reject_reasons=arr;
+  try{ await fetch(`${FB}/ot_config/reject_reasons.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); alert(otT('saved')); }catch(e){ alert('✗ '+e.message); }
+}
+async function otSaveRemind(){
+  const rem={zh:document.getElementById('ot-rem-zh').value,es:document.getElementById('ot-rem-es').value,en:document.getElementById('ot-rem-en').value};
+  OT_CONFIG.reminder=rem;
+  try{ await fetch(`${FB}/ot_config/reminder.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(rem)}); alert(otT('saved')); }catch(e){ alert('✗ '+e.message); }
+}
+async function otSavePass(){
+  const p={leader:document.getElementById('ot-pass-leader').value.trim(),sec:document.getElementById('ot-pass-sec').value.trim(),mgr:document.getElementById('ot-pass-mgr').value.trim()};
+  OT_CONFIG.pass=p;
+  try{ await fetch(`${FB}/ot_config/pass.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}); alert(otT('saved')); }catch(e){ alert('✗ '+e.message); }
+}
+
 async function addMaintUser(){
   const name=document.getElementById('mu-name').value.trim();
   const pw=document.getElementById('mu-pw').value.trim();
@@ -4353,6 +4701,8 @@ applyNavLang();
 initMessaging();
 restoreMaintUser();
 restoreRole();
+if(typeof umUpdateBar==='function') umUpdateBar();
+loadUsers().then(()=>{ if(typeof umUpdateBar==='function') umUpdateBar(); });
 initPresence();
 initEqTip();
 (function(){
