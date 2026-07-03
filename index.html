@@ -3208,15 +3208,35 @@ async function renderAddEq(){
   const el=document.getElementById('fp-addeq'); if(!el) return;
   await fldLoadConfig();
   el.innerHTML=`<div class="fp-sec-title">新增車機到全車機監控</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">手動把車機加進監控（選機型＋編號＋狀態）。編號可一次多台，用逗號分隔（例 01,02,03）。</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">選機型後，編號可用三種寫法：單台 <b>01</b>、多台 <b>01,02,03</b>、整排範圍 <b>01-38</b>（會自動補零對齊）。</div>
     <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">機型</label>
     <select id="ae-kind" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px">${FIELD_KINDS.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
-    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">編號（可逗號分隔多台）</label>
-    <input id="ae-num" placeholder="例 01 或 01,02,03" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px;text-transform:uppercase"/>
+    <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">編號（單台 / 多台逗號 / 範圍 01-38）</label>
+    <input id="ae-num" placeholder="例 01　或　01,02,03　或　01-38" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px;text-transform:uppercase"/>
     <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">初始狀態</label>
     <select id="ae-status" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:14px">${FIELD_STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
     <button class="mt-perm on" onclick="addEqSubmit()">➕ 新增</button>
-    <div id="ae-msg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>`;
+    <div id="ae-msg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>
+    <div class="fp-sec-title" style="margin-top:22px">批次貼上匯入（跨機型）</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">一行一台，格式「機號」或「機號,狀態」。例：<br>RTG-01<br>GC-05,Running<br>ARMGC-02,Available（沒寫狀態就用預設 Out Of Service）</div>
+    <textarea id="ae-bulk" placeholder="RTG-01&#10;RTG-02&#10;GC-05,Running" style="width:100%;height:110px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--bg);margin-bottom:8px"></textarea>
+    <button class="mt-perm on" onclick="addEqBulk()">📥 批次匯入</button>
+    <div id="ae-bmsg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>`;
+}
+// 展開編號：支援 01-38 範圍、逗號多台，自動補零對齊寬度
+function aeExpandNums(raw){
+  const out=[];
+  raw.split(/[,，\s]+/).map(x=>x.trim()).filter(Boolean).forEach(part=>{
+    const m=part.match(/^(\d+)\s*[-~]\s*(\d+)$/);
+    if(m){ let a=parseInt(m[1],10),b=parseInt(m[2],10); const w=Math.max(m[1].length,m[2].length); if(a>b)[a,b]=[b,a]; for(let i=a;i<=b;i++) out.push(String(i).padStart(w,'0')); }
+    else out.push(part);
+  });
+  return [...new Set(out)];
+}
+async function aeWrite(kind,num,status,by,now){
+  const id=kind+'-'+num, key=id.replace(/[\/\.\#\$\[\]]/g,'_');
+  const rec={machine_id:id,machine_type:kind,status,crew:by,note:'',last_updated:now};
+  try{ await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); data[key]=rec; return true; }catch(e){ return false; }
 }
 async function addEqSubmit(){
   const dispKind=document.getElementById('ae-kind').value, kind=fieldCanon(dispKind);
@@ -3224,17 +3244,31 @@ async function addEqSubmit(){
   const status=document.getElementById('ae-status').value;
   const msg=document.getElementById('ae-msg');
   if(!raw){ alert('請輸入編號'); return; }
-  const nums=raw.split(/[,，\s]+/).map(x=>x.trim()).filter(Boolean);
+  const nums=aeExpandNums(raw);
   const now=(typeof fldPanNow==='function')?fldPanNow():new Date().toLocaleString('zh-TW',{timeZone:'America/Panama'});
   const by=(typeof maintUser!=='undefined'&&maintUser&&maintUser.name)?maintUser.name:'Admin';
-  let ok=0;
-  for(const num of nums){
-    const id=kind+'-'+num, key=id.replace(/[\/\.\#\$\[\]]/g,'_');
-    const rec={machine_id:id,machine_type:kind,status,crew:by,note:'',last_updated:now};
-    try{ await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); data[key]=rec; ok++; }catch(e){}
-  }
+  let ok=0; for(const num of nums){ if(await aeWrite(kind,num,status,by,now)) ok++; }
   if(msg) msg.textContent=`已新增 ${ok} 台 ✓`;
   document.getElementById('ae-num').value='';
+  if(typeof renderAllEq==='function') renderAllEq();
+}
+async function addEqBulk(){
+  const txt=(document.getElementById('ae-bulk').value||'').trim();
+  const msg=document.getElementById('ae-bmsg'); if(!txt){ return; }
+  const now=(typeof fldPanNow==='function')?fldPanNow():new Date().toLocaleString('zh-TW',{timeZone:'America/Panama'});
+  const by=(typeof maintUser!=='undefined'&&maintUser&&maintUser.name)?maintUser.name:'Admin';
+  const defStatus=(FIELD_STATUSES.includes('Out Of Service'))?'Out Of Service':(FIELD_STATUSES[0]||'Out Of Service');
+  let ok=0, bad=[];
+  for(const line of txt.split(/\r?\n/)){
+    const t=line.trim(); if(!t) continue;
+    const p=t.split(/[,，]/).map(x=>x.trim());
+    const idRaw=(p[0]||'').toUpperCase(); const status=p[1]||defStatus;
+    const m=idRaw.match(/^([A-Z]+)[-_ ]?(.+)$/);   // 拆機型與編號
+    if(!m){ bad.push(t); continue; }
+    const kind=fieldCanon(m[1]); const num=m[2].replace(/\s+/g,'');
+    if(await aeWrite(kind,num,status,by,now)) ok++; else bad.push(t);
+  }
+  if(msg) msg.textContent=`批次匯入 ${ok} 台 ✓${bad.length?`（${bad.length} 筆格式不符略過）`:''}`;
   if(typeof renderAllEq==='function') renderAllEq();
 }
 async function addMaintUser(){
