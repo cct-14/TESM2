@@ -156,7 +156,7 @@ let KINDS=DEFAULT_KINDS.slice(), STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, HD
 let flow='status', hoursOK=false;
 function L(){ return I18N[LANG]||I18N.es; }
 function canon(k){ return ALIAS[k]||k; }
-function key(k,n){ return (k+'-'+n).replace(/[^a-zA-Z0-9_]/g,'_'); }
+function key(k,n){ return (k+'-'+n).replace(/[\/\.\#\$\[\]]/g,'_'); }
 function now(){ return new Date().toLocaleString('zh-TW',{timeZone:PA_TZ}); }
 function cats(t){ return (HDEFS[t]||[]).filter(Boolean); }
 function $(id){ return document.getElementById(id); }

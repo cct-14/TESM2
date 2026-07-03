@@ -1313,7 +1313,7 @@ function renderRTGLayer() {
   Object.entries(RTG_POS_FREE).forEach(function(e2){
     const num=e2[0], pos=e2[1];
     const eqId='RTG-'+num;
-    const fbKey=eqId.replace(/[^a-zA-Z0-9_]/g,'_');
+    const fbKey=eqId.replace(/[\/\.\#\$\[\]]/g,'_');
     const eq=data[fbKey]||{};
     const s=SC[eq.status]||SC['Available'];
     const cx=pos.x, cy=pos.y, w=28, h=22;
@@ -1364,7 +1364,7 @@ function renderGCLayer() {
     const axis  = GC_AXIS[num];
     const gcId  = `GC-${num}`;
     const spId  = GC_SP[num] ? `/${GC_SP[num]}` : '';
-    const fbKey = gcId.replace(/[\/\.\#\$\[\]-]/g,'_');
+    const fbKey = gcId.replace(/[\/\.\#\$\[\]]/g,'_');
     const eq    = data[fbKey] || {};
     const s     = SC[eq.status] || SC['Available'];
     const isV   = axis==='v';
@@ -3229,7 +3229,7 @@ async function addEqSubmit(){
   const by=(typeof maintUser!=='undefined'&&maintUser&&maintUser.name)?maintUser.name:'Admin';
   let ok=0;
   for(const num of nums){
-    const id=kind+'-'+num, key=id.replace(/[^a-zA-Z0-9_]/g,'_');
+    const id=kind+'-'+num, key=id.replace(/[\/\.\#\$\[\]]/g,'_');
     const rec={machine_id:id,machine_type:kind,status,crew:by,note:'',last_updated:now};
     try{ await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); data[key]=rec; ok++; }catch(e){}
   }
@@ -3679,7 +3679,7 @@ const FIELD_I18N={
     noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used'}
 };
 function fldL(){ return FIELD_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||FIELD_I18N.es; }
-function fldKey(canonKind,num){ return (canonKind+'-'+num).replace(/[^a-zA-Z0-9_]/g,'_'); }
+function fldKey(canonKind,num){ return (canonKind+'-'+num).replace(/[\/\.\#\$\[\]]/g,'_'); }
 function fldPanNow(){ return new Date().toLocaleString('zh-TW',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}); }
 function hoursCats(canonType){ return (HOURS_DEFS[canonType]||[]).filter(Boolean); }
 
@@ -3960,7 +3960,7 @@ function updateMap(){
   // Update ARMGC
   ['ARMGC-01','ARMGC-02','ARMGC-03','ARMGC-05'].forEach(id => {
     const g = document.getElementById('c-'+id); if(!g) return;
-    const key = id.replace(/[\/\.\#\$\[\]-]/g,'_');
+    const key = id.replace(/[\/\.\#\$\[\]]/g,'_');
     const eq = data[key]; if(!eq) return;
     const s = SC[eq.status]||SC['Available'];
     const r = g.querySelector('rect'); if(r){r.setAttribute('fill',s.fill);r.setAttribute('stroke',s.stroke);}
@@ -3987,7 +3987,7 @@ function updateAlerts(){
 // ── Select eq ─────────────────────────────────────────────
 function selEq(id,type){
   selId=id; selType=type; pendSt=null;
-  const key=id.replace(/[^a-zA-Z0-9_]/g,'_');
+  const key=id.replace(/[\/\.\#\$\[\]]/g,'_');
   const eq=data[key]||{machine_id:id,machine_type:type,status:'Unknown'};
   const s=SC[eq.status]||SC['Out Of Service'];
   document.getElementById('eq-name').textContent=id;
@@ -4015,7 +4015,7 @@ function selEq(id,type){
 function selGC(id){ selEq(id,'GC'); }
 // ── hover 資訊卡（監控卡片 + 地圖標籤，停留 1 秒） ──
 function eqTipHtml(id){
-  const key=String(id).replace(/[^a-zA-Z0-9_]/g,'_');
+  const key=String(id).replace(/[\/\.\#\$\[\]]/g,'_');
   const eq=(typeof data!=='undefined'&&data[key])||null;
   const type=eq?eq.machine_type:String(id).split('-')[0];
   let h=`<div class="ti-name">${id}</div>`;
@@ -4056,7 +4056,7 @@ async function submitEq(){
   if(!selId||!pendSt) return;
   const crew=document.getElementById('eq-crew').value.trim()||'Web';
   const note=document.getElementById('eq-note').value.trim();
-  const key=selId.replace(/[\/\.\#\$\[\]-]/g,'_');
+  const key=selId.replace(/[\/\.\#\$\[\]]/g,'_');
   const type=selId.split('-')[0];
   const now=new Date().toLocaleString('zh-TW',{timeZone:PA_TZ});
   await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},
@@ -4093,7 +4093,15 @@ async function loadEqHist(id,type){
 function updateAllEq(){ if(document.getElementById('page-allEq').classList.contains('active')) renderAllEq(); }
 function renderAllEq(){
   const search=(document.getElementById('eq-search')?.value||'').toLowerCase();
-  const vals=Object.values(data);
+  const _ck=id=>String(id).replace(/[\/\.\#\$\[\]]/g,'_');
+  const _byId={};
+  Object.entries(data).forEach(([k,e])=>{
+    if(!e||!e.machine_id) return;
+    const id=e.machine_id;
+    if(!(id in _byId)) _byId[id]={k,e};
+    else if(k===_ck(id)) _byId[id]={k,e};   // 同一台重複時，優先保留正規 key（對齊 OSIMA）那筆
+  });
+  const vals=Object.values(_byId).map(x=>x.e);
   const types=['All',...new Set(vals.map(e=>e.machine_type).filter(Boolean)).values()].sort();
   const tf=document.getElementById('type-filters');
   if(tf&&tf.children.length!==types.length){
