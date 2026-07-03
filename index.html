@@ -1631,6 +1631,7 @@ function getNow() {
 
 // 所有可用功能定義
 const ALL_FEATURES = [
+  {id:'allEq',    label:'👁 全車機監控', page:true},
   {id:'movelog',  label:'📋 車機調動紀錄'},
   {id:'teu',      label:'📦 TEU 管理'},
   {id:'announce', label:'📢 公告'},
@@ -1660,6 +1661,7 @@ async function loadRoles() {
     const d = await r.json();
     if (d && typeof d==='object' && Object.keys(d).length>0) ROLES = d;
   } catch(e) {}
+  if(typeof applyNavPerms==='function') applyNavPerms();
 }
 
 async function saveRoles() {
@@ -1679,14 +1681,35 @@ async function adminLogin() {
   if (!matched) { err.style.display='block'; document.getElementById('admin-pw-input').value=''; return; }
   err.style.display='none';
   currentRole = matched;
+  try{ localStorage.setItem('tesm_role', matched); }catch(_){}
+  applyNavPerms();
   document.getElementById('admin-lock').style.display='none';
   document.getElementById('admin-content').style.display='block';
   document.getElementById('admin-role-badge').textContent = '(' + (ROLES[matched]?.label||matched) + ')';
   renderAdminShell();
 }
 
+// 頁面權限：依部門顯示/隱藏側邊欄的頁（page:true 的功能）
+function applyNavPerms(){
+  const feats=(currentRole&&ROLES[currentRole]&&ROLES[currentRole].features)||[];
+  const all=feats.includes('*');
+  ALL_FEATURES.filter(f=>f.page).forEach(f=>{
+    const nav=document.querySelector('.nav-item[data-page="'+f.id+'"]');
+    if(!nav) return;
+    const ok=all||feats.includes(f.id);
+    nav.style.display=ok?'':'none';
+    // 若目前正停在被擋的頁 → 導回地圖
+    if(!ok){ const pg=document.getElementById('page-'+f.id); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } }
+  });
+}
+function restoreRole(){
+  try{ const r=localStorage.getItem('tesm_role'); if(r&&ROLES[r]) currentRole=r; }catch(_){}
+  applyNavPerms();
+}
 function adminLogout() {
   currentRole = null; currentDept = null;
+  try{ localStorage.removeItem('tesm_role'); }catch(_){}
+  applyNavPerms();
   document.getElementById('admin-lock').style.display='flex';
   document.getElementById('admin-content').style.display='none';
   document.getElementById('admin-pw-input').value='';
@@ -1761,7 +1784,7 @@ function renderDeptTabs(deptKey) {
     features = cfg.features || [];
   }
 
-  const tabs = ALL_FEATURES.filter(f=>features.includes(f.id));
+  const tabs = ALL_FEATURES.filter(f=>!f.page && features.includes(f.id));
   const bar  = document.getElementById('dept-tab-bar');
   bar.innerHTML = tabs.map((t,i)=>`
     <button onclick="switchFeatureTab('${t.id}','${deptKey}',this)"
@@ -4329,6 +4352,7 @@ initAnnounce();
 applyNavLang();
 initMessaging();
 restoreMaintUser();
+restoreRole();
 initPresence();
 initEqTip();
 (function(){
