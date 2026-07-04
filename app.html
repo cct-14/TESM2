@@ -126,16 +126,23 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <div class="err" id="h-err"></div>
       <button class="btn primary" id="h-submit" onclick="submitHours()">Enviar</button>
     </div>
-    <!-- 加班密碼 -->
+    <!-- 加班登入 -->
     <div class="view" id="v-otgate">
       <button class="back" onclick="home()">‹</button>
       <div class="card">
         <div class="ic">🔒</div>
         <div class="t" id="otg-t">Overtime</div>
-        <div class="s" id="otg-s">Ingrese la contraseña</div>
-        <input type="password" class="inp" id="ot-pass" onkeydown="if(event.key==='Enter')otUnlock()"/>
+        <div id="otg-step1">
+          <input class="inp" id="ot-uid" autocomplete="off" placeholder="N.º"/>
+          <input type="password" class="inp" id="ot-pass" autocomplete="off" placeholder="Contraseña" onkeydown="if(event.key==='Enter')otLogin()"/>
+        </div>
+        <div id="otg-step2" style="display:none">
+          <div class="s" id="otg-chg">Nueva contraseña</div>
+          <input type="password" class="inp" id="ot-new1" placeholder="Nueva"/>
+          <input type="password" class="inp" id="ot-new2" placeholder="Repetir" onkeydown="if(event.key==='Enter')otDoChange()"/>
+        </div>
         <div class="err" id="otg-err"></div>
-        <button class="btn primary" id="otg-btn" onclick="otUnlock()">Entrar</button>
+        <button class="btn primary" id="otg-btn" onclick="otLogin()">Entrar</button>
       </div>
     </div>
     <!-- 加班申請 -->
@@ -158,12 +165,23 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <input class="inp up" id="ot-num" inputmode="text" autocomplete="off"/>
       <label class="lbl" id="l-ot-reason">Motivo</label>
       <input class="inp" id="ot-reason" autocomplete="off"/>
-      <label class="lbl" id="l-ot-app">Solicitante (N.º jefe)</label>
-      <input class="inp" id="ot-app" inputmode="text" autocomplete="off" oninput="otAppLookup()"/>
-      <div class="pname" id="ot-app-name" style="min-height:18px"></div>
+      <label class="lbl" id="l-ot-app">Solicitante</label>
+      <div id="ot-app-name" style="font-size:15px;font-weight:700;padding:4px 2px"></div>
       <div class="err" id="ot-err"></div>
-      <button class="btn primary" id="ot-submit" onclick="submitOt()">Enviar</button>
+      <button class="btn primary" id="ot-submit" onclick="otReview()">Enviar</button>
       <div id="ot-remind" style="font-size:12px;color:var(--text3);margin-top:14px;white-space:pre-line;text-align:center"></div>
+    </div>
+    <!-- 加班確認 -->
+    <div class="view" id="v-otconfirm">
+      <button class="back" onclick="show('ot')">‹</button>
+      <div class="card" style="text-align:left">
+        <div class="t" id="otc-t" style="text-align:center">Confirmar</div>
+        <div id="otc-detail" style="font-size:14px;line-height:2;margin:10px 0"></div>
+        <div class="row2">
+          <button class="btn primary" id="otc-send" onclick="otConfirmSend()">Enviar</button>
+          <button class="btn ghost" id="otc-back" onclick="show('ot')">Volver</button>
+        </div>
+      </div>
     </div>
     <!-- 完成 -->
     <div class="view" id="v-done">
@@ -175,6 +193,7 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
           <button class="btn primary" id="d-again" onclick="again()">Otro</button>
           <button class="btn ghost" id="d-end" onclick="home()">Fin</button>
         </div>
+        <button class="btn ghost" id="d-withdraw" style="display:none;margin-top:8px;color:var(--red)" onclick="otWithdraw()"></button>
       </div>
     </div>
   </div>
@@ -189,14 +208,14 @@ const DEFAULT_STATUSES=['Available','Running','Emergency Maintenance','Out Of Se
 const ALIAS={AR:'ARMGC'};
 const SC={'Available':{bg:'#dcfce7',fg:'#166534'},'Running':{bg:'#dbeafe',fg:'#1e40af'},'Emergency Maintenance':{bg:'#ffedd5',fg:'#9a3412'},'Out Of Service':{bg:'#e2e8f0',fg:'#334155'},'Planned Maintenance':{bg:'#ede9fe',fg:'#5b21b6'},'Damaged':{bg:'#fee2e2',fg:'#991b1b'}};
 const I18N={
-  es:{sub:'Registro en campo',status:'Estado',hours:'Horas',kind:'Tipo de equipo',num:'Número',statusL:'Estado',person:'Personal (N.º de empleado)',submit:'Enviar',again:'Otro registro',end:'Finalizar',done:'¡Enviado!',pass:'Contraseña',enter:'Entrar',hgSub:'Ingrese la contraseña',wrong:'Contraseña incorrecta',noPass:'Contraseña no configurada',errS:'Complete tipo, número, estado y personal',errH:'Ingrese número y al menos una hora',noCats:'Este tipo no tiene categorías',last:'Ant.:',cur:'Actual:',notFound:'No está en la lista — se usará el texto',ot:'Horas extra',otPass:'Contraseña de horas extra',group:'Sección',people:'Personal (N.º)',date:'Fecha',reason:'Motivo',applicant:'Solicitante (N.º jefe)',otErr:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso de horas extra'},
-  zh:{sub:'現場登錄',status:'狀態',hours:'時數',kind:'車機種類',num:'編號',statusL:'狀態',person:'人員（員工編號）',submit:'送出',again:'再填一筆',end:'結束',done:'已送出',pass:'密碼',enter:'進入',hgSub:'請輸入密碼',wrong:'密碼錯誤',noPass:'尚未設定密碼',errS:'請填種類、編號、狀態、人員',errH:'請填編號、至少一個時數',noCats:'此機型未設定時數種類',last:'上次：',cur:'目前：',notFound:'不在名單 — 將直接使用此文字',ot:'加班',otPass:'加班密碼',group:'課別',people:'人員（編號）',date:'加班日期',reason:'原因',applicant:'申請人（組長編號）',otErr:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限'},
-  en:{sub:'Field entry',status:'Status',hours:'Hours',kind:'Equipment type',num:'Number',statusL:'Status',person:'Staff (employee no.)',submit:'Submit',again:'New entry',end:'Finish',done:'Submitted!',pass:'Password',enter:'Enter',hgSub:'Enter password',wrong:'Wrong password',noPass:'Password not set',errS:'Fill type, number, status and staff',errH:'Enter number and at least one hour',noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used',ot:'Overtime',otPass:'Overtime password',group:'Section',people:'Personnel (ID)',date:'Date',reason:'Reason',applicant:'Applicant (leader ID)',otErr:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no overtime permission'}
+  es:{sub:'Registro en campo',status:'Estado',hours:'Horas',kind:'Tipo de equipo',num:'Número',statusL:'Estado',person:'Personal (N.º de empleado)',submit:'Enviar',again:'Otro registro',end:'Finalizar',done:'¡Enviado!',pass:'Contraseña',enter:'Entrar',hgSub:'Ingrese la contraseña',wrong:'Contraseña incorrecta',noPass:'Contraseña no configurada',errS:'Complete tipo, número, estado y personal',errH:'Ingrese número y al menos una hora',noCats:'Este tipo no tiene categorías',last:'Ant.:',cur:'Actual:',notFound:'No está en la lista — se usará el texto',ot:'Horas extra',otPass:'Contraseña de horas extra',group:'Sección',people:'Personal (N.º)',date:'Fecha',reason:'Motivo',applicant:'Solicitante (N.º jefe)',otErr:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso de horas extra',confirmT:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar solicitud',withdrawQ:'¿Retirar esta solicitud?',withdrawn:'Retirado',otLoginT:'Horas extra',uid:'N.º de empleado',upass:'Contraseña',login:'Entrar',wrongLogin:'N.º o contraseña incorrectos',noMobilePerm:'Sin permiso de horas extra (móvil)',chgT:'Nueva contraseña',newpw:'Nueva contraseña',newpw2:'Repita la contraseña',pwshort:'Mínimo 4 caracteres',pwmis:'No coinciden',applicantIs:'Solicitante'},
+  zh:{sub:'現場登錄',status:'狀態',hours:'時數',kind:'車機種類',num:'編號',statusL:'狀態',person:'人員（員工編號）',submit:'送出',again:'再填一筆',end:'結束',done:'已送出',pass:'密碼',enter:'進入',hgSub:'請輸入密碼',wrong:'密碼錯誤',noPass:'尚未設定密碼',errS:'請填種類、編號、狀態、人員',errH:'請填編號、至少一個時數',noCats:'此機型未設定時數種類',last:'上次：',cur:'目前：',notFound:'不在名單 — 將直接使用此文字',ot:'加班',otPass:'加班密碼',group:'課別',people:'人員（編號）',date:'加班日期',reason:'原因',applicant:'申請人（組長編號）',otErr:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',confirmT:'確認申請內容',confirmSend:'確定送出',backEdit:'返回修改',withdraw:'撤回申請',withdrawQ:'確定撤回這筆申請？',withdrawn:'已撤回',otLoginT:'加班申請',uid:'員工編號',upass:'密碼',login:'登入',wrongLogin:'編號或密碼錯誤',noMobilePerm:'沒有手機加班申請權限',chgT:'設定新密碼',newpw:'新密碼',newpw2:'再輸入一次',pwshort:'密碼至少4碼',pwmis:'兩次不一致',applicantIs:'申請人'},
+  en:{sub:'Field entry',status:'Status',hours:'Hours',kind:'Equipment type',num:'Number',statusL:'Status',person:'Staff (employee no.)',submit:'Submit',again:'New entry',end:'Finish',done:'Submitted!',pass:'Password',enter:'Enter',hgSub:'Enter password',wrong:'Wrong password',noPass:'Password not set',errS:'Fill type, number, status and staff',errH:'Enter number and at least one hour',noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used',ot:'Overtime',otPass:'Overtime password',group:'Section',people:'Personnel (ID)',date:'Date',reason:'Reason',applicant:'Applicant (leader ID)',otErr:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no overtime permission',confirmT:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',withdrawn:'Withdrawn',otLoginT:'Overtime',uid:'Employee ID',upass:'Password',login:'Sign in',wrongLogin:'Wrong ID or password',noMobilePerm:'No mobile overtime permission',chgT:'Set new password',newpw:'New password',newpw2:'Repeat password',pwshort:'At least 4 characters',pwmis:'Do not match',applicantIs:'Applicant'}
 };
 let LANG=localStorage.getItem('app_lang')||'es';
 let KINDS=DEFAULT_KINDS.slice(), STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, HDEFS={};
 let flow='status', hoursOK=false, otOK=false;
-let OTC={allowed:{},reminder:{}}, otPeople=[];
+let OTC={allowed:{},reminder:{}}, otPeople=[], USERS_APP={}, otUser=null, otPendId=null;
 function panamaDate(){ return new Date().toLocaleString('en-CA',{timeZone:PA_TZ}).slice(0,10); }
 function L(){ return I18N[LANG]||I18N.es; }
 function canon(k){ return ALIAS[k]||k; }
@@ -204,7 +223,7 @@ function key(k,n){ return (k+'-'+n).replace(/[\/\.\#\$\[\]]/g,'_'); }
 function now(){ return new Date().toLocaleString('zh-TW',{timeZone:PA_TZ}); }
 function cats(t){ return (HDEFS[t]||[]).filter(Boolean); }
 function $(id){ return document.getElementById(id); }
-function show(v){ ['home','status','hgate','hours','otgate','ot','done'].forEach(x=>$('v-'+x).classList.toggle('on',x===v)); }
+function show(v){ ['home','status','hgate','hours','otgate','ot','otconfirm','done'].forEach(x=>$('v-'+x).classList.toggle('on',x===v)); }
 
 async function load(){
   try{ const r=await fetch(FB+'/field_kinds.json'); const d=await r.json(); if(Array.isArray(d)&&d.length) KINDS=d; }catch(e){}
@@ -212,6 +231,7 @@ async function load(){
   try{ const r=await fetch(FB+'/hours_defs.json'); HDEFS=(await r.json())||{}; }catch(e){}
   try{ const r=await fetch(FB+'/staff.json'); STAFF=(await r.json())||{}; }catch(e){}
   try{ const r=await fetch(FB+'/ot_config.json'); OTC=(await r.json())||{}; }catch(e){ OTC={}; } if(!OTC.allowed)OTC.allowed={}; if(!OTC.reminder)OTC.reminder={};
+  try{ const r=await fetch(FB+'/users.json'); USERS_APP=(await r.json())||{}; }catch(e){ USERS_APP={}; }
   buildSelects(); applyLang();
 }
 function buildSelects(){
@@ -232,8 +252,11 @@ function applyLang(){
   set('s-submit',t.submit); set('h-submit',t.submit);
   set('hg-t',t.hours); set('hg-s',t.hgSub); set('hg-btn',t.enter);
   set('d-t',t.done); set('d-again',t.again); set('d-end',t.end);
-  set('t-ot',t.ot); set('otg-t',t.ot); set('otg-s',t.hgSub); set('otg-btn',t.enter);
+  set('t-ot',t.ot); set('otg-t',t.otLoginT); set('otg-btn',t.login);
+  const uid=$('ot-uid'),op=$('ot-pass'); if(uid)uid.placeholder=t.uid; if(op)op.placeholder=t.upass;
+  set('otg-chg',t.chgT); const n1=$('ot-new1'),n2=$('ot-new2'); if(n1)n1.placeholder=t.newpw; if(n2)n2.placeholder=t.newpw2;
   set('l-ot-group',t.group); set('l-ot-people',t.people); set('l-ot-date',t.date); set('l-ot-kind',t.kind); set('l-ot-num',t.num); set('l-ot-reason',t.reason); set('l-ot-app',t.applicant); set('ot-submit',t.submit);
+  set('otc-t',t.confirmT); set('otc-send',t.confirmSend); set('otc-back',t.backEdit); set('d-withdraw',t.withdraw);
 }
 function home(){ show('home'); }
 function goStatus(){
@@ -313,25 +336,51 @@ async function submitHours(){
   }catch(e){ $('h-err').textContent='✗ '+e.message; btn.disabled=false; return; }
   btn.disabled=false; $('d-detail').textContent=`${id} — ${Object.entries(filled).map(([k,v])=>k+':'+v).join('  ')}`; show('done');
 }
-function goOt(){ flow='ot'; if(otOK){ enterOt(); } else { $('otg-err').textContent=''; $('ot-pass').value=''; show('otgate'); } }
-async function otUnlock(){ const t=L(); let pass=null; try{ const r=await fetch(FB+'/ot_config/pass/leader.json'); pass=await r.json(); }catch(e){} const v=($('ot-pass').value||'').trim(); if(!pass){ $('otg-err').textContent=t.noPass; return; } if(v!==String(pass)){ $('otg-err').textContent=t.wrong; return; } otOK=true; enterOt(); }
-function enterOt(){ otPeople=[]; ['ot-group','ot-num','ot-reason','ot-app','ot-p-id'].forEach(i=>$(i).value=''); $('ot-app-name').textContent=''; $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); }
+function goOt(){ flow='ot'; if(otUser){ enterOt(); } else { otShowLogin(); } }
+function otShowLogin(){ $('otg-err').textContent=''; $('ot-uid').value=''; $('ot-pass').value=''; $('otg-step1').style.display=''; $('otg-step2').style.display='none'; $('otg-btn').setAttribute('onclick','otLogin()'); const t=L(); $('otg-btn').textContent=t.login; show('otgate'); }
+async function otLogin(){ const t=L(); const id=($('ot-uid').value||'').trim(); const pass=($('ot-pass').value||'').trim();
+  if(!USERS_APP||!Object.keys(USERS_APP).length){ try{ const r=await fetch(FB+'/users.json'); USERS_APP=(await r.json())||{}; }catch(e){} }
+  const u=USERS_APP[id]; if(!u||String(u.pass)!==pass){ $('otg-err').textContent=t.wrongLogin; return; }
+  otPendId=id;
+  if(u.mustChange){ $('otg-step1').style.display='none'; $('otg-step2').style.display=''; $('ot-new1').value=''; $('ot-new2').value=''; $('otg-err').textContent=''; $('otg-btn').setAttribute('onclick','otDoChange()'); $('otg-btn').textContent=t.confirmSend; return; }
+  otFinishLogin(id,u);
+}
+async function otDoChange(){ const t=L(); const id=otPendId; const n1=($('ot-new1').value||'').trim(), n2=($('ot-new2').value||'').trim();
+  if(n1.length<4){ $('otg-err').textContent=t.pwshort; return; } if(n1!==n2){ $('otg-err').textContent=t.pwmis; return; }
+  try{ await fetch(FB+'/users/'+encodeURIComponent(id)+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:n1,mustChange:false})}); }catch(e){ $('otg-err').textContent='✗ '+e.message; return; }
+  if(USERS_APP[id]){ USERS_APP[id].pass=n1; USERS_APP[id].mustChange=false; }
+  otFinishLogin(id,USERS_APP[id]);
+}
+function otFinishLogin(id,u){ const t=L(); const perm=u.perms&&u.perms.ot_mobile&&u.perms.ot_mobile.v; if(!perm){ $('otg-err').textContent=t.noMobilePerm; return; } otUser={id,name:(STAFF[id]||u.name||id)}; enterOt(); }
+function enterOt(){ otPeople=[]; ['ot-num','ot-reason','ot-p-id'].forEach(i=>$(i).value=''); $('ot-app-name').textContent=otUser?('👤 '+otUser.name):''; $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); }
 function renderOtPeople(){ const el=$('ot-people-list'); el.innerHTML=otPeople.map((p,i)=>`<span class="chip" onclick="otDelP(${i})">${p.id}·${p.name} ✕</span>`).join(''); }
 function otDelP(i){ otPeople.splice(i,1); renderOtPeople(); }
 function otPidLookup(){ const id=($('ot-p-id').value||'').trim(); $('ot-p-name').textContent=id?(STAFF[id]||STAFF[id.toUpperCase()]||L().notFound):''; }
 function otAddP(){ const id=($('ot-p-id').value||'').trim(); if(!id) return; const name=STAFF[id]||STAFF[id.toUpperCase()]||id; otPeople.push({id,name}); $('ot-p-id').value=''; $('ot-p-name').textContent=''; renderOtPeople(); }
 function otAppLookup(){ const id=($('ot-app').value||'').trim(); $('ot-app-name').textContent=id?(STAFF[id]||STAFF[id.toUpperCase()]||L().notFound):''; }
-async function submitOt(){ const t=L();
-  const group=($('ot-group').value||'').trim(); const date=$('ot-date').value; const type=canon($('ot-kind').value); const num=($('ot-num').value||'').trim().toUpperCase(); const reason=($('ot-reason').value||'').trim(); const appId=($('ot-app').value||'').trim();
-  if(!group||!otPeople.length||!num||!reason||!appId){ $('ot-err').textContent=t.otErr; return; }
-  if(!(OTC.allowed&&(OTC.allowed[appId]||OTC.allowed[appId.toUpperCase()]))){ $('ot-err').textContent=t.notAllowed; return; }
-  const appName=STAFF[appId]||STAFF[appId.toUpperCase()]||appId;
-  const rec={group,people:otPeople.slice(),date,machine_type:type,machine_num:num,reason,applicant:{id:appId,name:appName},status:'pending',stage:'section',created:now()};
-  const btn=$('ot-submit'); btn.disabled=true;
-  try{ await fetch(FB+'/ot_requests.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); }catch(e){ $('ot-err').textContent='✗ '+e.message; btn.disabled=false; return; }
-  btn.disabled=false; $('d-detail').textContent=`${type}-${num} · ${date} · ${appName}`; show('done');
+let lastOtId=null;
+function otReview(){ const t=L();
+  const group=($('ot-group').value||'').trim(); const num=($('ot-num').value||'').trim().toUpperCase(); const reason=($('ot-reason').value||'').trim();
+  const date=$('ot-date').value; const type=canon($('ot-kind').value);
+  if(!otUser){ otShowLogin(); return; }
+  if(!group||!otPeople.length||!num||!reason){ $('ot-err').textContent=t.otErr; return; }
+  $('ot-err').textContent='';
+  $('otc-detail').innerHTML=`<b>${t.group}</b>: ${group}<br><b>${t.people}</b>: ${otPeople.map(p=>p.name).join('、')}<br><b>${t.date}</b>: ${date}<br><b>${t.kind}</b>: ${type}-${num}<br><b>${t.reason}</b>: ${reason}<br><b>${t.applicantIs}</b>: ${otUser.name}`;
+  show('otconfirm');
 }
-function again(){ if(flow==='status') goStatus(); else if(flow==='ot') enterOt(); else enterHours(); }
+async function otConfirmSend(){ const t=L();
+  const group=($('ot-group').value||'').trim(); const date=$('ot-date').value; const type=canon($('ot-kind').value); const num=($('ot-num').value||'').trim().toUpperCase(); const reason=($('ot-reason').value||'').trim();
+  const rec={group,people:otPeople.slice(),date,machine_type:type,machine_num:num,reason,applicant:{id:otUser.id,name:otUser.name},status:'pending',stage:'section',created:now()};
+  const btn=$('otc-send'); btn.disabled=true;
+  try{ const r=await fetch(FB+'/ot_requests.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const j=await r.json(); lastOtId=(j&&j.name)||null; }catch(e){ btn.disabled=false; show('ot'); $('ot-err').textContent='✗ '+e.message; return; }
+  btn.disabled=false; $('d-detail').textContent=`${type}-${num} · ${date} · ${otUser.name}`;
+  $('d-withdraw').style.display=lastOtId?'block':'none'; show('done');
+}
+async function otWithdraw(){ const t=L(); if(!lastOtId) return; if(!confirm(t.withdrawQ)) return;
+  try{ await fetch(FB+'/ot_requests/'+lastOtId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'cancelled',stage:'done'})}); }catch(e){}
+  lastOtId=null; $('d-withdraw').style.display='none'; $('d-detail').textContent=t.withdrawn;
+}
+function again(){ if(flow==='status') goStatus(); else if(flow==='ot'){ $('d-withdraw').style.display='none'; enterOt(); } else enterHours(); }
 load();
 </script>
 </body>
