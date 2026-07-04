@@ -1020,6 +1020,7 @@ select.fld-input.big{height:56px}
       <div class="mt-subtabs" style="border-bottom:1px solid var(--border)">
         <button class="mt-subtab active" id="ots-tab-review" onclick="otSysTab('review')">審核</button>
         <button class="mt-subtab" id="ots-tab-apply" onclick="otSysTab('apply')">申請</button>
+        <button class="mt-subtab" id="ots-tab-history" onclick="otSysTab('history')">歷史紀錄</button>
       </div>
       <div id="ots-body" style="padding:16px;max-width:820px"></div>
     </div>
@@ -3746,22 +3747,22 @@ async function otSavePass(){
 }
 
 // ── 加班申請系統（網頁：申請 + 兩關審核）──
-Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',
-  group:'組別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
+Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',
+  group:'課別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
   errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
   noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
-Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',
-  group:'Grupo',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
+Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',
+  group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
   noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
-Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',
-  group:'Group',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
+Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',
+  group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
   waitSec:'Awaiting approval 1',waitMgr:'Awaiting approval 2',approved:'Approved',rejected:'Rejected',
@@ -3776,19 +3777,20 @@ async function initOtSys(){
   await otLoadConfig(); await fldLoadConfig(); await otLoadRequests();
   document.getElementById('ots-tab-apply').textContent=otT('tabApply');
   document.getElementById('ots-tab-review').textContent=otT('tabReview');
+  if(document.getElementById('ots-tab-history')) document.getElementById('ots-tab-history').textContent=otT('tabHistory');
   otSysTab(otSysTabCur);
 }
 function otSysTab(which){
   otSysTabCur=which;
-  ['apply','review'].forEach(w=>{ const b=document.getElementById('ots-tab-'+w); if(b) b.classList.toggle('active', w===which); });
-  if(which==='apply') otRenderApply(); else otRenderReview();
+  ['apply','review','history'].forEach(w=>{ const b=document.getElementById('ots-tab-'+w); if(b) b.classList.toggle('active', w===which); });
+  if(which==='apply') otRenderApply(); else if(which==='history') otRenderHistory(); else otRenderReview();
 }
 // ── 申請 ──
 function otRenderApply(){
   const el=document.getElementById('ots-body'); if(!el) return; otAppPeople=[];
   const kinds=(typeof FIELD_KINDS!=='undefined'?FIELD_KINDS:['RTG']);
   el.innerHTML=`<div style="max-width:460px">
-    <label class="lbl2">${otT('group')}</label><input id="ota-group" class="ot-in"/>
+    <label class="lbl2">${otT('group')}</label><select id="ota-group" class="ot-in">${['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'].map(g=>`<option value="${g}">${g}</option>`).join('')}</select>
     <label class="lbl2">${otT('people')}</label>
     <div style="display:flex;gap:8px"><input id="ota-pid" class="ot-in" style="flex:1;margin:0" oninput="otaPidLook()" onkeydown="if(event.key==='Enter'){event.preventDefault();otaAddP();}"/><button class="mt-perm" onclick="otaAddP()">${otT('addp')}</button></div>
     <div id="ota-pname" style="font-size:13px;font-weight:700;color:var(--green);min-height:18px;margin:4px 2px"></div>
@@ -3928,6 +3930,78 @@ async function otRejectConfirm(){
   document.getElementById('ot-rej-modal').style.display='none'; otRejTarget=null; otRenderReview();
 }
 
+let otHistGroups=[], otHistOpen={};
+function otRenderHistory(){
+  const el=document.getElementById('ots-body'); if(!el) return;
+  const kinds=(typeof FIELD_KINDS!=='undefined'?FIELD_KINDS:['RTG']);
+  const courses=['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'];
+  el.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+    <select id="oth-mode" class="ot-in" style="width:auto;margin:0" onchange="otHistMode(this.value)">
+      <option value="person">${otT('histPerson')}</option><option value="course">${otT('histCourse')}</option><option value="machine">${otT('histMachine')}</option>
+    </select>
+    <span id="oth-inputs" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+    <button class="mt-perm on" onclick="otHistSearch()">${otT('histSearch')}</button>
+  </div>
+  <div id="oth-results"></div>`;
+  otHistMode('person');
+}
+function otHistMode(m){
+  const sel=document.getElementById('oth-mode'); if(sel&&sel.value!==m) sel.value=m;
+  const el=document.getElementById('oth-inputs'); if(!el) return;
+  const kinds=(typeof FIELD_KINDS!=='undefined'?FIELD_KINDS:['RTG']);
+  const courses=['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'];
+  if(m==='person') el.innerHTML=`<input id="oth-person" class="ot-in" style="width:200px;margin:0" placeholder="${otT('histPersonPh')}"/>`;
+  else if(m==='course') el.innerHTML=`<select id="oth-course" class="ot-in" style="width:auto;margin:0"><option value="__all">${otT('histAll')}</option>${courses.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>`;
+  else el.innerHTML=`<select id="oth-mtype" class="ot-in" style="width:auto;margin:0">${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}</select><input id="oth-mnum" class="ot-in" style="width:130px;margin:0;text-transform:uppercase" placeholder="${otT('histNumPh')}"/>`;
+}
+function otHistSearch(){
+  const mode=document.getElementById('oth-mode').value;
+  const events=Object.entries(OT_REQUESTS||{});
+  const groups={};
+  const add=(k,title,pair)=>{ if(!groups[k]) groups[k]={title,items:[]}; if(!groups[k].items.some(x=>x[0]===pair[0])) groups[k].items.push(pair); };
+  if(mode==='person'){
+    const q=(document.getElementById('oth-person').value||'').trim().toLowerCase();
+    events.forEach(([id,r])=>{ const ppl=[...(r.people||[]), r.applicant].filter(Boolean);
+      ppl.forEach(p=>{ if(!q||String(p.id).toLowerCase().includes(q)||String(p.name).toLowerCase().includes(q)){ add(p.id||p.name, `${p.name}（${p.id||''}）`, [id,r]); } }); });
+  } else if(mode==='course'){
+    const c=document.getElementById('oth-course').value;
+    events.forEach(([id,r])=>{ if(c==='__all'||r.group===c){ add(r.group||'—', r.group||'—', [id,r]); } });
+  } else {
+    const t=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('oth-mtype').value):document.getElementById('oth-mtype').value;
+    const num=(document.getElementById('oth-mnum').value||'').trim().toUpperCase();
+    events.forEach(([id,r])=>{ if(r.machine_type===t && (!num||r.machine_num===num)){ const k=r.machine_type+'-'+r.machine_num; add(k,k,[id,r]); } });
+  }
+  otHistGroups=Object.keys(groups).sort().map(k=>groups[k]); otHistOpen={};
+  otHistRenderGroups();
+}
+function otHistRenderGroups(){
+  const el=document.getElementById('oth-results'); if(!el) return;
+  if(!otHistGroups.length){ el.innerHTML=`<div style="padding:24px;text-align:center;color:var(--text3)">${otT('noReq')}</div>`; return; }
+  el.innerHTML=otHistGroups.map((g,i)=>{
+    const open=otHistOpen[i];
+    const items=g.items.slice().sort((a,b)=>String(b[1].created||'').localeCompare(String(a[1].created||'')));
+    return `<div style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:var(--bg2);cursor:pointer" onclick="otHistToggle(${i})">
+        <span style="color:var(--text3)">${open?'▼':'▶'}</span>
+        <b style="flex:1">${g.title}</b>
+        <span class="ot-badge wait">${g.items.length} ${otT('events')}</span>
+      </div>
+      ${open?`<div style="padding:6px 10px">${items.map(([id,r])=>otHistLine(r)).join('')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function otHistToggle(i){ otHistOpen[i]=!otHistOpen[i]; otHistRenderGroups(); }
+function otHistLine(r){
+  const ppl=(r.people||[]).map(p=>p.name||p.id).join('、');
+  return `<div style="border-bottom:1px solid var(--bg3);padding:8px 4px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <span style="color:var(--text3);min-width:92px">${r.date||''}</span>
+    <b>${r.machine_type}-${r.machine_num}</b>
+    <span style="color:var(--text2)">${r.group||''}</span>
+    <span style="color:var(--text2)">${otT('histApplicant')}:${r.applicant?r.applicant.name:''}</span>
+    <span style="flex:1;color:var(--text3)">${ppl}</span>
+    ${otStatusBadge(r)}
+  </div>`;
+}
 async function addMaintUser(){
   const name=document.getElementById('mu-name').value.trim();
   const pw=document.getElementById('mu-pw').value.trim();
