@@ -1652,7 +1652,6 @@ function getNow() {
 // 所有可用功能定義
 const ALL_FEATURES = [
   {id:'allEq',    label:'👁 全車機監控', page:true},
-  {id:'otsys',    label:'⏰ 加班申請系統', page:true},
   {id:'movelog',  label:'📋 車機調動紀錄'},
   {id:'teu',      label:'📦 TEU 管理'},
   {id:'announce', label:'📢 公告'},
@@ -1959,15 +1958,15 @@ const UM_I18N={
   zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼',add:'新增人員',
     newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
-    hint:'新增後系統會要求此人首次登入先改密碼。'},
+    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',appr1:'一段審核（課長）',appr2:'二段審核（經理）',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
   es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial',add:'Añadir usuario',
     newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
-    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.'},
+    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
   en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password',add:'Add user',
     newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
-    hint:'After creating, the user will be asked to change the password on first login.'}
+    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
 };
 function umT(k){ const L=UM_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||UM_I18N.zh; return L[k]||UM_I18N.zh[k]||k; }
 function umTn(k,map){ let s=umT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
@@ -1978,30 +1977,35 @@ function featLabel(f){
   const t=(typeof aT==='function')?aT('feat_'+f.id):null;
   return (t&&t!=='feat_'+f.id)?t:f.label;
 }
+const OT_APPROVE_FEATURES=[{id:'ot_approve1'},{id:'ot_approve2'}];
+function approveLabel(id){ return id==='ot_approve1'?umT('appr1'):umT('appr2'); }
 function renderUsers(){
   const el=document.getElementById('um-list'); if(!el) return;
-  const ids=Object.keys(USERS).sort();
-  el.innerHTML = ids.length ? ids.map(id=>{
-    const u=USERS[id]||{}; const open=umOpen[id];
+  const q=(document.getElementById('um-search')&&document.getElementById('um-search').value||'').toLowerCase();
+  const rows=Object.entries(STAFF).filter(([id,n])=>!q||id.toLowerCase().includes(q)||String(n).toLowerCase().includes(q)).sort((a,b)=>a[0].localeCompare(b[0]));
+  if(!rows.length){ el.innerHTML=`<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px">${umT('nousers')}</div>`; return; }
+  el.innerHTML=rows.map(([id,name])=>{
+    const u=USERS[id]||{}; const open=umOpen[id]; const active=!!u.pass;
     return `<div style="border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">
       <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--bg2);cursor:pointer" onclick="umToggle('${id}')">
         <span style="width:14px;color:var(--text3)">${open?'▼':'▶'}</span>
-        <span style="font-weight:700;min-width:70px">${id}</span><span style="flex:1">${u.name||''}</span>
+        <span style="font-weight:700;min-width:70px">${id}</span><span style="flex:1">${name||''}</span>
+        ${active?`<span style="font-size:11px;color:var(--green);font-weight:600">${umT('active')}</span>`:''}
         ${u.mustChange?`<span style="font-size:11px;color:var(--orange,#ea580c);font-weight:600">${umT('mustchg')}</span>`:''}
-        <button class="mt-perm" onclick="event.stopPropagation();umDel('${id}')">✕</button>
       </div>
       ${open?`<div style="padding:10px">
         <div style="display:flex;gap:6px;margin-bottom:10px">
-          <input id="um-pw-${id}" type="password" placeholder="${umT('newpw')}" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
+          <input id="um-pw-${id}" type="password" placeholder="${umT('setpw')}" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
           <button class="mt-perm" onclick="umSetPass('${id}')">${umT('resetpw')}</button>
         </div>
         <table style="width:100%;font-size:12px;border-collapse:collapse">
-          <tr style="color:var(--text3)"><td style="padding:4px 6px">${umT('func')}</td><td style="text-align:center;width:60px">${umT('view')}</td><td style="text-align:center;width:60px">${umT('edit')}</td></tr>
+          <tr style="color:var(--text3)"><td style="padding:4px 6px">${umT('funcs')}</td><td style="text-align:center;width:56px">${umT('view')}</td><td style="text-align:center;width:56px">${umT('edit')}</td></tr>
           ${ALL_FEATURES.map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
+          ${OT_APPROVE_FEATURES.map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3);background:var(--bg2)"><td style="padding:6px;font-weight:700;color:var(--blue)">${approveLabel(f.id)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center;color:var(--text3)">—</td></tr>`;}).join('')}
         </table>
       </div>`:''}
     </div>`;
-  }).join('') : `<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px">${umT('nousers')}</div>`;
+  }).join('');
 }
 function umToggle(id){ umOpen[id]=!umOpen[id]; renderUsers(); }
 async function umAdd(){
@@ -2025,11 +2029,13 @@ async function umDel(id){
 async function umSetPass(id){
   const inp=document.getElementById('um-pw-'+id); const val=inp&&inp.value.trim();
   if(!val){ return; }
-  USERS[id].pass=val; USERS[id].mustChange=true;
-  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:val,mustChange:true})}); }catch(e){ alert('✗ '+e.message); return; }
+  if(!USERS[id]) USERS[id]={perms:{}};
+  USERS[id].pass=val; USERS[id].mustChange=true; USERS[id].name=(STAFF&&STAFF[id])||USERS[id].name||id;
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:val,mustChange:true,name:USERS[id].name})}); }catch(e){ alert('✗ '+e.message); return; }
   inp.value=''; renderUsers();
 }
 async function umPerm(id,fid,which,on){
+  if(!USERS[id]) USERS[id]={perms:{},name:(STAFF&&STAFF[id])||id};
   if(!USERS[id].perms) USERS[id].perms={};
   if(!USERS[id].perms[fid]) USERS[id].perms[fid]={};
   USERS[id].perms[fid][which]=on;
@@ -2132,7 +2138,7 @@ async function umDoChange(){
   umFinish(id,USERS[id]);
 }
 function umFinish(id,u){
-  umCurrentUser={id,name:u.name||id,perms:u.perms||{}};
+  umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{}};
   umModalClose(); umUpdateBar();
   if(typeof applyNavPerms==='function') applyNavPerms();
   if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell();
@@ -2152,6 +2158,7 @@ async function renderPasswordPanel(deptKey) {
   const panel = document.getElementById('dept-panel');
   const allRoles = Object.entries(ROLES);
   await loadUsers();
+  if(typeof fldLoadConfig==='function'){ try{ await fldLoadConfig(); }catch(e){} }
   panel.innerHTML = `
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:480px;margin-bottom:16px">
       <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${pwT('title')} — ${pwT('dept')}</div>
@@ -2168,7 +2175,7 @@ async function renderPasswordPanel(deptKey) {
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:480px">
       <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${pwT('app')}</div>
       <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-        ${[['field','field'],['otLeader','otLeader'],['otSec','otSec'],['otMgr','otMgr']].map(([kind,lbl])=>`
+        ${[['field','field'],['otLeader','otLeader']].map(([kind,lbl])=>`
           <div style="display:flex;gap:8px;align-items:center">
             <span style="font-size:12px;font-weight:600;width:110px;color:var(--text2)">${pwT(lbl)}</span>
             <input id="pw-misc-${kind}" type="password" placeholder="${pwT('newpw')}" class="eq-input" style="flex:1"/>
@@ -2180,14 +2187,9 @@ async function renderPasswordPanel(deptKey) {
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:560px;margin-top:16px">
       <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${umT('title')}</div>
       <div style="padding:16px">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${umT('hint')}</div>
-        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-          <input id="um-add-id" placeholder="${umT('addId')}" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
-          <input id="um-add-name" placeholder="${umT('addName')}" style="flex:1;min-width:100px;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
-          <input id="um-add-pass" placeholder="${umT('addPass')}" style="width:110px;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
-          <button class="mt-perm on" onclick="umAdd()">${umT('add')}</button>
-        </div>
-        <div id="um-list"></div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${umT('hint2')}</div>
+        <input id="um-search" placeholder="${umT('search')}" oninput="renderUsers()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg);margin-bottom:10px"/>
+        <div id="um-list" style="max-height:440px;overflow:auto"></div>
       </div>
     </div>`;
   renderUsers();
@@ -3748,23 +3750,23 @@ Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',
   group:'組別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
   errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
-  waitSec:'待課長審核',waitMgr:'待經理審核',approved:'已核准',rejected:'已駁回',
+  waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
-  noReq:'目前沒有申請',by:'審核',at:'',secRole:'課長',mgrRole:'經理',people1:'人員',reasonL:'原因',applicantL:'申請人'});
+  noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
 Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',
   group:'Grupo',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
-  waitSec:'Pend. jefe de sección',waitMgr:'Pend. gerente',approved:'Aprobado',rejected:'Rechazado',
+  waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
-  noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Jefe de sección',mgrRole:'Gerente',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
+  noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
 Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',
   group:'Group',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
-  waitSec:'Awaiting section chief',waitMgr:'Awaiting manager',approved:'Approved',rejected:'Rejected',
+  waitSec:'Awaiting approval 1',waitMgr:'Awaiting approval 2',approved:'Approved',rejected:'Rejected',
   approve:'Approve',reject:'Reject',rejectTitle:'Reject reason',pickReason:'Select a reason…',note:'Note (optional)',confirm:'Confirm reject',cancel:'Cancel',
-  noReq:'No requests',by:'Reviewed',at:'',secRole:'Section chief',mgrRole:'Manager',people1:'Personnel',reasonL:'Reason',applicantL:'Applicant'});
+  noReq:'No requests',by:'Reviewed',at:'',secRole:'Approval 1 (chief)',mgrRole:'Approval 2 (manager)',loginFirst:'Sign in with your account to review',needAppr1:'(needs approval 1)',needAppr2:'(needs approval 2)',people1:'Personnel',reasonL:'Reason',applicantL:'Applicant'});
 
 let OT_REQUESTS={}, otSysTabCur='review', otSecOK=false, otMgrOK=false, otAppPeople=[], otRejTarget=null;
 function otReqDate(){ return new Date().toLocaleString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}).slice(0,10); }
@@ -3829,12 +3831,14 @@ async function otaSubmit(){
 function otRenderReview(){
   const el=document.getElementById('ots-body'); if(!el) return;
   const reqs=Object.entries(OT_REQUESTS).sort((a,b)=>String(b[1].created||'').localeCompare(String(a[1].created||'')));
-  const unlockBar=`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
-    ${otSecOK?`<span class="ot-badge ok">✓ ${otT('secRole')}</span>`:`<span style="display:flex;gap:4px"><input id="ot-sec-pw" type="password" placeholder="${otT('pwPh')}" class="ot-in" style="width:120px;margin:0"/><button class="mt-perm" onclick="otUnlock('sec')">${otT('secLogin')}</button></span>`}
-    ${otMgrOK?`<span class="ot-badge ok">✓ ${otT('mgrRole')}</span>`:`<span style="display:flex;gap:4px"><input id="ot-mgr-pw" type="password" placeholder="${otT('pwPh')}" class="ot-in" style="width:120px;margin:0"/><button class="mt-perm" onclick="otUnlock('mgr')">${otT('mgrLogin')}</button></span>`}
-  </div>`;
+  const can1=(typeof umCan==='function')&&umCan('ot_approve1','v');
+  const can2=(typeof umCan==='function')&&umCan('ot_approve2','v');
+  const who = (typeof umCurrentUser!=='undefined'&&umCurrentUser)
+    ? `<span class="ot-badge ok">👤 ${umCurrentUser.name}${can1?' · '+otT('secRole'):''}${can2?' · '+otT('mgrRole'):''}</span>`
+    : `<span style="font-size:13px;color:var(--text3)">${otT('loginFirst')}</span>`;
+  const bar=`<div style="margin-bottom:14px">${who}</div>`;
   const body = reqs.length ? reqs.map(([id,r])=>otReqCard(id,r)).join('') : `<div style="padding:30px;text-align:center;color:var(--text3)">${otT('noReq')}</div>`;
-  el.innerHTML=unlockBar+body;
+  el.innerHTML=bar+body;
 }
 function otStatusBadge(r){
   if(r.status==='approved') return `<span class="ot-badge ok">${otT('approved')}</span>`;
@@ -3845,8 +3849,8 @@ function otStatusBadge(r){
 function otReqCard(id,r){
   const people=(r.people||[]).map(p=>p.name||p.id).join('、');
   let action='';
-  if(r.status==='pending'&&r.stage==='section'){ action = otSecOK ? `<button class="ot-ap" onclick="otApprove('${id}','sec')">${otT('approve')}</button><button class="ot-rj" onclick="otRejectOpen('${id}','sec')">${otT('reject')}</button>` : `<span style="font-size:12px;color:var(--text3)">${otT('locked')}</span>`; }
-  else if(r.status==='pending'&&r.stage==='manager'){ action = otMgrOK ? `<button class="ot-ap" onclick="otApprove('${id}','mgr')">${otT('approve')}</button><button class="ot-rj" onclick="otRejectOpen('${id}','mgr')">${otT('reject')}</button>` : `<span style="font-size:12px;color:var(--text3)">${otT('locked')}</span>`; }
+  if(r.status==='pending'&&r.stage==='section'){ action = ((typeof umCan==='function')&&umCan('ot_approve1','v')) ? `<button class="ot-ap" onclick="otApprove('${id}','sec')">${otT('approve')}</button><button class="ot-rj" onclick="otRejectOpen('${id}','sec')">${otT('reject')}</button>` : `<span style="font-size:12px;color:var(--text3)">${otT('needAppr1')}</span>`; }
+  else if(r.status==='pending'&&r.stage==='manager'){ action = ((typeof umCan==='function')&&umCan('ot_approve2','v')) ? `<button class="ot-ap" onclick="otApprove('${id}','mgr')">${otT('approve')}</button><button class="ot-rj" onclick="otRejectOpen('${id}','mgr')">${otT('reject')}</button>` : `<span style="font-size:12px;color:var(--text3)">${otT('needAppr2')}</span>`; }
   const rej = r.reject ? `<div style="font-size:12px;color:var(--red);margin-top:6px">✗ ${r.reject.role||''}：${r.reject.reason||''}${r.reject.note?'（'+r.reject.note+'）':''}</div>` : '';
   const hist = [r.sec&&`${otT('secRole')} ✓ ${r.sec.by||''}`, r.mgr&&`${otT('mgrRole')} ✓ ${r.mgr.by||''}`].filter(Boolean).join('　');
   return `<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--bg)">
@@ -3876,8 +3880,9 @@ async function otUnlock(role){
 async function otApprove(id,role){
   const r=OT_REQUESTS[id]; if(!r) return; const now=fldPanNow();
   let patch;
-  if(role==='sec'){ patch={stage:'manager',sec:{by:otT('secRole'),time:now,result:'approve'}}; }
-  else { patch={stage:'done',status:'approved',mgr:{by:otT('mgrRole'),time:now,result:'approve'}}; }
+  const who=(typeof umCurrentUser!=='undefined'&&umCurrentUser)?umCurrentUser.name:'';
+  if(role==='sec'){ patch={stage:'manager',sec:{by:who,role:otT('secRole'),time:now,result:'approve'}}; }
+  else { patch={stage:'done',status:'approved',mgr:{by:who,role:otT('mgrRole'),time:now,result:'approve'}}; }
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ alert('✗ '+e.message); }
   otRenderReview();
@@ -3916,7 +3921,8 @@ async function otRejectConfirm(){
   const note=(document.getElementById('otrej-note').value||'').trim();
   if(!reason){ document.getElementById('otrej-err').textContent=otT('pickReason'); return; }
   const {id,role}=otRejTarget; const r=OT_REQUESTS[id]; const now=fldPanNow();
-  const patch={stage:'done',status:'rejected',reject:{role:role==='sec'?otT('secRole'):otT('mgrRole'),reason,note,time:now}};
+  const who=(typeof umCurrentUser!=='undefined'&&umCurrentUser)?umCurrentUser.name:'';
+  const patch={stage:'done',status:'rejected',reject:{by:who,role:role==='sec'?otT('secRole'):otT('mgrRole'),reason,note,time:now}};
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ document.getElementById('otrej-err').textContent='✗ '+e.message; return; }
   document.getElementById('ot-rej-modal').style.display='none'; otRejTarget=null; otRenderReview();
