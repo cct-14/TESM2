@@ -1018,7 +1018,9 @@ select.fld-input.big{height:56px}
     </div>
     <div class="page" id="page-otsys">
       <div class="mt-subtabs" style="border-bottom:1px solid var(--border)">
-        <button class="mt-subtab active" id="ots-tab-review" onclick="otSysTab('review')">審核</button>
+        <button class="mt-subtab active" id="ots-tab-review" onclick="otSysTab('review')">今日審核</button>
+        <button class="mt-subtab" id="ots-tab-pend1" onclick="otSysTab('pend1')">第一段待審</button>
+        <button class="mt-subtab" id="ots-tab-pend2" onclick="otSysTab('pend2')">第二段待審</button>
         <button class="mt-subtab" id="ots-tab-apply" onclick="otSysTab('apply')">申請</button>
         <button class="mt-subtab" id="ots-tab-history" onclick="otSysTab('history')">歷史紀錄</button>
       </div>
@@ -3752,21 +3754,21 @@ async function otSavePass(){
 }
 
 // ── 加班申請系統（網頁：申請 + 兩關審核）──
-Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',
+Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',datePh:'選擇日期',noToday:'今天沒有申請',
   group:'課別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
   errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',confirmTitle:'確認申請內容',confirmSend:'確定送出',backEdit:'返回修改',withdraw:'撤回',withdrawQ:'確定撤回這筆申請？',cancelled:'已撤回',
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
   noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
-Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',
+Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',
   group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',cancelled:'Retirado',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
   noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
-Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',
+Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',
   group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',cancelled:'Withdrawn',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
@@ -3775,20 +3777,24 @@ Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'Histor
   noReq:'No requests',by:'Reviewed',at:'',secRole:'Approval 1 (chief)',mgrRole:'Approval 2 (manager)',loginFirst:'Sign in with your account to review',needAppr1:'(needs approval 1)',needAppr2:'(needs approval 2)',people1:'Personnel',reasonL:'Reason',applicantL:'Applicant'});
 
 let OT_REQUESTS={}, otSysTabCur='review', otSecOK=false, otMgrOK=false, otAppPeople=[], otRejTarget=null;
+function otCalcHours(s,e){ if(!s||!e) return null; const a=s.split(':').map(Number), b=e.split(':').map(Number); let m=(b[0]*60+b[1])-(a[0]*60+a[1]); if(m<=0) m+=1440; return Math.round(m/60*10)/10; }
+function otTodayStr(){ return new Date().toLocaleString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}).slice(0,10); }
 function otReqDate(){ return new Date().toLocaleString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}).slice(0,10); }
 function otStaffName(id){ return (typeof STAFF!=='undefined'&&(STAFF[id]||STAFF[String(id).toUpperCase()]))||id; }
 async function otLoadRequests(){ try{ const r=await fetch(`${FB}/ot_requests.json`); OT_REQUESTS=(await r.json())||{}; }catch(e){ OT_REQUESTS={}; } }
 async function initOtSys(){
   await otLoadConfig(); await fldLoadConfig(); await otLoadRequests();
   document.getElementById('ots-tab-apply').textContent=otT('tabApply');
-  document.getElementById('ots-tab-review').textContent=otT('tabReview');
+  document.getElementById('ots-tab-review').textContent=otT('tabToday');
+  const p1=document.getElementById('ots-tab-pend1'), p2=document.getElementById('ots-tab-pend2');
+  if(p1) p1.textContent=otT('tabPend1'); if(p2) p2.textContent=otT('tabPend2');
   if(document.getElementById('ots-tab-history')) document.getElementById('ots-tab-history').textContent=otT('tabHistory');
   otSysTab(otSysTabCur);
 }
 function otSysTab(which){
   otSysTabCur=which;
-  ['apply','review','history'].forEach(w=>{ const b=document.getElementById('ots-tab-'+w); if(b) b.classList.toggle('active', w===which); });
-  if(which==='apply') otRenderApply(); else if(which==='history') otRenderHistory(); else otRenderReview();
+  ['apply','review','pend1','pend2','history'].forEach(w=>{ const b=document.getElementById('ots-tab-'+w); if(b) b.classList.toggle('active', w===which); });
+  if(which==='apply') otRenderApply(); else if(which==='history') otRenderHistory(); else if(which==='pend1') otRenderPend1(); else if(which==='pend2') otRenderPend2(); else otRenderReview();
 }
 // ── 申請 ──
 function otRenderApply(){
@@ -3801,6 +3807,13 @@ function otRenderApply(){
     <div id="ota-pname" style="font-size:13px;font-weight:700;color:var(--green);min-height:18px;margin:4px 2px"></div>
     <div id="ota-people" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
     <label class="lbl2">${otT('date')}</label><input id="ota-date" type="date" class="ot-in"/>
+    <label class="lbl2">${otT('timeRange')}</label>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:2px">
+      <input id="ota-start" type="time" class="ot-in" style="width:auto;margin:0" oninput="otaCalcHours()"/>
+      <span style="color:var(--text3)">~</span>
+      <input id="ota-end" type="time" class="ot-in" style="width:auto;margin:0" oninput="otaCalcHours()"/>
+      <span id="ota-hours" style="font-weight:800;color:var(--blue);white-space:nowrap"></span>
+    </div>
     <label class="lbl2">${otT('machine')}</label><select id="ota-kind" class="ot-in">${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
     <label class="lbl2">${otT('num')}</label><input id="ota-num" class="ot-in" style="text-transform:uppercase"/>
     <label class="lbl2">${otT('reason')}</label><input id="ota-reason" class="ot-in"/>
@@ -3813,6 +3826,7 @@ function otRenderApply(){
   document.getElementById('ota-date').value=otReqDate();
   otaRenderPeople();
 }
+function otaCalcHours(){ const hh=otCalcHours(document.getElementById('ota-start').value,document.getElementById('ota-end').value); document.getElementById('ota-hours').textContent=(hh!=null)?(hh+' '+otT('hoursUnit')):''; }
 function otaRenderPeople(){ const el=document.getElementById('ota-people'); if(el) el.innerHTML=otAppPeople.map((p,i)=>`<span class="ot-chip" onclick="otaDelP(${i})">${p.id}·${p.name} ✕</span>`).join(''); }
 function otaDelP(i){ otAppPeople.splice(i,1); otaRenderPeople(); }
 function otaPidLook(){ const id=(document.getElementById('ota-pid').value||'').trim(); document.getElementById('ota-pname').textContent=id?otStaffName(id):''; }
@@ -3823,18 +3837,20 @@ function otaReview(){
   const num=(document.getElementById('ota-num').value||'').trim().toUpperCase();
   const reason=(document.getElementById('ota-reason').value||'').trim();
   const appId=(document.getElementById('ota-app').value||'').trim();
+  const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value;
   const err=document.getElementById('ota-err');
   if(!group||!otAppPeople.length||!num||!reason||!appId){ err.textContent=otT('errForm'); return; }
+  if(!start||!end){ err.textContent=otT('needTime'); return; }
   if(!(OT_CONFIG.allowed&&(OT_CONFIG.allowed[appId]||OT_CONFIG.allowed[appId.toUpperCase()]))){ err.textContent=otT('notAllowed'); return; }
   err.textContent='';
   const type=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value;
-  const date=document.getElementById('ota-date').value;
+  const date=document.getElementById('ota-date').value; const hrs=otCalcHours(start,end);
   otEnsureConfirmModal();
   document.getElementById('otc-title').textContent=otT('confirmTitle');
   document.getElementById('otc-body').innerHTML=`<div style="font-size:14px;line-height:2">
     <b>${otT('group')}</b>: ${group}<br>
     <b>${otT('people1')}</b>: ${otAppPeople.map(p=>p.name).join('、')}<br>
-    <b>${otT('date')}</b>: ${date}<br>
+    <b>${otT('date')}</b>: ${date}　<b>${otT('timeRange')}</b>: ${start}~${end}（${hrs} ${otT('hoursUnit')}）<br>
     <b>${otT('machine')}</b>: ${type}-${num}<br>
     <b>${otT('reasonL')}</b>: ${reason}<br>
     <b>${otT('applicantL')}</b>: ${otStaffName(appId)}</div>`;
@@ -3868,24 +3884,31 @@ async function otaSubmit(){
   if(!group||!otAppPeople.length||!num||!reason||!appId){ err.textContent=otT('errForm'); return; }
   if(!(OT_CONFIG.allowed&&(OT_CONFIG.allowed[appId]||OT_CONFIG.allowed[appId.toUpperCase()]))){ err.textContent=otT('notAllowed'); return; }
   err.textContent='';
-  const rec={group,people:otAppPeople.slice(),date,machine_type:type,machine_num:num,reason,applicant:{id:appId,name:otStaffName(appId)},status:'pending',stage:'section',created:fldPanNow()};
+  const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value; const hours=otCalcHours(start,end);
+  const rec={group,people:otAppPeople.slice(),date,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:appId,name:otStaffName(appId)},status:'pending',stage:'section',created:fldPanNow()};
   const btn=document.getElementById('ota-submit'); btn.disabled=true;
   try{ const r=await fetch(`${FB}/ot_requests.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const j=await r.json(); if(j&&j.name) OT_REQUESTS[j.name]=rec; }catch(e){ err.textContent='✗ '+e.message; btn.disabled=false; return; }
   btn.disabled=false; alert(otT('sent')); otSysTab('review');
 }
 // ── 審核 ──
-function otRenderReview(){
-  const el=document.getElementById('ots-body'); if(!el) return;
-  const reqs=Object.entries(OT_REQUESTS).sort((a,b)=>String(b[1].created||'').localeCompare(String(a[1].created||'')));
+function otSortedEntries(){ return Object.entries(OT_REQUESTS).sort((a,b)=>String(b[1].created||'').localeCompare(String(a[1].created||''))); }
+function otReviewBar(){
   const can1=(typeof umCan==='function')&&umCan('ot_approve1','v');
   const can2=(typeof umCan==='function')&&umCan('ot_approve2','v');
   const who = (typeof umCurrentUser!=='undefined'&&umCurrentUser)
     ? `<span class="ot-badge ok">👤 ${umCurrentUser.name}${can1?' · '+otT('secRole'):''}${can2?' · '+otT('mgrRole'):''}</span>`
     : `<span style="font-size:13px;color:var(--text3)">${otT('loginFirst')}</span>`;
-  const bar=`<div style="margin-bottom:14px">${who}</div>`;
-  const body = reqs.length ? reqs.map(([id,r])=>otReqCard(id,r)).join('') : `<div style="padding:30px;text-align:center;color:var(--text3)">${otT('noReq')}</div>`;
-  el.innerHTML=bar+`<div style="max-height:62vh;overflow:auto;padding-right:2px">${body}</div>`;
+  return `<div style="margin-bottom:14px">${who}</div>`;
 }
+function otRenderCards(entries, emptyKey){
+  const el=document.getElementById('ots-body'); if(!el) return;
+  const body = entries.length ? entries.map(([id,r])=>otReqCard(id,r)).join('') : `<div style="padding:30px;text-align:center;color:var(--text3)">${otT(emptyKey||'noReq')}</div>`;
+  el.innerHTML=otReviewBar()+`<div style="max-height:62vh;overflow:auto;padding-right:2px">${body}</div>`;
+}
+function otRenderReview(){ const t=otTodayStr(); otRenderCards(otSortedEntries().filter(([id,r])=>r.date===t), 'noToday'); }
+function otRenderPend1(){ otRenderCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='section'), 'noReq'); }
+function otRenderPend2(){ otRenderCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='manager'), 'noReq'); }
+function otRefresh(){ if(otSysTabCur==='pend1') otRenderPend1(); else if(otSysTabCur==='pend2') otRenderPend2(); else otRenderReview(); }
 function otStatusBadge(r){
   if(r.status==='cancelled') return `<span class="ot-badge no">${otT('cancelled')}</span>`;
   if(r.status==='approved') return `<span class="ot-badge ok">${otT('approved')}</span>`;
@@ -3904,7 +3927,7 @@ function otReqCard(id,r){
   return `<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--bg)">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
       <span style="font-weight:800">${r.machine_type}-${r.machine_num}</span>
-      <span style="color:var(--text3);font-size:13px">${r.date||''}</span>
+      <span style="color:var(--text3);font-size:13px">${r.date||''}${r.start_time?` ${r.start_time}~${r.end_time}（${r.hours} ${otT('hoursUnit')}）`:''}</span>
       <span style="margin-left:auto">${otStatusBadge(r)}</span>
     </div>
     <div style="font-size:13px;color:var(--text2);line-height:1.7">
@@ -3923,7 +3946,7 @@ async function otUnlock(role){
   const real=(OT_CONFIG.pass&&(role==='sec'?OT_CONFIG.pass.sec:OT_CONFIG.pass.mgr))||'';
   if(!real||val!==String(real)){ alert(otT('wrong')); return; }
   if(role==='sec') otSecOK=true; else otMgrOK=true;
-  otRenderReview();
+  otRefresh();
 }
 async function otApprove(id,role){
   const r=OT_REQUESTS[id]; if(!r) return; const now=fldPanNow();
@@ -3933,7 +3956,7 @@ async function otApprove(id,role){
   else { patch={stage:'done',status:'approved',mgr:{by:who,role:otT('mgrRole'),time:now,result:'approve'}}; }
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ alert('✗ '+e.message); }
-  otRenderReview();
+  otRefresh();
 }
 function otRejectOpen(id,role){
   otRejTarget={id,role};
@@ -3974,7 +3997,7 @@ async function otRejectConfirm(){
   const patch={stage:'done',status:'rejected',reject:{by:who,role:role==='sec'?otT('secRole'):otT('mgrRole'),reason,note,time:now}};
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ document.getElementById('otrej-err').textContent='✗ '+e.message; return; }
-  document.getElementById('ot-rej-modal').style.display='none'; otRejTarget=null; otRenderReview();
+  document.getElementById('ot-rej-modal').style.display='none'; otRejTarget=null; otRefresh();
 }
 
 async function otWithdraw(id){
@@ -3983,7 +4006,7 @@ async function otWithdraw(id){
   const patch={status:'cancelled',stage:'done'};
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ alert('✗ '+e.message); }
-  otRenderReview();
+  otRefresh();
 }
 let otHistGroups=[], otHistOpen={};
 function otRenderHistory(){
@@ -3992,7 +4015,7 @@ function otRenderHistory(){
   const courses=['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'];
   el.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
     <select id="oth-mode" class="ot-in" style="width:auto;margin:0" onchange="otHistMode(this.value)">
-      <option value="person">${otT('histPerson')}</option><option value="course">${otT('histCourse')}</option><option value="machine">${otT('histMachine')}</option>
+      <option value="person">${otT('histPerson')}</option><option value="course">${otT('histCourse')}</option><option value="machine">${otT('histMachine')}</option><option value="date">${otT('histDate')}</option>
     </select>
     <span id="oth-inputs" style="display:flex;gap:8px;flex-wrap:wrap"></span>
     <button class="mt-perm on" onclick="otHistSearch()">${otT('histSearch')}</button>
@@ -4007,6 +4030,7 @@ function otHistMode(m){
   const courses=['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'];
   if(m==='person') el.innerHTML=`<input id="oth-person" class="ot-in" style="width:200px;margin:0" placeholder="${otT('histPersonPh')}"/>`;
   else if(m==='course') el.innerHTML=`<select id="oth-course" class="ot-in" style="width:auto;margin:0"><option value="__all">${otT('histAll')}</option>${courses.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>`;
+  else if(m==='date') el.innerHTML=`<input id="oth-date" type="date" class="ot-in" style="width:auto;margin:0"/>`;
   else el.innerHTML=`<select id="oth-mtype" class="ot-in" style="width:auto;margin:0">${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}</select><input id="oth-mnum" class="ot-in" style="width:130px;margin:0;text-transform:uppercase" placeholder="${otT('histNumPh')}"/>`;
 }
 function otHistSearch(){
@@ -4021,6 +4045,9 @@ function otHistSearch(){
   } else if(mode==='course'){
     const c=document.getElementById('oth-course').value;
     events.forEach(([id,r])=>{ if(c==='__all'||r.group===c){ add(r.group||'—', r.group||'—', [id,r]); } });
+  } else if(mode==='date'){
+    const d=document.getElementById('oth-date').value;
+    events.forEach(([id,r])=>{ if(!d||r.date===d){ add(r.group||'—', (r.date||'')+' · '+(r.group||'—'), [id,r]); } });
   } else {
     const t=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('oth-mtype').value):document.getElementById('oth-mtype').value;
     const num=(document.getElementById('oth-mnum').value||'').trim().toUpperCase();
@@ -4050,6 +4077,7 @@ function otHistLine(r){
   const ppl=(r.people||[]).map(p=>p.name||p.id).join('、');
   return `<div style="border-bottom:1px solid var(--bg3);padding:8px 4px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <span style="color:var(--text3);min-width:92px">${r.date||''}</span>
+    ${r.start_time?`<span style="color:var(--text3)">${r.start_time}~${r.end_time}（${r.hours}${otT('hoursUnit')}）</span>`:''}
     <b>${r.machine_type}-${r.machine_num}</b>
     <span style="color:var(--text2)">${r.group||''}</span>
     <span style="color:var(--text2)">${otT('histApplicant')}:${r.applicant?r.applicant.name:''}</span>
