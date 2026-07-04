@@ -3667,12 +3667,22 @@ const OT_I18N={
     noStaff:'No staff (import in «Staff» first)',needsave:'Fill in the content first'}
 };
 function otT(k){ const L=OT_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||OT_I18N.zh; return L[k]||OT_I18N.zh[k]||k; }
-const OT_DEFAULT_REASONS=['人力已足夠，不需加班','加班時段/時間不正確','事由不充分','重複申請','超出加班時數/預算上限','資料填寫不完整','其他（自行填寫）'];
+const OT_DEFAULT_REASONS=[
+  {zh:'人力已足夠，不需加班',es:'Personal suficiente, no se requieren horas extra',en:'Enough staff, no overtime needed'},
+  {zh:'加班時段/時間不正確',es:'Horario/período de horas extra incorrecto',en:'Incorrect overtime time/period'},
+  {zh:'事由不充分',es:'Motivo insuficiente',en:'Insufficient reason'},
+  {zh:'重複申請',es:'Solicitud duplicada',en:'Duplicate request'},
+  {zh:'超出加班時數/預算上限',es:'Excede el límite de horas extra/presupuesto',en:'Exceeds overtime/budget limit'},
+  {zh:'資料填寫不完整',es:'Datos incompletos',en:'Incomplete information'},
+  {zh:'其他（自行填寫）',es:'Otro (especificar)',en:'Other (specify)'}
+];
+function otReasonText(x){ if(!x) return ''; if(typeof x==='string') return x; const L=(typeof maintLang!=='undefined'?maintLang:'es'); return x[L]||x.zh||x.es||x.en||''; }
 let OT_CONFIG=null;
 async function otLoadConfig(){
   try{ const r=await fetch(`${FB}/ot_config.json`); OT_CONFIG=(await r.json())||{}; }catch(e){ OT_CONFIG={}; }
   if(!OT_CONFIG.allowed) OT_CONFIG.allowed={};
-  if(!Array.isArray(OT_CONFIG.reject_reasons)||!OT_CONFIG.reject_reasons.length) OT_CONFIG.reject_reasons=OT_DEFAULT_REASONS.slice();
+  if(!Array.isArray(OT_CONFIG.reject_reasons)||!OT_CONFIG.reject_reasons.length) OT_CONFIG.reject_reasons=OT_DEFAULT_REASONS.map(o=>({...o}));
+  else OT_CONFIG.reject_reasons=OT_CONFIG.reject_reasons.map(x=>{ if(x&&typeof x==='object') return x; const f=OT_DEFAULT_REASONS.find(o=>o.zh===x); return f?{...f}:{zh:x,es:x,en:x}; });
   if(!OT_CONFIG.reminder) OT_CONFIG.reminder={zh:'',es:'',en:''};
   if(!OT_CONFIG.pass) OT_CONFIG.pass={leader:'',sec:'',mgr:''};
   return OT_CONFIG;
@@ -3709,8 +3719,8 @@ async function renderOtConfig(){
 `;
   otWhoFilter('');
 }
-function otReasonRow(v){ return `<div style="display:flex;gap:6px;margin-bottom:6px"><input class="ot-reason" value="${(v||'').replace(/"/g,'&quot;')}" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm" onclick="this.parentNode.remove()">✕</button></div>`; }
-function otAddReason(){ const c=document.getElementById('ot-reasons'); if(!c) return; const d=document.createElement('div'); d.innerHTML=otReasonRow(''); c.appendChild(d.firstChild); }
+function otReasonRow(v){ v=v||{}; const cell=(cls,val,ph)=>`<input class="${cls}" value="${(val||'').replace(/"/g,'&quot;')}" placeholder="${ph}" style="flex:1;min-width:110px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>`; return `<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">${cell('ot-r-es',v.es,'Español')}${cell('ot-r-zh',v.zh,'中文')}${cell('ot-r-en',v.en,'English')}<button class="mt-perm" onclick="this.parentNode.remove()">✕</button></div>`; }
+function otAddReason(){ const c=document.getElementById('ot-reasons'); if(!c) return; const d=document.createElement('div'); d.innerHTML=otReasonRow({}); c.appendChild(d.firstChild); }
 function otWhoCount(){ const e=document.getElementById('ot-who-count'); if(e) e.textContent=document.querySelectorAll('#ot-who-list .ot-who:checked').length; }
 function otWhoAll(on){ document.querySelectorAll('#ot-who-list .ot-who').forEach(c=>c.checked=on); otWhoCount(); }
 function otWhoFilter(q){
@@ -3726,7 +3736,7 @@ async function otSaveWho(){
   try{ await fetch(`${FB}/ot_config/allowed.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(OT_CONFIG.allowed)}); alert(otT('saved')); }catch(e){ alert('✗ '+e.message); }
 }
 async function otSaveReasons(){
-  const arr=[...document.querySelectorAll('#ot-reasons .ot-reason')].map(i=>i.value.trim()).filter(Boolean);
+  const arr=[...document.querySelectorAll('#ot-reasons > div')].map(row=>{ const g=c=>{const e=row.querySelector('.'+c); return e?e.value.trim():'';}; return {es:g('ot-r-es'),zh:g('ot-r-zh'),en:g('ot-r-en')}; }).filter(o=>o.zh||o.es||o.en);
   OT_CONFIG.reject_reasons=arr;
   try{ await fetch(`${FB}/ot_config/reject_reasons.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); alert(otT('saved')); }catch(e){ alert('✗ '+e.message); }
 }
@@ -3889,7 +3899,7 @@ function otReqCard(id,r){
   if(r.status==='pending'&&r.stage==='section'){ action = ((typeof umCan==='function')&&umCan('ot_approve1','v')) ? `<button class="ot-ap" onclick="otApprove('${id}','sec')">${otT('approve')}</button><button class="ot-rj" onclick="otRejectOpen('${id}','sec')">${otT('reject')}</button>` : `<span style="font-size:12px;color:var(--text3)">${otT('needAppr1')}</span>`; }
   else if(r.status==='pending'&&r.stage==='manager'){ action = ((typeof umCan==='function')&&umCan('ot_approve2','v')) ? `<button class="ot-ap" onclick="otApprove('${id}','mgr')">${otT('approve')}</button><button class="ot-rj" onclick="otRejectOpen('${id}','mgr')">${otT('reject')}</button>` : `<span style="font-size:12px;color:var(--text3)">${otT('needAppr2')}</span>`; }
   const wd = (r.status==='pending') ? `<button class="ot-rj" onclick="otWithdraw('${id}')">${otT('withdraw')}</button>` : '';
-  const rej = r.reject ? `<div style="font-size:12px;color:var(--red);margin-top:6px">✗ ${r.reject.role||''}：${r.reject.reason||''}${r.reject.note?'（'+r.reject.note+'）':''}</div>` : '';
+  const rej = r.reject ? `<div style="font-size:12px;color:var(--red);margin-top:6px">✗ ${r.reject.role||''}：${otReasonText(r.reject.reason)}${r.reject.note?'（'+r.reject.note+'）':''}</div>` : '';
   const hist = [r.sec&&`${otT('secRole')} ✓ ${r.sec.by||''}`, r.mgr&&`${otT('mgrRole')} ✓ ${r.mgr.by||''}`].filter(Boolean).join('　');
   return `<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--bg)">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
@@ -3930,7 +3940,7 @@ function otRejectOpen(id,role){
   otEnsureRejModal();
   const reasons=(OT_CONFIG.reject_reasons||[]);
   document.getElementById('otrej-title').textContent=otT('rejectTitle');
-  document.getElementById('otrej-sel').innerHTML=`<option value="">${otT('pickReason')}</option>`+reasons.map(x=>`<option value="${String(x).replace(/"/g,'&quot;')}">${x}</option>`).join('');
+  document.getElementById('otrej-sel').innerHTML=`<option value="">${otT('pickReason')}</option>`+reasons.map((x,i)=>`<option value="${i}">${otReasonText(x)}</option>`).join('');
   document.getElementById('otrej-note').value=''; document.getElementById('otrej-note').placeholder=otT('note');
   document.getElementById('otrej-err').textContent='';
   document.getElementById('otrej-cancel').textContent=otT('cancel');
@@ -3955,9 +3965,10 @@ function otEnsureRejModal(){
 }
 async function otRejectConfirm(){
   if(!otRejTarget) return;
-  const reason=document.getElementById('otrej-sel').value;
+  const idx=document.getElementById('otrej-sel').value;
   const note=(document.getElementById('otrej-note').value||'').trim();
-  if(!reason){ document.getElementById('otrej-err').textContent=otT('pickReason'); return; }
+  if(idx===''){ document.getElementById('otrej-err').textContent=otT('pickReason'); return; }
+  const reason=OT_CONFIG.reject_reasons[parseInt(idx,10)];
   const {id,role}=otRejTarget; const r=OT_REQUESTS[id]; const now=fldPanNow();
   const who=(typeof umCurrentUser!=='undefined'&&umCurrentUser)?umCurrentUser.name:'';
   const patch={stage:'done',status:'rejected',reject:{by:who,role:role==='sec'?otT('secRole'):otT('mgrRole'),reason,note,time:now}};
