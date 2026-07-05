@@ -2308,6 +2308,12 @@ function guestRestore(){
   }catch(e){ return false; }
 }
 
+async function umRefreshPerms(){
+  if(typeof umCurrentUser==='undefined' || !umCurrentUser) return;
+  try{ await loadUsers(); }catch(e){}
+  const u=USERS[umCurrentUser.id];
+  if(u && u.perms){ umCurrentUser.perms=u.perms; if(typeof umSaveSession==='function') umSaveSession(); if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); }
+}
 function umSaveSession(){ try{ if(umCurrentUser) localStorage.setItem('tesm_um', JSON.stringify({id:umCurrentUser.id,name:umCurrentUser.name,perms:umCurrentUser.perms,exp:Date.now()+2*3600*1000})); }catch(e){} }
 function umRestoreSession(){
   try{ const raw=localStorage.getItem('tesm_um'); if(!raw) return false; const s=JSON.parse(raw);
@@ -3989,6 +3995,7 @@ function otReqDate(){ return new Date().toLocaleString('en-CA',{timeZone:(typeof
 function otStaffName(id){ return (typeof STAFF!=='undefined'&&(STAFF[id]||STAFF[String(id).toUpperCase()]))||id; }
 async function otLoadRequests(){ try{ const r=await fetch(`${FB}/ot_requests.json`); OT_REQUESTS=(await r.json())||{}; }catch(e){ OT_REQUESTS={}; } }
 async function initOtSys(){
+  if(typeof umRefreshPerms==='function') await umRefreshPerms();
   await otLoadConfig(); await fldLoadConfig(); await otLoadRequests();
   document.getElementById('ots-tab-apply').textContent=otT('tabApply');
   document.getElementById('ots-tab-review').textContent=otT('tabToday');
