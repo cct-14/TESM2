@@ -258,6 +258,7 @@ async function load(){
   try{ const r=await fetch(FB+'/ot_config.json'); OTC=(await r.json())||{}; }catch(e){ OTC={}; } if(!OTC.allowed)OTC.allowed={}; if(!OTC.reminder)OTC.reminder={};
   try{ const r=await fetch(FB+'/users.json'); USERS_APP=(await r.json())||{}; }catch(e){ USERS_APP={}; }
   buildSelects(); applyLang();
+  if(typeof otRestoreSession==='function') otRestoreSession();
 }
 function buildSelects(){
   $('s-kind').innerHTML=KINDS.map(k=>`<option value="${k}">${k}</option>`).join('');
@@ -376,7 +377,10 @@ async function otDoChange(){ const t=L(); const id=otPendId; const n1=($('ot-new
   if(USERS_APP[id]){ USERS_APP[id].pass=n1; USERS_APP[id].mustChange=false; }
   otFinishLogin(id,USERS_APP[id]);
 }
-function otFinishLogin(id,u){ const t=L(); const perm=u.perms&&u.perms.ot_mobile&&u.perms.ot_mobile.v; if(!perm){ $('otg-err').textContent=t.noMobilePerm; return; } otUser={id,name:(STAFF[id]||u.name||id)}; enterOt(); }
+function otFinishLogin(id,u){ const t=L(); const perm=u.perms&&u.perms.ot_mobile&&u.perms.ot_mobile.v; if(!perm){ $('otg-err').textContent=t.noMobilePerm; return; } otUser={id,name:(STAFF[id]||u.name||id)}; otSaveSession(); enterOt(); }
+function otSaveSession(){ try{ if(otUser) localStorage.setItem('tesm_ot', JSON.stringify({id:otUser.id,name:otUser.name,exp:Date.now()+3600*1000})); }catch(e){} }
+function otRestoreSession(){ try{ const raw=localStorage.getItem('tesm_ot'); if(!raw) return false; const s=JSON.parse(raw); if(!s||!s.exp||Date.now()>s.exp){ localStorage.removeItem('tesm_ot'); return false; } otUser={id:s.id,name:s.name}; return true; }catch(e){ return false; } }
+function otLogout(){ otUser=null; try{ localStorage.removeItem('tesm_ot'); }catch(e){} otShowLogin(); }
 function enterOt(){ otPeople=[]; ['ot-num','ot-reason','ot-p-id','ot-start','ot-end'].forEach(i=>$(i).value=''); $('ot-hours').textContent=''; $('ot-app-name').textContent=otUser?('👤 '+otUser.name):''; $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); $('ot-date-end').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); otLoadMy(); otLoadAll(); }
 async function otLoadAll(){ try{ const r=await fetch(FB+'/ot_requests.json'); ALL_REQ=(await r.json())||{}; }catch(e){ ALL_REQ={}; } }
 function renderOtPeople(){ const el=$('ot-people-list'); el.innerHTML=otPeople.map((p,i)=>`<span class="chip" onclick="otDelP(${i})">${p.id}·${p.name} ✕</span>`).join(''); }
