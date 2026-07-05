@@ -606,6 +606,7 @@ select.fld-input.big{height:56px}
     <button onclick="gateSetLang('en')">EN</button>
   </div>
 </div>
+<script>(function(){try{var r=localStorage.getItem('tesm_um');if(r){var s=JSON.parse(r);if(s&&s.exp&&Date.now()<s.exp){var g=document.getElementById('login-gate');if(g)g.style.display='none';}}}catch(e){}})();</script>
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
@@ -2269,9 +2270,15 @@ function gateFinish(id,u){
   umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{}};
   if(typeof umSaveSession==='function') umSaveSession();
   if(typeof umUpdateBar==='function') umUpdateBar();
-  if(typeof applyNavPerms==='function') applyNavPerms();
+  refreshUIAfterAuth();
   try{ localStorage.setItem('tesm_returning','1'); }catch(e){}
   hideGate();
+}
+function refreshUIAfterAuth(){
+  document.querySelectorAll('.nav-item[data-page]').forEach(n=>{ n.style.display=''; });
+  if(typeof applyNavPerms==='function') applyNavPerms();
+  const active=document.querySelector('.page.active');
+  if(active){ let pg=active.id.replace('page-',''); let nav=document.querySelector('.nav-item[data-page="'+pg+'"]'); if(!nav || nav.style.display==='none'){ nav=document.querySelector('.nav-item[data-page="map"]'); pg='map'; } if(nav && typeof navTo==='function') navTo(pg,nav); }
 }
 
 
@@ -2334,7 +2341,7 @@ function umFinish(id,u){
   if(umNeed.feat && !umCan(umNeed.feat,umNeed.level||'v')){ alert(umT('noperm')); return; }
   if(cb) cb(true);
 }
-function umLogout(){ umCurrentUser=null; try{ localStorage.removeItem('tesm_um'); }catch(e){} if(typeof showGate==='function') showGate(); umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell(); }
+function umLogout(){ umCurrentUser=null; guestMode=false; try{ localStorage.removeItem('tesm_um'); localStorage.removeItem('tesm_guest'); }catch(e){} if(typeof showGate==='function') showGate(); umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell(); }
 function umCan(featId,level){ return !!(umCurrentUser&&umCurrentUser.perms&&umCurrentUser.perms[featId]&&umCurrentUser.perms[featId][level||'v']); }
 const PW_I18N={
   zh:{title:'🔑 密碼管理',dept:'部門密碼',app:'現場 / 加班密碼',field:'現場時數',otLeader:'組長（手機加班）',otSec:'課長審核',otMgr:'經理審核',newpw:'新密碼',change:'更改',updated:'✓ 已更新',need:'請輸入密碼'},
@@ -3969,21 +3976,21 @@ Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷�
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
-  noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needApply:'請登入有加班申請權限的帳號',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
+  noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needApply:'請登入有加班申請權限的帳號',fromL:'開始',toL:'結束',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
 Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',dupPerson:'Personal duplicado: ya está en la lista.',fillFirst:'Complete primero la fecha y la hora antes de agregar personal.',conflict:'Conflicto de horario: {name} ya tiene horas extra en ese período.',overrideRole:'Rechazo final',overrideBtn:'Rechazo final',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colPersonId:'N.º empleado',colPersonName:'Nombre',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
   group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',withdrawNoperm:'Solo el solicitante puede retirar.',cancelled:'Retirado',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
-  noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needApply:'Inicie sesión con una cuenta con permiso de solicitud',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
+  noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needApply:'Inicie sesión con una cuenta con permiso de solicitud',fromL:'Desde',toL:'Hasta',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
 Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',dupPerson:'Duplicate: this person is already on the list.',fillFirst:'Fill date and time first before adding personnel.',conflict:'Time conflict: {name} already has overtime in that period.',overrideRole:'Override reject',overrideBtn:'Override reject',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colPersonId:'Employee ID',colPersonName:'Name',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
   group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',withdrawNoperm:'Only the applicant can withdraw.',cancelled:'Withdrawn',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
   waitSec:'Awaiting approval 1',waitMgr:'Awaiting approval 2',approved:'Approved',rejected:'Rejected',
   approve:'Approve',reject:'Reject',rejectTitle:'Reject reason',pickReason:'Select a reason…',note:'Note (optional)',confirm:'Confirm reject',cancel:'Cancel',
-  noReq:'No requests',by:'Reviewed',at:'',secRole:'Approval 1 (chief)',mgrRole:'Approval 2 (manager)',loginFirst:'Sign in with your account to review',needApply:'Sign in with an account that has apply permission',needAppr1:'(needs approval 1)',needAppr2:'(needs approval 2)',people1:'Personnel',reasonL:'Reason',applicantL:'Applicant'});
+  noReq:'No requests',by:'Reviewed',at:'',secRole:'Approval 1 (chief)',mgrRole:'Approval 2 (manager)',loginFirst:'Sign in with your account to review',needApply:'Sign in with an account that has apply permission',fromL:'From',toL:'To',needAppr1:'(needs approval 1)',needAppr2:'(needs approval 2)',people1:'Personnel',reasonL:'Reason',applicantL:'Applicant'});
 
 let OT_REQUESTS={}, otSysTabCur='review', otSecOK=false, otMgrOK=false, otAppPeople=[], otRejTarget=null;
 function otCalcHours(s,e){ if(!s||!e) return null; const a=s.split(':').map(Number), b=e.split(':').map(Number); let m=(b[0]*60+b[1])-(a[0]*60+a[1]); if(m<=0) m+=1440; return Math.round(m/60*10)/10; }
@@ -4024,10 +4031,13 @@ function otRenderApply(){
   el.innerHTML=`<div style="max-width:460px">
     <label class="lbl2">${otT('group')}</label><select id="ota-group" class="ot-in">${['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'].map(g=>`<option value="${g}">${g}</option>`).join('')}</select>
     <label class="lbl2">${otT('timeRange')}</label>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="width:46px;font-size:12px;color:var(--text3);flex-shrink:0">${otT('fromL')}</span>
       <input id="ota-date" type="date" class="ot-in" style="width:auto;margin:0" onchange="otaSyncEnd();otaCalcHours()"/>
       <input id="ota-start" type="time" class="ot-in" style="width:auto;margin:0" oninput="otaCalcHours()"/>
-      <span style="color:var(--text3)">~</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="width:46px;font-size:12px;color:var(--text3);flex-shrink:0">${otT('toL')}</span>
       <input id="ota-date-end" type="date" class="ot-in" style="width:auto;margin:0" onchange="otaCalcHours()"/>
       <input id="ota-end" type="time" class="ot-in" style="width:auto;margin:0" oninput="otaCalcHours()"/>
       <span id="ota-hours" style="font-weight:800;color:var(--blue);white-space:nowrap"></span>
