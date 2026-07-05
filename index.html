@@ -1961,15 +1961,15 @@ const UM_I18N={
   zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼',add:'新增人員',
     newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
-    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
+    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
   es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial',add:'Añadir usuario',
     newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
-    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
+    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
   en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password',add:'Add user',
     newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
-    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
+    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
 };
 function umT(k){ const L=UM_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||UM_I18N.zh; return L[k]||UM_I18N.zh[k]||k; }
 function umTn(k,map){ let s=umT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
@@ -1980,8 +1980,8 @@ function featLabel(f){
   const t=(typeof aT==='function')?aT('feat_'+f.id):null;
   return (t&&t!=='feat_'+f.id)?t:f.label;
 }
-const OT_APPROVE_FEATURES=[{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'}];
-function approveLabel(id){ const m={ot_approve1:'appr1',ot_approve2:'appr2',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg'}; return umT(m[id]||id); }
+const OT_APPROVE_FEATURES=[{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'}];
+function approveLabel(id){ const m={ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg'}; return umT(m[id]||id); }
 function renderUsers(){
   const el=document.getElementById('um-list'); if(!el) return;
   const q=(document.getElementById('um-search')&&document.getElementById('um-search').value||'').toLowerCase();
@@ -3754,21 +3754,21 @@ async function otSavePass(){
 }
 
 // ── 加班申請系統（網頁：申請 + 兩關審核）──
-Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colReview:'審核',histStatus:'審核狀況',stAll:'全部',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
+Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',dupPerson:'人員重複：此員工已在加班名單內。',conflict:'時間衝突：{name} 在該時段已有加班。',overrideRole:'最大駁回',overrideBtn:'最大駁回',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colPersonId:'人事代號',colPersonName:'姓名',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colReview:'審核',histStatus:'審核狀況',stAll:'全部',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
   group:'課別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
   errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',confirmTitle:'確認申請內容',confirmSend:'確定送出',backEdit:'返回修改',withdraw:'撤回',withdrawQ:'確定撤回這筆申請？',cancelled:'已撤回',
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
   noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
-Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
+Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',dupPerson:'Personal duplicado: ya está en la lista.',conflict:'Conflicto de horario: {name} ya tiene horas extra en ese período.',overrideRole:'Rechazo final',overrideBtn:'Rechazo final',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colPersonId:'N.º empleado',colPersonName:'Nombre',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
   group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',cancelled:'Retirado',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
   noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
-Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
+Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',dupPerson:'Duplicate: this person is already on the list.',conflict:'Time conflict: {name} already has overtime in that period.',overrideRole:'Override reject',overrideBtn:'Override reject',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colPersonId:'Employee ID',colPersonName:'Name',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
   group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',cancelled:'Withdrawn',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
@@ -3779,6 +3779,9 @@ Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'Histor
 let OT_REQUESTS={}, otSysTabCur='review', otSecOK=false, otMgrOK=false, otAppPeople=[], otRejTarget=null;
 function otCalcHours(s,e){ if(!s||!e) return null; const a=s.split(':').map(Number), b=e.split(':').map(Number); let m=(b[0]*60+b[1])-(a[0]*60+a[1]); if(m<=0) m+=1440; return Math.round(m/60*10)/10; }
 function otTodayStr(){ return new Date().toLocaleString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}).slice(0,10); }
+function otToMin(t){ const p=String(t||'').split(':').map(Number); return (p[0]||0)*60+(p[1]||0); }
+function otOverlap(s1,e1,s2,e2){ let a1=otToMin(s1),b1=otToMin(e1); if(b1<=a1)b1+=1440; let a2=otToMin(s2),b2=otToMin(e2); if(b2<=a2)b2+=1440; return a1<b2 && a2<b1; }
+function otPersonConflict(pid,date,start,end,excludeId){ pid=String(pid).toUpperCase(); for(const k in (OT_REQUESTS||{})){ if(k===excludeId) continue; const r=OT_REQUESTS[k]; if(!r||r.status==='rejected'||r.status==='cancelled') continue; if(r.date!==date||!r.start_time||!r.end_time) continue; if(!(r.people||[]).some(p=>String(p.id).toUpperCase()===pid)) continue; if(otOverlap(start,end,r.start_time,r.end_time)) return true; } return false; }
 function otReqDate(){ return new Date().toLocaleString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}).slice(0,10); }
 function otStaffName(id){ return (typeof STAFF!=='undefined'&&(STAFF[id]||STAFF[String(id).toUpperCase()]))||id; }
 async function otLoadRequests(){ try{ const r=await fetch(`${FB}/ot_requests.json`); OT_REQUESTS=(await r.json())||{}; }catch(e){ OT_REQUESTS={}; } }
@@ -3830,9 +3833,9 @@ function otaCalcHours(){ const hh=otCalcHours(document.getElementById('ota-start
 function otaRenderPeople(){ const el=document.getElementById('ota-people'); if(el) el.innerHTML=otAppPeople.map((p,i)=>`<span class="ot-chip" onclick="otaDelP(${i})">${p.id}·${p.name} ✕</span>`).join(''); }
 function otaDelP(i){ otAppPeople.splice(i,1); otaRenderPeople(); }
 function otaPidLook(){ const id=(document.getElementById('ota-pid').value||'').trim(); document.getElementById('ota-pname').textContent=id?otStaffName(id):''; }
-function otaAddP(){ const id=(document.getElementById('ota-pid').value||'').trim(); if(!id) return; otAppPeople.push({id,name:otStaffName(id)}); document.getElementById('ota-pid').value=''; document.getElementById('ota-pname').textContent=''; otaRenderPeople(); }
+function otaAddP(){ const id=(document.getElementById('ota-pid').value||'').trim(); if(!id) return; if(otAppPeople.some(p=>String(p.id).toUpperCase()===id.toUpperCase())){ alert(otT('dupPerson')); return; } otAppPeople.push({id,name:otStaffName(id)}); document.getElementById('ota-pid').value=''; document.getElementById('ota-pname').textContent=''; otaRenderPeople(); }
 function otaAppLook(){ const id=(document.getElementById('ota-app').value||'').trim(); document.getElementById('ota-appname').textContent=id?otStaffName(id):''; }
-function otaReview(){
+async function otaReview(){
   const group=(document.getElementById('ota-group').value||'').trim();
   const num=(document.getElementById('ota-num').value||'').trim().toUpperCase();
   const reason=(document.getElementById('ota-reason').value||'').trim();
@@ -3845,6 +3848,8 @@ function otaReview(){
   err.textContent='';
   const type=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value;
   const date=document.getElementById('ota-date').value; const hrs=otCalcHours(start,end);
+  await otLoadRequests();
+  for(const p of otAppPeople){ if(otPersonConflict(p.id,date,start,end)){ err.textContent=otT('conflict').replace('{name}',p.name); return; } }
   otEnsureConfirmModal();
   document.getElementById('otc-title').textContent=otT('confirmTitle');
   document.getElementById('otc-body').innerHTML=`<div style="font-size:14px;line-height:2">
@@ -3908,7 +3913,7 @@ function otRenderCards(entries, emptyKey){
 function otRenderReview(){ const t=otTodayStr(); otRenderCards(otSortedEntries().filter(([id,r])=>r.date===t), 'noToday'); }
 function otRenderPend1(){ otRenderCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='section'), 'noReq'); }
 function otRenderPend2(){ otRenderCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='manager'), 'noReq'); }
-function otRefresh(){ if(otSysTabCur==='pend1') otRenderPend1(); else if(otSysTabCur==='pend2') otRenderPend2(); else otRenderReview(); }
+function otRefresh(){ if(otSysTabCur==='history') otHistRenderGroups(); else if(otSysTabCur==='pend1') otRenderPend1(); else if(otSysTabCur==='pend2') otRenderPend2(); else otRenderReview(); }
 function otStatusBadge(r){
   if(r.status==='cancelled') return `<span class="ot-badge no">${otT('cancelled')}</span>`;
   if(r.status==='approved') return `<span class="ot-badge ok">${otT('approved')}</span>`;
@@ -3921,6 +3926,7 @@ function otReqCard(id,r){
   let action='';
   if(r.status==='pending'&&r.stage==='section'){ action = ((typeof umCan==='function')&&umCan('ot_approve1','v')) ? `<button class="ot-ap" onclick="otApprove('${id}','sec')">${otT('approve')}</button><button class="ot-rj" onclick="otRejectOpen('${id}','sec')">${otT('reject')}</button>` : `<span style="font-size:12px;color:var(--text3)">${otT('needAppr1')}</span>`; }
   else if(r.status==='pending'&&r.stage==='manager'){ action = ((typeof umCan==='function')&&umCan('ot_approve2','v')) ? `<button class="ot-ap" onclick="otApprove('${id}','mgr')">${otT('approve')}</button><button class="ot-rj" onclick="otRejectOpen('${id}','mgr')">${otT('reject')}</button>` : `<span style="font-size:12px;color:var(--text3)">${otT('needAppr2')}</span>`; }
+  else if(r.status==='approved'&&(typeof umCan==='function')&&umCan('ot_override','v')){ action = `<button class="ot-rj" onclick="otRejectOpen('${id}','override')">${otT('overrideBtn')}</button>`; }
   const wd = (r.status==='pending') ? `<button class="ot-rj" onclick="otWithdraw('${id}')">${otT('withdraw')}</button>` : '';
   const rej = r.reject ? `<div style="font-size:12px;color:var(--red);margin-top:6px">✗ ${r.reject.role||''}：${otReasonText(r.reject.reason)}${r.reject.note?'（'+r.reject.note+'）':''}</div>` : '';
   const hist = [r.sec&&`${otT('secRole')} ✓ ${r.sec.by||''}`, r.mgr&&`${otT('mgrRole')} ✓ ${r.mgr.by||''}`].filter(Boolean).join('　');
@@ -3994,7 +4000,7 @@ async function otRejectConfirm(){
   const reason=OT_CONFIG.reject_reasons[parseInt(idx,10)];
   const {id,role}=otRejTarget; const r=OT_REQUESTS[id]; const now=fldPanNow();
   const who=(typeof umCurrentUser!=='undefined'&&umCurrentUser)?umCurrentUser.name:'';
-  const patch={stage:'done',status:'rejected',reject:{by:who,role:role==='sec'?otT('secRole'):otT('mgrRole'),reason,note,time:now}};
+  const patch={stage:'done',status:'rejected',reject:{by:who,role:(role==='sec'?otT('secRole'):role==='mgr'?otT('mgrRole'):otT('overrideRole')),reason,note,time:now}};
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ document.getElementById('otrej-err').textContent='✗ '+e.message; return; }
   document.getElementById('ot-rej-modal').style.display='none'; otRejTarget=null; otRefresh();
@@ -4069,7 +4075,7 @@ function otHistRenderGroups(){
         <b style="flex:1">${g.title}</b>
         <span class="ot-badge wait">${g.items.length} ${otT('events')}</span>
       </div>
-      ${open?`<div style="padding:6px 10px">${items.map(([id,r])=>otHistLine(r)).join('')}</div>`:''}
+      ${open?`<div style="padding:6px 10px">${items.map(([id,r])=>otHistLine(id,r)).join('')}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -4082,20 +4088,23 @@ function otExportExcel(){
   if(otHistGroups&&otHistGroups.length){ otHistGroups.forEach(g=>g.items.forEach(([id,r])=>rows.push(r))); }
   else { rows=Object.values(OT_REQUESTS||{}); }
   rows.sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
-  const H=['colDate','colStart','colEnd','colHours','colGroup','colMachine','colNum','colPeople','colApplicant','colReason','colStatus','colReview'].map(k=>otT(k));
+  const H=[otT('colDate'),otT('colStart'),otT('colEnd'),otT('colHours'),otT('colGroup'),otT('colMachine'),otT('colNum'),otT('colPersonId'),otT('colPersonName'),otT('colApplicant'),otT('colReason'),otT('colStatus'),otT('colReview')];
   const lines=[H.map(otCsvCell).join(',')];
   rows.forEach(r=>{
-    const ppl=(r.people||[]).map(p=>`${p.id||''} ${p.name||''}`.trim()).join(' / ');
     const app=r.applicant?`${r.applicant.id||''} ${r.applicant.name||''}`.trim():'';
     const rev=[r.sec&&(otT('secRole')+':'+(r.sec.by||'')), r.mgr&&(otT('mgrRole')+':'+(r.mgr.by||'')), r.reject&&('✗ '+(r.reject.role||'')+':'+otReasonText(r.reject.reason))].filter(Boolean).join(' | ');
-    lines.push([r.date,r.start_time,r.end_time,r.hours,r.group,r.machine_type,r.machine_num,ppl,app,r.reason,otReqStatusText(r),rev].map(otCsvCell).join(','));
+    const ppl=(r.people&&r.people.length)?r.people:[{id:'',name:''}];
+    ppl.forEach(p=>{
+      const pid=(p.id||'').toString().trim(), pname=(p.name||'').toString().trim();
+      lines.push([r.date,r.start_time,r.end_time,r.hours,r.group,r.machine_type,r.machine_num,pid,pname,app,r.reason,otReqStatusText(r),rev].map(otCsvCell).join(','));
+    });
   });
   const csv='\uFEFF'+lines.join('\r\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob); const a=document.createElement('a');
   a.href=url; a.download='overtime_'+otTodayStr()+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
-function otHistLine(r){
+function otHistLine(id,r){
   const ppl=(r.people||[]).map(p=>`${p.id||''} ${p.name||''}`.trim()).join('、');
   const appTxt=r.applicant?`${r.applicant.id||''} ${r.applicant.name||''}`.trim():'';
   return `<div style="border-bottom:1px solid var(--bg3);padding:8px 4px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
