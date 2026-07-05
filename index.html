@@ -2295,7 +2295,7 @@ async function applyGuestAccess(){
 }
 function gateGuest(){
   guestMode=true; umCurrentUser=null;
-  try{ localStorage.setItem('tesm_guest', JSON.stringify({exp:Date.now()+2*3600*1000})); localStorage.removeItem('tesm_um'); }catch(e){}
+  try{ localStorage.removeItem('tesm_guest'); localStorage.removeItem('tesm_um'); }catch(e){}
   hideGate();
   if(typeof umUpdateBar==='function') umUpdateBar();
   if(typeof applyNavPerms==='function') applyNavPerms();
@@ -5310,7 +5310,7 @@ initMessaging();
 restoreMaintUser();
 restoreRole();
 if(typeof umUpdateBar==='function') umUpdateBar();
-loadGuestAccess(); loadUsers().then(()=>{ if(typeof umRestoreSession==='function' && umRestoreSession()){ hideGate(); } else if(typeof guestRestore==='function' && guestRestore()){ hideGate(); } else { if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof showGate==='function') showGate(); } });
+loadGuestAccess(); loadUsers().then(()=>{ if(typeof umRestoreSession==='function' && umRestoreSession()){ hideGate(); } else { if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof showGate==='function') showGate(); } });
 initPresence();
 initEqTip();
 (function(){
