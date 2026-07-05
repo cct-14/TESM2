@@ -2018,15 +2018,15 @@ const UM_I18N={
   zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼',add:'新增人員',
     newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
-    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
+    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
   es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial',add:'Añadir usuario',
     newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
-    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
+    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
   en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password',add:'Add user',
     newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
-    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
+    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
 };
 function umT(k){ const L=UM_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||UM_I18N.zh; return L[k]||UM_I18N.zh[k]||k; }
 function umTn(k,map){ let s=umT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
@@ -2037,8 +2037,8 @@ function featLabel(f){
   const t=(typeof aT==='function')?aT('feat_'+f.id):null;
   return (t&&t!=='feat_'+f.id)?t:f.label;
 }
-const OT_APPROVE_FEATURES=[{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'}];
-function approveLabel(id){ const m={ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg'}; return umT(m[id]||id); }
+const OT_APPROVE_FEATURES=[{id:'ot_apply'},{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'}];
+function approveLabel(id){ const m={ot_apply:'applyF',ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg'}; return umT(m[id]||id); }
 function renderUsers(){
   const el=document.getElementById('um-list'); if(!el) return;
   const q=(document.getElementById('um-search')&&document.getElementById('um-search').value||'').toLowerCase();
@@ -3963,21 +3963,21 @@ Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷�
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
-  noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
+  noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needApply:'請登入有加班申請權限的帳號',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
 Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',dupPerson:'Personal duplicado: ya está en la lista.',fillFirst:'Complete primero la fecha y la hora antes de agregar personal.',conflict:'Conflicto de horario: {name} ya tiene horas extra en ese período.',overrideRole:'Rechazo final',overrideBtn:'Rechazo final',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colPersonId:'N.º empleado',colPersonName:'Nombre',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
   group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',cancelled:'Retirado',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
-  noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
+  noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needApply:'Inicie sesión con una cuenta con permiso de solicitud',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
 Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',dupPerson:'Duplicate: this person is already on the list.',fillFirst:'Fill date and time first before adding personnel.',conflict:'Time conflict: {name} already has overtime in that period.',overrideRole:'Override reject',overrideBtn:'Override reject',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colPersonId:'Employee ID',colPersonName:'Name',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
   group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',cancelled:'Withdrawn',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
   waitSec:'Awaiting approval 1',waitMgr:'Awaiting approval 2',approved:'Approved',rejected:'Rejected',
   approve:'Approve',reject:'Reject',rejectTitle:'Reject reason',pickReason:'Select a reason…',note:'Note (optional)',confirm:'Confirm reject',cancel:'Cancel',
-  noReq:'No requests',by:'Reviewed',at:'',secRole:'Approval 1 (chief)',mgrRole:'Approval 2 (manager)',loginFirst:'Sign in with your account to review',needAppr1:'(needs approval 1)',needAppr2:'(needs approval 2)',people1:'Personnel',reasonL:'Reason',applicantL:'Applicant'});
+  noReq:'No requests',by:'Reviewed',at:'',secRole:'Approval 1 (chief)',mgrRole:'Approval 2 (manager)',loginFirst:'Sign in with your account to review',needApply:'Sign in with an account that has apply permission',needAppr1:'(needs approval 1)',needAppr2:'(needs approval 2)',people1:'Personnel',reasonL:'Reason',applicantL:'Applicant'});
 
 let OT_REQUESTS={}, otSysTabCur='review', otSecOK=false, otMgrOK=false, otAppPeople=[], otRejTarget=null;
 function otCalcHours(s,e){ if(!s||!e) return null; const a=s.split(':').map(Number), b=e.split(':').map(Number); let m=(b[0]*60+b[1])-(a[0]*60+a[1]); if(m<=0) m+=1440; return Math.round(m/60*10)/10; }
@@ -3995,16 +3995,22 @@ async function initOtSys(){
   const p1=document.getElementById('ots-tab-pend1'), p2=document.getElementById('ots-tab-pend2');
   if(p1) p1.textContent=otT('tabPend1'); if(p2) p2.textContent=otT('tabPend2');
   if(document.getElementById('ots-tab-history')) document.getElementById('ots-tab-history').textContent=otT('tabHistory');
+  const canApply=(typeof umCurrentUser!=='undefined'&&umCurrentUser&&umCan('ot_apply','v'));
+  const at=document.getElementById('ots-tab-apply'); if(at) at.style.display=canApply?'':'none';
+  if(!canApply && otSysTabCur==='apply') otSysTabCur='review';
   otSysTab(otSysTabCur);
 }
 function otSysTab(which){
   otSysTabCur=which;
   ['apply','review','pend1','pend2','history'].forEach(w=>{ const b=document.getElementById('ots-tab-'+w); if(b) b.classList.toggle('active', w===which); });
+  if(which==='apply' && !((typeof umCurrentUser!=='undefined'&&umCurrentUser)&&umCan('ot_apply','v'))){ which='review'; ['apply','review','pend1','pend2','history'].forEach(w=>{ const b=document.getElementById('ots-tab-'+w); if(b) b.classList.toggle('active', w===which); }); otSysTabCur='review'; }
   if(which==='apply') otRenderApply(); else if(which==='history') otRenderHistory(); else if(which==='pend1') otRenderPend1(); else if(which==='pend2') otRenderPend2(); else otRenderReview();
 }
 // ── 申請 ──
 function otRenderApply(){
-  const el=document.getElementById('ots-body'); if(!el) return; otAppPeople=[]; otLoadRequests();
+  const el=document.getElementById('ots-body'); if(!el) return;
+  if(!((typeof umCurrentUser!=='undefined'&&umCurrentUser)&&umCan('ot_apply','v'))){ el.innerHTML=`<div style="padding:30px;text-align:center;color:var(--text3)">${otT('needApply')}</div>`; return; }
+  otAppPeople=[]; otLoadRequests();
   const kinds=(typeof FIELD_KINDS!=='undefined'?FIELD_KINDS:['RTG']);
   el.innerHTML=`<div style="max-width:460px">
     <label class="lbl2">${otT('group')}</label><select id="ota-group" class="ot-in">${['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'].map(g=>`<option value="${g}">${g}</option>`).join('')}</select>
@@ -4023,8 +4029,8 @@ function otRenderApply(){
     <label class="lbl2">${otT('machine')}</label><select id="ota-kind" class="ot-in">${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
     <label class="lbl2">${otT('num')}</label><input id="ota-num" class="ot-in" style="text-transform:uppercase"/>
     <label class="lbl2">${otT('reason')}</label><input id="ota-reason" class="ot-in"/>
-    <label class="lbl2">${otT('applicant')}</label><input id="ota-app" class="ot-in" oninput="otaAppLook()"/>
-    <div id="ota-appname" style="font-size:13px;font-weight:700;color:var(--green);min-height:18px;margin:4px 2px"></div>
+    <label class="lbl2">${otT('applicantL')}</label>
+    <div style="font-size:15px;font-weight:800;padding:6px 2px">👤 ${umCurrentUser.name}</div>
     <div id="ota-err" style="color:var(--red);font-size:13px;min-height:18px"></div>
     <button class="btn-primary2" id="ota-submit" onclick="otaReview()">${otT('submit')}</button>
     <div id="ota-remind" style="font-size:12px;color:var(--text3);margin-top:12px;white-space:pre-line">${(OT_CONFIG.reminder&&OT_CONFIG.reminder[maintLang])||''}</div>
@@ -4047,12 +4053,11 @@ async function otaReview(){
   const group=(document.getElementById('ota-group').value||'').trim();
   const num=(document.getElementById('ota-num').value||'').trim().toUpperCase();
   const reason=(document.getElementById('ota-reason').value||'').trim();
-  const appId=(document.getElementById('ota-app').value||'').trim();
   const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value;
   const err=document.getElementById('ota-err');
-  if(!group||!otAppPeople.length||!num||!reason||!appId){ err.textContent=otT('errForm'); return; }
+  if(!umCurrentUser){ err.textContent=otT('needApply'); return; }
+  if(!group||!otAppPeople.length||!num||!reason){ err.textContent=otT('errForm'); return; }
   if(!start||!end){ err.textContent=otT('needTime'); return; }
-  if(!(OT_CONFIG.allowed&&(OT_CONFIG.allowed[appId]||OT_CONFIG.allowed[appId.toUpperCase()]))){ err.textContent=otT('notAllowed'); return; }
   err.textContent='';
   const type=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value;
   const date=document.getElementById('ota-date').value; const hrs=otCalcHours(start,end);
@@ -4066,7 +4071,7 @@ async function otaReview(){
     <b>${otT('date')}</b>: ${date}　<b>${otT('timeRange')}</b>: ${start}~${end}（${hrs} ${otT('hoursUnit')}）<br>
     <b>${otT('machine')}</b>: ${type}-${num}<br>
     <b>${otT('reasonL')}</b>: ${reason}<br>
-    <b>${otT('applicantL')}</b>: ${otStaffName(appId)}</div>`;
+    <b>${otT('applicantL')}</b>: ${umCurrentUser.name}</div>`;
   document.getElementById('otc-back').textContent=otT('backEdit');
   document.getElementById('otc-ok').textContent=otT('confirmSend');
   document.getElementById('ot-confirm-modal').style.display='flex';
@@ -4092,13 +4097,12 @@ async function otaSubmit(){
   const type=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value;
   const num=(document.getElementById('ota-num').value||'').trim().toUpperCase();
   const reason=(document.getElementById('ota-reason').value||'').trim();
-  const appId=(document.getElementById('ota-app').value||'').trim();
   const err=document.getElementById('ota-err');
-  if(!group||!otAppPeople.length||!num||!reason||!appId){ err.textContent=otT('errForm'); return; }
-  if(!(OT_CONFIG.allowed&&(OT_CONFIG.allowed[appId]||OT_CONFIG.allowed[appId.toUpperCase()]))){ err.textContent=otT('notAllowed'); return; }
+  if(!umCurrentUser){ err.textContent=otT('needApply'); return; }
+  if(!group||!otAppPeople.length||!num||!reason){ err.textContent=otT('errForm'); return; }
   err.textContent='';
   const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value; const hours=otCalcHours(start,end);
-  const rec={group,people:otAppPeople.slice(),date,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:appId,name:otStaffName(appId)},status:'pending',stage:'section',created:fldPanNow()};
+  const rec={group,people:otAppPeople.slice(),date,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:umCurrentUser.id,name:umCurrentUser.name},status:'pending',stage:'section',created:fldPanNow()};
   const btn=document.getElementById('ota-submit'); btn.disabled=true;
   try{ const r=await fetch(`${FB}/ot_requests.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const j=await r.json(); if(j&&j.name) OT_REQUESTS[j.name]=rec; }catch(e){ err.textContent='✗ '+e.message; btn.disabled=false; return; }
   btn.disabled=false; alert(otT('sent')); otSysTab('review');
