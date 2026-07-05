@@ -153,9 +153,10 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <label class="lbl" id="l-ot-group">Grupo</label>
       <select class="inp" id="ot-group"><option value="MT-1">MT-1</option><option value="MT-2">MT-2</option><option value="MT-3">MT-3</option><option value="MTD">MTD</option><option value="INVENTORY">INVENTORY</option><option value="ON DUTY">ON DUTY</option></select>
       <label class="lbl" id="l-ot-date">Fecha</label>
-      <input class="inp" type="date" id="ot-date"/>
+      <input class="inp" type="date" id="ot-date" onchange="otSyncEnd();otCalc()"/>
       <label class="lbl" id="l-ot-time">Horario</label>
-      <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <input class="inp" type="date" id="ot-date-end" style="flex:1;min-width:130px" onchange="otCalc()"/>
         <input class="inp" type="time" id="ot-start" style="flex:1" oninput="otCalc()"/>
         <span style="color:var(--text3)">~</span>
         <input class="inp" type="time" id="ot-end" style="flex:1" oninput="otCalc()"/>
@@ -236,7 +237,9 @@ function toMin(t){ const p=String(t||'').split(':').map(Number); return (p[0]||0
 function overlap(s1,e1,s2,e2){ let a1=toMin(s1),b1=toMin(e1); if(b1<=a1)b1+=1440; let a2=toMin(s2),b2=toMin(e2); if(b2<=a2)b2+=1440; return a1<b2&&a2<b1; }
 function personConflict(all,pid,date,start,end){ pid=String(pid).toUpperCase(); for(const k in all){ const r=all[k]; if(!r||r.status==='rejected'||r.status==='cancelled') continue; if(r.date!==date||!r.start_time||!r.end_time) continue; if(!(r.people||[]).some(p=>String(p.id).toUpperCase()===pid)) continue; if(overlap(start,end,r.start_time,r.end_time)) return true; } return false; }
 function calcHours(s,e){ if(!s||!e) return null; const a=s.split(':').map(Number),b=e.split(':').map(Number); let m=(b[0]*60+b[1])-(a[0]*60+a[1]); if(m<=0)m+=1440; return Math.round(m/60*10)/10; }
-function otCalc(){ const hh=calcHours($('ot-start').value,$('ot-end').value); $('ot-hours').textContent=(hh!=null)?(hh+' '+L().hoursUnit):''; }
+function calcHoursDT(sd,st,ed,et){ if(!sd||!st||!et) return null; ed=ed||sd; const s=new Date(sd+'T'+st+':00'),e=new Date(ed+'T'+et+':00'); let m=(e-s)/60000; if(m<=0)m+=1440; return Math.round(m/60*10)/10; }
+function otSyncEnd(){ const sd=$('ot-date').value, e=$('ot-date-end'); if(e&&(!e.value||e.value<sd)) e.value=sd; }
+function otCalc(){ const hh=calcHoursDT($('ot-date').value,$('ot-start').value,$('ot-date-end').value,$('ot-end').value); $('ot-hours').textContent=(hh!=null)?(hh+' '+L().hoursUnit):''; }
 function L(){ return I18N[LANG]||I18N.es; }
 function canon(k){ return ALIAS[k]||k; }
 function key(k,n){ return (k+'-'+n).replace(/[\/\.\#\$\[\]]/g,'_'); }
@@ -372,7 +375,7 @@ async function otDoChange(){ const t=L(); const id=otPendId; const n1=($('ot-new
   otFinishLogin(id,USERS_APP[id]);
 }
 function otFinishLogin(id,u){ const t=L(); const perm=u.perms&&u.perms.ot_mobile&&u.perms.ot_mobile.v; if(!perm){ $('otg-err').textContent=t.noMobilePerm; return; } otUser={id,name:(STAFF[id]||u.name||id)}; enterOt(); }
-function enterOt(){ otPeople=[]; ['ot-num','ot-reason','ot-p-id','ot-start','ot-end'].forEach(i=>$(i).value=''); $('ot-hours').textContent=''; $('ot-app-name').textContent=otUser?('👤 '+otUser.name):''; $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); otLoadMy(); otLoadAll(); }
+function enterOt(){ otPeople=[]; ['ot-num','ot-reason','ot-p-id','ot-start','ot-end'].forEach(i=>$(i).value=''); $('ot-hours').textContent=''; $('ot-app-name').textContent=otUser?('👤 '+otUser.name):''; $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); $('ot-date-end').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); otLoadMy(); otLoadAll(); }
 async function otLoadAll(){ try{ const r=await fetch(FB+'/ot_requests.json'); ALL_REQ=(await r.json())||{}; }catch(e){ ALL_REQ={}; } }
 function renderOtPeople(){ const el=$('ot-people-list'); el.innerHTML=otPeople.map((p,i)=>`<span class="chip" onclick="otDelP(${i})">${p.id}·${p.name} ✕</span>`).join(''); }
 function otDelP(i){ otPeople.splice(i,1); renderOtPeople(); }
@@ -388,7 +391,7 @@ function otAppLookup(){ const id=($('ot-app').value||'').trim(); $('ot-app-name'
 let lastOtId=null;
 async function otReview(){ const t=L();
   const group=($('ot-group').value||'').trim(); const num=($('ot-num').value||'').trim().toUpperCase(); const reason=($('ot-reason').value||'').trim();
-  const date=$('ot-date').value; const type=canon($('ot-kind').value);
+  const date=$('ot-date').value, dateEnd=$('ot-date-end').value||date; const type=canon($('ot-kind').value);
   if(!otUser){ otShowLogin(); return; }
   const start=$('ot-start').value, end=$('ot-end').value;
   if(!group||!otPeople.length||!num||!reason){ $('ot-err').textContent=t.otErr; return; }
@@ -396,14 +399,14 @@ async function otReview(){ const t=L();
   $('ot-err').textContent='';
   let allReq={}; try{ const r=await fetch(FB+'/ot_requests.json'); allReq=(await r.json())||{}; }catch(e){}
   for(const p of otPeople){ if(personConflict(allReq,p.id,date,start,end)){ $('ot-err').textContent=t.conflict.replace('{name}',p.name); return; } }
-  const hrs=calcHours(start,end);
-  $('otc-detail').innerHTML=`<b>${t.group}</b>: ${group}<br><b>${t.people}</b>: ${otPeople.map(p=>p.name).join('、')}<br><b>${t.date}</b>: ${date} ${start}~${end}（${hrs}${t.hoursUnit}）<br><b>${t.kind}</b>: ${type}-${num}<br><b>${t.reason}</b>: ${reason}<br><b>${t.applicantIs}</b>: ${otUser.name}`;
+  const hrs=calcHoursDT(date,start,dateEnd,end);
+  $('otc-detail').innerHTML=`<b>${t.group}</b>: ${group}<br><b>${t.people}</b>: ${otPeople.map(p=>p.name).join('、')}<br><b>${t.date}</b>: ${date} ${start}~${(dateEnd&&dateEnd!==date)?(dateEnd+' '):''}${end}（${hrs}${t.hoursUnit}）<br><b>${t.kind}</b>: ${type}-${num}<br><b>${t.reason}</b>: ${reason}<br><b>${t.applicantIs}</b>: ${otUser.name}`;
   show('otconfirm');
 }
 async function otConfirmSend(){ const t=L();
   const group=($('ot-group').value||'').trim(); const date=$('ot-date').value; const type=canon($('ot-kind').value); const num=($('ot-num').value||'').trim().toUpperCase(); const reason=($('ot-reason').value||'').trim();
-  const start=$('ot-start').value, end=$('ot-end').value, hours=calcHours(start,end);
-  const rec={group,people:otPeople.slice(),date,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:otUser.id,name:otUser.name},status:'pending',stage:'section',created:now()};
+  const start=$('ot-start').value, end=$('ot-end').value; const dateEnd=$('ot-date-end').value||date; const hours=calcHoursDT(date,start,dateEnd,end);
+  const rec={group,people:otPeople.slice(),date,end_date:dateEnd,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:otUser.id,name:otUser.name},status:'pending',stage:'section',created:now()};
   const btn=$('otc-send'); btn.disabled=true;
   try{ const r=await fetch(FB+'/ot_requests.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const j=await r.json(); lastOtId=(j&&j.name)||null; }catch(e){ btn.disabled=false; show('ot'); $('ot-err').textContent='✗ '+e.message; return; }
   btn.disabled=false; $('d-detail').textContent=`${type}-${num} · ${date} · ${otUser.name}`;

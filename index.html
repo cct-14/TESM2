@@ -3987,6 +3987,8 @@ Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'Histor
 
 let OT_REQUESTS={}, otSysTabCur='review', otSecOK=false, otMgrOK=false, otAppPeople=[], otRejTarget=null;
 function otCalcHours(s,e){ if(!s||!e) return null; const a=s.split(':').map(Number), b=e.split(':').map(Number); let m=(b[0]*60+b[1])-(a[0]*60+a[1]); if(m<=0) m+=1440; return Math.round(m/60*10)/10; }
+function otCalcHoursDT(sd,st,ed,et){ if(!sd||!st||!et) return null; ed=ed||sd; const s=new Date(sd+'T'+st+':00'), e=new Date(ed+'T'+et+':00'); let m=(e-s)/60000; if(m<=0) m+=1440; return Math.round(m/60*10)/10; }
+function otaSyncEnd(){ const sd=document.getElementById('ota-date').value, e=document.getElementById('ota-date-end'); if(e && (!e.value || e.value<sd)) e.value=sd; }
 function otTodayStr(){ return new Date().toLocaleString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}).slice(0,10); }
 function otToMin(t){ const p=String(t||'').split(':').map(Number); return (p[0]||0)*60+(p[1]||0); }
 function otOverlap(s1,e1,s2,e2){ let a1=otToMin(s1),b1=otToMin(e1); if(b1<=a1)b1+=1440; let a2=otToMin(s2),b2=otToMin(e2); if(b2<=a2)b2+=1440; return a1<b2 && a2<b1; }
@@ -4021,11 +4023,12 @@ function otRenderApply(){
   const kinds=(typeof FIELD_KINDS!=='undefined'?FIELD_KINDS:['RTG']);
   el.innerHTML=`<div style="max-width:460px">
     <label class="lbl2">${otT('group')}</label><select id="ota-group" class="ot-in">${['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'].map(g=>`<option value="${g}">${g}</option>`).join('')}</select>
-    <label class="lbl2">${otT('date')}</label><input id="ota-date" type="date" class="ot-in"/>
     <label class="lbl2">${otT('timeRange')}</label>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:2px">
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+      <input id="ota-date" type="date" class="ot-in" style="width:auto;margin:0" onchange="otaSyncEnd();otaCalcHours()"/>
       <input id="ota-start" type="time" class="ot-in" style="width:auto;margin:0" oninput="otaCalcHours()"/>
       <span style="color:var(--text3)">~</span>
+      <input id="ota-date-end" type="date" class="ot-in" style="width:auto;margin:0" onchange="otaCalcHours()"/>
       <input id="ota-end" type="time" class="ot-in" style="width:auto;margin:0" oninput="otaCalcHours()"/>
       <span id="ota-hours" style="font-weight:800;color:var(--blue);white-space:nowrap"></span>
     </div>
@@ -4042,10 +4045,10 @@ function otRenderApply(){
     <button class="btn-primary2" id="ota-submit" onclick="otaReview()">${otT('submit')}</button>
     <div id="ota-remind" style="font-size:12px;color:var(--text3);margin-top:12px;white-space:pre-line">${(OT_CONFIG.reminder&&OT_CONFIG.reminder[maintLang])||''}</div>
   </div>`;
-  document.getElementById('ota-date').value=otReqDate();
+  document.getElementById('ota-date').value=otReqDate(); document.getElementById('ota-date-end').value=otReqDate();
   otaRenderPeople();
 }
-function otaCalcHours(){ const hh=otCalcHours(document.getElementById('ota-start').value,document.getElementById('ota-end').value); document.getElementById('ota-hours').textContent=(hh!=null)?(hh+' '+otT('hoursUnit')):''; }
+function otaCalcHours(){ const sd=document.getElementById('ota-date').value,st=document.getElementById('ota-start').value,ed=document.getElementById('ota-date-end').value,et=document.getElementById('ota-end').value; const hh=otCalcHoursDT(sd,st,ed,et); document.getElementById('ota-hours').textContent=(hh!=null)?(hh+' '+otT('hoursUnit')):''; }
 function otaRenderPeople(){ const el=document.getElementById('ota-people'); if(el) el.innerHTML=otAppPeople.map((p,i)=>`<span class="ot-chip" onclick="otaDelP(${i})">${p.id}·${p.name} ✕</span>`).join(''); }
 function otaDelP(i){ otAppPeople.splice(i,1); otaRenderPeople(); }
 function otaPidLook(){ const id=(document.getElementById('ota-pid').value||'').trim(); document.getElementById('ota-pname').textContent=id?otStaffName(id):''; }
@@ -4067,7 +4070,7 @@ async function otaReview(){
   if(!start||!end){ err.textContent=otT('needTime'); return; }
   err.textContent='';
   const type=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value;
-  const date=document.getElementById('ota-date').value; const hrs=otCalcHours(start,end);
+  const date=document.getElementById('ota-date').value; const dateEnd=document.getElementById('ota-date-end').value||date; const hrs=otCalcHoursDT(date,start,dateEnd,end);
   await otLoadRequests();
   for(const p of otAppPeople){ if(otPersonConflict(p.id,date,start,end)){ err.textContent=otT('conflict').replace('{name}',p.name); return; } }
   otEnsureConfirmModal();
@@ -4075,7 +4078,7 @@ async function otaReview(){
   document.getElementById('otc-body').innerHTML=`<div style="font-size:14px;line-height:2">
     <b>${otT('group')}</b>: ${group}<br>
     <b>${otT('people1')}</b>: ${otAppPeople.map(p=>p.name).join('、')}<br>
-    <b>${otT('date')}</b>: ${date}　<b>${otT('timeRange')}</b>: ${start}~${end}（${hrs} ${otT('hoursUnit')}）<br>
+    <b>${otT('date')}</b>: ${date}　<b>${otT('timeRange')}</b>: ${start} ~ ${(dateEnd&&dateEnd!==date)?(dateEnd+' '):''}${end}（${hrs} ${otT('hoursUnit')}）<br>
     <b>${otT('machine')}</b>: ${type}-${num}<br>
     <b>${otT('reasonL')}</b>: ${reason}<br>
     <b>${otT('applicantL')}</b>: ${umCurrentUser.name}</div>`;
@@ -4108,8 +4111,8 @@ async function otaSubmit(){
   if(!umCurrentUser){ err.textContent=otT('needApply'); return; }
   if(!group||!otAppPeople.length||!num||!reason){ err.textContent=otT('errForm'); return; }
   err.textContent='';
-  const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value; const hours=otCalcHours(start,end);
-  const rec={group,people:otAppPeople.slice(),date,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:umCurrentUser.id,name:umCurrentUser.name},status:'pending',stage:'section',created:fldPanNow()};
+  const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value; const dateEnd=document.getElementById('ota-date-end').value||date; const hours=otCalcHoursDT(date,start,dateEnd,end);
+  const rec={group,people:otAppPeople.slice(),date,end_date:dateEnd,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:umCurrentUser.id,name:umCurrentUser.name},status:'pending',stage:'section',created:fldPanNow()};
   const btn=document.getElementById('ota-submit'); btn.disabled=true;
   try{ const r=await fetch(`${FB}/ot_requests.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const j=await r.json(); if(j&&j.name) OT_REQUESTS[j.name]=rec; }catch(e){ err.textContent='✗ '+e.message; btn.disabled=false; return; }
   btn.disabled=false; alert(otT('sent')); otSysTab('review');
@@ -4153,7 +4156,7 @@ function otReqCard(id,r){
   return `<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--bg)">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
       <span style="font-weight:800">${r.machine_type}-${r.machine_num}</span>
-      <span style="color:var(--text3);font-size:13px">${r.date||''}${r.start_time?` ${r.start_time}~${r.end_time}（${r.hours} ${otT('hoursUnit')}）`:''}</span>
+      <span style="color:var(--text3);font-size:13px">${r.date||''}${r.start_time?` ${r.start_time}~${(r.end_date&&r.end_date!==r.date)?(r.end_date+' '):''}${r.end_time}（${r.hours} ${otT('hoursUnit')}）`:''}</span>
       <span style="margin-left:auto">${otStatusBadge(r)}</span>
     </div>
     <div style="font-size:13px;color:var(--text2);line-height:1.7">
@@ -4330,7 +4333,7 @@ function otHistLine(id,r){
   const appTxt=r.applicant?`${r.applicant.id||''} ${r.applicant.name||''}`.trim():'';
   return `<div style="border-bottom:1px solid var(--bg3);padding:8px 4px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <span style="color:var(--text3);min-width:92px">${r.date||''}</span>
-    ${r.start_time?`<span style="color:var(--text3)">${r.start_time}~${r.end_time}（${r.hours}${otT('hoursUnit')}）</span>`:''}
+    ${r.start_time?`<span style="color:var(--text3)">${r.start_time}~${(r.end_date&&r.end_date!==r.date)?(r.end_date+' '):''}${r.end_time}（${r.hours}${otT('hoursUnit')}）</span>`:''}
     <b>${r.machine_type}-${r.machine_num}</b>
     <span style="color:var(--text2)">${r.group||''}</span>
     <span style="color:var(--text2)">${otT('histApplicant')}:${appTxt}</span>
