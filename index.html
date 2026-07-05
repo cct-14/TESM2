@@ -3754,21 +3754,21 @@ async function otSavePass(){
 }
 
 // ── 加班申請系統（網頁：申請 + 兩關審核）──
-Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colReview:'審核',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
+Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colReview:'審核',histStatus:'審核狀況',stAll:'全部',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
   group:'課別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
   errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',confirmTitle:'確認申請內容',confirmSend:'確定送出',backEdit:'返回修改',withdraw:'撤回',withdrawQ:'確定撤回這筆申請？',cancelled:'已撤回',
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
   noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
-Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colReview:'Revisión',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
+Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
   group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',cancelled:'Retirado',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
   noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
-Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colReview:'Review',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
+Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
   group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',cancelled:'Withdrawn',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
@@ -4019,6 +4019,14 @@ function otRenderHistory(){
     <select id="oth-mtype" class="ot-in" style="width:auto;margin:0"><option value="">${otT('histMachine')}: ${otT('histAll')}</option>${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
     <input id="oth-mnum" class="ot-in" style="width:110px;margin:0;text-transform:uppercase" placeholder="${otT('histNumPh')}"/>
     <input id="oth-person" class="ot-in" style="width:160px;margin:0" placeholder="${otT('histPersonPh')}"/>
+    <select id="oth-status" class="ot-in" style="width:auto;margin:0">
+      <option value="">${otT('histStatus')}: ${otT('stAll')}</option>
+      <option value="approved">${otT('stApproved')}</option>
+      <option value="rejected">${otT('stRejected')}</option>
+      <option value="w1">${otT('stW1')}</option>
+      <option value="w2">${otT('stW2')}</option>
+      <option value="cancelled">${otT('stCancelled')}</option>
+    </select>
     <button class="mt-perm on" onclick="otHistSearch()">${otT('histSearch')}</button>
     ${((typeof umCan==='function')&&umCan('export','v'))?`<button class="mt-perm" onclick="otExportExcel()">${otT('exportBtn')}</button>`:''}
   </div>
@@ -4033,6 +4041,8 @@ function otHistSearch(){
   const mtype=mtypeSel?((typeof fieldCanon==='function')?fieldCanon(mtypeSel):mtypeSel):'';
   const mnum=((document.getElementById('oth-mnum')||{}).value||'').trim().toUpperCase();
   const person=((document.getElementById('oth-person')||{}).value||'').trim().toLowerCase();
+  const st=(document.getElementById('oth-status')||{}).value||'';
+  const matchSt=r=>{ if(!st) return true; if(st==='w1') return r.status==='pending'&&r.stage==='section'; if(st==='w2') return r.status==='pending'&&r.stage==='manager'; return r.status===st; };
   const groups={};
   const add=(k,title,pair)=>{ if(!groups[k]) groups[k]={title,items:[]}; if(!groups[k].items.some(x=>x[0]===pair[0])) groups[k].items.push(pair); };
   events.forEach(([id,r])=>{
@@ -4041,6 +4051,7 @@ function otHistSearch(){
     if(mtype && r.machine_type!==mtype) return;
     if(mnum && r.machine_num!==mnum) return;
     if(person){ const ppl=[...(r.people||[]), r.applicant].filter(Boolean); if(!ppl.some(p=>String(p.id).toLowerCase().includes(person)||String(p.name).toLowerCase().includes(person))) return; }
+    if(!matchSt(r)) return;
     add(r.group||'—', r.group||'—', [id,r]);
   });
   otHistGroups=Object.keys(groups).sort().map(k=>groups[k]); otHistOpen={};
