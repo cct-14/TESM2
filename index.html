@@ -37,6 +37,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── SIDEBAR ── */
 .sidebar{width:var(--sidebar-w);background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .2s ease;overflow:hidden;z-index:50}
 .sidebar.collapsed{width:var(--sidebar-collapsed)}
+
+.tesm-mark{border-radius:24%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 4px rgba(29,78,216,.35)}
+.tesm-mark svg{width:62%;height:62%;display:block}
+.tesm-word{font-weight:800;letter-spacing:-.5px;white-space:nowrap;display:inline-flex;align-items:baseline}
+.tesm-word .t2{color:var(--blue);font-weight:900;margin-left:1px}
 .sidebar-top{padding:0 12px;height:52px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
 .sidebar-logo{width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
 .sidebar-logo:hover{background:#1648c0}
@@ -75,6 +80,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ── MAIN ── */
+
+#login-gate{position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#1d4ed8,#2563eb 55%,#1e40af);display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+#login-gate .lg-inner{text-align:center;width:300px;max-width:88vw}
+#login-gate .lg-logo{display:flex;align-items:center;justify-content:center;gap:16px}
+#login-gate .lg-sub{color:#bfdbfe;font-size:13px;margin:6px 0 30px;letter-spacing:1px}
+#login-gate input{display:block;width:100%;box-sizing:border-box;padding:13px 15px;margin:0 0 12px;border-radius:11px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.96);font-size:15px;outline:none}
+#login-gate input:focus{box-shadow:0 0 0 3px rgba(255,255,255,.35)}
+#login-gate button{width:100%;padding:13px;border-radius:11px;border:none;background:#fff;color:#1d4ed8;font-size:15px;font-weight:800;cursor:pointer;transition:transform .1s}
+#login-gate button:active{transform:scale(.98)}
+#login-gate .lg-chg{color:#fff;font-weight:700;margin-bottom:12px}
+#login-gate #lg-err{color:#fecaca;font-size:13px;min-height:20px;margin-top:12px;font-weight:600}
+#login-gate #lg-hint{color:#dbeafe;font-size:12.5px;margin-top:14px;line-height:1.6}
+#login-gate .lg-lang{position:absolute;top:18px;right:18px;display:flex;gap:6px}
+#login-gate .lg-lang button{width:auto;padding:5px 12px;background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.3)}
 .main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:48px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
 .topbar-title{font-size:15px;font-weight:600;color:var(--text)}
@@ -556,13 +575,45 @@ select.fld-input.big{height:56px}
 </head>
 <body>
 
+<!-- 全站登入門檻 -->
+<div id="login-gate">
+  <div class="lg-inner">
+    <div class="lg-logo">
+      <div class="tesm-mark" style="width:60px;height:60px;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.28);background:#fff">
+        <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="3.4" rx="1.2" fill="#1d4ed8"/><rect x="4" y="10.3" width="16" height="3.4" rx="1.2" fill="#2563eb" opacity=".85"/><rect x="4" y="15.6" width="16" height="3.4" rx="1.2" fill="#3b82f6" opacity=".7"/></svg>
+      </div>
+      <span class="tesm-word" style="font-size:44px;color:#fff">TESM<span style="color:#bfdbfe">2</span></span>
+    </div>
+    <div class="lg-sub" id="lg-sub">Colon Container Terminal</div>
+    <div id="lg-step1">
+      <input id="lg-id" autocomplete="username" placeholder="N.º"/>
+      <input id="lg-pass" type="password" autocomplete="current-password" placeholder="Contraseña" onkeydown="if(event.key==='Enter')gateLogin()"/>
+      <button id="lg-btn" onclick="gateLogin()">Entrar</button>
+      <button id="lg-guest" onclick="gateGuest()" style="background:transparent;color:#dbeafe;border:1px solid rgba(255,255,255,.35);margin-top:10px">Visitante</button>
+    </div>
+    <div id="lg-step2" style="display:none">
+      <div class="lg-chg" id="lg-chg">Nueva contraseña</div>
+      <input id="lg-new1" type="password" placeholder="Nueva"/>
+      <input id="lg-new2" type="password" placeholder="Repetir" onkeydown="if(event.key==='Enter')gateDoChange()"/>
+      <button id="lg-okbtn" onclick="gateDoChange()">Confirmar</button>
+    </div>
+    <div id="lg-err"></div>
+    <div id="lg-hint">Primer acceso: contraseña 123456. Cámbiela después de entrar.</div>
+  </div>
+  <div class="lg-lang">
+    <button onclick="gateSetLang('es')">ES</button>
+    <button onclick="gateSetLang('zh')">中</button>
+    <button onclick="gateSetLang('en')">EN</button>
+  </div>
+</div>
+
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-top">
-    <div class="sidebar-logo" onclick="toggleSidebar()" style="cursor:pointer" title="收合/展開">
-      <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+    <div class="tesm-mark sidebar-logo" onclick="toggleSidebar()" style="width:30px;height:30px;cursor:pointer" title="收合/展開">
+      <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="3.4" rx="1.2" fill="#fff"/><rect x="4" y="10.3" width="16" height="3.4" rx="1.2" fill="#fff" opacity=".82"/><rect x="4" y="15.6" width="16" height="3.4" rx="1.2" fill="#fff" opacity=".62"/></svg>
     </div>
-    <span class="sidebar-title">TESM2</span>
+    <span class="sidebar-title tesm-word" style="font-size:16px;color:var(--text)">TESM<span class="t2">2</span></span>
   </div>
 
   <nav class="sidebar-nav">
@@ -2053,13 +2104,13 @@ async function umPerm(id,fid,which,on){
 // ── 使用者登入（點功能跳出、遮碼、首次強制改密碼）──
 Object.assign(UM_I18N.zh,{ulogin:'👤 使用者登入',ulogout:'登出',uidph:'編號',upassph:'密碼',ucancel:'取消',uok:'登入',
   uwrong:'編號或密碼錯誤',uchgtitle:'設定新密碼',usetnew:'首次登入，請先設定新密碼',unew1:'新密碼',unew2:'再輸入一次',
-  ushort:'密碼至少 4 碼',umis:'兩次密碼不一致',uconfirm:'確定',uloginTitle:'使用者登入',noperm:'你沒有此功能的權限',readonly:'唯讀（無細節調整權限）'});
+  ushort:'密碼至少 4 碼',umis:'兩次密碼不一致',uconfirm:'確定',uloginTitle:'使用者登入',noperm:'你沒有此功能的權限',readonly:'唯讀（無細節調整權限）',guestName:'訪客',guestTitle:'👁 訪客可見畫面',guestHint:'勾選訪客（未登入）可以看到的頁面。'});
 Object.assign(UM_I18N.es,{ulogin:'👤 Iniciar sesión',ulogout:'Salir',uidph:'N.º',upassph:'Contraseña',ucancel:'Cancelar',uok:'Entrar',
   uwrong:'N.º o contraseña incorrectos',uchgtitle:'Definir nueva contraseña',usetnew:'Primer inicio: defina una nueva contraseña',unew1:'Nueva contraseña',unew2:'Repita la contraseña',
-  ushort:'Mínimo 4 caracteres',umis:'Las contraseñas no coinciden',uconfirm:'Confirmar',uloginTitle:'Iniciar sesión',noperm:'No tiene permiso para esta función',readonly:'Solo lectura (sin permiso de edición)'});
+  ushort:'Mínimo 4 caracteres',umis:'Las contraseñas no coinciden',uconfirm:'Confirmar',uloginTitle:'Iniciar sesión',noperm:'No tiene permiso para esta función',readonly:'Solo lectura (sin permiso de edición)',guestName:'Visitante',guestTitle:'👁 Pantallas para visitantes',guestHint:'Marque las páginas que puede ver un visitante (sin sesión).'});
 Object.assign(UM_I18N.en,{ulogin:'👤 Sign in',ulogout:'Sign out',uidph:'ID',upassph:'Password',ucancel:'Cancel',uok:'Sign in',
   uwrong:'Wrong ID or password',uchgtitle:'Set a new password',usetnew:'First login: please set a new password',unew1:'New password',unew2:'Repeat password',
-  ushort:'At least 4 characters',umis:'Passwords do not match',uconfirm:'Confirm',uloginTitle:'Sign in',noperm:'You don\u2019t have permission for this',readonly:'Read-only (no edit permission)'});
+  ushort:'At least 4 characters',umis:'Passwords do not match',uconfirm:'Confirm',uloginTitle:'Sign in',noperm:'You don\u2019t have permission for this',readonly:'Read-only (no edit permission)',guestName:'Guest',guestTitle:'👁 Guest-visible screens',guestHint:'Check the pages a guest (not signed in) can see.'});
 
 let umCurrentUser=null;   // {id,name,perms}
 let umPendingCb=null, umPendingId=null;
@@ -2068,8 +2119,10 @@ function umUpdateBar(){
   const bar=document.getElementById('um-login-bar'); if(!bar) return;
   if(umCurrentUser){
     bar.innerHTML=`<div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:var(--text2);font-weight:600">👤 ${umCurrentUser.name}</span><button onclick="umLogout()" style="margin-left:auto;font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline">${umT('ulogout')}</button></div>`;
+  } else if(typeof guestMode!=='undefined' && guestMode){
+    bar.innerHTML=`<div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:var(--text2);font-weight:600">👥 ${umT('guestName')}</span><button onclick="showGate()" style="margin-left:auto;font-size:11px;color:var(--blue);background:none;border:none;cursor:pointer;text-decoration:underline">${umT('ulogin')}</button></div>`;
   } else {
-    bar.innerHTML=`<button onclick="umLoginOpen()" style="width:100%;font-size:12px;color:var(--blue);background:none;border:1px solid var(--border);border-radius:6px;padding:6px;cursor:pointer">${umT('ulogin')}</button>`;
+    bar.innerHTML=`<button onclick="showGate()" style="width:100%;font-size:12px;color:var(--blue);background:none;border:1px solid var(--border);border-radius:6px;padding:6px;cursor:pointer">${umT('ulogin')}</button>`;
   }
 }
 function umEnsureModal(){
@@ -2146,6 +2199,115 @@ async function umDoChange(){
   if(USERS[id]){ USERS[id].pass=n1; USERS[id].mustChange=false; }
   umFinish(id,USERS[id]);
 }
+
+const GATE_T={
+ es:{sub:'Colon Container Terminal',id:'N.º de empleado',pass:'Contraseña',login:'Entrar',chg:'Establecer nueva contraseña',n1:'Nueva contraseña',n2:'Repetir contraseña',ok:'Confirmar',wrong:'N.º o contraseña incorrectos',short:'Mínimo 4 caracteres',mis:'No coinciden',hint:'Primer acceso: contraseña 123456. Cámbiela después de entrar.',guest:'Entrar como visitante'},
+ zh:{sub:'Colon Container Terminal',id:'員工編號',pass:'密碼',login:'登入',chg:'設定新密碼',n1:'新密碼',n2:'再輸入一次',ok:'確定',wrong:'編號或密碼錯誤',short:'密碼至少 4 碼',mis:'兩次不一致',hint:'初次登入密碼 123456，登入後請更改密碼。',guest:'以訪客進入'},
+ en:{sub:'Colon Container Terminal',id:'Employee ID',pass:'Password',login:'Sign in',chg:'Set new password',n1:'New password',n2:'Repeat password',ok:'Confirm',wrong:'Wrong ID or password',short:'At least 4 characters',mis:'Do not match',hint:'First login password: 123456. Change it after signing in.',guest:'Enter as guest'}
+};
+let gatePendId=null;
+function gT(k){ const l=(typeof maintLang!=='undefined'?maintLang:'es'); return (GATE_T[l]||GATE_T.es)[k]; }
+function gateRelabel(){
+  const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  const ph=(id,v)=>{ const e=document.getElementById(id); if(e) e.placeholder=v; };
+  set('lg-sub',gT('sub')); ph('lg-id',gT('id')); ph('lg-pass',gT('pass')); set('lg-btn',gT('login'));
+  set('lg-chg',gT('chg')); ph('lg-new1',gT('n1')); ph('lg-new2',gT('n2')); set('lg-okbtn',gT('ok'));
+  const hint=document.getElementById('lg-hint'); if(hint) hint.textContent=gT('hint');
+  const g=document.getElementById('lg-guest'); if(g) g.textContent=gT('guest');
+}
+function gateSetLang(l){ if(typeof setMaintLang==='function'){ setMaintLang(l); } else if(typeof maintLang!=='undefined'){ maintLang=l; } gateRelabel(); }
+function showGate(){
+  const g=document.getElementById('login-gate'); if(!g) return;
+  g.style.display='flex';
+  const s1=document.getElementById('lg-step1'), s2=document.getElementById('lg-step2');
+  if(s1) s1.style.display=''; if(s2) s2.style.display='none';
+  ['lg-id','lg-pass','lg-new1','lg-new2'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  const err=document.getElementById('lg-err'); if(err) err.textContent='';
+  const hint=document.getElementById('lg-hint'); if(hint){ try{ hint.style.display=localStorage.getItem('tesm_returning')?'none':''; }catch(e){} }
+  gateRelabel();
+  setTimeout(()=>{ const el=document.getElementById('lg-id'); if(el) el.focus(); },50);
+}
+function hideGate(){ const g=document.getElementById('login-gate'); if(g) g.style.display='none'; }
+async function gateLogin(){
+  const id=(document.getElementById('lg-id').value||'').trim();
+  const pass=(document.getElementById('lg-pass').value||'').trim();
+  const err=document.getElementById('lg-err');
+  if(!USERS||!Object.keys(USERS).length){ try{ await loadUsers(); }catch(e){} }
+  if((typeof STAFF==='undefined'||!STAFF||!Object.keys(STAFF).length) && typeof fldLoadConfig==='function'){ try{ await fldLoadConfig(); }catch(e){} }
+  const u=USERS[id];
+  if(u && u.pass){
+    if(String(u.pass)!==pass){ err.textContent=gT('wrong'); return; }
+    gatePendId=id;
+    if(u.mustChange){ gateToChange(); return; }
+    gateFinish(id,u); return;
+  }
+  // 尚未設密碼：合法員工可用預設 123456 首次登入
+  const isStaff=(typeof STAFF!=='undefined'&&STAFF&&(STAFF[id]||STAFF[id.toUpperCase()]));
+  if(isStaff && pass==='123456'){ gatePendId=id; gateToChange(); return; }
+  err.textContent=gT('wrong');
+}
+function gateToChange(){
+  document.getElementById('lg-step1').style.display='none';
+  document.getElementById('lg-step2').style.display='';
+  document.getElementById('lg-err').textContent='';
+  const h=document.getElementById('lg-hint'); if(h) h.style.display='none';
+  setTimeout(()=>{ const el=document.getElementById('lg-new1'); if(el) el.focus(); },40);
+}
+async function gateDoChange(){
+  const id=gatePendId; const n1=(document.getElementById('lg-new1').value||'').trim(), n2=(document.getElementById('lg-new2').value||'').trim();
+  const err=document.getElementById('lg-err');
+  if(n1.length<4){ err.textContent=gT('short'); return; }
+  if(n1!==n2){ err.textContent=gT('mis'); return; }
+  const existing=USERS[id]||{};
+  const rec={name:(existing.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id, pass:n1, mustChange:false, perms:existing.perms||{}};
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:n1,mustChange:false,name:rec.name})}); }catch(e){ err.textContent='✗ '+e.message; return; }
+  USERS[id]=Object.assign({},existing,rec);
+  gateFinish(id,USERS[id]);
+}
+function gateFinish(id,u){
+  guestMode=false; try{ localStorage.removeItem('tesm_guest'); }catch(e){}
+  umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{}};
+  if(typeof umSaveSession==='function') umSaveSession();
+  if(typeof umUpdateBar==='function') umUpdateBar();
+  if(typeof applyNavPerms==='function') applyNavPerms();
+  try{ localStorage.setItem('tesm_returning','1'); }catch(e){}
+  hideGate();
+}
+
+
+let guestMode=false, GUEST_ACCESS={};
+const GUEST_PAGES=['map','allEq','attendance','field','otsys','maintenance','realtime','history','changelog'];
+async function loadGuestAccess(){ try{ const r=await fetch(`${FB}/guest_access.json`); GUEST_ACCESS=(await r.json())||{}; }catch(e){ GUEST_ACCESS={}; } }
+async function applyGuestAccess(){
+  if(!guestMode) return;
+  if(!GUEST_ACCESS||!Object.keys(GUEST_ACCESS).length){ await loadGuestAccess(); }
+  let firstOk=null;
+  document.querySelectorAll('.nav-item[data-page]').forEach(n=>{
+    const pg=n.getAttribute('data-page');
+    const ok = (pg!=='admin') && !!GUEST_ACCESS[pg];
+    n.style.display = ok?'':'none';
+    if(ok && !firstOk) firstOk=pg;
+  });
+  // 若目前停在訪客看不到的頁 → 導到第一個可看的
+  const active=document.querySelector('.page.active');
+  const cur=active?active.id.replace('page-',''):null;
+  if(cur && (cur==='admin' || !GUEST_ACCESS[cur])){ const nav=document.querySelector('.nav-item[data-page="'+(firstOk||'map')+'"]'); if(nav) navTo(firstOk||'map',nav); }
+}
+function gateGuest(){
+  guestMode=true; umCurrentUser=null;
+  try{ localStorage.setItem('tesm_guest', JSON.stringify({exp:Date.now()+2*3600*1000})); localStorage.removeItem('tesm_um'); }catch(e){}
+  hideGate();
+  if(typeof umUpdateBar==='function') umUpdateBar();
+  if(typeof applyNavPerms==='function') applyNavPerms();
+  applyGuestAccess();
+}
+function guestRestore(){
+  try{ const raw=localStorage.getItem('tesm_guest'); if(!raw) return false; const s=JSON.parse(raw);
+    if(!s||!s.exp||Date.now()>s.exp){ localStorage.removeItem('tesm_guest'); return false; }
+    guestMode=true; if(typeof umUpdateBar==='function') umUpdateBar(); applyGuestAccess(); return true;
+  }catch(e){ return false; }
+}
+
 function umSaveSession(){ try{ if(umCurrentUser) localStorage.setItem('tesm_um', JSON.stringify({id:umCurrentUser.id,name:umCurrentUser.name,perms:umCurrentUser.perms,exp:Date.now()+2*3600*1000})); }catch(e){} }
 function umRestoreSession(){
   try{ const raw=localStorage.getItem('tesm_um'); if(!raw) return false; const s=JSON.parse(raw);
@@ -2166,7 +2328,7 @@ function umFinish(id,u){
   if(umNeed.feat && !umCan(umNeed.feat,umNeed.level||'v')){ alert(umT('noperm')); return; }
   if(cb) cb(true);
 }
-function umLogout(){ umCurrentUser=null; try{ localStorage.removeItem('tesm_um'); }catch(e){} umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell(); }
+function umLogout(){ umCurrentUser=null; try{ localStorage.removeItem('tesm_um'); }catch(e){} if(typeof showGate==='function') showGate(); umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell(); }
 function umCan(featId,level){ return !!(umCurrentUser&&umCurrentUser.perms&&umCurrentUser.perms[featId]&&umCurrentUser.perms[featId][level||'v']); }
 const PW_I18N={
   zh:{title:'🔑 密碼管理',dept:'部門密碼',app:'現場 / 加班密碼',field:'現場時數',otLeader:'組長（手機加班）',otSec:'課長審核',otMgr:'經理審核',newpw:'新密碼',change:'更改',updated:'✓ 已更新',need:'請輸入密碼'},
@@ -2206,8 +2368,26 @@ async function renderPasswordPanel(deptKey) {
         <input id="um-search" placeholder="${umT('search')}" oninput="renderUsers()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg);margin-bottom:10px"/>
         <div id="um-list" style="max-height:440px;overflow:auto"></div>
       </div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:560px;margin-top:16px">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${umT('guestTitle')}</div>
+      <div style="padding:16px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${umT('guestHint')}</div>
+        <div id="guest-access-list" style="display:flex;flex-direction:column;gap:9px"></div>
+      </div>
     </div>`;
-  renderUsers();
+  renderUsers(); if(typeof renderGuestAccess==='function') renderGuestAccess();
+}
+async function renderGuestAccess(){
+  const el=document.getElementById('guest-access-list'); if(!el) return;
+  if(!GUEST_ACCESS||!Object.keys(GUEST_ACCESS).length){ try{ await loadGuestAccess(); }catch(e){} }
+  const lang=(typeof maintLang!=='undefined'?maintLang:'es');
+  const labels=(typeof NAV_I18N!=='undefined' && NAV_I18N[lang] && NAV_I18N[lang].pages)||{};
+  el.innerHTML=GUEST_PAGES.map(pg=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" ${GUEST_ACCESS[pg]?'checked':''} onchange="guestPermSet('${pg}',this.checked)" style="width:16px;height:16px"/> ${labels[pg]||pg}</label>`).join('');
+}
+async function guestPermSet(pg,on){
+  GUEST_ACCESS[pg]=on;
+  try{ await fetch(`${FB}/guest_access/${pg}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(on)}); }catch(e){ alert('✗ '+e.message); }
 }
 async function changeMiscPw(kind){
   const input=document.getElementById('pw-misc-'+kind); const val=input&&input.value.trim();
@@ -4516,7 +4696,7 @@ async function atPruneOld(){
 // ── 線上人數（心跳偵測，只算登入者） ──
 const PRES_SID='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 async function presenceHeartbeat(){
-  try{ await fetch(`${FB}/presence/${PRES_SID}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:(maintUser&&maintUser.name)||null,t:Date.now()})}); }catch(e){}
+  try{ await fetch(`${FB}/presence/${PRES_SID}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:(typeof umCurrentUser!=='undefined'&&umCurrentUser&&umCurrentUser.name)||null,t:Date.now()})}); }catch(e){}
 }
 async function presencePoll(){
   try{
@@ -5126,8 +5306,7 @@ initMessaging();
 restoreMaintUser();
 restoreRole();
 if(typeof umUpdateBar==='function') umUpdateBar();
-loadUsers().then(()=>{ if(typeof umRestoreSession==='function' && !umRestoreSession()){ if(typeof umUpdateBar==='function') umUpdateBar(); } });
-if(typeof umRestoreSession==='function') umRestoreSession();
+loadGuestAccess(); loadUsers().then(()=>{ if(typeof umRestoreSession==='function' && umRestoreSession()){ hideGate(); } else if(typeof guestRestore==='function' && guestRestore()){ hideGate(); } else { if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof showGate==='function') showGate(); } });
 initPresence();
 initEqTip();
 (function(){
