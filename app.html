@@ -34,7 +34,7 @@ body{font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans TC","Noto Sans SC",s
 .home .tx{font-size:22px;font-weight:800}
 .home .status .ic{color:var(--blue)} .home .hours .ic{color:var(--green)}
 /* 表單 */
-.back{align-self:flex-start;border:none;background:none;color:var(--blue);font-size:16px;font-weight:700;padding:4px 0 10px;cursor:pointer}
+.back{align-self:flex-start;border:1px solid var(--line2,#e2e8f0);background:var(--card,#fff);color:var(--blue);font-size:22px;font-weight:800;padding:12px 22px;margin-bottom:10px;border-radius:14px;cursor:pointer;min-width:96px;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .lbl{font-size:14px;font-weight:800;color:var(--text2);margin:14px 2px 6px}
 .inp,select.inp{width:100%;padding:16px;font-size:18px;border:1.5px solid var(--line2);border-radius:var(--radius);background:var(--card);color:var(--text);outline:none;-webkit-appearance:none}
 select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 14px center}
@@ -129,7 +129,7 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
     </div>
     <!-- 加班登入 -->
     <div class="view" id="v-otgate">
-      <button class="back" onclick="home()">‹</button>
+      <button class="back" onclick="home()">‹ <span class="back-t">Volver</span></button>
       <div class="card">
         <div class="ic">🔒</div>
         <div class="t" id="otg-t">Overtime</div>
@@ -148,7 +148,7 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
     </div>
     <!-- 加班申請 -->
     <div class="view" id="v-ot">
-      <button class="back" onclick="home()">‹</button>
+      <button class="back" onclick="home()">‹ <span class="back-t">Volver</span></button>
       <button class="btn ghost" id="ot-mylist-btn" style="margin-bottom:10px" onclick="otShowMy()">📋 <span id="ot-mylist-lbl">Mis solicitudes</span><span id="ot-badge" class="badge-dot" style="display:none"></span></button>
       <label class="lbl" id="l-ot-group">Grupo</label>
       <select class="inp" id="ot-group"><option value="MT-1">MT-1</option><option value="MT-2">MT-2</option><option value="MT-3">MT-3</option><option value="MTD">MTD</option><option value="INVENTORY">INVENTORY</option><option value="ON DUTY">ON DUTY</option></select>
@@ -182,7 +182,7 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
     </div>
     <!-- 加班確認 -->
     <div class="view" id="v-otconfirm">
-      <button class="back" onclick="show('ot')">‹</button>
+      <button class="back" onclick="show('ot')">‹ <span class="back-t">Volver</span></button>
       <div class="card" style="text-align:left">
         <div class="t" id="otc-t" style="text-align:center">Confirmar</div>
         <div id="otc-detail" style="font-size:14px;line-height:2;margin:10px 0"></div>
@@ -194,7 +194,7 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
     </div>
     <!-- 我的申請 -->
     <div class="view" id="v-otlist">
-      <button class="back" onclick="show('ot')">‹</button>
+      <button class="back" onclick="show('ot')">‹ <span class="back-t">Volver</span></button>
       <div id="otmy-list" style="margin-top:8px"></div>
     </div>
     <!-- 完成 -->
@@ -273,7 +273,7 @@ function applyLang(){
   const uid=$('ot-uid'),op=$('ot-pass'); if(uid)uid.placeholder=t.uid; if(op)op.placeholder=t.upass;
   set('otg-chg',t.chgT); const n1=$('ot-new1'),n2=$('ot-new2'); if(n1)n1.placeholder=t.newpw; if(n2)n2.placeholder=t.newpw2;
   set('l-ot-group',t.group); set('l-ot-people',t.people); set('l-ot-date',t.date); set('l-ot-kind',t.kind); set('l-ot-num',t.num); set('l-ot-reason',t.reason); set('l-ot-app',t.applicant); set('ot-submit',t.submit);
-  set('otc-t',t.confirmT); set('otc-send',t.confirmSend); set('otc-back',t.backEdit); set('d-withdraw',t.withdraw); set('l-ot-time',t.timeRange); set('ot-mylist-lbl',t.myList);
+  set('otc-t',t.confirmT); set('otc-send',t.confirmSend); set('otc-back',t.backEdit); set('d-withdraw',t.withdraw); set('l-ot-time',t.timeRange); set('ot-mylist-lbl',t.myList); document.querySelectorAll('.back-t').forEach(e=>e.textContent=t.backEdit);
 }
 function home(){ show('home'); }
 function goStatus(){
