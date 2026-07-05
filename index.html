@@ -2808,22 +2808,27 @@ function mtTypeOf(machine){
 
 // ── 權限 ──（看＝全開；編輯＝14主密碼或14核可帳號）
 function maintIsAdmin(){ return currentRole && ROLES[currentRole] && ROLES[currentRole].features && ROLES[currentRole].features.includes('*'); }
+function maintCanEdit(){
+  if(typeof umCurrentUser!=='undefined' && umCurrentUser) return (typeof umCan==='function') && umCan('maint_schedule','v');
+  return maintIsAdmin();
+}
+function maintPermAlert(){
+  const l=(typeof maintLang!=='undefined'?maintLang:'es');
+  const loggedIn=(typeof umCurrentUser!=='undefined' && umCurrentUser);
+  alert(loggedIn
+    ? {es:'Solo lectura: sin permiso de programación de mantenimiento.',zh:'唯讀：你沒有「保養計畫排定」權限。',en:'Read-only: no maintenance scheduling permission.'}[l]
+    : {es:'Inicie sesión con su cuenta para editar.',zh:'請先登入個人帳號才能編輯。',en:'Sign in with your account to edit.'}[l]);
+}
 function ensureMaintEdit(){
-  if(maintUser){
-    if(maintUser.name==='14'||maintIsAdmin()) return true;
-    const cu=Object.values(MAINT_USERS).find(x=>x&&x.name===maintUser.name);
-    if(cu&&cu.canMaint===false){ alert('此帳號沒有保養編輯權限'); return false; }
+  if(maintCanEdit()){
+    if(!maintUser){ maintUser={name:(typeof umCurrentUser!=='undefined'&&umCurrentUser)?umCurrentUser.name:((ROLES[currentRole]&&ROLES[currentRole].label)||'14')}; }
     return true;
   }
-  if(maintIsAdmin()){ maintUser={name: (ROLES[currentRole]&&ROLES[currentRole].label)||'14'}; return true; }
-  const pw = prompt('編輯需要授權，請輸入你的密碼：');
-  if(pw===null) return false;
-  const adminPw = ROLES['14'] && ROLES['14'].password;
-  if(adminPw && pw===adminPw){ maintUser={name:'14'}; return true; }
-  const u = Object.values(MAINT_USERS).find(x=>x && x.password===pw);
-  if(u){ if(u.canMaint===false){ alert('此帳號沒有保養編輯權限'); return false; } maintUser={name:u.name}; saveRememberedUser(u.name); if(typeof updateMsgAuthUI==='function')updateMsgAuthUI(); return true; }
-  alert('密碼錯誤或未被 14 授權');
-  return false;
+  maintPermAlert(); return false;
+}
+function applyMaintPerm(){
+  const can=maintCanEdit();
+  ['mt-up1-btn','mt-up2-btn','mt-edit-btn'].forEach(id=>{ const b=document.getElementById(id); if(b) b.style.display=can?'':'none'; });
 }
 
 async function maintLog(action, detail){
@@ -3112,6 +3117,7 @@ function todayYmd(){ return panYmd(); }
 function fmtYmd(s){ return s&&s.length>=8?`${s.slice(0,4)}/${s.slice(4,6)}/${s.slice(6,8)}`:(s||''); }
 
 function renderMaintenance(){
+  if(typeof applyMaintPerm==='function') applyMaintPerm();
   if(maintYear===null) setMaintMonthFromData();
   const L=mtL();
   const tabs=document.getElementById('mt-type-tabs');
@@ -3226,7 +3232,7 @@ function renderMaintLists(){
           ? `<span class="mt-chip-x" onclick="mtDeleteTask('${team}','${t.id}')">×</span>`
           : `<span class="mt-badge${over?' over':''}">${over?L.over:(t.done?L.done:L.due)}</span>`;
         body+=`<div class="mt-task${t.done?' done':''}" ${drag}>`+
-          `<input type="checkbox" ${t.done?'checked':''} onchange="toggleMaintDone('${team}','${t.id}',this.checked)"/>`+
+          `<input type="checkbox" ${t.done?'checked':''} ${maintCanEdit()?'':'disabled'} onchange="toggleMaintDone('${team}','${t.id}',this.checked)"/>`+
           `<div class="mt-task-body"><div class="mt-task-name">${t.name||t.code}</div>`+
           `<div class="mt-task-sub">${t.code} · ${t.interval}${t.unit} · ${L.dueLabel} ${fmtYmd(t.nextTime)}</div></div>`+
           right+`</div>`;
