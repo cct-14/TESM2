@@ -2809,8 +2809,7 @@ function mtTypeOf(machine){
 // ── 權限 ──（看＝全開；編輯＝14主密碼或14核可帳號）
 function maintIsAdmin(){ return currentRole && ROLES[currentRole] && ROLES[currentRole].features && ROLES[currentRole].features.includes('*'); }
 function maintCanEdit(){
-  if(typeof umCurrentUser!=='undefined' && umCurrentUser) return (typeof umCan==='function') && umCan('maint_schedule','v');
-  return maintIsAdmin();
+  return (typeof umCurrentUser!=='undefined' && umCurrentUser && typeof umCan==='function' && umCan('maint_schedule','v'));
 }
 function maintPermAlert(){
   const l=(typeof maintLang!=='undefined'?maintLang:'es');
