@@ -4348,16 +4348,23 @@ function otExportExcel(){
   a.href=url; a.download='overtime_'+otTodayStr()+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 function otHistLine(id,r){
-  const ppl=(r.people||[]).map(p=>`${p.id||''} ${p.name||''}`.trim()).join('、');
-  const appTxt=r.applicant?`${r.applicant.id||''} ${r.applicant.name||''}`.trim():'';
-  return `<div style="border-bottom:1px solid var(--bg3);padding:8px 4px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <span style="color:var(--text3);min-width:92px">${r.date||''}</span>
-    ${r.start_time?`<span style="color:var(--text3)">${r.start_time}~${(r.end_date&&r.end_date!==r.date)?(r.end_date+' '):''}${r.end_time}（${r.hours}${otT('hoursUnit')}）</span>`:''}
-    <b>${r.machine_type}-${r.machine_num}</b>
-    <span style="color:var(--text2)">${r.group||''}</span>
-    <span style="color:var(--text2)">${otT('histApplicant')}:${appTxt}</span>
-    <span style="flex:1;color:var(--text3)">${ppl}</span>
-    ${otStatusBadge(r)}
+  const up=s=>String(s||'').toUpperCase();
+  const appTxt=r.applicant?`${up(r.applicant.id)} ${r.applicant.name||''}`.trim():'';
+  const pplRows=(r.people||[]).map(p=>`<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;color:var(--text2);white-space:nowrap">${up(p.id)}</span><span style="color:var(--text2)">${p.name||''}</span>`).join('');
+  const override=(r.status==='approved'&&(typeof umCan==='function')&&umCan('ot_override','v'))?`<button class="ot-rj" style="padding:4px 10px;font-size:12px" onclick="otRejectOpen('${id}','override')">${otT('overrideBtn')}</button>`:'';
+  const del=(typeof otCanDelete==='function'&&otCanDelete())?`<button class="ot-rj" style="padding:4px 10px;font-size:12px;border-color:#dc2626;color:#dc2626" onclick="otDeleteReq('${id}')">${otT('del')}</button>`:'';
+  return `<div style="border-bottom:1px solid var(--bg3);padding:10px 4px;font-size:13px">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <span style="color:var(--text3);min-width:92px">${r.date||''}</span>
+      ${r.start_time?`<span style="color:var(--text3)">${r.start_time}~${(r.end_date&&r.end_date!==r.date)?(r.end_date+' '):''}${r.end_time}（${r.hours}${otT('hoursUnit')}）</span>`:''}
+      <b>${r.machine_type}-${r.machine_num}</b>
+      <span style="color:var(--text2)">${r.group||''}</span>
+      <span style="color:var(--text2)">${otT('histApplicant')}: ${appTxt}</span>
+      <span style="flex:1"></span>
+      ${otStatusBadge(r)}${override}${del}
+    </div>
+    ${r.reason?`<div style="color:var(--text2);margin-top:5px"><b>${otT('reason')}</b>: ${r.reason}</div>`:''}
+    ${pplRows?`<div style="display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;margin-top:6px;padding-left:2px;max-width:640px">${pplRows}</div>`:''}
   </div>`;
 }
 async function addMaintUser(){
