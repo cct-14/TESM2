@@ -420,15 +420,19 @@ async function otConfirmSend(){ const t=L();
 }
 async function otLoadMy(){ if(!otUser) return; let all={}; try{ const r=await fetch(FB+'/ot_requests.json'); all=(await r.json())||{}; }catch(e){}
   const th=daysAgoStr(3);
-  OT_MY=Object.values(all).filter(r=>r&&r.applicant&&r.applicant.id===otUser.id&&(r.date||'')>=th).sort((x,y)=>String(y.created||'').localeCompare(String(x.created||'')));
+  OT_MY=Object.entries(all).filter(([id,r])=>r&&r.applicant&&r.applicant.id===otUser.id&&(r.date||'')>=th).map(([id,r])=>Object.assign({_id:id},r)).sort((x,y)=>String(y.created||'').localeCompare(String(x.created||'')));
   const n=OT_MY.filter(r=>r.status==='approved'||r.status==='rejected').length;
   const b=$('ot-badge'); if(b){ if(n>0){ b.textContent=n; b.style.display='inline-flex'; } else b.style.display='none'; }
 }
 function otMyStatus(r){ const t=L(); if(r.status==='cancelled')return{x:t.stCan,c:'#64748b'}; if(r.status==='approved')return{x:t.stAp,c:'#16a34a'}; if(r.status==='rejected')return{x:t.stRj,c:'#dc2626'}; if(r.stage==='manager')return{x:t.stW2,c:'#d97706'}; return{x:t.stW1,c:'#d97706'}; }
 async function otShowMy(){ const t=L(); await otLoadMy();
   const el=$('otmy-list');
-  el.innerHTML=`<div style="font-size:13px;color:var(--text3);margin-bottom:8px">${t.recent3}</div>`+(OT_MY.length?OT_MY.map(r=>{ const s=otMyStatus(r); const ppl=(r.people||[]).map(p=>p.name).join('、'); return `<div style="border:1px solid var(--line2,#e2e8f0);border-radius:10px;padding:10px 12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px"><b>${r.machine_type}-${r.machine_num}</b><span style="color:var(--text3);font-size:13px">${r.date||''} ${r.start_time?r.start_time+'~'+r.end_time:''}</span><span style="margin-left:auto;font-weight:800;color:${s.c}">${s.x}</span></div><div style="font-size:13px;color:var(--text2);margin-top:4px">${r.group||''} · ${ppl}</div>${r.reject?`<div style="font-size:12px;color:#dc2626;margin-top:4px">✗ ${(r.reject.reason&&(r.reject.reason[LANG]||r.reject.reason.zh))||r.reject.reason||''}</div>`:''}</div>`; }).join(''):`<div style="text-align:center;color:var(--text3);padding:24px">${t.myEmpty}</div>`);
+  el.innerHTML=`<div style="font-size:13px;color:var(--text3);margin-bottom:8px">${t.recent3}</div>`+(OT_MY.length?OT_MY.map(r=>{ const s=otMyStatus(r); const ppl=(r.people||[]).map(p=>p.name).join('、'); return `<div style="border:1px solid var(--line2,#e2e8f0);border-radius:10px;padding:10px 12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px"><b>${r.machine_type}-${r.machine_num}</b><span style="color:var(--text3);font-size:13px">${r.date||''} ${r.start_time?r.start_time+'~'+r.end_time:''}</span><span style="margin-left:auto;font-weight:800;color:${s.c}">${s.x}</span></div><div style="font-size:13px;color:var(--text2);margin-top:4px">${r.group||''} · ${ppl}</div>${r.reject?`<div style="font-size:12px;color:#dc2626;margin-top:4px">✗ ${(r.reject.reason&&(r.reject.reason[LANG]||r.reject.reason.zh))||r.reject.reason||''}</div>`:''}${r.status==='pending'?`<button class="btn ghost" style="margin-top:8px;color:var(--red);width:auto;padding:6px 16px;font-size:13px" onclick="otWithdrawId('${r._id}')">${t.withdraw}</button>`:''}</div>`; }).join(''):`<div style="text-align:center;color:var(--text3);padding:24px">${t.myEmpty}</div>`);
   show('otlist');
+}
+async function otWithdrawId(id){ const t=L(); if(!id) return; if(!confirm(t.withdrawQ)) return;
+  try{ await fetch(FB+'/ot_requests/'+id+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'cancelled',stage:'done'})}); }catch(e){}
+  await otShowMy();
 }
 async function otWithdraw(){ const t=L(); if(!lastOtId) return; if(!confirm(t.withdrawQ)) return;
   try{ await fetch(FB+'/ot_requests/'+lastOtId+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'cancelled',stage:'done'})}); }catch(e){}
