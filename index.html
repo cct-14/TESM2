@@ -1082,7 +1082,7 @@ select.fld-input.big{height:56px}
         <button class="mt-subtab" id="ots-tab-apply" onclick="otSysTab('apply')">申請</button>
         <button class="mt-subtab" id="ots-tab-history" onclick="otSysTab('history')">歷史紀錄</button>
       </div>
-      <div id="ots-body" style="padding:16px;max-width:820px;width:100%;box-sizing:border-box;flex:1;min-height:0;overflow-y:auto"></div>
+      <div id="ots-body" style="padding:16px;width:100%;box-sizing:border-box;flex:1;min-height:0;overflow-y:auto"></div>
     </div>
     <div class="page" id="page-notify"><div class="placeholder"><div class="placeholder-icon">🔔</div><div class="placeholder-title">Real-time fault notifications</div><div class="placeholder-sub">Push alerts for emergency events — coming soon</div><div class="placeholder-badge">In planning</div></div></div>
     <div class="page" id="page-field">
@@ -3979,21 +3979,21 @@ async function otSavePass(){
 }
 
 // ── 加班申請系統（網頁：申請 + 兩關審核）──
-Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',dupPerson:'人員重複：此員工已在加班名單內。',fillFirst:'請先填加班日期與時間，再加入人員。',conflict:'時間衝突：{name} 在該時段已有加班。',overrideRole:'最大駁回',overrideBtn:'最大駁回',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colPersonId:'人事代號',colPersonName:'姓名',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colReview:'審核',histStatus:'審核狀況',stAll:'全部',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
+Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',dupPerson:'人員重複：此員工已在加班名單內。',fillFirst:'請先填加班日期與時間，再加入人員。',conflict:'時間衝突：{name} 在該時段已有加班。',overrideRole:'最大駁回',overrideBtn:'最大駁回',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',exportPdf:'🧾 產生 PDF',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colPersonId:'人事代號',colPersonName:'姓名',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colReview:'審核',histStatus:'審核狀況',stAll:'全部',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
   group:'課別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
   errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',confirmTitle:'確認申請內容',confirmSend:'確定送出',backEdit:'返回修改',withdraw:'撤回',withdrawQ:'確定撤回這筆申請？',withdrawNoperm:'只有申請人本人可以撤回。',cancelled:'已撤回',
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
   noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needApply:'請登入有加班申請權限的帳號',fromL:'開始',toL:'結束',del:'刪除',delQ:'確定刪除這筆記錄？此動作無法復原。',delNoperm:'你沒有刪除記錄的權限。',delAdminTitle:'🗑 可刪除記錄的人事代號',delAdminDesc:'在此填入的人事代號（登入後）才能刪除加班記錄，可多個，用逗號或換行分隔。',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
-Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',dupPerson:'Personal duplicado: ya está en la lista.',fillFirst:'Complete primero la fecha y la hora antes de agregar personal.',conflict:'Conflicto de horario: {name} ya tiene horas extra en ese período.',overrideRole:'Rechazo final',overrideBtn:'Rechazo final',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colPersonId:'N.º empleado',colPersonName:'Nombre',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
+Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',dupPerson:'Personal duplicado: ya está en la lista.',fillFirst:'Complete primero la fecha y la hora antes de agregar personal.',conflict:'Conflicto de horario: {name} ya tiene horas extra en ese período.',overrideRole:'Rechazo final',overrideBtn:'Rechazo final',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',exportPdf:'🧾 Generar PDF',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colPersonId:'N.º empleado',colPersonName:'Nombre',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
   group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',withdrawNoperm:'Solo el solicitante puede retirar.',cancelled:'Retirado',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
   noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needApply:'Inicie sesión con una cuenta con permiso de solicitud',fromL:'Desde',toL:'Hasta',del:'Eliminar',delQ:'¿Eliminar este registro? No se puede deshacer.',delNoperm:'No tiene permiso para eliminar registros.',delAdminTitle:'🗑 N.º de empleado con permiso de eliminación',delAdminDesc:'Solo los N.º aquí ingresados (tras iniciar sesión) pueden eliminar registros. Varios separados por coma o salto de línea.',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
-Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',dupPerson:'Duplicate: this person is already on the list.',fillFirst:'Fill date and time first before adding personnel.',conflict:'Time conflict: {name} already has overtime in that period.',overrideRole:'Override reject',overrideBtn:'Override reject',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colPersonId:'Employee ID',colPersonName:'Name',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
+Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',dupPerson:'Duplicate: this person is already on the list.',fillFirst:'Fill date and time first before adding personnel.',conflict:'Time conflict: {name} already has overtime in that period.',overrideRole:'Override reject',overrideBtn:'Override reject',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',exportPdf:'🧾 Generate PDF',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colPersonId:'Employee ID',colPersonName:'Name',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
   group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',withdrawNoperm:'Only the applicant can withdraw.',cancelled:'Withdrawn',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
@@ -4277,7 +4277,7 @@ function otRenderHistory(){
       <option value="cancelled">${otT('stCancelled')}</option>
     </select>
     <button class="mt-perm on" onclick="otHistSearch()">${otT('histSearch')}</button>
-    ${((typeof umCan==='function')&&umCan('export','v'))?`<button class="mt-perm" onclick="otExportExcel()">${otT('exportBtn')}</button>`:''}
+    ${((typeof umCan==='function')&&umCan('export','v'))?`<button class="mt-perm" onclick="otExportExcel()">${otT('exportBtn')}</button><button class="mt-perm" onclick="otExportPdf()">${otT('exportPdf')}</button>`:''}
   </div>
   <div id="oth-results"></div>`;
   otHistSearch();
@@ -4346,6 +4346,49 @@ function otExportExcel(){
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob); const a=document.createElement('a');
   a.href=url; a.download='overtime_'+otTodayStr()+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function otExportPdf(){
+  let rows=[];
+  if(otHistGroups&&otHistGroups.length){ otHistGroups.forEach(g=>g.items.forEach(([id,r])=>rows.push(r))); }
+  else { rows=Object.values(OT_REQUESTS||{}); }
+  rows.sort((a,b)=> String(a.group||'').localeCompare(String(b.group||'')) || String(a.date||'').localeCompare(String(b.date||'')));
+  const up=s=>String(s||'').toUpperCase();
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const title='TESM2 · '+otT('tabHistory');
+  const cols=[otT('colDate'),otT('timeRange'),otT('colGroup'),otT('colMachine'),otT('colApplicant'),otT('colPeople'),otT('colReason'),otT('colStatus')];
+  const head=`<tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>`;
+  const body=rows.map(r=>{
+    const time=r.start_time?`${r.start_time}~${(r.end_date&&r.end_date!==r.date)?(r.end_date+' '):''}${r.end_time}（${r.hours}${otT('hoursUnit')}）`:'';
+    const app=r.applicant?`${up(r.applicant.id)} ${esc(r.applicant.name||'')}`:'';
+    const ppl=(r.people||[]).map(p=>`<div><b>${up(p.id)}</b> ${esc(p.name||'')}</div>`).join('')||'';
+    return `<tr><td>${esc(r.date||'')}</td><td>${esc(time)}</td><td>${esc(r.group||'')}</td><td>${esc(r.machine_type)}-${esc(r.machine_num)}</td><td>${app}</td><td>${ppl}</td><td>${esc(r.reason||'')}</td><td>${esc(otReqStatusText(r))}</td></tr>`;
+  }).join('');
+  const doc=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>
+  <style>
+    @page{size:A4 landscape;margin:11mm}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,'Microsoft JhengHei','PingFang TC',sans-serif;font-size:11px;color:#111;margin:0}
+    h1{font-size:16px;margin:0 0 2px}
+    .sub{color:#555;font-size:11px;margin-bottom:10px}
+    table{width:100%;border-collapse:collapse;table-layout:fixed}
+    th,td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top;word-wrap:break-word;overflow-wrap:anywhere}
+    th{background:#eef2ff;font-weight:700}
+    thead{display:table-header-group}
+    tr{page-break-inside:avoid}
+    col.c-date{width:78px} col.c-time{width:132px} col.c-grp{width:56px} col.c-mac{width:66px} col.c-app{width:130px} col.c-sta{width:70px}
+    td b{font-family:ui-monospace,Menlo,monospace}
+  </style></head><body>
+  <h1>${esc(title)}</h1>
+  <div class="sub">${esc(otTodayStr())} · ${rows.length} ${esc(otT('events')||'')}</div>
+  <table>
+    <colgroup><col class="c-date"><col class="c-time"><col class="c-grp"><col class="c-mac"><col class="c-app"><col><col><col class="c-sta"></colgroup>
+    <thead>${head}</thead><tbody>${body}</tbody>
+  </table>
+  </body></html>`;
+  const w=window.open('','_blank');
+  if(!w){ alert('請允許彈出視窗以列印 PDF'); return; }
+  w.document.open(); w.document.write(doc); w.document.close();
+  setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 400);
 }
 function otHistLine(id,r){
   const up=s=>String(s||'').toUpperCase();
