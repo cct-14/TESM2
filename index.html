@@ -2857,7 +2857,7 @@ let maintUser = null;      // 登入的編輯者 {name} 或 null
 
 // ── 多語（西/中/英，預設西） ──
 const MT_I18N = {
-  es:{ hrSection:'⏱ Mantenimiento por horas', hrItemLabel:'Horas de operación', hrRemain:'Faltan', hrOver:'Excedido', hrUnit:'h', hrCur:'Actual', hrDue:'Servicio a', hrComplete:'✓ Completado', hrNoReading:'Sin lectura de horas', hrNoBase:'Sin base', hrSetBase:'Fijar base', hrNoItem:'Seleccione el ítem de horas de operación', hrDoneQ:'¿Completar? Las horas actuales ({h}h) serán la nueva base.', up1:'⬆️ Subir MT-1', up2:'⬆️ Subir MT-2', sched:'✏️ Planificar', schedDone:'✓ Listo', showDone:'Ver hechos', msgTitle:'Enviar mensaje', msgPh:'Escribe un mensaje…', msgSend:'Enviar', msgNoperm:'No tienes permiso para enviar, solo recibir.', msgReply:'Responder…', msgGot:'Recibido', msgOk:'Recibido',
+  es:{ hrSection:'⏱ Mantenimiento por horas', hrItemLabel:'Horas de operación', hrRemain:'Faltan', hrOver:'Excedido', hrUnit:'h', hrCur:'Actual', hrDue:'Servicio a', hrComplete:'✓ Completado', hrNoReading:'Sin lectura de horas', hrNoBase:'Sin base', hrSetBase:'Fijar base', del14Only:'Solo 14 puede eliminar.', hrNoItem:'Seleccione el ítem de horas de operación', hrDoneQ:'¿Completar? Las horas actuales ({h}h) serán la nueva base.', up1:'⬆️ Subir MT-1', up2:'⬆️ Subir MT-2', sched:'✏️ Planificar', schedDone:'✓ Listo', showDone:'Ver hechos', msgTitle:'Enviar mensaje', msgPh:'Escribe un mensaje…', msgSend:'Enviar', msgNoperm:'No tienes permiso para enviar, solo recibir.', msgReply:'Responder…', msgGot:'Recibido', msgOk:'Recibido',
     notUploaded:'Sin subir', dow:['D','L','M','X','J','V','S'],
     monthN:n=>`${n} este mes`, backlog:(d,n)=>`Pendientes hasta ${d}: <b>${n}</b>`,
     add:'＋ Nuevo', over:'Vencido', done:'Hecho', due:'Vence', noTasks:'Sin trabajos', allDone:'✓ Todo hecho',
@@ -2867,7 +2867,7 @@ const MT_I18N = {
     planHint:'Toca un día para ver los trabajos de MT1 y MT2', planNoDay:'Sin trabajos ese día',
     planCount:(n,m1,m2)=>`${n} este mes（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} tareas`, teamCnt:(t,n)=>`${t}　${n}`,
     searchPh:'🔍 Buscar máquina', doneLog:'📋 Historial', overdueBanner:(ty,n)=>`⚠️ ${ty}: ${n} vencidos`, viewMore:'ver', jumpTitle:'Ir a fecha', todo:'Pendiente' },
-  zh:{ hrSection:'⏱ 時數保養', hrItemLabel:'運轉時數項目', hrRemain:'還剩', hrOver:'已超過', hrUnit:'h', hrCur:'目前', hrDue:'該保養', hrComplete:'✓ 完成', hrNoReading:'無時數讀數', hrNoBase:'未設基準', hrSetBase:'設基準', hrNoItem:'請先選擇運轉時數項目', hrDoneQ:'確定完成？當下時數 {h}h 會設為新的基準。', up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成', msgTitle:'傳訊息', msgPh:'輸入訊息…', msgSend:'送出', msgNoperm:'你沒有發訊息權限，只能接收。', msgReply:'回一句…', msgGot:'收到', msgOk:'已收到',
+  zh:{ hrSection:'⏱ 時數保養', hrItemLabel:'運轉時數項目', hrRemain:'還剩', hrOver:'已超過', hrUnit:'h', hrCur:'目前', hrDue:'該保養', hrComplete:'✓ 完成', hrNoReading:'無時數讀數', hrNoBase:'未設基準', hrSetBase:'設基準', del14Only:'只有 14 可以刪除工程。', hrNoItem:'請先選擇運轉時數項目', hrDoneQ:'確定完成？當下時數 {h}h 會設為新的基準。', up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成', msgTitle:'傳訊息', msgPh:'輸入訊息…', msgSend:'送出', msgNoperm:'你沒有發訊息權限，只能接收。', msgReply:'回一句…', msgGot:'收到', msgOk:'已收到',
     notUploaded:'尚未上傳', dow:['日','一','二','三','四','五','六'],
     monthN:n=>`本月 ${n} 件`, backlog:(d,n)=>`到 ${d} 未完成 <b>${n}</b> 件`,
     add:'＋ 新增', over:'逾期', done:'完成', due:'到期', noTasks:'尚無工程', allDone:'✓ 都做完了',
@@ -2877,7 +2877,7 @@ const MT_I18N = {
     planHint:'點月曆上任一天，看 MT1、MT2 當天要做的保養工程', planNoDay:'這天沒有排定保養工程',
     planCount:(n,m1,m2)=>`本月 ${n} 件（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · 共 ${n} 件`, teamCnt:(t,n)=>`${t}　${n} 件`,
     searchPh:'🔍 搜尋機號', doneLog:'📋 完成紀錄', overdueBanner:(ty,n)=>`⚠️ ${ty} 逾期未完成 ${n} 件`, viewMore:'點擊查看', jumpTitle:'跳到指定日期', todo:'待辦' },
-  en:{ hrSection:'⏱ Hour-based maintenance', hrItemLabel:'Operating hours', hrRemain:'Left', hrOver:'Overdue', hrUnit:'h', hrCur:'Current', hrDue:'Due at', hrComplete:'✓ Done', hrNoReading:'No hour reading', hrNoBase:'No baseline', hrSetBase:'Set base', hrNoItem:'Select the operating-hours item', hrDoneQ:'Complete? Current hours ({h}h) become the new baseline.', up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done', msgTitle:'Send message', msgPh:'Type a message…', msgSend:'Send', msgNoperm:'You can only receive, not send.', msgReply:'Reply…', msgGot:'Got it', msgOk:'Received',
+  en:{ hrSection:'⏱ Hour-based maintenance', hrItemLabel:'Operating hours', hrRemain:'Left', hrOver:'Overdue', hrUnit:'h', hrCur:'Current', hrDue:'Due at', hrComplete:'✓ Done', hrNoReading:'No hour reading', hrNoBase:'No baseline', hrSetBase:'Set base', del14Only:'Only 14 can delete tasks.', hrNoItem:'Select the operating-hours item', hrDoneQ:'Complete? Current hours ({h}h) become the new baseline.', up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done', msgTitle:'Send message', msgPh:'Type a message…', msgSend:'Send', msgNoperm:'You can only receive, not send.', msgReply:'Reply…', msgGot:'Got it', msgOk:'Received',
     notUploaded:'Not uploaded', dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
     monthN:n=>`${n} this month`, backlog:(d,n)=>`Open until ${d}: <b>${n}</b>`,
     add:'＋ Add', over:'Overdue', done:'Done', due:'Due', noTasks:'No tasks', allDone:'✓ All done',
@@ -3452,6 +3452,15 @@ function selectMaintDay(ds){ selMaintDate=(selMaintDate===ds)?null:ds; renderMai
 
 function toggleMaintShowDone(){ maintShowDone=!maintShowDone; renderMaintenance(); }
 
+function mtIs14(){ return currentRole==='14' || (typeof umCurrentUser!=='undefined' && umCurrentUser && String(umCurrentUser.id)==='14') || (typeof maintIsAdmin==='function' && maintIsAdmin()); }
+async function mtDeleteTaskAdmin(type,team,id){
+  if(!mtIs14()){ alert(mtL().del14Only||'只有 14 可以刪除工程。'); return; }
+  const g=mtGet(type,team); const t=g&&g.tasks&&g.tasks[id]; if(!t) return;
+  if(!confirm(`刪除 ${t.machine} ${t.code}？`)) return;
+  try{ await fetch(`${FB}/maintenance/${encodeURIComponent(type)}/${encodeURIComponent(team)}/tasks/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(e){ alert('✗ '+e.message); return; }
+  delete g.tasks[id];
+  renderMaintenance();
+}
 function renderHourSection(type,team,tasks){
   const L=mtL();
   const item=hourItemFor(type);
@@ -3479,10 +3488,11 @@ function renderHourSection(type,team,tasks){
       if(hasBase) subDue=` · ${L.hrDue} ${due}${L.hrUnit}`;
       const btnLabel=hasBase?L.hrComplete:L.hrSetBase;
       const doneBtn=(maintCanEdit()&&cur!=null)?`<button class="mt-add-btn" style="padding:3px 12px;margin:0 0 0 4px" onclick="mtHourDone('${mac}','${t.code}',${cur})">${btnLabel}</button>`:'';
+      const del14=mtIs14()?`<button class="mt-chip-x" style="margin-left:4px" title="刪除工程" onclick="mtDeleteTaskAdmin('${type}','${team}','${t.id}')">🗑</button>`:'';
       body+=`<div class="mt-task">`+
         `<div class="mt-task-body"><div class="mt-task-name">${t.name||t.code}</div>`+
         `<div class="mt-task-sub">${t.code} · ${t.interval}${L.hrUnit}${subDue}</div></div>`+
-        badge+doneBtn+`</div>`;
+        badge+doneBtn+del14+`</div>`;
     });
     body+=`</div>`;
   });
