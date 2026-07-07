@@ -2846,6 +2846,8 @@ const MT_TYPES = ['GC','RTG','AR','TT','CH','SL','ESL','PPG','SP'];
 const MT_TEAMS = ['MT1','MT2'];
 let MAINT = {};            // { TYPE: { MT1:{meta,tasks}, MT2:{...} } }
 let MAINT_USERS = {};      // id -> {name,password}
+let HOUR_ITEM = {};        // canonType -> 運轉時數項目名
+let MAINT_HOURS = {};      // machKey -> { code: 上次保養時數 }
 let maintType = 'GC';
 let maintYear = null, maintMonth = null;
 let selMaintDate = null;   // 共用選取日 yyyymmdd 或 null
@@ -2855,7 +2857,7 @@ let maintUser = null;      // 登入的編輯者 {name} 或 null
 
 // ── 多語（西/中/英，預設西） ──
 const MT_I18N = {
-  es:{ up1:'⬆️ Subir MT-1', up2:'⬆️ Subir MT-2', sched:'✏️ Planificar', schedDone:'✓ Listo', showDone:'Ver hechos', msgTitle:'Enviar mensaje', msgPh:'Escribe un mensaje…', msgSend:'Enviar', msgNoperm:'No tienes permiso para enviar, solo recibir.', msgReply:'Responder…', msgGot:'Recibido', msgOk:'Recibido',
+  es:{ hrSection:'⏱ Mantenimiento por horas', hrItemLabel:'Horas de operación', hrRemain:'Faltan', hrOver:'Excedido', hrUnit:'h', hrCur:'Actual', hrDue:'Servicio a', hrComplete:'✓ Completado', hrNoReading:'Sin lectura de horas', hrNoBase:'Sin base', hrSetBase:'Fijar base', hrNoItem:'Seleccione el ítem de horas de operación', hrDoneQ:'¿Completar? Las horas actuales ({h}h) serán la nueva base.', up1:'⬆️ Subir MT-1', up2:'⬆️ Subir MT-2', sched:'✏️ Planificar', schedDone:'✓ Listo', showDone:'Ver hechos', msgTitle:'Enviar mensaje', msgPh:'Escribe un mensaje…', msgSend:'Enviar', msgNoperm:'No tienes permiso para enviar, solo recibir.', msgReply:'Responder…', msgGot:'Recibido', msgOk:'Recibido',
     notUploaded:'Sin subir', dow:['D','L','M','X','J','V','S'],
     monthN:n=>`${n} este mes`, backlog:(d,n)=>`Pendientes hasta ${d}: <b>${n}</b>`,
     add:'＋ Nuevo', over:'Vencido', done:'Hecho', due:'Vence', noTasks:'Sin trabajos', allDone:'✓ Todo hecho',
@@ -2865,7 +2867,7 @@ const MT_I18N = {
     planHint:'Toca un día para ver los trabajos de MT1 y MT2', planNoDay:'Sin trabajos ese día',
     planCount:(n,m1,m2)=>`${n} este mes（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} tareas`, teamCnt:(t,n)=>`${t}　${n}`,
     searchPh:'🔍 Buscar máquina', doneLog:'📋 Historial', overdueBanner:(ty,n)=>`⚠️ ${ty}: ${n} vencidos`, viewMore:'ver', jumpTitle:'Ir a fecha', todo:'Pendiente' },
-  zh:{ up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成', msgTitle:'傳訊息', msgPh:'輸入訊息…', msgSend:'送出', msgNoperm:'你沒有發訊息權限，只能接收。', msgReply:'回一句…', msgGot:'收到', msgOk:'已收到',
+  zh:{ hrSection:'⏱ 時數保養', hrItemLabel:'運轉時數項目', hrRemain:'還剩', hrOver:'已超過', hrUnit:'h', hrCur:'目前', hrDue:'該保養', hrComplete:'✓ 完成', hrNoReading:'無時數讀數', hrNoBase:'未設基準', hrSetBase:'設基準', hrNoItem:'請先選擇運轉時數項目', hrDoneQ:'確定完成？當下時數 {h}h 會設為新的基準。', up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成', msgTitle:'傳訊息', msgPh:'輸入訊息…', msgSend:'送出', msgNoperm:'你沒有發訊息權限，只能接收。', msgReply:'回一句…', msgGot:'收到', msgOk:'已收到',
     notUploaded:'尚未上傳', dow:['日','一','二','三','四','五','六'],
     monthN:n=>`本月 ${n} 件`, backlog:(d,n)=>`到 ${d} 未完成 <b>${n}</b> 件`,
     add:'＋ 新增', over:'逾期', done:'完成', due:'到期', noTasks:'尚無工程', allDone:'✓ 都做完了',
@@ -2875,7 +2877,7 @@ const MT_I18N = {
     planHint:'點月曆上任一天，看 MT1、MT2 當天要做的保養工程', planNoDay:'這天沒有排定保養工程',
     planCount:(n,m1,m2)=>`本月 ${n} 件（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · 共 ${n} 件`, teamCnt:(t,n)=>`${t}　${n} 件`,
     searchPh:'🔍 搜尋機號', doneLog:'📋 完成紀錄', overdueBanner:(ty,n)=>`⚠️ ${ty} 逾期未完成 ${n} 件`, viewMore:'點擊查看', jumpTitle:'跳到指定日期', todo:'待辦' },
-  en:{ up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done', msgTitle:'Send message', msgPh:'Type a message…', msgSend:'Send', msgNoperm:'You can only receive, not send.', msgReply:'Reply…', msgGot:'Got it', msgOk:'Received',
+  en:{ hrSection:'⏱ Hour-based maintenance', hrItemLabel:'Operating hours', hrRemain:'Left', hrOver:'Overdue', hrUnit:'h', hrCur:'Current', hrDue:'Due at', hrComplete:'✓ Done', hrNoReading:'No hour reading', hrNoBase:'No baseline', hrSetBase:'Set base', hrNoItem:'Select the operating-hours item', hrDoneQ:'Complete? Current hours ({h}h) become the new baseline.', up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done', msgTitle:'Send message', msgPh:'Type a message…', msgSend:'Send', msgNoperm:'You can only receive, not send.', msgReply:'Reply…', msgGot:'Got it', msgOk:'Received',
     notUploaded:'Not uploaded', dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
     monthN:n=>`${n} this month`, backlog:(d,n)=>`Open until ${d}: <b>${n}</b>`,
     add:'＋ Add', over:'Overdue', done:'Done', due:'Due', noTasks:'No tasks', allDone:'✓ All done',
@@ -3129,6 +3131,51 @@ async function onMaintFile(team, input){
 async function loadMaint(){
   try{ const r=await fetch(`${FB}/maintenance.json`); const d=await r.json(); MAINT=(d&&typeof d==='object')?d:{}; }catch(e){}
   try{ const r=await fetch(`${FB}/maint_users.json`); const d=await r.json(); MAINT_USERS=(d&&typeof d==='object')?d:{}; }catch(e){}
+  try{ const r=await fetch(`${FB}/maint_hour_item.json`); const d=await r.json(); HOUR_ITEM=(d&&typeof d==='object')?d:{}; }catch(e){ HOUR_ITEM={}; }
+  try{ const r=await fetch(`${FB}/maint_hours.json`); const d=await r.json(); MAINT_HOURS=(d&&typeof d==='object')?d:{}; }catch(e){ MAINT_HOURS={}; }
+}
+// ── 時數保養 helper ──
+function isHourUnit(u){ return /hour|hr|小時|時數/i.test(String(u||'')); }
+function mtCanonType(type){ return (typeof fieldCanon==='function')?fieldCanon(type):type; }
+function hourItemFor(type){
+  const c=mtCanonType(type);
+  const cats=(typeof hoursCats==='function')?hoursCats(c):((HOURS_DEFS&&HOURS_DEFS[c])||[]).filter(Boolean);
+  if(HOUR_ITEM&&HOUR_ITEM[c]&&cats.indexOf(HOUR_ITEM[c])>=0) return HOUR_ITEM[c];
+  const guess=cats.find(x=>/引擎|engine|hour|運轉|運転/i.test(x));
+  return guess||cats[0]||'';
+}
+function mtMachKey(machine){
+  const s=String(machine||'').trim();
+  const i=s.indexOf('-');
+  if(i>0 && typeof fldKey==='function'){ return fldKey(mtCanonType(s.slice(0,i)), s.slice(i+1)); }
+  return s.replace(/[\/\.\#\$\[\]]/g,'_');
+}
+function readMachineHours(machine,type){
+  const key=mtMachKey(machine);
+  const item=hourItemFor(type);
+  const hr=(typeof EQ_HOURS!=='undefined'&&EQ_HOURS[key]&&EQ_HOURS[key].vals)||null;
+  if(!hr||!item||hr[item]==null) return null;
+  const v=parseFloat(hr[item]); return isNaN(v)?null:v;
+}
+function hasMaintBaseline(machine,code){ const k=mtMachKey(machine); return !!(MAINT_HOURS&&MAINT_HOURS[k]&&MAINT_HOURS[k][code]!=null); }
+function maintLastHours(machine,code){
+  const k=mtMachKey(machine);
+  const v=MAINT_HOURS&&MAINT_HOURS[k]&&MAINT_HOURS[k][code];
+  const n=parseFloat(v); return isNaN(n)?0:n;
+}
+async function mtHourDone(machine,code,current){
+  if(!maintCanEdit()){ maintPermAlert(); return; }
+  if(current==null){ alert(mtL().hrNoReading); return; }
+  if(!confirm(mtL().hrDoneQ.replace('{h}',current))) return;
+  const k=mtMachKey(machine);
+  MAINT_HOURS[k]=MAINT_HOURS[k]||{}; MAINT_HOURS[k][code]=current;
+  try{ await fetch(`${FB}/maint_hours/${encodeURIComponent(k)}/${encodeURIComponent(code)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(current)}); }catch(e){ alert('✗ '+e.message); }
+  renderMaintenance();
+}
+async function mtSetHourItem(type,item){
+  const c=mtCanonType(type); HOUR_ITEM[c]=item;
+  try{ await fetch(`${FB}/maint_hour_item/${encodeURIComponent(c)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(item)}); }catch(e){ alert('✗ '+e.message); }
+  renderMaintenance();
 }
 function mtGet(type,team){ return MAINT[type]&&MAINT[type][team] ? MAINT[type][team] : null; }
 function maintTasks(type,team){ const g=mtGet(type,team); return g&&g.tasks?Object.entries(g.tasks).map(([id,t])=>Object.assign({id},t)):[]; }
@@ -3405,6 +3452,43 @@ function selectMaintDay(ds){ selMaintDate=(selMaintDate===ds)?null:ds; renderMai
 
 function toggleMaintShowDone(){ maintShowDone=!maintShowDone; renderMaintenance(); }
 
+function renderHourSection(type,team,tasks){
+  const L=mtL();
+  const item=hourItemFor(type);
+  const cats=(typeof hoursCats==='function')?hoursCats(mtCanonType(type)):[];
+  const sel=`<div style="display:flex;align-items:center;gap:6px;margin:6px 0 10px;font-size:12px;color:var(--text3)">
+    <span>${L.hrItemLabel}:</span>
+    <select onchange="mtSetHourItem('${type}',this.value)" ${maintCanEdit()?'':'disabled'} style="padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:12px">
+      ${cats.length?cats.map(c=>`<option value="${c}"${c===item?' selected':''}>${c}</option>`).join(''):`<option value="">${L.hrNoItem}</option>`}
+    </select>
+  </div>`;
+  const grp={}; tasks.forEach(t=>{(grp[t.machine]=grp[t.machine]||[]).push(t);});
+  let body='';
+  Object.keys(grp).sort().forEach(mac=>{
+    const cur=readMachineHours(mac,type);
+    body+=`<div class="mt-mach-grp"><div class="mt-mach-name">${mac}${cur!=null?` <span style="font-weight:400;color:var(--text3);font-size:12px">(${L.hrCur} ${cur}${L.hrUnit})</span>`:''}</div>`;
+    grp[mac].slice().sort((a,b)=>{ const ra=cur!=null?(maintLastHours(mac,a.code)+a.interval-cur):9e9; const rb=cur!=null?(maintLastHours(mac,b.code)+b.interval-cur):9e9; return ra-rb; }).forEach(t=>{
+      const hasBase=hasMaintBaseline(mac,t.code);
+      const due=maintLastHours(mac,t.code)+(t.interval||0);
+      const rem=cur!=null?(due-cur):null;
+      let badge, subDue='';
+      if(cur==null) badge=`<span class="mt-badge">${L.hrNoReading}</span>`;
+      else if(!hasBase) badge=`<span class="mt-badge">${L.hrNoBase}</span>`;
+      else if(rem<=0) badge=`<span class="mt-badge over">${L.hrOver} ${Math.abs(Math.round(rem))}${L.hrUnit}</span>`;
+      else badge=`<span class="mt-badge">${L.hrRemain} ${Math.round(rem)}${L.hrUnit}</span>`;
+      if(hasBase) subDue=` · ${L.hrDue} ${due}${L.hrUnit}`;
+      const btnLabel=hasBase?L.hrComplete:L.hrSetBase;
+      const doneBtn=(maintCanEdit()&&cur!=null)?`<button class="mt-add-btn" style="padding:3px 12px;margin:0 0 0 4px" onclick="mtHourDone('${mac}','${t.code}',${cur})">${btnLabel}</button>`:'';
+      body+=`<div class="mt-task">`+
+        `<div class="mt-task-body"><div class="mt-task-name">${t.name||t.code}</div>`+
+        `<div class="mt-task-sub">${t.code} · ${t.interval}${L.hrUnit}${subDue}</div></div>`+
+        badge+doneBtn+`</div>`;
+    });
+    body+=`</div>`;
+  });
+  return `<div class="mt-list-head" style="margin-top:14px"><span class="mt-list-team">${L.hrSection}</span></div>${sel}${body}`;
+}
+
 function renderMaintLists(){
   const today=todayYmd(); const L=mtL();
   MT_TEAMS.forEach(team=>{
@@ -3442,8 +3526,12 @@ function renderMaintLists(){
       });
       body+=`</div>`;
     });
+    const hourTasks=maintTasks(maintType,team).filter(t=>isHourUnit(t.unit));
+    const hourBody = hourTasks.length ? renderHourSection(maintType,team,hourTasks) : '';
+    const dateBody = tasks.length ? body : (hourTasks.length ? '' : body);
+    if(!tasks.length && hourTasks.length) headTxt='';
     const addBtn = maintEdit?`<button class="mt-add-btn" onclick="mtAddTask('${team}')">${L.add}</button>`:'';
-    el.innerHTML=`<div class="mt-list-head"><span class="mt-list-team">${team}</span><span class="mt-list-sub">${headTxt}</span>${addBtn}</div>${body}`;
+    el.innerHTML=`<div class="mt-list-head"><span class="mt-list-team">${team}</span><span class="mt-list-sub">${headTxt}</span>${addBtn}</div>${dateBody}${hourBody}`;
   });
 }
 
