@@ -3662,7 +3662,7 @@ function renderOverdueBanner(){
 function showOverdue(){
   const rows=overdueTasks(maintType);
   let html = rows.length ? rows.map(r=>
-    `<div class="mt-res"><span class="tag ${r.team}">${r.team}</span><span class="m">${r.machine}</span><span class="nm">${r.name||r.code}</span><span class="dt">到期 ${fmtYmd(r.nextTime)}</span></div>`
+    `<div class="mt-res"><span class="tag ${r.team}">${r.team}</span><span class="m">${r.machine}</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text3);font-size:12px;font-weight:700">${r.code||''}</span><span class="nm">${r.name||r.code}</span><span class="dt">到期 ${fmtYmd(r.nextTime)}</span></div>`
   ).join('') : `<div class="mt-info-empty">沒有逾期工程 🎉</div>`;
   openMtModal(`${maintType} 逾期未完成（${rows.length}）`, html);
 }
