@@ -292,6 +292,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-type{padding:9px 4px;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;position:relative;transition:.12s}
 .mt-type:hover{background:var(--bg2)}
 .mt-type.active{background:var(--blue);color:#fff}
+
+.mt-type-div{height:1px;background:var(--border);margin:8px 4px}
+.mt-type-plan{padding:8px 4px;text-align:center;font-weight:800;font-size:13px;color:var(--purple);border-radius:8px;cursor:pointer}
+.mt-type-plan.active{background:var(--purple);color:#fff}
+.mt-type-plan:hover{background:var(--bg2)}
+.wi-tabs{display:flex;gap:8px;margin-bottom:12px}
+.wi-tabs button{border:1px solid var(--border);background:var(--bg);color:var(--text2);font-weight:700;font-size:13px;padding:6px 16px;border-radius:20px;cursor:pointer}
+.wi-tabs button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.wi-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.wi-card{border:1px solid var(--border);border-radius:12px;padding:22px 16px;background:var(--bg);text-align:center;box-shadow:var(--shadow)}
+.wi-card .wc-mac{font-weight:800;font-size:20px}
+.wi-card .wc-total{font-size:14px;color:var(--text3);margin-top:8px}
+.wi-card.warn{border-color:#e07a00;background:#fff8f0}
+.wi-card.over{border-color:var(--red);background:var(--red-l)}
+.wi-entry-row{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--bg);overflow:hidden}
+.wi-entry-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;font-weight:700}
+.wi-entry-body{padding:0 12px 12px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.wi-entry-body label{font-size:12px;color:var(--text3);display:flex;flex-direction:column;gap:3px}
+.wi-entry-body input{padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);font-size:13px}
+.wi-rows{display:flex;flex-direction:column;gap:6px}
+.wi-row{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.wi-row .wi-l{font-size:13px}
+.wi-row .wi-r input{padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);font-size:13px;width:150px}
+
 .mt-type-dot{position:absolute;top:6px;right:9px;width:6px;height:6px;border-radius:50%;background:var(--green)}
 .mt-type.active .mt-type-dot{background:#fff}
 .mt-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;padding:12px 14px;gap:10px;overflow:hidden;max-height:calc(100vh - 210px)}
@@ -1073,6 +1097,7 @@ select.fld-input.big{height:56px}
               <div class="mt-grid" id="mt-grid-ALL"></div>
             </div>
           </div>
+          <div id="mt-wi" style="display:none"></div>
         </div>
       </div>
       </div>
@@ -2057,15 +2082,15 @@ const UM_I18N={
   zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼',add:'新增人員',
     newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
-    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
+    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
   es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial',add:'Añadir usuario',
     newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
-    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
+    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
   en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password',add:'Add user',
     newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
-    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
+    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
 };
 function umT(k){ const L=UM_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||UM_I18N.zh; return L[k]||UM_I18N.zh[k]||k; }
 function umTn(k,map){ let s=umT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
@@ -2076,8 +2101,8 @@ function featLabel(f){
   const t=(typeof aT==='function')?aT('feat_'+f.id):null;
   return (t&&t!=='feat_'+f.id)?t:f.label;
 }
-const OT_APPROVE_FEATURES=[{id:'ot_apply'},{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'}];
-function approveLabel(id){ const m={ot_apply:'applyF',ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg'}; return umT(m[id]||id); }
+const OT_APPROVE_FEATURES=[{id:'ot_apply'},{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'},{id:'wi_initial'}];
+function approveLabel(id){ const m={ot_apply:'applyF',ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg',wi_initial:'wiInit'}; return umT(m[id]||id); }
 function renderUsers(){
   const el=document.getElementById('um-list'); if(!el) return;
   const q=(document.getElementById('um-search')&&document.getElementById('um-search').value||'').toLowerCase();
@@ -2888,6 +2913,19 @@ let HOUR_ITEM = {};        // canonType -> 運轉時數項目名
 let mtCollapsed = {};      // team|machine -> 收合狀態
 let mtListMode = 'all';    // all=全部清單(卷軸) | day=依點選日期
 let mtUnitFilter = null;   // 依單位過濾清單: month/day/hour/movement/power
+let WI = {};               // 鋼索: WI[mac]={months:{ym:{hoist,trolley,catenary,boom}}, base:{hoist,...}}
+let wiMode = false, wiTab = 'dash';
+const WI_COMPS = [['hoist','HOIST'],['trolley','TROLLEY'],['catenary','CATENARY'],['boom','BOOM']];
+const WI_MHI = ['GC-03','GC-05','GC-06','GC-07','GC-08','GC-09','GC-11'];
+function wiIsMHI(mac){ return WI_MHI.indexOf(mac)>=0; }
+function wiParseDate(s){ if(!s) return null; const m=String(s).match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/); if(m) return new Date(+m[1],+m[2]-1,+m[3]); const d=new Date(s); return isNaN(d.getTime())?null:d; }
+function wiMonthsSince(s){ const d=wiParseDate(s); if(!d) return null; const now=new Date(); let mo=(now.getFullYear()-d.getFullYear())*12+(now.getMonth()-d.getMonth()); if(now.getDate()<d.getDate()) mo-=1; return mo<0?0:mo; }
+function wiCompInfo(mac,comp){
+  if(comp==='boom'){ const rt=wiReplTime(mac,'boom'); const mo=wiMonthsSince(rt); return {type:'time', since:mo, threshold:60, unit:'個月', hasRepl:!!rt}; }
+  const since=wiSince(mac,comp);
+  let th; if(comp==='hoist') th=wiIsMHI(mac)?80000:120000; else th=100000;
+  return {type:'move', since:since, threshold:th, unit:''};
+}
 let MAINT_HOURS = {};      // machKey -> { code: 上次保養時數 }
 let maintType = 'GC';
 let maintYear = null, maintMonth = null;
@@ -3177,6 +3215,7 @@ async function loadMaint(){
   try{ const r=await fetch(`${FB}/maint_users.json`); const d=await r.json(); MAINT_USERS=(d&&typeof d==='object')?d:{}; }catch(e){}
   try{ const r=await fetch(`${FB}/maint_hour_item.json`); const d=await r.json(); HOUR_ITEM=(d&&typeof d==='object')?d:{}; }catch(e){ HOUR_ITEM={}; }
   try{ const r=await fetch(`${FB}/maint_hours.json`); const d=await r.json(); MAINT_HOURS=(d&&typeof d==='object')?d:{}; }catch(e){ MAINT_HOURS={}; }
+  try{ const r=await fetch(`${FB}/wi.json`); const d=await r.json(); WI=(d&&typeof d==='object')?d:{}; }catch(e){ WI={}; }
 }
 // ── 時數保養 helper ──
 function isHourUnit(u){ return /hour|hr|小時|時數|move|movement|mov|次|動作|power/i.test(String(u||'')); }
@@ -3248,7 +3287,9 @@ function maintShiftMonth(d){
   if(maintMonth>12){ maintMonth=1; maintYear++; }
   renderMaintenance();
 }
-function selectMaintType(ty){ maintType=ty; selMaintDate=null; setMaintMonthFromData(); renderMaintenance(); }
+function selectMaintType(ty){ wiMode=false; maintType=ty; selMaintDate=null; setMaintMonthFromData(); renderMaintenance(); }
+async function selectWI(){ wiMode=true; if(typeof umRefreshPerms==='function'){ try{ await umRefreshPerms(); }catch(_){} } renderMaintenance(); }
+function wiSetTab(t){ wiTab=t; renderWI(); }
 function mtJumpDate(val){
   if(!val) return;
   const a=val.split('-'); if(a.length!==3) return;
@@ -3437,8 +3478,8 @@ function renderMaintenance(){
   if(tabs){
     tabs.innerHTML = MT_TYPES.map(ty=>{
       const has = MT_TEAMS.some(tm=>maintTasks(ty,tm).length);
-      return `<div class="mt-type${ty===maintType?' active':''}" onclick="selectMaintType('${ty}')">${ty}${has?'<span class="mt-type-dot"></span>':''}</div>`;
-    }).join('');
+      return `<div class="mt-type${(!wiMode&&ty===maintType)?' active':''}" onclick="selectMaintType('${ty}')">${ty}${has?'<span class="mt-type-dot"></span>':''}</div>`;
+    }).join('') + `<div class="mt-type-div"></div><div class="mt-type-plan${wiMode?' active':''}" onclick="selectWI()" title="鋼索計畫">WI</div>`;
   }
   const lbl=document.getElementById('mt-month-label'); if(lbl) lbl.textContent=`${maintYear} / ${String(maintMonth).padStart(2,'0')}`;
   const b1=document.getElementById('mt-up1-btn'); if(b1) b1.textContent=L.up1;
@@ -3457,6 +3498,13 @@ function renderMaintenance(){
   set('plan-excel-btn',L.expExcel); set('plan-pdf-btn',L.expPdf);
   const sInp=document.getElementById('mt-search'); if(sInp) sInp.placeholder=L.searchPh;
   const jInp=document.getElementById('mt-jump'); if(jInp) jInp.title=L.jumpTitle;
+  const wiBox=document.getElementById('mt-wi'); const splitBox=document.querySelector('#mt-tab-confirm .mt-splitwrap'); const banner=document.getElementById('mt-overdue-banner');
+  if(wiMode){
+    if(splitBox) splitBox.style.display='none';
+    if(banner) banner.style.display='none';
+    if(wiBox){ wiBox.style.display=''; renderWI(); }
+    return;
+  } else { if(wiBox) wiBox.style.display='none'; if(splitBox) splitBox.style.display=''; }
   renderMaintCalAll();
   renderListModeBar();
   renderUnitCounts();
@@ -3566,6 +3614,89 @@ async function mtDeleteTaskAdmin(type,team,id){
   try{ await fetch(`${FB}/maintenance/${encodeURIComponent(type)}/${encodeURIComponent(team)}/tasks/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(e){ alert('✗ '+e.message); return; }
   delete g.tasks[id];
   renderMaintenance();
+}
+function wiGcMachines(){
+  const set={};
+  if(typeof data==='object'&&data){ for(const k in data){ const e=data[k]; const mid=(e&&e.machine_id)?e.machine_id:k; if(/^GC-/i.test(mid)) set[mid]=1; } }
+  MT_TEAMS.forEach(tm=>maintTasks('GC',tm).forEach(t=>{ if(/^GC-/i.test(t.machine||'')) set[t.machine]=1; }));
+  return Object.keys(set).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+}
+function wiInit(mac){ const v=parseFloat(WI[mac]&&WI[mac].init); return isNaN(v)?null:v; }
+function wiCurrent(mac){ return readMachineHours(mac, mtCanonType('GC'), 'MOVEMENT'); } /* 從現場時數讀動作數 */
+function wiBaseComp(mac,comp){ const b=WI[mac]&&WI[mac].base&&WI[mac].base[comp]; const n=parseFloat(b); if(!isNaN(n)) return n; const i=wiInit(mac); return i==null?0:i; }
+function wiSince(mac,comp){ const cur=wiCurrent(mac); if(cur==null) return null; return cur-wiBaseComp(mac,comp); }
+function wiCompTask(mac,comp){ const lbl=(WI_COMPS.find(x=>x[0]===comp)||[])[1]||comp; for(const tm of MT_TEAMS){ for(const t of maintTasks('GC',tm)){ if(t.machine===mac && (new RegExp(comp,'i').test(t.name||'')||new RegExp(lbl,'i').test(t.name||''))) return t; } } return null; }
+function wiReplTime(mac,comp){ const t=wiCompTask(mac,comp); if(t&&t.doneAt) return t.doneAt; const m=WI[mac]&&WI[mac].replManual&&WI[mac].replManual[comp]; return m||null; }
+function wiMoveTask(mac,comp){ // 對到含部件字樣的 MOVEMENT 工程
+  for(const tm of MT_TEAMS){ for(const t of maintTasks('GC',tm)){ if(t.machine===mac && unitClass(t.unit)==='movement' && new RegExp(comp,'i').test(t.name||'')) return t; } }
+  return null;
+}
+function wiThisMonth(){ const p=panYmd(); return p.slice(0,6); }
+function renderWI(){
+  const box=document.getElementById('mt-wi'); if(!box) return;
+  const tabs=`<div class="wi-tabs"><button class="${wiTab==='dash'?'on':''}" onclick="wiSetTab('dash')">📊 儀表板</button><button class="${wiTab==='entry'?'on':''}" onclick="wiSetTab('entry')">✏️ 填寫本月</button></div>`;
+  box.innerHTML = tabs + (wiTab==='dash'? wiRenderDash() : wiRenderEntry());
+}
+function wiRenderDash(){
+  const macs=wiGcMachines();
+  if(!macs.length) return `<div style="padding:30px;text-align:center;color:var(--text3)">沒有 GC 機器資料</div>`;
+  return `<div class="wi-cards">`+macs.map(mac=>{
+    const cur=wiCurrent(mac); const total=cur==null?'—':cur;
+    // 最嚴重狀態（達門檻百分比）
+    let worst=0;
+    WI_COMPS.forEach(([c])=>{ const info=wiCompInfo(mac,c); if(info.since!=null&&info.threshold>0){ const pct=info.since/info.threshold; if(pct>worst) worst=pct; } });
+    const cls = worst>=1?'over':worst>=0.9?'warn':'';
+    return `<div class="wi-card ${cls}" onmouseenter="wiCardHover(event,'${mac}')" onmouseleave="mtDayHoverOut()"><div class="wc-mac">${mac}</div><div class="wc-total">Total ${total}</div></div>`;
+  }).join('')+`</div>`;
+}
+function wiCardHover(e,mac){
+  clearTimeout(mtTipTimer); const cell=e.currentTarget;
+  mtTipTimer=setTimeout(()=>{
+    if(!mtTipEl){ mtTipEl=document.createElement('div'); mtTipEl.className='mt-daytip'; document.body.appendChild(mtTipEl); }
+    const cur=wiCurrent(mac); const total=cur==null?'—':cur;
+    let rows=`<div style="font-weight:800;margin-bottom:5px">${mac} · Total ${total}</div>`;
+    WI_COMPS.forEach(([c,lbl])=>{ const info=wiCompInfo(mac,c); const u=info.unit; if(info.since==null){ rows+=`<div style="white-space:nowrap;margin:2px 0"><b>${lbl}:</b> <span style="color:var(--text3)">${info.type==='time'?'未設更換日':'無讀數'}</span></div>`; return; } let ex=''; if(info.threshold>0){ const rem=info.threshold-info.since; const pct=Math.round(info.since/info.threshold*100); ex=` / ${info.threshold}${u}（${pct}%${rem<=0?' ⚠已超過':(pct>=90?' ⚠快到':'')}）`; } rows+=`<div style="white-space:nowrap;margin:2px 0"><b>${lbl}:</b> ${info.since}${u}${ex}</div>`; });
+    mtTipEl.innerHTML=rows; mtTipEl.style.display='block';
+    const r=cell.getBoundingClientRect(); const tw=mtTipEl.offsetWidth,th=mtTipEl.offsetHeight; let left=r.left,top=r.bottom+6;
+    if(left+tw>window.innerWidth-8) left=window.innerWidth-tw-8; if(left<8)left=8; if(top+th>window.innerHeight-8) top=r.top-th-6;
+    mtTipEl.style.left=left+'px'; mtTipEl.style.top=top+'px';
+  },1000);
+}
+let wiExpanded={};
+function wiToggleEntry(mac){ wiExpanded[mac]=!wiExpanded[mac]; renderWI(); }
+function wiRenderEntry(){
+  const macs=wiGcMachines();
+  if(!macs.length) return `<div style="padding:30px;text-align:center;color:var(--text3)">沒有 GC 機器資料</div>`;
+  const isGuest=(typeof guestMode!=='undefined'&&guestMode);
+  const canInit=!isGuest && ((typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('wi_initial','v')));
+  return `<div style="font-size:12px;color:var(--text3);margin-bottom:8px">動作數由「現場時數登入」記錄。${canInit?'（你可設定初始基準與更換時間）':''}</div>`+macs.map(mac=>{
+    const open=!!wiExpanded[mac];
+    const init=(WI[mac]&&WI[mac].init);
+    const cur=wiCurrent(mac);
+    const body= open?`<div style="padding:0 12px 12px">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px">目前動作數（現場時數）：${cur==null?'<span style="color:var(--red)">無讀數</span>':cur}</div>
+        <div class="wi-rows">
+          ${canInit?`<div class="wi-row"><div class="wi-l"><b>初始基準</b> <span style="color:var(--text3)">${init!=null?init:'尚未設定'}</span></div><div class="wi-r"><input type="text" inputmode="numeric" id="wi-${mac}-init" value="${init!=null?init:''}" placeholder="第一次的動作數"></div></div>`:''}
+          ${WI_COMPS.map(([c,lbl])=>{ const t=wiMoveTask(mac,c); const planDone=t&&t.doneAt; const manual=(WI[mac]&&WI[mac].replManual&&WI[mac].replManual[c])||''; const disp=planDone?`${planDone}（計畫打勾）`:(manual||'尚無'); return `<div class="wi-row"><div class="wi-l"><b>${lbl}</b> <span style="color:var(--text3)">上次更換：${disp}</span></div>${canInit?`<div class="wi-r">${planDone?'<span style="color:var(--text3);font-size:12px">計畫控制</span>':`<input type="date" id="wi-${mac}-rt-${c}" value="${manual}">`}</div>`:''}</div>`; }).join('')}
+        </div>
+        ${canInit?`<div style="text-align:right;margin-top:10px"><button class="mt-perm on" onclick="wiSaveEntry('${mac}')">儲存</button></div>`:''}
+      </div>`:'';
+    return `<div class="wi-entry-row"><div class="wi-entry-head" onclick="wiToggleEntry('${mac}')"><span style="width:14px;color:var(--text3)">${open?'▼':'▶'}</span>${mac} <span style="font-weight:400;color:var(--text3);font-size:12px">目前 ${cur==null?'—':cur}${canInit&&init!=null?` · 初始 ${init}`:''}</span></div>${body}</div>`;
+  }).join('');
+}
+async function wiSaveEntry(mac){
+  const isGuest=(typeof guestMode!=='undefined'&&guestMode);
+  const canInit=!isGuest && ((typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('wi_initial','v')));
+  if(!canInit){ if(typeof maintPermAlert==='function') maintPermAlert(); return; }
+  WI[mac]=WI[mac]||{};
+  const el=document.getElementById('wi-'+mac+'-init'); const v=el?parseFloat(el.value):NaN;
+  try{
+    if(!isNaN(v)){ WI[mac].init=v; await fetch(`${FB}/wi/${encodeURIComponent(mac)}/init.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)}); }
+    WI[mac].replManual=WI[mac].replManual||{};
+    for(const [c] of WI_COMPS){ const de=document.getElementById('wi-'+mac+'-rt-'+c); if(de && de.value){ WI[mac].replManual[c]=de.value; await fetch(`${FB}/wi/${encodeURIComponent(mac)}/replManual/${c}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(de.value)}); } }
+    alert('已儲存');
+  }catch(e){ alert('✗ '+e.message); }
+  renderWI();
 }
 function renderHourSection(type,team,tasks){
   const L=mtL();
@@ -3769,6 +3900,11 @@ async function toggleMaintDone(team, id, checked){
     const g=mtGet(maintType,team);
     const t=g&&g.tasks&&g.tasks[id];
     if(t){ t.done=checked; t.doneAt=now; }
+    if(t && checked && unitClass(t.unit)==='movement' && /^GC-/i.test(t.machine||'')){
+      const comp=(WI_COMPS.find(([c,lbl])=>new RegExp(c,'i').test(t.name||'')||new RegExp(lbl,'i').test(t.name||''))||[])[0];
+      const curReading=readMachineHours(t.machine, mtCanonType('GC'), 'MOVEMENT');
+      if(comp && curReading!=null){ WI[t.machine]=WI[t.machine]||{}; WI[t.machine].base=WI[t.machine].base||{}; WI[t.machine].base[comp]=curReading; try{ await fetch(`${FB}/wi/${encodeURIComponent(t.machine)}/base/${comp}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(curReading)}); }catch(_){} }
+    }
     await maintLog(checked?'完成':'恢復', `${maintType} ${team} ${t?t.machine:''} ${t?t.code:id}`);
     renderMaintenance();
   }catch(e){ alert('更新失敗：'+e.message); }
@@ -4633,6 +4769,7 @@ function otExportPdf(){
     tr{page-break-inside:avoid}
     col.c-date{width:78px} col.c-time{width:132px} col.c-grp{width:56px} col.c-mac{width:66px} col.c-app{width:130px} col.c-sta{width:70px}
     td b{font-family:ui-monospace,Menlo,monospace}
+    .ot-sum{margin-top:12px;padding:8px 12px;background:#eef2ff;border:1px solid #99a;border-radius:6px;font-weight:700;font-size:13px}
   </style></head><body>
   <h1>${esc(title)}</h1>
   <div class="sub">${esc(otTodayStr())} · ${rows.length} ${esc(otT('events')||'')}</div>
@@ -4640,6 +4777,7 @@ function otExportPdf(){
     <colgroup><col class="c-date"><col class="c-time"><col class="c-grp"><col class="c-mac"><col class="c-app"><col><col><col class="c-sta"></colgroup>
     <thead>${head}</thead><tbody>${body}</tbody>
   </table>
+  <div class="ot-sum">${(function(){ const totItems=rows.length; const totPeople=rows.reduce((s,r)=>s+((r.people&&r.people.length)||0),0); const totManHours=rows.reduce((s,r)=>s+((parseFloat(r.hours)||0)*((r.people&&r.people.length)||0)),0); const hh=(Math.round(totManHours*100)/100); return ({zh:`總計：${totItems} 件  · ${totPeople} 人次 · 總工時 ${hh} 小時（時數×人數）`,es:`Total: ${totItems} registros · ${totPeople} personas · ${hh} h-hombre`,en:`Total: ${totItems} items · ${totPeople} people · ${hh} man-hours`})[(typeof maintLang!=='undefined'?maintLang:'es')] || `Total: ${totItems} / ${totPeople} / ${hh}h`; })()}</div>
   </body></html>`;
   const w=window.open('','_blank');
   if(!w){ alert('請允許彈出視窗以列印 PDF'); return; }
