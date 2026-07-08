@@ -312,6 +312,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-seg{display:flex;background:var(--bg2);border-radius:20px;padding:3px;gap:2px}
 .mt-seg button{flex:1;border:none;background:transparent;color:var(--text3);font-size:12px;font-weight:700;padding:6px 8px;border-radius:16px;cursor:pointer;transition:.15s}
 .mt-seg button.on{background:var(--blue);color:#fff}
+.mt-listmode-bar .mt-seg{padding:2px}
+.mt-listmode-bar .mt-seg button{font-size:11px;padding:3px 8px;font-weight:700}
+.mt-unitcounts{flex-shrink:0;display:flex;flex-wrap:wrap;gap:4px;font-size:11px;color:var(--text3);font-family:ui-monospace,monospace}
+.mt-unitcounts span{background:var(--bg2);border-radius:6px;padding:2px 6px;cursor:pointer;user-select:none}
+.mt-unitcounts span:hover{background:var(--border)}
+.mt-unitcounts span.on{background:var(--blue);color:#fff}
 .mt-daytip{position:fixed;z-index:9999;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.16);padding:9px 13px;font-size:12px;max-width:none;white-space:nowrap;color:var(--text);pointer-events:none;display:none;line-height:1.45}
 
 .mt-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;flex-shrink:0}
@@ -1039,6 +1045,7 @@ select.fld-input.big{height:56px}
             <input type="file" id="maint-file-MT2" accept="application/pdf" style="display:none" onchange="onMaintFile('MT2',this)"/>
             <button class="mt-edit-btn" id="mt-edit-btn" onclick="toggleMaintEdit()">✏️ 排程</button>
             <button class="mt-edit-btn" id="mt-showdone-btn" onclick="toggleMaintShowDone()">✓ 顯示已完成</button>
+            <div id="mt-listmode-bar" class="mt-listmode-bar" style="display:none"></div>
             <div class="mt-month-nav">
               <button onclick="maintShiftMonth(-1)">‹</button>
               <div class="mt-month-label" id="mt-month-label">—</div>
@@ -1051,7 +1058,7 @@ select.fld-input.big{height:56px}
           <div id="mt-overdue-banner" class="mt-overdue" style="display:none" onclick="showOverdue()"></div>
           <div class="mt-splitwrap">
             <div class="mt-pool">
-              <div id="mt-listmode-bar" class="mt-listmode-bar" style="display:none"></div>
+              <div id="mt-unitcounts" class="mt-unitcounts"></div>
               <div class="mt-pool-sec">
                 <div class="mt-pool-head"><span class="dot" style="background:var(--blue)"></span>MT-1 <span class="mt-pool-meta" id="mt-meta-MT1"></span></div>
                 <div class="mt-list" id="mt-list-MT1"></div>
@@ -1098,7 +1105,7 @@ select.fld-input.big{height:56px}
           <input type="hidden" id="mt-add-team"/>
           <label><span id="mt-lbl-machine">機號</span><input id="mt-add-machine" placeholder="GC-03"/></label>
           <label><span id="mt-lbl-name">工程名稱</span><input id="mt-add-name" placeholder="MONTHLY MAINTENANCE"/></label>
-          <label><span id="mt-lbl-unit">單位</span><select id="mt-add-unit" onchange="mtAddUnitChange()"><option value="Month">月 Month</option><option value="Week">週 Week</option><option value="Day">日 Day</option><option value="Year">年 Year</option><option value="Hour">小時 Hour</option><option value="MOVEMENT">MOVEMENT</option></select></label>
+          <label><span id="mt-lbl-unit">單位</span><select id="mt-add-unit" onchange="mtAddUnitChange()"><option value="Month">月 Month</option><option value="Week">週 Week</option><option value="Day">日 Day</option><option value="Year">年 Year</option><option value="Hour">小時 Hour</option><option value="Power">Power</option><option value="MOVEMENT">MOVEMENT</option></select></label>
           <label><span id="mt-lbl-interval">週期（月）</span><input id="mt-add-interval" type="number" value="1" min="0"/></label>
           <label><span id="mt-lbl-date">到期日</span><input id="mt-add-date" type="date"/></label>
           <div class="mt-modal-btns"><button id="mt-add-cancel" onclick="closeMtAdd()">取消</button><button class="btn-primary" id="mt-add-save" onclick="submitMtAdd()">新增</button></div>
@@ -2880,6 +2887,7 @@ let MAINT_USERS = {};      // id -> {name,password}
 let HOUR_ITEM = {};        // canonType -> 運轉時數項目名
 let mtCollapsed = {};      // team|machine -> 收合狀態
 let mtListMode = 'all';    // all=全部清單(卷軸) | day=依點選日期
+let mtUnitFilter = null;   // 依單位過濾清單: month/day/hour/movement/power
 let MAINT_HOURS = {};      // machKey -> { code: 上次保養時數 }
 let maintType = 'GC';
 let maintYear = null, maintMonth = null;
@@ -3171,13 +3179,20 @@ async function loadMaint(){
   try{ const r=await fetch(`${FB}/maint_hours.json`); const d=await r.json(); MAINT_HOURS=(d&&typeof d==='object')?d:{}; }catch(e){ MAINT_HOURS={}; }
 }
 // ── 時數保養 helper ──
-function isHourUnit(u){ return /hour|hr|小時|時數|move|movement|mov|次|動作/i.test(String(u||'')); }
+function isHourUnit(u){ return /hour|hr|小時|時數|move|movement|mov|次|動作|power/i.test(String(u||'')); }
+function unitClass(u){ u=String(u||'').toLowerCase(); if(/move|movement|mov|次|動作/.test(u)) return 'movement'; if(/power/.test(u)) return 'power'; return 'hour'; }
 function mtCanonType(type){ return (typeof fieldCanon==='function')?fieldCanon(type):type; }
-function hourItemFor(type){
+function hourItemFor(type,unit){
   const c=mtCanonType(type);
   const cats=(typeof hoursCats==='function')?hoursCats(c):((HOURS_DEFS&&HOURS_DEFS[c])||[]).filter(Boolean);
-  if(HOUR_ITEM&&HOUR_ITEM[c]&&cats.indexOf(HOUR_ITEM[c])>=0) return HOUR_ITEM[c];
-  const guess=cats.find(x=>/引擎|engine|hour|運轉|運転/i.test(x));
+  const cls=unitClass(unit);
+  let cfg=HOUR_ITEM&&HOUR_ITEM[c];
+  if(typeof cfg==='string') cfg={hour:cfg};
+  if(cfg&&typeof cfg==='object'&&cfg[cls]&&cats.indexOf(cfg[cls])>=0) return cfg[cls];
+  let guess;
+  if(cls==='movement') guess=cats.find(x=>/move|movement|動作|次/i.test(x));
+  else if(cls==='power') guess=cats.find(x=>/power|電力/i.test(x));
+  else guess=cats.find(x=>/引擎|engine|hour|運轉|運転|時數/i.test(x));
   return guess||cats[0]||'';
 }
 function mtMachKey(machine){
@@ -3186,9 +3201,9 @@ function mtMachKey(machine){
   if(i>0 && typeof fldKey==='function'){ return fldKey(mtCanonType(s.slice(0,i)), s.slice(i+1)); }
   return s.replace(/[\/\.\#\$\[\]]/g,'_');
 }
-function readMachineHours(machine,type){
+function readMachineHours(machine,type,unit){
   const key=mtMachKey(machine);
-  const item=hourItemFor(type);
+  const item=hourItemFor(type,unit);
   const hr=(typeof EQ_HOURS!=='undefined'&&EQ_HOURS[key]&&EQ_HOURS[key].vals)||null;
   if(!hr||!item||hr[item]==null) return null;
   const v=parseFloat(hr[item]); return isNaN(v)?null:v;
@@ -3208,9 +3223,11 @@ async function mtHourDone(machine,code,current){
   try{ await fetch(`${FB}/maint_hours/${encodeURIComponent(k)}/${encodeURIComponent(code)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(current)}); }catch(e){ alert('✗ '+e.message); }
   renderMaintenance();
 }
-async function mtSetHourItem(type,item){
-  const c=mtCanonType(type); HOUR_ITEM[c]=item;
-  try{ await fetch(`${FB}/maint_hour_item/${encodeURIComponent(c)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(item)}); }catch(e){ alert('✗ '+e.message); }
+async function mtSetHourItem(type,cls,item){
+  const c=mtCanonType(type);
+  let cfg=HOUR_ITEM[c]; if(typeof cfg==='string') cfg={hour:cfg}; if(!cfg||typeof cfg!=='object') cfg={};
+  cfg[cls]=item; HOUR_ITEM[c]=cfg;
+  try{ await fetch(`${FB}/maint_hour_item/${encodeURIComponent(c)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)}); }catch(e){ alert('✗ '+e.message); }
   renderMaintenance();
 }
 function mtGet(type,team){ return MAINT[type]&&MAINT[type][team] ? MAINT[type][team] : null; }
@@ -3442,6 +3459,7 @@ function renderMaintenance(){
   const jInp=document.getElementById('mt-jump'); if(jInp) jInp.title=L.jumpTitle;
   renderMaintCalAll();
   renderListModeBar();
+  renderUnitCounts();
   renderMaintLists();
   renderOverdueBanner();
 }
@@ -3501,6 +3519,15 @@ function renderMaintCalAll(){
 function selectMaintDay(ds){ selMaintDate=(selMaintDate===ds)?null:ds; renderMaintCalAll(); renderMaintLists(); }
 function mtToggleMach(k){ mtCollapsed[k]=!mtCollapsed[k]; renderMaintLists(); }
 function mtSetListMode(m){ mtListMode=m; renderMaintenance(); }
+function unitBucket(u){ u=String(u||'').toLowerCase(); if(/move|movement|mov|次|動作/.test(u)) return 'movement'; if(/power/.test(u)) return 'power'; if(/hour|hr|小時|時數/.test(u)) return 'hour'; if(/day|日/.test(u)) return 'day'; return 'month'; }
+function mtSetUnitFilter(u){ mtUnitFilter = (mtUnitFilter===u)?null:u; renderUnitCounts(); renderMaintLists(); }
+function renderUnitCounts(){
+  const el=document.getElementById('mt-unitcounts'); if(!el) return;
+  const c={month:0,day:0,hour:0,movement:0,power:0};
+  MT_TEAMS.forEach(team=>maintTasks(maintType,team).forEach(t=>{ c[unitBucket(t.unit)]++; }));
+  const cell=(k,lbl)=>`<span class="${mtUnitFilter===k?'on':''}" onclick="mtSetUnitFilter('${k}')">${lbl}(${c[k]})</span>`;
+  el.innerHTML=cell('month','month')+cell('day','day')+cell('hour','hour')+cell('movement','movement')+cell('power','power');
+}
 function renderListModeBar(){ const bar=document.getElementById('mt-listmode-bar'); if(!bar) return; if(!maintEdit){ bar.style.display='none'; bar.innerHTML=''; return; } bar.style.display=''; const L=mtL(); bar.innerHTML=`<div class="mt-seg"><button class="${mtListMode==='all'?'on':''}" onclick="mtSetListMode('all')">${L.modeAll}</button><button class="${mtListMode==='day'?'on':''}" onclick="mtSetListMode('day')">${L.modeDay}</button></div>`; }
 let mtTipTimer=null, mtTipEl=null;
 function mtDayTasks(ds){ const out=[]; ['MT1','MT2'].forEach(team=>{ maintTasks(maintType,team).forEach(t=>{ if(t.nextTime===ds) out.push(Object.assign({_team:team},t)); }); }); return out; }
@@ -3542,21 +3569,23 @@ async function mtDeleteTaskAdmin(type,team,id){
 }
 function renderHourSection(type,team,tasks){
   const L=mtL();
-  const unitTxt=u=>/move|movement|mov|次|動作/i.test(String(u||''))?' MOVEMENT':L.hrUnit;
-  const item=hourItemFor(type);
+  const unitTxt=u=>{ const cl=unitClass(u); return cl==='movement'?' MOVEMENT':cl==='power'?' POWER':L.hrUnit; };
   const cats=(typeof hoursCats==='function')?hoursCats(mtCanonType(type)):[];
-  const sel=`<div style="display:flex;align-items:center;gap:6px;margin:6px 0 10px;font-size:12px;color:var(--text3)">
-    <span>${L.hrItemLabel}:</span>
-    <select onchange="mtSetHourItem('${type}',this.value)" ${maintCanEdit()?'':'disabled'} style="padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:12px">
-      ${cats.length?cats.map(c=>`<option value="${c}"${c===item?' selected':''}>${c}</option>`).join(''):`<option value="">${L.hrNoItem}</option>`}
-    </select>
-  </div>`;
+  const clsLabel={hour:'Hour',power:'Power',movement:'MOVEMENT'};
+  const classesPresent=[...new Set(tasks.map(t=>unitClass(t.unit)))];
+  const sel=`<div style="margin:6px 0 10px;font-size:12px;color:var(--text3);display:flex;flex-direction:column;gap:5px">`+
+    classesPresent.map(cl=>{ const curItem=hourItemFor(type,cl);
+      return `<div style="display:flex;align-items:center;gap:6px"><span style="min-width:82px">${clsLabel[cl]} →</span>`+
+        `<select onchange="mtSetHourItem('${type}','${cl}',this.value)" ${maintCanEdit()?'':'disabled'} style="padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:12px">`+
+        (cats.length?cats.map(c=>`<option value="${c}"${c===curItem?' selected':''}>${c}</option>`).join(''):`<option value="">${L.hrNoItem}</option>`)+
+        `</select></div>`;
+    }).join('')+`</div>`;
   const grp={}; tasks.forEach(t=>{(grp[t.machine]=grp[t.machine]||[]).push(t);});
   let body='';
   Object.keys(grp).sort().forEach(mac=>{
-    const cur=readMachineHours(mac,type);
-    body+=`<div class="mt-mach-grp"><div class="mt-mach-name">${mac}${cur!=null?` <span style="font-weight:400;color:var(--text3);font-size:12px">(${L.hrCur} ${cur}${unitTxt((grp[mac][0]||{}).unit)})</span>`:''}</div>`;
-    grp[mac].slice().sort((a,b)=>{ const ra=cur!=null?(maintLastHours(mac,a.code)+a.interval-cur):9e9; const rb=cur!=null?(maintLastHours(mac,b.code)+b.interval-cur):9e9; return ra-rb; }).forEach(t=>{
+    body+=`<div class="mt-mach-grp"><div class="mt-mach-name">${mac}</div>`;
+    grp[mac].slice().sort((a,b)=>{ const ca=readMachineHours(mac,type,a.unit), cb=readMachineHours(mac,type,b.unit); const ra=ca!=null?(maintLastHours(mac,a.code)+a.interval-ca):9e9; const rb=cb!=null?(maintLastHours(mac,b.code)+b.interval-cb):9e9; return ra-rb; }).forEach(t=>{
+      const cur=readMachineHours(mac,type,t.unit);
       const hasBase=hasMaintBaseline(mac,t.code);
       const due=maintLastHours(mac,t.code)+(t.interval||0);
       const rem=cur!=null?(due-cur):null;
@@ -3565,6 +3594,7 @@ function renderHourSection(type,team,tasks){
       else if(!hasBase) badge=`<span class="mt-badge">${L.hrNoBase}</span>`;
       else if(rem<=0) badge=`<span class="mt-badge over">${L.hrOver} ${Math.abs(Math.round(rem))}${unitTxt(t.unit)}</span>`;
       else badge=`<span class="mt-badge">${L.hrRemain} ${Math.round(rem)}${unitTxt(t.unit)}</span>`;
+      const curTxt = cur!=null?` · ${L.hrCur} ${cur}${unitTxt(t.unit)}`:'';
       if(hasBase) subDue=` · ${L.hrDue} ${due}${unitTxt(t.unit)}`;
       const btnLabel=hasBase?L.hrComplete:L.hrSetBase;
       const doneBtn=(maintCanEdit()&&cur!=null)?`<button class="mt-add-btn" style="padding:3px 12px;margin:0 0 0 4px" onclick="mtHourDone('${mac}','${t.code}',${cur})">${btnLabel}</button>`:'';
@@ -3573,7 +3603,7 @@ function renderHourSection(type,team,tasks){
       const drag = maintEdit ? `draggable="true" ondragstart="mtDragStart(event,'${team}','${t.id}')" style="cursor:grab"` : '';
       body+=`<div class="mt-task" ${drag}>`+
         `<div class="mt-task-body"><div class="mt-task-name">${t.name||t.code}</div>`+
-        `<div class="mt-task-sub">${t.code} · ${t.interval}${unitTxt(t.unit)}${subDue}${sched}</div></div>`+
+        `<div class="mt-task-sub">${t.code} · ${t.interval}${unitTxt(t.unit)}${curTxt}${subDue}${sched}</div></div>`+
         badge+doneBtn+del14+`</div>`;
     });
     body+=`</div>`;
@@ -3586,7 +3616,8 @@ function renderMaintLists(){
   const today=todayYmd(); const L=mtL();
   MT_TEAMS.forEach(team=>{
     const el=document.getElementById('mt-list-'+team); if(!el) return;
-    const all=maintTasks(maintType,team).filter(t=>/^\d{8}$/.test(t.nextTime||'') && !isHourUnit(t.unit));
+    let all=maintTasks(maintType,team).filter(t=>/^\d{8}$/.test(t.nextTime||'') && !isHourUnit(t.unit));
+    if(mtUnitFilter) all=all.filter(t=>unitBucket(t.unit)===mtUnitFilter);
     let tasks, headTxt;
     if(maintEdit && mtListMode==='all'){
       // 全部清單（卷軸）：整份、不受點選日期影響
@@ -3637,7 +3668,8 @@ function renderMaintLists(){
       });
       body+=`</div></div>`;
     });
-    const hourTasks=maintTasks(maintType,team).filter(t=>isHourUnit(t.unit));
+    let hourTasks=maintTasks(maintType,team).filter(t=>isHourUnit(t.unit));
+    if(mtUnitFilter) hourTasks=hourTasks.filter(t=>unitBucket(t.unit)===mtUnitFilter);
     const hourBody = hourTasks.length ? renderHourSection(maintType,team,hourTasks) : '';
     const dateBody = tasks.length ? body : (hourTasks.length ? '' : body);
     if(!tasks.length && hourTasks.length) headTxt='';
@@ -3697,7 +3729,7 @@ function mtAddTask(team){
 function mtAddUnitChange(){
   const u=(document.getElementById('mt-add-unit')||{}).value||'Month';
   const isHour=isHourUnit(u);
-  const map={Month:'月',Week:'週',Day:'日',Year:'年',Hour:'小時',MOVEMENT:'MOVEMENT'};
+  const map={Month:'月',Week:'週',Day:'日',Year:'年',Hour:'小時',Power:'Power',MOVEMENT:'MOVEMENT'};
   const base=(mtL().mInterval||'週期'); const lbl=document.getElementById('mt-lbl-interval');
   if(lbl) lbl.textContent=`${base}（${map[u]||u}）`;
   const dInput=document.getElementById('mt-add-date'); const dLabel=dInput&&dInput.closest('label');
