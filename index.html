@@ -260,7 +260,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .plan-toolbar{display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
 .plan-count{font-size:13px;color:var(--text3);font-weight:600}
 .plan-cal{flex-shrink:0;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow)}
-.plan-cal .mt-day{min-height:46px}
+.plan-cal .mt-day{min-height:92px}
 .plan-cal .mt-day.exp2{align-items:stretch;justify-content:flex-start;padding:3px 4px;gap:2px}
 .plan-daynum{font-size:11px;font-weight:700;color:var(--text3);text-align:right;line-height:1}
 .mt-day.sel .plan-daynum{color:#fff}
@@ -294,7 +294,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-type.active{background:var(--blue);color:#fff}
 .mt-type-dot{position:absolute;top:6px;right:9px;width:6px;height:6px;border-radius:50%;background:var(--green)}
 .mt-type.active .mt-type-dot{background:#fff}
-.mt-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;padding:12px 14px;gap:10px;overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 210px)}
+.mt-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;padding:12px 14px;gap:10px;overflow:hidden;max-height:calc(100vh - 210px)}
+.mt-splitwrap{display:flex;gap:14px;align-items:stretch;flex:1;min-height:0;overflow:hidden}
+.mt-pool{width:800px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;min-height:0}
+.mt-pool-sec{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);padding:8px 10px;box-shadow:var(--shadow);display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow:hidden}
+.mt-pool-sec .mt-list{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+.mt-pool-head{font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.mt-pool-head .dot{width:9px;height:9px;border-radius:50%}
+.mt-pool-meta{font-weight:400;font-size:11px;color:var(--text3);margin-left:auto}
+.mt-cal-shared{flex:1;min-width:0;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:0;overflow-y:auto}
+.mt-cal-shared .mt-grid{flex:1;align-content:start}
+.mt-cal-legend{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text2);font-weight:700;margin-bottom:8px}
+.mt-cal-legend .dot{width:9px;height:9px;border-radius:50%}
+.mt-chip.mt1{border-left:3px solid var(--blue)}
+.mt-chip.mt2{border-left:3px solid var(--purple)}
+.mt-daytip{position:fixed;z-index:9999;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.16);padding:9px 13px;font-size:12px;max-width:none;white-space:nowrap;color:var(--text);pointer-events:none;display:none;line-height:1.45}
+
 .mt-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;flex-shrink:0}
 .mt-up-btn,.mt-edit-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
 .mt-up-btn:hover,.mt-edit-btn:hover{background:var(--bg2);border-color:var(--blue)}
@@ -318,7 +333,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mt-cal-meta{font-size:11px;color:var(--text3)}
 .mt-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .mt-dow{text-align:center;font-size:11px;color:var(--text3);font-weight:600;padding:1px 0}
-.mt-day{position:relative;min-width:0;min-height:34px;border-radius:6px;border:1px solid transparent;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:.12s;padding:3px 0}
+.mt-day{position:relative;min-width:0;min-height:34px;border-radius:6px;border:1px solid transparent;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:.12s;padding:3px 0;min-height:68px}
 .mt-day:hover{border-color:var(--blue)}
 .mt-day.empty{background:transparent;cursor:default}
 .mt-day.today{outline:2px solid var(--blue);outline-offset:-2px}
@@ -328,8 +343,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cnt-done{background:var(--green-l);color:var(--green)}
 .cnt-pend{background:var(--orange-l);color:var(--orange)}
 .cnt-over{background:var(--red-l);color:var(--red)}
+.cnt-todo{background:var(--green-l);color:var(--green)}
+.cnt-undone{background:#fff3e0;color:#e07a00}
+.cnt-plain{background:transparent;color:var(--text3);padding:0;font-weight:700}
+.mt-daynum2{color:var(--text);font-weight:700;font-size:13px}
+.mt-daycnt{display:block;font-size:11px;margin-top:2px}
 /* 排程模式：格子展開顯示小卡 */
-.mt-day.exp{min-height:66px;align-items:stretch;justify-content:flex-start;padding:2px 3px;gap:2px}
+.mt-day.exp{min-height:132px;align-items:stretch;justify-content:flex-start;padding:2px 3px;gap:2px}
 .mt-daynum{font-size:11px;color:var(--text3);text-align:right;line-height:1;font-weight:700}
 .mt-day.sel .mt-daynum{color:#fff}
 .mt-chips{display:flex;flex-direction:column;gap:2px;overflow:hidden;min-width:0}
@@ -1025,19 +1045,21 @@ select.fld-input.big{height:56px}
             <button class="mt-edit-btn" id="mt-donelog-btn" onclick="openMaintLog()">📋 完成紀錄</button>
           </div>
           <div id="mt-overdue-banner" class="mt-overdue" style="display:none" onclick="showOverdue()"></div>
-          <div class="mt-cals">
-            <div class="mt-cal">
-              <div class="mt-cal-head"><div class="mt-cal-title"><span class="dot" style="background:var(--blue)"></span>MT-1</div><div class="mt-cal-meta" id="mt-meta-MT1"></div></div>
-              <div class="mt-grid" id="mt-grid-MT1"></div>
+          <div class="mt-splitwrap">
+            <div class="mt-pool">
+              <div class="mt-pool-sec">
+                <div class="mt-pool-head"><span class="dot" style="background:var(--blue)"></span>MT-1 <span class="mt-pool-meta" id="mt-meta-MT1"></span></div>
+                <div class="mt-list" id="mt-list-MT1"></div>
+              </div>
+              <div class="mt-pool-sec">
+                <div class="mt-pool-head"><span class="dot" style="background:var(--purple)"></span>MT-2 <span class="mt-pool-meta" id="mt-meta-MT2"></span></div>
+                <div class="mt-list" id="mt-list-MT2"></div>
+              </div>
             </div>
-            <div class="mt-cal">
-              <div class="mt-cal-head"><div class="mt-cal-title"><span class="dot" style="background:var(--purple)"></span>MT-2</div><div class="mt-cal-meta" id="mt-meta-MT2"></div></div>
-              <div class="mt-grid" id="mt-grid-MT2"></div>
+            <div class="mt-cal-shared">
+              <div class="mt-cal-head"><div class="mt-cal-legend"><span class="dot" style="background:var(--blue)"></span>MT-1<span class="dot" style="background:var(--purple);margin-left:12px"></span>MT-2</div></div>
+              <div class="mt-grid" id="mt-grid-ALL"></div>
             </div>
-          </div>
-          <div class="mt-lists">
-            <div class="mt-list" id="mt-list-MT1"></div>
-            <div class="mt-list" id="mt-list-MT2"></div>
           </div>
         </div>
       </div>
@@ -1071,7 +1093,7 @@ select.fld-input.big{height:56px}
           <input type="hidden" id="mt-add-team"/>
           <label><span id="mt-lbl-machine">機號</span><input id="mt-add-machine" placeholder="GC-03"/></label>
           <label><span id="mt-lbl-name">工程名稱</span><input id="mt-add-name" placeholder="MONTHLY MAINTENANCE"/></label>
-          <label><span id="mt-lbl-unit">單位</span><select id="mt-add-unit" onchange="mtAddUnitChange()"><option value="Month">月 Month</option><option value="Week">週 Week</option><option value="Day">日 Day</option><option value="Year">年 Year</option><option value="Hour">小時 Hour</option></select></label>
+          <label><span id="mt-lbl-unit">單位</span><select id="mt-add-unit" onchange="mtAddUnitChange()"><option value="Month">月 Month</option><option value="Week">週 Week</option><option value="Day">日 Day</option><option value="Year">年 Year</option><option value="Hour">小時 Hour</option><option value="MOVEMENT">MOVEMENT</option></select></label>
           <label><span id="mt-lbl-interval">週期（月）</span><input id="mt-add-interval" type="number" value="1" min="0"/></label>
           <label><span id="mt-lbl-date">到期日</span><input id="mt-add-date" type="date"/></label>
           <div class="mt-modal-btns"><button id="mt-add-cancel" onclick="closeMtAdd()">取消</button><button class="btn-primary" id="mt-add-save" onclick="submitMtAdd()">新增</button></div>
@@ -2851,6 +2873,7 @@ const MT_TEAMS = ['MT1','MT2'];
 let MAINT = {};            // { TYPE: { MT1:{meta,tasks}, MT2:{...} } }
 let MAINT_USERS = {};      // id -> {name,password}
 let HOUR_ITEM = {};        // canonType -> 運轉時數項目名
+let mtCollapsed = {};      // team|machine -> 收合狀態
 let MAINT_HOURS = {};      // machKey -> { code: 上次保養時數 }
 let maintType = 'GC';
 let maintYear = null, maintMonth = null;
@@ -3142,7 +3165,7 @@ async function loadMaint(){
   try{ const r=await fetch(`${FB}/maint_hours.json`); const d=await r.json(); MAINT_HOURS=(d&&typeof d==='object')?d:{}; }catch(e){ MAINT_HOURS={}; }
 }
 // ── 時數保養 helper ──
-function isHourUnit(u){ return /hour|hr|小時|時數/i.test(String(u||'')); }
+function isHourUnit(u){ return /hour|hr|小時|時數|move|movement|mov|次|動作/i.test(String(u||'')); }
 function mtCanonType(type){ return (typeof fieldCanon==='function')?fieldCanon(type):type; }
 function hourItemFor(type){
   const c=mtCanonType(type);
@@ -3411,24 +3434,23 @@ function renderMaintenance(){
   set('plan-excel-btn',L.expExcel); set('plan-pdf-btn',L.expPdf);
   const sInp=document.getElementById('mt-search'); if(sInp) sInp.placeholder=L.searchPh;
   const jInp=document.getElementById('mt-jump'); if(jInp) jInp.title=L.jumpTitle;
-  renderMaintCal('MT1'); renderMaintCal('MT2');
+  renderMaintCalAll();
   renderMaintLists();
   renderOverdueBanner();
 }
 
-function renderMaintCal(team){
-  const grid=document.getElementById('mt-grid-'+team);
-  const meta=document.getElementById('mt-meta-'+team);
+function renderMaintCalAll(){
+  const grid=document.getElementById('mt-grid-ALL');
+  ['MT1','MT2'].forEach(team=>{ const g=mtGet(maintType,team); const meta=document.getElementById('mt-meta-'+team); if(meta) meta.textContent = g&&g.meta ? mtL().metaFmt(g.meta.count, g.meta.uploadedAt) : mtL().notUploaded; });
   if(!grid) return;
-  const g=mtGet(maintType,team);
-  if(meta) meta.textContent = g&&g.meta ? mtL().metaFmt(g.meta.count, g.meta.uploadedAt) : mtL().notUploaded;
-  const tasks=maintTasks(maintType,team);
   const byDay={};
-  tasks.forEach(t=>{
-    if(!/^\d{8}$/.test(t.nextTime||'')) return;
-    if(+t.nextTime.slice(0,4)!==maintYear || +t.nextTime.slice(4,6)!==maintMonth) return;
-    const d=+t.nextTime.slice(6,8);
-    (byDay[d]=byDay[d]||[]).push(t);
+  ['MT1','MT2'].forEach(team=>{
+    maintTasks(maintType,team).forEach(t=>{
+      if(!/^\d{8}$/.test(t.nextTime||'')) return;
+      if(+t.nextTime.slice(0,4)!==maintYear || +t.nextTime.slice(4,6)!==maintMonth) return;
+      const d=+t.nextTime.slice(6,8);
+      (byDay[d]=byDay[d]||[]).push(Object.assign({_team:team},t));
+    });
   });
   const today=todayYmd();
   const firstDow=new Date(maintYear,maintMonth-1,1).getDay();
@@ -3438,34 +3460,65 @@ function renderMaintCal(team){
   for(let i=0;i<firstDow;i++) html+=`<div class="mt-day empty"></div>`;
   for(let day=1;day<=daysIn;day++){
     const ds=`${maintYear}${String(maintMonth).padStart(2,'0')}${String(day).padStart(2,'0')}`;
-    const list=byDay[day]||[];
+    const list=(byDay[day]||[]).slice().sort((a,b)=>(a._team<b._team?-1:a._team>b._team?1:0));
     const isToday=ds===today, isSel=selMaintDate===ds;
-    const drop = maintEdit?`ondragover="mtDragOver(event)" ondragleave="mtDragLeave(event)" ondrop="mtDrop(event,'${team}','${ds}')"`:'';
+    const drop = maintEdit?`ondragover="mtDragOver(event)" ondragleave="mtDragLeave(event)" ondrop="mtDrop(event,'${ds}')"`:'';
     let inner;
     if(maintEdit){
       const chips=list.map(t=>{
         const _s=mtTaskState(t); const over=_s==='overdue'; const undone=_s==='undone';
         const nm=(t.name||'').replace(/"/g,'&quot;');
-        return `<div class="mt-chip${t.done?' done':''}${over?' over':''}${undone?' undone':''}" draggable="true" ondragstart="mtDragStart(event,'${team}','${t.id}')" title="${nm}">`+
+        const teamCls=t._team==='MT1'?' mt1':' mt2';
+        return `<div class="mt-chip${teamCls}${t.done?' done':''}${over?' over':''}${undone?' undone':''}" draggable="true" ondragstart="mtDragStart(event,'${t._team}','${t.id}')" title="${nm}">`+
           `<span class="mt-chip-txt">${t.machine} ${t.code}</span>`+
-          `<span class="mt-chip-x" onclick="event.stopPropagation();mtDeleteTask('${team}','${t.id}')">×</span></div>`;
+          `<span class="mt-chip-x" onclick="event.stopPropagation();mtDeleteTask('${t._team}','${t.id}')">×</span></div>`;
       }).join('');
       inner=`<div class="mt-daynum">${day}</div><div class="mt-chips">${chips}</div>`;
     } else {
       let cnt='';
       if(list.length){
-        const done=list.filter(t=>t.done).length, pend=list.length-done;
-        let cls='cnt-pend'; if(done>=list.length)cls='cnt-done'; else if(ds<today)cls='cnt-over';
-        cnt=`<span class="cnt ${cls}">${pend>0?pend:'✓'}</span>`;
+        const n1=list.filter(t=>t._team==='MT1').length, n2=list.filter(t=>t._team==='MT2').length;
+        let parts='';
+        if(n1) parts+=`<span style="color:var(--blue);font-weight:700">${n1}</span>`;
+        if(n1&&n2) parts+=`<span style="color:var(--text3);margin:0 2px">·</span>`;
+        if(n2) parts+=`<span style="color:var(--purple);font-weight:700">${n2}</span>`;
+        cnt=`<span class="mt-daycnt">${parts}</span>`;
       }
-      inner=`${day}${cnt}`;
+      inner=`<span class="mt-daynum2">${day}</span>${cnt}`;
     }
-    html+=`<div class="mt-day${isToday?' today':''}${isSel?' sel':''}${maintEdit?' exp':''}" ${drop} onclick="selectMaintDay('${ds}')">${inner}</div>`;
+    html+=`<div class="mt-day${isToday?' today':''}${isSel?' sel':''}${maintEdit?' exp':''}" ${drop} onmouseenter="mtDayHover(event,'${ds}')" onmouseleave="mtDayHoverOut()" onclick="selectMaintDay('${ds}')">${inner}</div>`;
   }
   grid.innerHTML=html;
 }
 
-function selectMaintDay(ds){ selMaintDate=(selMaintDate===ds)?null:ds; renderMaintCal('MT1'); renderMaintCal('MT2'); renderMaintLists(); }
+function selectMaintDay(ds){ selMaintDate=(selMaintDate===ds)?null:ds; renderMaintCalAll(); renderMaintLists(); }
+function mtToggleMach(k){ mtCollapsed[k]=!mtCollapsed[k]; renderMaintLists(); }
+let mtTipTimer=null, mtTipEl=null;
+function mtDayTasks(ds){ const out=[]; ['MT1','MT2'].forEach(team=>{ maintTasks(maintType,team).forEach(t=>{ if(t.nextTime===ds) out.push(Object.assign({_team:team},t)); }); }); return out; }
+function mtDayHover(e,ds){
+  clearTimeout(mtTipTimer); const cell=e.currentTarget;
+  mtTipTimer=setTimeout(()=>{
+    const list=mtDayTasks(ds); if(!list.length) return;
+    if(!mtTipEl){ mtTipEl=document.createElement('div'); mtTipEl.className='mt-daytip'; document.body.appendChild(mtTipEl); }
+    const byT={MT1:[],MT2:[]}; list.forEach(t=>{ (byT[t._team]||byT.MT1).push(t); });
+    const stColor=s=> s==='overdue'?'var(--red)': s==='undone'?'#e07a00': s==='done'?'var(--green)':'var(--green)';
+    let inner=`<div style="font-weight:700;margin-bottom:6px">${fmtYmd(ds)}（${list.length}）</div>`;
+    [['MT1','MT-1'],['MT2','MT-2']].forEach(([k,label])=>{
+      if(!byT[k].length) return;
+      inner+=`<div style="font-weight:800;margin:6px 0 2px">${label}:</div>`;
+      byT[k].forEach(t=>{ const _s=mtTaskState(t); const stTxt=_s==='overdue'?` · <span style="color:var(--red)">${mtL().over}</span>`:_s==='undone'?` · <span style="color:#e07a00">${mtL().undone}</span>`:_s==='done'?` · ${mtL().done}`:''; inner+=`<div style="white-space:nowrap;margin:2px 0 2px 10px;display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:${stColor(_s)};display:inline-block;flex-shrink:0"></span><span><b>${t.machine}</b> <span style="color:var(--text3);font-family:ui-monospace,monospace">${t.code}</span> ${t.name||''}${stTxt}</span></div>`; });
+    });
+    mtTipEl.innerHTML=inner;
+    mtTipEl.style.display='block';
+    const r=cell.getBoundingClientRect(); const tw=mtTipEl.offsetWidth, th=mtTipEl.offsetHeight;
+    let left=r.left, top=r.bottom+6;
+    if(left+tw>window.innerWidth-8) left=window.innerWidth-tw-8;
+    if(left<8) left=8;
+    if(top+th>window.innerHeight-8) top=r.top-th-6;
+    mtTipEl.style.left=left+'px'; mtTipEl.style.top=top+'px';
+  },1000);
+}
+function mtDayHoverOut(){ clearTimeout(mtTipTimer); if(mtTipEl) mtTipEl.style.display='none'; }
 
 function toggleMaintShowDone(){ maintShowDone=!maintShowDone; renderMaintenance(); }
 
@@ -3480,6 +3533,7 @@ async function mtDeleteTaskAdmin(type,team,id){
 }
 function renderHourSection(type,team,tasks){
   const L=mtL();
+  const unitTxt=u=>/move|movement|mov|次|動作/i.test(String(u||''))?' MOVEMENT':L.hrUnit;
   const item=hourItemFor(type);
   const cats=(typeof hoursCats==='function')?hoursCats(mtCanonType(type)):[];
   const sel=`<div style="display:flex;align-items:center;gap:6px;margin:6px 0 10px;font-size:12px;color:var(--text3)">
@@ -3492,7 +3546,7 @@ function renderHourSection(type,team,tasks){
   let body='';
   Object.keys(grp).sort().forEach(mac=>{
     const cur=readMachineHours(mac,type);
-    body+=`<div class="mt-mach-grp"><div class="mt-mach-name">${mac}${cur!=null?` <span style="font-weight:400;color:var(--text3);font-size:12px">(${L.hrCur} ${cur}${L.hrUnit})</span>`:''}</div>`;
+    body+=`<div class="mt-mach-grp"><div class="mt-mach-name">${mac}${cur!=null?` <span style="font-weight:400;color:var(--text3);font-size:12px">(${L.hrCur} ${cur}${unitTxt((grp[mac][0]||{}).unit)})</span>`:''}</div>`;
     grp[mac].slice().sort((a,b)=>{ const ra=cur!=null?(maintLastHours(mac,a.code)+a.interval-cur):9e9; const rb=cur!=null?(maintLastHours(mac,b.code)+b.interval-cur):9e9; return ra-rb; }).forEach(t=>{
       const hasBase=hasMaintBaseline(mac,t.code);
       const due=maintLastHours(mac,t.code)+(t.interval||0);
@@ -3500,9 +3554,9 @@ function renderHourSection(type,team,tasks){
       let badge, subDue='';
       if(cur==null) badge=`<span class="mt-badge">${L.hrNoReading}</span>`;
       else if(!hasBase) badge=`<span class="mt-badge">${L.hrNoBase}</span>`;
-      else if(rem<=0) badge=`<span class="mt-badge over">${L.hrOver} ${Math.abs(Math.round(rem))}${L.hrUnit}</span>`;
-      else badge=`<span class="mt-badge">${L.hrRemain} ${Math.round(rem)}${L.hrUnit}</span>`;
-      if(hasBase) subDue=` · ${L.hrDue} ${due}${L.hrUnit}`;
+      else if(rem<=0) badge=`<span class="mt-badge over">${L.hrOver} ${Math.abs(Math.round(rem))}${unitTxt(t.unit)}</span>`;
+      else badge=`<span class="mt-badge">${L.hrRemain} ${Math.round(rem)}${unitTxt(t.unit)}</span>`;
+      if(hasBase) subDue=` · ${L.hrDue} ${due}${unitTxt(t.unit)}`;
       const btnLabel=hasBase?L.hrComplete:L.hrSetBase;
       const doneBtn=(maintCanEdit()&&cur!=null)?`<button class="mt-add-btn" style="padding:3px 12px;margin:0 0 0 4px" onclick="mtHourDone('${mac}','${t.code}',${cur})">${btnLabel}</button>`:'';
       const del14=mtIs14()?`<button class="mt-chip-x" style="margin-left:4px" title="刪除工程" onclick="mtDeleteTaskAdmin('${type}','${team}','${t.id}')">🗑</button>`:'';
@@ -3510,7 +3564,7 @@ function renderHourSection(type,team,tasks){
       const drag = maintEdit ? `draggable="true" ondragstart="mtDragStart(event,'${team}','${t.id}')" style="cursor:grab"` : '';
       body+=`<div class="mt-task" ${drag}>`+
         `<div class="mt-task-body"><div class="mt-task-name">${t.name||t.code}</div>`+
-        `<div class="mt-task-sub">${t.code} · ${t.interval}${L.hrUnit}${subDue}${sched}</div></div>`+
+        `<div class="mt-task-sub">${t.code} · ${t.interval}${unitTxt(t.unit)}${subDue}${sched}</div></div>`+
         badge+doneBtn+del14+`</div>`;
     });
     body+=`</div>`;
@@ -3541,15 +3595,19 @@ function renderMaintLists(){
     let body='';
     if(!tasks.length){ body=`<div class="mt-panel-empty">${selMaintDate?L.allDone:L.noTasks}</div>`; }
     else Object.keys(grp).sort().forEach(mac=>{
-      body+=`<div class="mt-mach-grp"><div class="mt-mach-name">${mac}</div>`;
+      const ck=team+'|'+mac; const collapsed=!!mtCollapsed[ck];
+      body+=`<div class="mt-mach-grp"><div class="mt-mach-name" style="cursor:pointer;user-select:none" onclick="mtToggleMach('${ck}')"><span style="display:inline-block;width:14px;color:var(--text3)">${collapsed?'▶':'▼'}</span>${mac} <span style="font-weight:400;color:var(--text3);font-size:12px">(${grp[mac].length})</span></div>`;
+      body+=`<div class="mt-mach-tasks" style="${collapsed?'display:none':''}">`;
       grp[mac].forEach(t=>{
         const stt=mtTaskState(t);
-        const badgeCls = stt==='overdue'?' over':(stt==='undone'?' undone':'');
-        const badgeTxt = stt==='overdue'?L.over:(stt==='undone'?L.undone:(t.done?L.done:L.due));
         const drag=maintEdit?`draggable="true" ondragstart="mtDragStart(event,'${team}','${t.id}')"`:'';
+        let badge='';
+        if(stt==='overdue') badge=`<span class="mt-badge over">${L.over}</span>`;
+        else if(stt==='undone') badge=`<span class="mt-badge undone">${L.undone}</span>`;
+        else if(stt==='done') badge=`<span class="mt-badge">${L.done}</span>`;
         const right=maintEdit
           ? `<span class="mt-chip-x" onclick="mtDeleteTask('${team}','${t.id}')">×</span>`
-          : `<span class="mt-badge${badgeCls}">${badgeTxt}</span>`;
+          : badge;
         const due=taskDue(t); const schedDiff = /^\d{8}$/.test(t.nextTime||'') && t.nextTime!==due;
         body+=`<div class="mt-task${t.done?' done':''}" ${drag}>`+
           `<input type="checkbox" ${t.done?'checked':''} ${maintCanEdit()?'':'disabled'} onchange="toggleMaintDone('${team}','${t.id}',this.checked)"/>`+
@@ -3557,7 +3615,7 @@ function renderMaintLists(){
           `<div class="mt-task-sub">${t.code} · ${t.interval}${t.unit} · ${L.dueLabel} ${fmtYmd(due)}${schedDiff?` · ${L.schedLabel} ${fmtYmd(t.nextTime)}`:''}</div></div>`+
           right+`</div>`;
       });
-      body+=`</div>`;
+      body+=`</div></div>`;
     });
     const hourTasks=maintTasks(maintType,team).filter(t=>isHourUnit(t.unit));
     const hourBody = hourTasks.length ? renderHourSection(maintType,team,hourTasks) : '';
@@ -3573,7 +3631,7 @@ let mtDragData=null;
 function mtDragStart(e,team,id){ mtDragData={team,id}; try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){} }
 function mtDragOver(e){ e.preventDefault(); if(e.currentTarget.classList) e.currentTarget.classList.add('drop'); }
 function mtDragLeave(e){ if(e.currentTarget.classList) e.currentTarget.classList.remove('drop'); }
-async function mtDrop(e,team,ds){
+async function mtDrop(e,ds){
   e.preventDefault(); if(e.currentTarget.classList) e.currentTarget.classList.remove('drop');
   if(!mtDragData) return;
   const from=mtDragData; mtDragData=null;
@@ -3618,8 +3676,8 @@ function mtAddTask(team){
 }
 function mtAddUnitChange(){
   const u=(document.getElementById('mt-add-unit')||{}).value||'Month';
-  const isHour=/hour/i.test(u);
-  const map={Month:'月',Week:'週',Day:'日',Year:'年',Hour:'小時'};
+  const isHour=isHourUnit(u);
+  const map={Month:'月',Week:'週',Day:'日',Year:'年',Hour:'小時',MOVEMENT:'MOVEMENT'};
   const base=(mtL().mInterval||'週期'); const lbl=document.getElementById('mt-lbl-interval');
   if(lbl) lbl.textContent=`${base}（${map[u]||u}）`;
   const dInput=document.getElementById('mt-add-date'); const dLabel=dInput&&dInput.closest('label');
@@ -3632,7 +3690,7 @@ async function submitMtAdd(){
   const name=document.getElementById('mt-add-name').value.trim();
   const interval=parseInt(document.getElementById('mt-add-interval').value,10)||0;
   const unit=(document.getElementById('mt-add-unit')||{}).value||'Month';
-  const isHour=/hour/i.test(unit);
+  const isHour=isHourUnit(unit);
   const dateVal=document.getElementById('mt-add-date').value;
   if(!machine || machine.endsWith('-') || !name){ alert('機號、名稱要填'); return; }
   if(!isHour && !dateVal){ alert('到期日要填'); return; }
