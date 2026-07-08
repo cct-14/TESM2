@@ -1071,6 +1071,7 @@ select.fld-input.big{height:56px}
           <input type="hidden" id="mt-add-team"/>
           <label><span id="mt-lbl-machine">機號</span><input id="mt-add-machine" placeholder="GC-03"/></label>
           <label><span id="mt-lbl-name">工程名稱</span><input id="mt-add-name" placeholder="MONTHLY MAINTENANCE"/></label>
+          <label><span id="mt-lbl-unit">單位</span><select id="mt-add-unit" onchange="mtAddUnitChange()"><option value="Month">月 Month</option><option value="Week">週 Week</option><option value="Day">日 Day</option><option value="Year">年 Year</option><option value="Hour">小時 Hour</option></select></label>
           <label><span id="mt-lbl-interval">週期（月）</span><input id="mt-add-interval" type="number" value="1" min="0"/></label>
           <label><span id="mt-lbl-date">到期日</span><input id="mt-add-date" type="date"/></label>
           <div class="mt-modal-btns"><button id="mt-add-cancel" onclick="closeMtAdd()">取消</button><button class="btn-primary" id="mt-add-save" onclick="submitMtAdd()">新增</button></div>
@@ -2865,7 +2866,7 @@ const MT_I18N = {
     monthN:n=>`${n} este mes`, backlog:(d,n)=>`Pendientes hasta ${d}: <b>${n}</b>`,
     add:'＋ Nuevo', over:'Vencido', undone:'No hecho', schedLabel:'Prog.', done:'Hecho', due:'Vence', noTasks:'Sin trabajos', allDone:'✓ Todo hecho',
     dueLabel:'vence', metaFmt:(c,u)=>`${c} ítems · ${u}`,
-    addTitle:'Nuevo trabajo', mMachine:'Máquina', mName:'Nombre del trabajo', mInterval:'Ciclo (meses)', mDate:'Fecha límite', cancel:'Cancelar', save:'Añadir',
+    addTitle:'Nuevo trabajo', mMachine:'Máquina', mName:'Nombre del trabajo', mUnit:'Unidad', mInterval:'Ciclo', mDate:'Fecha límite', cancel:'Cancelar', save:'Añadir',
     tabConfirm:'Confirmación de trabajos', tabPlan:'Plan de mantenimiento', allTypes:'Todos los tipos', expPdf:'🧾 PDF', expExcel:'📊 Excel',
     planHint:'Toca un día para ver los trabajos de MT1 y MT2', planNoDay:'Sin trabajos ese día',
     planCount:(n,m1,m2)=>`${n} este mes（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} tareas`, teamCnt:(t,n)=>`${t}　${n}`,
@@ -2875,7 +2876,7 @@ const MT_I18N = {
     monthN:n=>`本月 ${n} 件`, backlog:(d,n)=>`到 ${d} 未完成 <b>${n}</b> 件`,
     add:'＋ 新增', over:'逾期', undone:'未完成', schedLabel:'排定', done:'完成', due:'到期', noTasks:'尚無工程', allDone:'✓ 都做完了',
     dueLabel:'到期', metaFmt:(c,u)=>`${c} 件 · ${u}`,
-    addTitle:'新增工程', mMachine:'機號', mName:'工程名稱', mInterval:'週期（月）', mDate:'到期日', cancel:'取消', save:'新增',
+    addTitle:'新增工程', mMachine:'機號', mName:'工程名稱', mUnit:'單位', mInterval:'週期', mDate:'到期日', cancel:'取消', save:'新增',
     tabConfirm:'工程完成確認系統', tabPlan:'保養工程計畫系統', allTypes:'全部機型', expPdf:'🧾 匯出 PDF', expExcel:'📊 Excel',
     planHint:'點月曆上任一天，看 MT1、MT2 當天要做的保養工程', planNoDay:'這天沒有排定保養工程',
     planCount:(n,m1,m2)=>`本月 ${n} 件（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · 共 ${n} 件`, teamCnt:(t,n)=>`${t}　${n} 件`,
@@ -2885,7 +2886,7 @@ const MT_I18N = {
     monthN:n=>`${n} this month`, backlog:(d,n)=>`Open until ${d}: <b>${n}</b>`,
     add:'＋ Add', over:'Overdue', undone:'Not done', schedLabel:'Sched', done:'Done', due:'Due', noTasks:'No tasks', allDone:'✓ All done',
     dueLabel:'due', metaFmt:(c,u)=>`${c} items · ${u}`,
-    addTitle:'New task', mMachine:'Machine', mName:'Task name', mInterval:'Cycle (months)', mDate:'Due date', cancel:'Cancel', save:'Add',
+    addTitle:'New task', mMachine:'Machine', mName:'Task name', mUnit:'Unit', mInterval:'Cycle', mDate:'Due date', cancel:'Cancel', save:'Add',
     tabConfirm:'Completion confirmation', tabPlan:'Maintenance planning', allTypes:'All types', expPdf:'🧾 Export PDF', expExcel:'📊 Excel',
     planHint:'Tap any day to see MT1 & MT2 tasks', planNoDay:'No tasks scheduled that day',
     planCount:(n,m1,m2)=>`${n} this month（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} items`, teamCnt:(t,n)=>`${t}　${n}`,
@@ -3405,7 +3406,7 @@ function renderMaintenance(){
   // modal 靜態文字
   const set=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
   set('mt-add-title',L.addTitle); set('mt-lbl-machine',L.mMachine); set('mt-lbl-name',L.mName);
-  set('mt-lbl-interval',L.mInterval); set('mt-lbl-date',L.mDate); set('mt-add-cancel',L.cancel); set('mt-add-save',L.save);
+  set('mt-lbl-unit',L.mUnit); set('mt-lbl-interval',L.mInterval); set('mt-lbl-date',L.mDate); set('mt-add-cancel',L.cancel); set('mt-add-save',L.save);
   set('mt-subtab-confirm',L.tabConfirm); set('mt-subtab-plan',L.tabPlan); set('mt-donelog-btn',L.doneLog);
   set('plan-excel-btn',L.expExcel); set('plan-pdf-btn',L.expPdf);
   const sInp=document.getElementById('mt-search'); if(sInp) sInp.placeholder=L.searchPh;
@@ -3611,7 +3612,18 @@ function mtAddTask(team){
   document.getElementById('mt-add-name').value='';
   document.getElementById('mt-add-interval').value='1';
   document.getElementById('mt-add-date').value='';
+  const us=document.getElementById('mt-add-unit'); if(us) us.value='Month';
+  mtAddUnitChange();
   document.getElementById('mt-add-modal').style.display='flex';
+}
+function mtAddUnitChange(){
+  const u=(document.getElementById('mt-add-unit')||{}).value||'Month';
+  const isHour=/hour/i.test(u);
+  const map={Month:'月',Week:'週',Day:'日',Year:'年',Hour:'小時'};
+  const base=(mtL().mInterval||'週期'); const lbl=document.getElementById('mt-lbl-interval');
+  if(lbl) lbl.textContent=`${base}（${map[u]||u}）`;
+  const dInput=document.getElementById('mt-add-date'); const dLabel=dInput&&dInput.closest('label');
+  if(dLabel) dLabel.style.display=isHour?'none':'';
 }
 function closeMtAdd(){ document.getElementById('mt-add-modal').style.display='none'; }
 async function submitMtAdd(){
@@ -3619,12 +3631,15 @@ async function submitMtAdd(){
   const machine=document.getElementById('mt-add-machine').value.trim().toUpperCase();
   const name=document.getElementById('mt-add-name').value.trim();
   const interval=parseInt(document.getElementById('mt-add-interval').value,10)||0;
+  const unit=(document.getElementById('mt-add-unit')||{}).value||'Month';
+  const isHour=/hour/i.test(unit);
   const dateVal=document.getElementById('mt-add-date').value;
-  if(!machine || machine.endsWith('-') || !name || !dateVal){ alert('機號、名稱、到期日都要填'); return; }
-  const nextTime=dateVal.replace(/-/g,'');
+  if(!machine || machine.endsWith('-') || !name){ alert('機號、名稱要填'); return; }
+  if(!isHour && !dateVal){ alert('到期日要填'); return; }
+  const nextTime=isHour?'':dateVal.replace(/-/g,'');
   const ty=mtTypeOf(machine);
   const id=(machine+'_MANUAL_'+Date.now()).replace(/[^A-Za-z0-9_]/g,'_');
-  const t={machine,code:'MANUAL',name,interval,unit:'Month',doneBy:'',dept:team,lastTime:'',nextTime,dueTime:nextTime,overdue:'',done:false,doneAt:null,manual:true};
+  const t={machine,code:'MANUAL',name,interval,unit,doneBy:'',dept:team,lastTime:'',nextTime,dueTime:nextTime,overdue:'',done:false,doneAt:null,manual:true};
   try{
     await fetch(`${FB}/maintenance/${ty}/${team}/tasks/${id}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(t)});
     if(!MAINT[ty]) MAINT[ty]={};
