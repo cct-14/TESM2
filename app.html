@@ -172,9 +172,13 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <div class="pname" id="ot-p-name" style="min-height:18px"></div>
       <div id="ot-people-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>
       <label class="lbl" id="l-ot-kind">Tipo de equipo</label>
-      <select class="inp" id="ot-kind"></select>
+      <select class="inp" id="ot-kind" onchange="otKindChange()"></select>
       <label class="lbl" id="l-ot-num">Número</label>
-      <input class="inp up" id="ot-num" inputmode="text" autocomplete="off"/>
+      <div style="display:flex;gap:6px;align-items:center">
+        <select class="inp" id="ot-sub" style="display:none;width:auto;flex:0 0 auto"><option value="AE">AE</option><option value="T">T</option><option value="TS">TS</option><option value="TW">TW</option></select>
+        <span id="ot-prefix" style="display:none;font-weight:700;color:var(--text2,#334155)">PPG-CCT</span>
+        <input class="inp up" id="ot-num" inputmode="text" autocomplete="off"/>
+      </div>
       <label class="lbl" id="l-ot-reason">Motivo</label>
       <input class="inp" id="ot-reason" autocomplete="off"/>
       <label class="lbl" id="l-ot-app">Solicitante</label>
@@ -381,7 +385,7 @@ function otFinishLogin(id,u){ const t=L(); const perm=u.perms&&u.perms.ot_mobile
 function otSaveSession(){ try{ if(otUser) localStorage.setItem('tesm_ot', JSON.stringify({id:otUser.id,name:otUser.name,exp:Date.now()+3600*1000})); }catch(e){} }
 function otRestoreSession(){ try{ const raw=localStorage.getItem('tesm_ot'); if(!raw) return false; const s=JSON.parse(raw); if(!s||!s.exp||Date.now()>s.exp){ localStorage.removeItem('tesm_ot'); return false; } otUser={id:s.id,name:s.name}; return true; }catch(e){ return false; } }
 function otLogout(){ otUser=null; try{ localStorage.removeItem('tesm_ot'); }catch(e){} otShowLogin(); }
-function enterOt(){ otPeople=[]; ['ot-num','ot-reason','ot-p-id','ot-start','ot-end'].forEach(i=>$(i).value=''); $('ot-hours').textContent=''; $('ot-app-name').textContent=otUser?('👤 '+otUser.name):''; $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); $('ot-date-end').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); otLoadMy(); otLoadAll(); otLoadMachines(); }
+function enterOt(){ otPeople=[]; ['ot-num','ot-reason','ot-p-id','ot-start','ot-end'].forEach(i=>$(i).value=''); if($('ot-sub'))$('ot-sub').selectedIndex=0; if(typeof otKindChange==='function') setTimeout(otKindChange,0); $('ot-hours').textContent=''; $('ot-app-name').textContent=otUser?('👤 '+otUser.name):''; $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); $('ot-date-end').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); otLoadMy(); otLoadAll(); otLoadMachines(); }
 async function otLoadAll(){ try{ const r=await fetch(FB+'/ot_requests.json'); ALL_REQ=(await r.json())||{}; }catch(e){ ALL_REQ={}; } }
 let MACHINES=null;
 async function otLoadMachines(){ try{ const r=await fetch(FB+'/equipment.json'); const d=(await r.json())||{}; const norm=s=>String(s==null?'':s).replace(/[\/\.\#\$\[\]\s]/g,'_').toUpperCase(); const set={}; for(const k in d){ const e=d[k]; const mid=(e&&e.machine_id)?e.machine_id:k; set[norm(mid)]=true; } MACHINES=set; }catch(e){ MACHINES=null; } }
@@ -399,8 +403,10 @@ function otAddP(){ const id=($('ot-p-id').value||'').trim(); if(!id) return; con
   otPeople.push({id,name}); $('ot-p-id').value=''; $('ot-p-name').textContent=''; renderOtPeople(); }
 function otAppLookup(){ const id=($('ot-app').value||'').trim(); $('ot-app-name').textContent=id?(STAFF[id]||STAFF[id.toUpperCase()]||L().notFound):''; }
 let lastOtId=null;
+function otKindChange(){ const k=($('ot-kind').value||''); const sub=$('ot-sub'), pre=$('ot-prefix'); const isSP=/^SP$/i.test(k), isPPG=/^PPG$/i.test(k); if(sub) sub.style.display=isSP?'':'none'; if(pre) pre.style.display=isPPG?'':'none'; }
+function otFinalNum(){ const k=($('ot-kind').value||''); const raw=(($('ot-num').value||'').trim().toUpperCase()); if(/^SP$/i.test(k)){ return (($('ot-sub').value||'')+raw); } if(/^PPG$/i.test(k)){ return 'CCT'+raw.replace(/^CCT/i,''); } return raw; }
 async function otReview(){ const t=L();
-  const group=($('ot-group').value||'').trim(); const num=($('ot-num').value||'').trim().toUpperCase(); const reason=($('ot-reason').value||'').trim();
+  const group=($('ot-group').value||'').trim(); const num=otFinalNum(); const reason=($('ot-reason').value||'').trim();
   const date=$('ot-date').value, dateEnd=$('ot-date-end').value||date; const type=canon($('ot-kind').value);
   if(!otUser){ otShowLogin(); return; }
   const start=$('ot-start').value, end=$('ot-end').value;
@@ -415,7 +421,7 @@ async function otReview(){ const t=L();
   show('otconfirm');
 }
 async function otConfirmSend(){ const t=L();
-  const group=($('ot-group').value||'').trim(); const date=$('ot-date').value; const type=canon($('ot-kind').value); const num=($('ot-num').value||'').trim().toUpperCase(); const reason=($('ot-reason').value||'').trim();
+  const group=($('ot-group').value||'').trim(); const date=$('ot-date').value; const type=canon($('ot-kind').value); const num=otFinalNum(); const reason=($('ot-reason').value||'').trim();
   const start=$('ot-start').value, end=$('ot-end').value; const dateEnd=$('ot-date-end').value||date; const hours=calcHoursDT(date,start,dateEnd,end);
   const rec={group,people:otPeople.slice(),date,end_date:dateEnd,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:otUser.id,name:otUser.name},status:'pending',stage:'section',created:now()};
   const btn=$('otc-send'); btn.disabled=true;
