@@ -1079,7 +1079,7 @@ select.fld-input.big{height:56px}
         <button class="mt-cats-toggle" id="mt-cats-toggle" onclick="mtToggleCats()" title="隱藏/展開車機分類">◀</button>
         <div class="mt-type-tabs" id="mt-type-tabs"></div>
         <div class="mt-main">
-          <div class="mt-toolbar">
+          <div class="mt-toolbar" id="mt-toolbar">
             <button class="mt-up-btn mt1" id="mt-up1-btn" onclick="triggerMaintUpload('MT1')">⬆️ 上傳 MT-1</button>
             <input type="file" id="maint-file-MT1" accept="application/pdf" style="display:none" onchange="onMaintFile('MT1',this)"/>
             <button class="mt-up-btn mt2" id="mt-up2-btn" onclick="triggerMaintUpload('MT2')">⬆️ 上傳 MT-2</button>
@@ -3312,7 +3312,20 @@ function maintShiftMonth(d){
   renderMaintenance();
 }
 function selectMaintType(ty){ wiMode=false; maintType=ty; selMaintDate=null; setMaintMonthFromData(); renderMaintenance(); }
-async function selectWI(){ wiMode=true; if(typeof umRefreshPerms==='function'){ try{ await umRefreshPerms(); }catch(_){} } renderMaintenance(); }
+let wiBridged=false;
+async function wiBridgeFromEqHours(){ // 一次性橋接：把 eq_hours 現有 GC MOVEMENT 補進 wi_move 當月（只補空的、不覆蓋）
+  if(wiBridged) return; wiBridged=true;
+  const year=wiCurYear(); const mo=+panYmd().slice(4,6);
+  for(const mac of wiGcMachines()){
+    const val=readMachineHours(mac, mtCanonType('GC'), 'MOVEMENT');
+    if(val==null) continue;
+    const cur=WI_MOVE[mac]&&WI_MOVE[mac][year]&&WI_MOVE[mac][year][mo];
+    if(cur!=null && String(cur)!=='') continue;
+    WI_MOVE[mac]=WI_MOVE[mac]||{}; WI_MOVE[mac][year]=WI_MOVE[mac][year]||{}; WI_MOVE[mac][year][mo]=val;
+    try{ await fetch(`${FB}/wi_move/${encodeURIComponent(mac)}/${year}/${mo}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); }catch(_){}
+  }
+}
+async function selectWI(){ wiMode=true; if(typeof umRefreshPerms==='function'){ try{ await umRefreshPerms(); }catch(_){} } try{ await wiBridgeFromEqHours(); }catch(_){} renderMaintenance(); }
 function wiSetTab(t){ wiTab=t; renderWI(); }
 function mtJumpDate(val){
   if(!val) return;
@@ -3523,12 +3536,14 @@ function renderMaintenance(){
   const sInp=document.getElementById('mt-search'); if(sInp) sInp.placeholder=L.searchPh;
   const jInp=document.getElementById('mt-jump'); if(jInp) jInp.title=L.jumpTitle;
   const wiBox=document.getElementById('mt-wi'); const splitBox=document.querySelector('#mt-tab-confirm .mt-splitwrap'); const banner=document.getElementById('mt-overdue-banner');
+  const toolbar=document.getElementById('mt-toolbar');
   if(wiMode){
+    if(toolbar) toolbar.style.display='none';
     if(splitBox) splitBox.style.display='none';
     if(banner) banner.style.display='none';
     if(wiBox){ wiBox.style.display=''; renderWI(); }
     return;
-  } else { if(wiBox) wiBox.style.display='none'; if(splitBox) splitBox.style.display=''; }
+  } else { if(toolbar) toolbar.style.display=''; if(wiBox) wiBox.style.display='none'; if(splitBox) splitBox.style.display=''; }
   renderMaintCalAll();
   renderListModeBar();
   renderUnitCounts();
