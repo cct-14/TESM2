@@ -331,7 +331,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .wr-badge{font-size:11px;font-weight:800;color:#fff;background:var(--red);border-radius:6px;padding:1px 7px;letter-spacing:0}
 .wr-badge.warn{background:#e07a00}
 .wi-sub-h{font-size:14px;font-weight:800;color:var(--text);margin:20px 0 8px;padding-top:14px;border-top:1px solid var(--border)}
-.wi-entry-scroll{max-height:calc(100vh - 240px);min-height:200px;overflow-y:auto;padding:2px 4px 12px 2px}
+.wi-entry-scroll{max-height:calc(100vh - 240px);min-height:200px;overflow-y:auto;padding:2px 4px 300px 2px}
+.wi-filter{display:flex;gap:6px;margin:2px 0 10px}
+.wi-filter button{border:1px solid var(--border);background:var(--bg);color:var(--text3);font-size:13px;font-weight:700;padding:5px 14px;border-radius:9px;cursor:pointer}
+.wi-filter button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.wi-dash-scroll{max-height:calc(100vh - 210px);min-height:200px;overflow-y:auto;padding:4px 6px 12px 2px}
 .wi-rrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;padding:7px 0;border-top:1px dashed var(--border)}
 .wi-rname{font-weight:800;min-width:160px;font-size:13px}
 .wi-rf{display:flex;align-items:center;gap:6px;font-size:12px}
@@ -2948,6 +2952,7 @@ let WI = {};               // 鋼索: WI[mac]={months:{ym:{hoist,trolley,catenar
 let WI_MOVE = {};          // 每月動作數: WI_MOVE[mac][year][month]=count（現場時數 MOVEMENT 累計來源）
 let wiCardOpen = {};       // 儀表板卡片展開狀態
 let wiEntryYear = null;    // 填寫頁目前年份
+let wiDashFilter = 'all';  // 儀表板篩選: all / warn(≥90%) / over(超過)
 let wiMode = false, wiTab = 'dash';
 const WI_COMPS = [['hoist','HOIST'],['trolley','TROLLEY'],['catenary','CATENARY'],['boom','BOOM']];
 const WI_MHI = ['GC-03','GC-05','GC-06','GC-07','GC-08','GC-09','GC-10','GC-11'];
@@ -2980,7 +2985,7 @@ const MT_I18N = {
     planHint:'Toca un día para ver los trabajos de MT1 y MT2', planNoDay:'Sin trabajos ese día',
     planCount:(n,m1,m2)=>`${n} este mes（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} tareas`, teamCnt:(t,n)=>`${t}　${n}`,
     searchPh:'🔍 Buscar máquina', doneLog:'📋 Historial', overdueBanner:(ty,n)=>`⚠️ ${ty}: ${n} vencidos`, viewMore:'ver', jumpTitle:'Ir a fecha', todo:'Pendiente',
-    wiTabDash:'📊 Panel', wiTabEntry:'✏️ Registro', wiNoGc:'Sin datos de grúas GC', wiNoReading:'Sin lectura', wiNoReplDate:'Sin fecha de cambio', wiNeed:'Cambiar', wiNear:'Cerca', wiNearLimit:'Cerca del límite', wiNextRound:'(modelo por días: próx.)', wiMoveHint:'Movimientos por mes (el registro móvil de MOVEMENT llena el mes actual; editable aquí)', wiSave:'💾 Guardar', wiReadonly:'Solo lectura', wiMachine:'Grúa', wiYearTot:'Año', wiCum:'Acum.', wiNoChange:'Sin cambios', wiSavedN:n=>`Guardado ${n} ✓`, wiInitReplHdr:'Base inicial / Último cambio', wiInitCan:'Puede fijar la base inicial y la fecha del último cambio.', wiInitNo:'(Solo ciertos permisos editan la base inicial)', wiCurMove:'Movimientos actuales (acum.):', wiInitBase:'Base inicial', wiNotSet:'Sin fijar', wiInitPh:'Movimientos iniciales', wiLastRepl:'Último cambio:', wiByPlan:'(marcado en plan)', wiNone:'Ninguno', wiPlanCtrl:'Control por plan', wiSaved:'Guardado', wiCurShort:'Actual', wiInitShort:'Inicial', wiMonthUnit:' meses', wiSideSea:'Mar', wiSideLand:'Tierra', wiSideConn:'Conexión', wiDayUnit:' d', wiLastReplDate:'Último cambio', wiInitMove:'Mov. inicial' },
+    wiTabDash:'📊 Panel', wiTabEntry:'✏️ Registro', wiNoGc:'Sin datos de grúas GC', wiNoReading:'Sin lectura', wiNoReplDate:'Sin fecha de cambio', wiNeed:'Cambiar', wiNear:'Cerca', wiNearLimit:'Cerca del límite', wiNextRound:'(modelo por días: próx.)', wiMoveHint:'Movimientos por mes (el registro móvil de MOVEMENT llena el mes actual; editable aquí)', wiSave:'💾 Guardar', wiReadonly:'Solo lectura', wiMachine:'Grúa', wiYearTot:'Año', wiCum:'Acum.', wiNoChange:'Sin cambios', wiSavedN:n=>`Guardado ${n} ✓`, wiInitReplHdr:'Base inicial / Último cambio', wiInitCan:'Puede fijar la base inicial y la fecha del último cambio.', wiInitNo:'(Solo ciertos permisos editan la base inicial)', wiCurMove:'Movimientos actuales (acum.):', wiInitBase:'Base inicial', wiNotSet:'Sin fijar', wiInitPh:'Movimientos iniciales', wiLastRepl:'Último cambio:', wiByPlan:'(marcado en plan)', wiNone:'Ninguno', wiPlanCtrl:'Control por plan', wiSaved:'Guardado', wiCurShort:'Actual', wiInitShort:'Inicial', wiMonthUnit:' meses', wiSideSea:'Mar', wiSideLand:'Tierra', wiSideConn:'Conexión', wiDayUnit:' d', wiLastReplDate:'Último cambio', wiInitMove:'Mov. inicial', wiNextLabel:'Próx.', wiFAll:'Todos', wiFWarn:'≥90%', wiFOver:'Excedido' },
   zh:{ hrSection:'⏱ 時數保養', hrItemLabel:'運轉時數項目', hrRemain:'還剩', hrOver:'已超過', hrUnit:'h', hrCur:'目前', hrDue:'該保養', hrComplete:'✓ 完成', hrNoReading:'無時數讀數', hrNoBase:'未設基準', hrSetBase:'設基準', del14Only:'只有 14 可以刪除工程。', modeAll:'全部清單', modeDay:'依點選日期', pickDay:'點月曆選一天', hrNoItem:'請先選擇運轉時數項目', hrDoneQ:'確定完成？當下時數 {h}h 會設為新的基準。', up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成', msgTitle:'傳訊息', msgPh:'輸入訊息…', msgSend:'送出', msgNoperm:'你沒有發訊息權限，只能接收。', msgReply:'回一句…', msgGot:'收到', msgOk:'已收到',
     notUploaded:'尚未上傳', dow:['日','一','二','三','四','五','六'],
     monthN:n=>`本月 ${n} 件`, backlog:(d,n)=>`到 ${d} 未完成 <b>${n}</b> 件`,
@@ -2991,7 +2996,7 @@ const MT_I18N = {
     planHint:'點月曆上任一天，看 MT1、MT2 當天要做的保養工程', planNoDay:'這天沒有排定保養工程',
     planCount:(n,m1,m2)=>`本月 ${n} 件（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · 共 ${n} 件`, teamCnt:(t,n)=>`${t}　${n} 件`,
     searchPh:'🔍 搜尋機號', doneLog:'📋 完成紀錄', overdueBanner:(ty,n)=>`⚠️ ${ty} 逾期未完成 ${n} 件`, viewMore:'點擊查看', jumpTitle:'跳到指定日期', todo:'待辦',
-    wiTabDash:'📊 儀表板', wiTabEntry:'✏️ 填寫', wiNoGc:'沒有 GC 機器資料', wiNoReading:'無讀數', wiNoReplDate:'未設更換日', wiNeed:'需更換', wiNear:'快到', wiNearLimit:'快到門檻', wiNextRound:'(天數模型下一輪)', wiMoveHint:'每月動作數（手機現場登入 MOVEMENT 會自動填入當月，此處可修改）', wiSave:'💾 儲存', wiReadonly:'唯讀', wiMachine:'機號', wiYearTot:'年計', wiCum:'累計', wiNoChange:'沒有變更', wiSavedN:n=>`已儲存 ${n} 筆 ✓`, wiInitReplHdr:'初始基準 / 上次更換', wiInitCan:'可設定初始基準與上次更換時間。', wiInitNo:'（僅特定權限可編輯初始基準）', wiCurMove:'目前動作數（累計）：', wiInitBase:'初始基準', wiNotSet:'尚未設定', wiInitPh:'第一次的動作數', wiLastRepl:'上次更換：', wiByPlan:'（計畫打勾）', wiNone:'尚無', wiPlanCtrl:'計畫控制', wiSaved:'已儲存', wiCurShort:'目前', wiInitShort:'初始', wiMonthUnit:'個月', wiSideSea:'海側', wiSideLand:'陸側', wiSideConn:'連接', wiDayUnit:' 天', wiLastReplDate:'上次更換日期', wiInitMove:'初始動作數' },
+    wiTabDash:'📊 儀表板', wiTabEntry:'✏️ 填寫', wiNoGc:'沒有 GC 機器資料', wiNoReading:'無讀數', wiNoReplDate:'未設更換日', wiNeed:'需更換', wiNear:'快到', wiNearLimit:'快到門檻', wiNextRound:'(天數模型下一輪)', wiMoveHint:'每月動作數（手機現場登入 MOVEMENT 會自動填入當月，此處可修改）', wiSave:'💾 儲存', wiReadonly:'唯讀', wiMachine:'機號', wiYearTot:'年計', wiCum:'累計', wiNoChange:'沒有變更', wiSavedN:n=>`已儲存 ${n} 筆 ✓`, wiInitReplHdr:'初始基準 / 上次更換', wiInitCan:'可設定初始基準與上次更換時間。', wiInitNo:'（僅特定權限可編輯初始基準）', wiCurMove:'目前動作數（累計）：', wiInitBase:'初始基準', wiNotSet:'尚未設定', wiInitPh:'第一次的動作數', wiLastRepl:'上次更換：', wiByPlan:'（計畫打勾）', wiNone:'尚無', wiPlanCtrl:'計畫控制', wiSaved:'已儲存', wiCurShort:'目前', wiInitShort:'初始', wiMonthUnit:'個月', wiSideSea:'海側', wiSideLand:'陸側', wiSideConn:'連接', wiDayUnit:' 天', wiLastReplDate:'上次更換日期', wiInitMove:'初始動作數', wiNextLabel:'下次', wiFAll:'全部', wiFWarn:'≥90%', wiFOver:'超過' },
   en:{ hrSection:'⏱ Hour-based maintenance', hrItemLabel:'Operating hours', hrRemain:'Left', hrOver:'Overdue', hrUnit:'h', hrCur:'Current', hrDue:'Due at', hrComplete:'✓ Done', hrNoReading:'No hour reading', hrNoBase:'No baseline', hrSetBase:'Set base', del14Only:'Only 14 can delete tasks.', modeAll:'Full list', modeDay:'By date', pickDay:'Pick a day on the calendar', hrNoItem:'Select the operating-hours item', hrDoneQ:'Complete? Current hours ({h}h) become the new baseline.', up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done', msgTitle:'Send message', msgPh:'Type a message…', msgSend:'Send', msgNoperm:'You can only receive, not send.', msgReply:'Reply…', msgGot:'Got it', msgOk:'Received',
     notUploaded:'Not uploaded', dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
     monthN:n=>`${n} this month`, backlog:(d,n)=>`Open until ${d}: <b>${n}</b>`,
@@ -3002,7 +3007,7 @@ const MT_I18N = {
     planHint:'Tap any day to see MT1 & MT2 tasks', planNoDay:'No tasks scheduled that day',
     planCount:(n,m1,m2)=>`${n} this month（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} items`, teamCnt:(t,n)=>`${t}　${n}`,
     searchPh:'🔍 Search machine', doneLog:'📋 Completion log', overdueBanner:(ty,n)=>`⚠️ ${ty}: ${n} overdue`, viewMore:'view', jumpTitle:'Jump to date', todo:'Pending',
-    wiTabDash:'📊 Dashboard', wiTabEntry:'✏️ Entry', wiNoGc:'No GC machine data', wiNoReading:'No reading', wiNoReplDate:'No change date', wiNeed:'Replace', wiNear:'Near', wiNearLimit:'Near limit', wiNextRound:'(days model: next)', wiMoveHint:'Monthly movements (mobile MOVEMENT entry fills the current month; editable here)', wiSave:'💾 Save', wiReadonly:'Read-only', wiMachine:'Machine', wiYearTot:'Year', wiCum:'Cum.', wiNoChange:'No changes', wiSavedN:n=>`Saved ${n} ✓`, wiInitReplHdr:'Initial base / Last change', wiInitCan:'You can set the initial baseline and last-change date.', wiInitNo:'(Only certain permissions can edit the initial baseline)', wiCurMove:'Current movements (cum.):', wiInitBase:'Initial base', wiNotSet:'Not set', wiInitPh:'Initial movements', wiLastRepl:'Last change:', wiByPlan:'(checked in plan)', wiNone:'None', wiPlanCtrl:'Plan-controlled', wiSaved:'Saved', wiCurShort:'Current', wiInitShort:'Init', wiMonthUnit:' mo', wiSideSea:'Sea', wiSideLand:'Land', wiSideConn:'Connection', wiDayUnit:' d', wiLastReplDate:'Last change', wiInitMove:'Init. movements' }
+    wiTabDash:'📊 Dashboard', wiTabEntry:'✏️ Entry', wiNoGc:'No GC machine data', wiNoReading:'No reading', wiNoReplDate:'No change date', wiNeed:'Replace', wiNear:'Near', wiNearLimit:'Near limit', wiNextRound:'(days model: next)', wiMoveHint:'Monthly movements (mobile MOVEMENT entry fills the current month; editable here)', wiSave:'💾 Save', wiReadonly:'Read-only', wiMachine:'Machine', wiYearTot:'Year', wiCum:'Cum.', wiNoChange:'No changes', wiSavedN:n=>`Saved ${n} ✓`, wiInitReplHdr:'Initial base / Last change', wiInitCan:'You can set the initial baseline and last-change date.', wiInitNo:'(Only certain permissions can edit the initial baseline)', wiCurMove:'Current movements (cum.):', wiInitBase:'Initial base', wiNotSet:'Not set', wiInitPh:'Initial movements', wiLastRepl:'Last change:', wiByPlan:'(checked in plan)', wiNone:'None', wiPlanCtrl:'Plan-controlled', wiSaved:'Saved', wiCurShort:'Current', wiInitShort:'Init', wiMonthUnit:' mo', wiSideSea:'Sea', wiSideLand:'Land', wiSideConn:'Connection', wiDayUnit:' d', wiLastReplDate:'Last change', wiInitMove:'Init. movements', wiNextLabel:'Next', wiFAll:'All', wiFWarn:'≥90%', wiFOver:'Over' }
 };
 let maintLang = 'es';
 try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }catch(_){}
@@ -3655,10 +3660,12 @@ async function mtDeleteTaskAdmin(type,team,id){
   delete g.tasks[id];
   renderMaintenance();
 }
+const WI_GC=['GC-03','GC-05','GC-06','GC-07','GC-08','GC-09','GC-10','GC-11','GC-12','GC-13','GC-15','GC-16','GC-17'];
 function wiGcMachines(){
   const set={};
   if(typeof data==='object'&&data){ for(const k in data){ const e=data[k]; const mid=(e&&e.machine_id)?e.machine_id:k; if(/^GC-/i.test(mid)) set[mid]=1; } }
   MT_TEAMS.forEach(tm=>maintTasks('GC',tm).forEach(t=>{ if(/^GC-/i.test(t.machine||'')) set[t.machine]=1; }));
+  WI_GC.forEach(m=>set[m]=1);
   return Object.keys(set).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
 }
 function wiInit(mac){ const v=parseFloat(WI[mac]&&WI[mac].init); return isNaN(v)?null:v; }
@@ -3683,28 +3690,33 @@ const WI_SIDEK={sea:'wiSideSea',land:'wiSideLand',conn:'wiSideConn'};
 const WI_CAT={};
 (function(){
   const sl=[{k:'sea',s:'sea',th:547.5},{k:'land',s:'land',th:547.5},{k:'conn',s:'conn',th:912.5}];
-  ['GC-03','GC-05','GC-06','GC-07','GC-08','GC-09','GC-10','GC-11'].forEach(m=>WI_CAT[m]=sl);
-  const mm4=[{k:'o12l',t:'Outside(12mm) Left',th:912.5},{k:'o12r',t:'Outside(12mm) Right',th:912.5},{k:'i16l',t:'Inside(16mm) Left',th:912.5},{k:'i16r',t:'Inside(16mm) Right',th:912.5}];
+  ['GC-07','GC-08','GC-09','GC-10','GC-11'].forEach(m=>WI_CAT[m]=sl);
+  const mm4=[{k:'o12l',t:'12mm LH',th:912.5},{k:'o12r',t:'12mm RH',th:912.5},{k:'i16l',t:'16mm LH',th:912.5},{k:'i16r',t:'16mm RH',th:912.5}];
   ['GC-12','GC-13','GC-15'].forEach(m=>WI_CAT[m]=mm4);
-  const mm2=[{k:'o12',t:'Outside(12mm)',th:912.5},{k:'i16',t:'Inside(16mm)',th:912.5}];
+  const mm2=[{k:'o12',t:'12mm LH',th:912.5},{k:'i16',t:'16mm LH',th:912.5}];
   ['GC-16','GC-17'].forEach(m=>WI_CAT[m]=mm2);
 })();
 function wiCatName(c){ const L=mtL(); return c.s?(L[WI_SIDEK[c.s]]||c.s):c.t; }
 function wiRopes(mac){ // 這台機的所有子鋼索
   const L=mtL(); const out=[];
-  out.push({key:'hoist', kind:'hoist', side:'', label:'HOIST', moveTh:(wiIsMHI(mac)?80000:100000), dayTh:365});
+  out.push({key:'hoist_1', kind:'hoist', side:'No.1', label:'HOIST · 1', moveTh:(wiIsMHI(mac)?80000:100000), dayTh:365});
+  out.push({key:'hoist_2', kind:'hoist', side:'No.2', label:'HOIST · 2', moveTh:(wiIsMHI(mac)?80000:100000), dayTh:365});
   out.push({key:'trolley_sea', kind:'trolley', side:L.wiSideSea, label:'TROLLEY · '+L.wiSideSea, dayTh:657, moveTh:100000});
   out.push({key:'trolley_land', kind:'trolley', side:L.wiSideLand, label:'TROLLEY · '+L.wiSideLand, dayTh:657, moveTh:100000});
   (WI_CAT[mac]||[]).forEach(c=>{ const nm=wiCatName(c); out.push({key:'cat_'+c.k, kind:'catenary', side:nm, label:'CATENARY · '+nm, dayTh:c.th, moveTh:(wiIsMHI(mac)?100000:120000)}); });
-  out.push({key:'boom', kind:'boom', side:'', label:'BOOM', monthTh:60});
+  out.push({key:'boom', kind:'boom', side:'', label:'BOOM', dayTh:1825});
   return out;
 }
 function wiDaysSince(dateStr){ const d=wiParseDate(dateStr); if(!d) return null; const ms=(new Date())-d; return ms<0?0:Math.floor(ms/86400000); }
+function wiFmtYmd2(d){ const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; }
+function wiNextChange(mac,rope){ const s=wiRopeDate(mac,rope.key); const d=wiParseDate(s); if(!d) return null; if(rope.dayTh){ return wiFmtYmd2(new Date(d.getTime()+Math.round(rope.dayTh)*86400000)); } if(rope.monthTh){ return wiFmtYmd2(new Date(d.getFullYear(), d.getMonth()+rope.monthTh, d.getDate())); } return null; }
 function wiRopeDate(mac,key){ const v=WI[mac]&&WI[mac].rdate&&WI[mac].rdate[key]; if(v) return v; const lg=WI[mac]&&WI[mac].replManual&&WI[mac].replManual[key.replace(/_.*/,'')]; return lg||null; }
-function wiRopeMove(mac,key){ const v=WI[mac]&&WI[mac].rmove&&WI[mac].rmove[key]; const n=parseFloat(v); if(!isNaN(n)) return n; if(key==='hoist'){ const b=WI[mac]&&WI[mac].base&&WI[mac].base.hoist; const nb=parseFloat(b); if(!isNaN(nb)) return nb; const i=wiInit(mac); return i==null?null:i; } return null; }
+function wiRopeMove(mac,key){ const v=WI[mac]&&WI[mac].rmove&&WI[mac].rmove[key]; const n=parseFloat(v); if(!isNaN(n)) return n; if(key==='hoist_1'||key==='hoist'){ const b=WI[mac]&&WI[mac].base&&WI[mac].base.hoist; const nb=parseFloat(b); if(!isNaN(nb)) return nb; const i=wiInit(mac); return i==null?null:i; } return null; }
 function wiRopeMetrics(mac,rope){ // 一條鋼索可同時比動作數與天/月，哪個先到就要換
   const L=mtL(); const out=[];
-  if(rope.moveTh){ const cur=wiCurrent(mac); const base=wiRopeMove(mac,rope.key); const since=(cur==null)?null:(cur-(base==null?0:base)); out.push({m:'move', since, th:rope.moveTh, unit:'', has:cur!=null}); }
+  if(rope.moveTh){ const init=wiRopeMove(mac,rope.key);
+    if(init==null){ out.push({m:'move', since:null, th:rope.moveTh, unit:'', has:false}); }
+    else { const rb=WI[mac]&&WI[mac].rbase&&WI[mac].rbase[rope.key]; const tot=wiMoveTotal(mac); const delta=(rb==null||tot==null)?0:Math.max(0, tot-parseFloat(rb)); out.push({m:'move', since:init+delta, th:rope.moveTh, unit:'', has:true}); } }
   if(rope.dayTh){ const dt=wiRopeDate(mac,rope.key); const dd=wiDaysSince(dt); out.push({m:'days', since:dd, th:rope.dayTh, unit:L.wiDayUnit, has:!!dt}); }
   if(rope.monthTh){ const dt=wiRopeDate(mac,rope.key); const mo=wiMonthsSince(dt); out.push({m:'months', since:mo, th:rope.monthTh, unit:L.wiMonthUnit, has:!!dt}); }
   return out;
@@ -3716,11 +3728,15 @@ function renderWI(){
   const tabs=`<div class="wi-tabs"><button class="${wiTab==='dash'?'on':''}" onclick="wiSetTab('dash')">${L.wiTabDash}</button><button class="${wiTab==='entry'?'on':''}" onclick="wiSetTab('entry')">${L.wiTabEntry}</button></div>`;
   box.innerHTML = tabs + (wiTab==='dash'? wiRenderDash() : wiRenderEntry());
 }
+function wiSetFilter(f){ wiDashFilter=f; renderWI(); }
 function wiRenderDash(){
   const L=mtL();
   const macs=wiGcMachines();
   if(!macs.length) return `<div style="padding:30px;text-align:center;color:var(--text3)">${L.wiNoGc}</div>`;
-  return `<div class="wi-cards">`+macs.map(mac=>{
+  const F=wiDashFilter;
+  const shown=macs.filter(mac=>{ if(F==='all') return true; const js=wiRopes(mac).map(r=>wiRopeJudge2(mac,r)); if(F==='over') return js.some(j=>j.over); return js.some(j=>j.over||j.warn); });
+  const fbar=`<div class="wi-filter">`+[['all',L.wiFAll],['warn',L.wiFWarn],['over',L.wiFOver]].map(([k,lb])=>`<button class="${F===k?'on':''}" onclick="wiSetFilter('${k}')">${lb}</button>`).join('')+`</div>`;
+  const cards = shown.length? shown.map(mac=>{
     const cur=wiCurrent(mac); const total=cur==null?'—':cur;
     const judged=wiRopes(mac).map(r=>wiRopeJudge2(mac,r));
     const over=judged.filter(j=>j.over), warn=judged.filter(j=>j.warn);
@@ -3731,7 +3747,8 @@ function wiRenderDash(){
     else if(warn.length) flag=`<div style="margin-top:6px;color:#e07a00;font-weight:700;font-size:12px;line-height:1.35">${L.wiNearLimit}: ${warn.map(j=>j.rope.label).join('、')}</div>`;
     const detail = open?`<div style="text-align:left;margin-top:12px;font-size:14px;border-top:1px solid var(--border);padding-top:10px">${wiCardLines(mac)}</div>`:'';
     return `<div class="wi-card ${cls}" style="cursor:pointer;position:relative" onclick="wiToggleCard('${mac}')"><span style="position:absolute;top:4px;right:10px;font-size:44px;line-height:1;color:${open?'var(--purple)':'var(--blue)'}">${open?'▾':'▸'}</span><div class="wc-mac">${mac}</div><div class="wc-total">Total ${total}</div>${flag}${detail}</div>`;
-  }).join('')+`</div>`;
+  }).join('') : `<div style="padding:24px;text-align:center;color:var(--text3)">—</div>`;
+  return fbar+`<div class="wi-dash-scroll"><div class="wi-cards">`+cards+`</div></div>`;
 }
 function wiRopeJudge(mac,comp){ // 只對已完成模型（HOIST）給判斷
   const info=wiCompInfo(mac,comp); const judged=(comp==='hoist');
@@ -3758,7 +3775,9 @@ function wiCardLines(mac){
         return `<span style="color:${c};font-weight:${pct>=0.9?'700':'400'}">${x.since}/${x.th}${x.unit}</span>`;
       }).join('<span style="color:var(--text3)"> · </span>');
       const nm=r.side?`<span class="wr-name">${r.side}</span>`:'';
-      return `<div class="wr-row">${nm}<span class="wr-mets">${mets}</span></div>`;
+      const nc=wiNextChange(mac,r);
+      const ncHtml = nc?`<span style="color:var(--text3);font-size:12px">· ${L.wiNextLabel} ${nc}</span>`:'';
+      return `<div class="wr-row">${nm}<span class="wr-mets">${mets}</span>${ncHtml}</div>`;
     }).join('');
     return `<div class="wr-box ${boxCls}"><div class="wr-h"><span>${title}</span>${badge}</div>${rows}</div>`;
   }).join('');
@@ -3852,7 +3871,7 @@ async function wiSaveEntry(mac){
   const isGuest=(typeof guestMode!=='undefined'&&guestMode);
   const canInit=!isGuest && ((typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('wi_initial','v')));
   if(!canInit){ if(typeof maintPermAlert==='function') maintPermAlert(); return; }
-  WI[mac]=WI[mac]||{}; WI[mac].rdate=WI[mac].rdate||{}; WI[mac].rmove=WI[mac].rmove||{};
+  WI[mac]=WI[mac]||{}; WI[mac].rdate=WI[mac].rdate||{}; WI[mac].rmove=WI[mac].rmove||{}; WI[mac].rbase=WI[mac].rbase||{};
   try{
     for(const r of wiRopes(mac)){
       const de=document.getElementById('wi-'+mac+'-d-'+r.key);
@@ -3861,8 +3880,11 @@ async function wiSaveEntry(mac){
         else if(WI[mac].rdate[r.key]!=null){ delete WI[mac].rdate[r.key]; await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rdate/${r.key}.json`,{method:'DELETE'}); } }
       const me=document.getElementById('wi-'+mac+'-m-'+r.key);
       if(me){ const raw=(me.value||'').trim();
-        if(raw!==''){ const nv=Number(raw); if(!isNaN(nv)){ WI[mac].rmove[r.key]=nv; await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rmove/${r.key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(nv)}); } }
-        else if(WI[mac].rmove[r.key]!=null){ delete WI[mac].rmove[r.key]; await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rmove/${r.key}.json`,{method:'DELETE'}); } }
+        if(raw!==''){ const nv=Number(raw); if(!isNaN(nv)){
+            if(String(WI[mac].rmove[r.key])!==String(nv)){ const snap=wiMoveTotal(mac); const sv=(snap==null?0:snap); WI[mac].rbase[r.key]=sv; await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rbase/${r.key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(sv)}); }
+            WI[mac].rmove[r.key]=nv; await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rmove/${r.key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(nv)});
+        } }
+        else if(WI[mac].rmove[r.key]!=null){ delete WI[mac].rmove[r.key]; await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rmove/${r.key}.json`,{method:'DELETE'}); if(WI[mac].rbase&&WI[mac].rbase[r.key]!=null){ delete WI[mac].rbase[r.key]; await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rbase/${r.key}.json`,{method:'DELETE'}); } } }
     }
     alert(mtL().wiSaved);
   }catch(e){ alert('✗ '+e.message); }
