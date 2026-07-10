@@ -363,6 +363,11 @@ async function submitHours(){
     Object.assign(vals,filled);
     await fetch(FB+'/eq_hours/'+kk+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({vals,time:tnow})});
     Object.entries(filled).forEach(([k2,hv])=>{ fetch(FB+'/eq_hours_log.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,kind:k2,hours:hv,time:tnow})}).catch(()=>{}); });
+    // WI 鋼索：GC 的 MOVEMENT 動作數寫進當月月表（累計來源），同月覆蓋
+    if(c==='GC'){
+      const moveCat=Object.keys(filled).find(k2=>/move|movement|mov|次|動作/i.test(k2));
+      if(moveCat){ const pd=panamaDate(); const yr=pd.slice(0,4), mo=String(parseInt(pd.slice(5,7),10)); fetch(FB+'/wi_move/'+encodeURIComponent(id)+'/'+yr+'/'+mo+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(filled[moveCat])}).catch(()=>{}); }
+    }
   }catch(e){ $('h-err').textContent='✗ '+e.message; btn.disabled=false; return; }
   btn.disabled=false; $('d-detail').textContent=`${id} — ${Object.entries(filled).map(([k,v])=>k+':'+v).join('  ')}`; show('done');
 }
