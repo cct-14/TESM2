@@ -3767,6 +3767,14 @@ let wiExpanded={};
 function wiToggleEntry(mac){ wiExpanded[mac]=!wiExpanded[mac]; renderWI(); }
 function wiCurYear(){ return +panYmd().slice(0,4); }
 function wiSetEntryYear(y){ wiEntryYear=y; renderWI(); }
+function wiCellKey(e){ // Enter → 跳到下一列同月份的格子
+  if(e.key!=='Enter') return;
+  e.preventDefault();
+  const td=e.target.closest('td'); const tr=td&&td.parentElement; if(!tr) return;
+  const idx=Array.prototype.indexOf.call(tr.children, td);
+  let nr=tr.nextElementSibling;
+  while(nr){ const cell=nr.children[idx]; const ni=cell&&cell.querySelector('input.wi-move-cell'); if(ni){ ni.focus(); if(ni.select) ni.select(); return; } nr=nr.nextElementSibling; }
+}
 function wiRenderEntry(){
   const L=mtL();
   const macs=wiGcMachines();
@@ -3785,7 +3793,7 @@ function wiRenderEntry(){
     const tds=MN.map(mn=>{
       const raw=ym[mn]; const val=(raw==null||raw==='')?'':raw;
       if(val!==''){ const nn=parseFloat(val); if(!isNaN(nn)){ yTot+=nn; hasY=true; } }
-      return `<td><input class="wi-move-cell" data-mac="${mac}" data-mn="${mn}" value="${val}" inputmode="numeric" ${canEdit?'':'readonly'}></td>`;
+      return `<td><input class="wi-move-cell" data-mac="${mac}" data-mn="${mn}" value="${val}" inputmode="numeric" onkeydown="wiCellKey(event)" ${canEdit?'':'readonly'}></td>`;
     }).join('');
     const cum=wiCurrent(mac);
     return `<tr><td class="wi-move-mac">${mac}</td>${tds}<td class="wi-move-tot">${hasY?yTot:''}</td><td class="wi-move-cum">${cum==null?'—':cum}</td></tr>`;
