@@ -2117,15 +2117,15 @@ async function deleteRole(key) {
 // ── 密碼管理 Panel ───────────────────────────
 // ── 使用者管理（密碼管理頁內）──
 const UM_I18N={
-  zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼',add:'新增人員',
+  zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼（可留空）',add:'新增人員',impBtn:'匯入名冊',impHint:'批次匯入：從 Excel 貼兩欄（編號、名字），一行一筆',imported:'已匯入 {n} 人',needIdName:'請填編號和名字',
     newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
     hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
-  es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial',add:'Añadir usuario',
+  es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial (opcional)',add:'Añadir usuario',impBtn:'Importar lista',impHint:'Importar: pegue dos columnas (N.º, nombre) de Excel, una por línea',imported:'{n} importados',needIdName:'N.º y nombre obligatorios',
     newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
     hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
-  en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password',add:'Add user',
+  en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password (optional)',add:'Add user',impBtn:'Import list',impHint:'Import: paste two columns (ID, name) from Excel, one per line',imported:'{n} imported',needIdName:'ID and name required',
     newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
     hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
@@ -2154,6 +2154,7 @@ function renderUsers(){
         <span style="font-weight:700;min-width:70px">${id}</span><span style="flex:1">${name||''}</span>
         ${active?`<span style="font-size:11px;color:var(--green);font-weight:600">${umT('active')}</span>`:''}
         ${u.mustChange?`<span style="font-size:11px;color:var(--orange,#ea580c);font-weight:600">${umT('mustchg')}</span>`:''}
+        <button onclick="event.stopPropagation();umRemove('${id}')" title="✕" style="border:none;background:none;color:var(--red);font-size:15px;cursor:pointer;padding:2px 6px;flex-shrink:0">✕</button>
       </div>
       ${open?`<div style="padding:10px">
         <div style="display:flex;gap:6px;margin-bottom:10px">
@@ -2174,13 +2175,32 @@ async function umAdd(){
   const id=(document.getElementById('um-add-id').value||'').trim();
   const name=(document.getElementById('um-add-name').value||'').trim();
   const pass=(document.getElementById('um-add-pass').value||'').trim();
-  if(!id||!name||!pass){ alert(umT('needAll')); return; }
-  if(USERS[id]){ alert(umT('dup')); return; }
-  const u={name,pass,mustChange:true,perms:{}};
-  USERS[id]=u;
-  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(u)}); }catch(e){ alert('✗ '+e.message); return; }
+  if(!id||!name){ alert(umT('needIdName')); return; }
+  STAFF[id]=name; /* 名冊（不需密碼也能加）*/
+  try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(name)}); }catch(e){ alert('✗ '+e.message); return; }
+  if(pass){ /* 有填密碼 → 同時建立登入 */
+    if(!USERS[id]) USERS[id]={name,pass,mustChange:true,perms:{}};
+    else { USERS[id].name=name; USERS[id].pass=pass; USERS[id].mustChange=true; }
+    try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(USERS[id])}); }catch(e){ alert('✗ '+e.message); }
+  }
   document.getElementById('um-add-id').value=''; document.getElementById('um-add-name').value=''; document.getElementById('um-add-pass').value='';
   umOpen[id]=true; renderUsers();
+}
+async function umBulk(){
+  const ta=document.getElementById('um-bulk'); const txt=(ta&&ta.value||'').trim(); if(!txt) return;
+  const obj={}; let n=0;
+  txt.split(/\r?\n/).forEach(line=>{ const p=line.split(/[\t,;，]+/).map(x=>x.trim()).filter(Boolean); if(p.length>=2){ obj[p[0]]=p.slice(1).join(' '); n++; } });
+  if(!n){ alert(umT('needIdName')); return; }
+  Object.assign(STAFF,obj);
+  try{ await fetch(`${FB}/staff.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}); alert(umTn('imported',{n})); }catch(e){ alert('✗ '+e.message); return; }
+  if(ta) ta.value=''; renderUsers();
+}
+async function umRemove(id){
+  if(!confirm(umTn('delQ',{id}))) return;
+  delete STAFF[id]; delete USERS[id];
+  try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(_){}
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(_){}
+  renderUsers();
 }
 async function umDel(id){
   if(!confirm(umTn('delQ',{id}))) return;
@@ -2479,6 +2499,15 @@ async function renderPasswordPanel(deptKey) {
       <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${umT('title')}</div>
       <div style="padding:16px">
         <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${umT('hint2')}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <input id="um-add-id" placeholder="${umT('addId')}" style="flex:1;min-width:76px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
+          <input id="um-add-name" placeholder="${umT('addName')}" style="flex:1;min-width:76px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
+          <input id="um-add-pass" placeholder="${umT('addPass')}" style="flex:1;min-width:76px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
+          <button class="btn-sm btn-primary" onclick="umAdd()" style="white-space:nowrap">＋ ${umT('add')}</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${umT('impHint')}</div>
+        <textarea id="um-bulk" placeholder="123, ${umT('addName')}&#10;124, ${umT('addName')}" style="width:100%;height:64px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg);margin-bottom:6px"></textarea>
+        <button class="btn-sm" onclick="umBulk()" style="margin-bottom:12px">📥 ${umT('impBtn')}</button>
         <input id="um-search" placeholder="${umT('search')}" oninput="renderUsers()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg);margin-bottom:10px"/>
         <div id="um-list" style="max-height:440px;overflow:auto"></div>
       </div>
@@ -4257,16 +4286,14 @@ async function saveFieldPass(){
   try{ await fetch(`${FB}/field_pass.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)}); alert('現場密碼已更新 ✓'); }
   catch(e){ alert('儲存失敗：'+e.message); }
 }
-let appMgTab='kinds';
+let appMgTab='statuses';
 async function renderAppManage(){
   const el=document.getElementById('fp-app'); if(!el) return;
   await fldLoadConfig();
   el.innerHTML=`
     <div class="mt-subtabs" style="border-bottom:1px solid var(--border);padding:0;flex-wrap:wrap">
-      <button class="mt-subtab" id="appmg-t-kinds" onclick="appMgSwitch('kinds')">${aT('st_kinds')}</button>
       <button class="mt-subtab" id="appmg-t-statuses" onclick="appMgSwitch('statuses')">${aT('st_statuses')}</button>
       <button class="mt-subtab" id="appmg-t-hours" onclick="appMgSwitch('hours')">${aT('st_hours')}</button>
-      <button class="mt-subtab" id="appmg-t-staff" onclick="appMgSwitch('staff')">${aT('st_staff')}</button>
     </div>
     <div id="appmg-body" style="padding-top:14px"></div>`;
   appMgSwitch(appMgTab);
@@ -4409,7 +4436,9 @@ async function renderAddEq(){
     <textarea id="ae-bulk" placeholder="RTG-01&#10;RTG-02&#10;GC-05,Running" style="width:100%;height:110px;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--bg);margin-bottom:8px"></textarea>
     <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:8px;cursor:pointer"><input type="checkbox" id="ae-skip" checked style="width:15px;height:15px"/>${aT('ae_skip')}</label>
     <button class="mt-perm on" onclick="addEqBulk()">${aT('ae_importbtn')}</button>
-    <div id="ae-bmsg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>`;
+    <div id="ae-bmsg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>
+    <div class="fp-sec-title" style="margin-top:26px;padding-top:18px;border-top:1px solid var(--border)">${aT('st_kinds')}</div>
+    ${amListEditor(aT('desc_kinds'), FIELD_KINDS, 'saveKinds')}`;
 }
 function aeExpandNums(raw){
   const out=[];
@@ -4512,17 +4541,7 @@ async function renderOtConfig(){
   await otLoadConfig(); await fldLoadConfig();  // fldLoadConfig 載入 STAFF
   const r=OT_CONFIG;
   el.innerHTML=`
-    <div class="fp-sec-title">${otT('secWho')}</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${otT('whoDesc')}</div>
-    <input id="ot-who-search" placeholder="${otT('search')}" oninput="otWhoFilter(this.value)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg);margin-bottom:6px"/>
-    <div id="ot-who-list" style="max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:8px"></div>
-    <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="ot-who-all" onclick="otWhoAll(this.checked)" style="width:16px;height:16px"/>${otT('selall')}</label>
-      <button class="mt-perm on" onclick="otSaveWho()">${otT('save')}</button>
-      <span style="font-size:12px;color:var(--text3)">(<span id="ot-who-count">0</span>)</span>
-    </div>
-
-    <div class="fp-sec-title" style="margin-top:22px">${otT('secReasons')}</div>
+    <div class="fp-sec-title">${otT('secReasons')}</div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:8px">${otT('reasonsDesc')}</div>
     <div id="ot-reasons">${r.reject_reasons.map(x=>otReasonRow(x)).join('')}</div>
     <div style="display:flex;gap:8px;margin-top:4px"><button class="mt-perm" onclick="otAddReason()">${otT('additem')}</button><button class="mt-perm on" onclick="otSaveReasons()">${otT('save')}</button></div>
@@ -4541,7 +4560,6 @@ async function renderOtConfig(){
     <textarea id="ot-deladmins" placeholder="H00929, H00123 ..." style="width:100%;height:58px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)">${(r.delete_ids||'').replace(/</g,'&lt;')}</textarea>
     <button class="mt-perm on" style="margin-top:8px" onclick="otSaveDeleteIds()">${otT('save')}</button>
 `;
-  otWhoFilter('');
 }
 async function otSaveDeleteIds(){ const v=(document.getElementById('ot-deladmins').value||'').trim(); OT_CONFIG.delete_ids=v; try{ await fetch(`${FB}/ot_config/delete_ids.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)}); alert(otT('saved')); }catch(e){ alert('✗ '+e.message); } }
 function otDeleteIdSet(){ const raw=(typeof OT_CONFIG!=='undefined'&&OT_CONFIG.delete_ids)||''; return new Set(String(raw).split(/[\s,;，、]+/).filter(Boolean).map(s=>s.toUpperCase())); }
@@ -4549,20 +4567,6 @@ function otCanDelete(){ if(!(typeof umCurrentUser!=='undefined'&&umCurrentUser))
 async function otDeleteReq(id){ if(!otCanDelete()){ alert(otT('delNoperm')); return; } if(!confirm(otT('delQ'))) return; try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'DELETE'}); }catch(e){ alert('✗ '+e.message); return; } if(typeof OT_REQUESTS!=='undefined') delete OT_REQUESTS[id]; if(typeof otRefresh==='function') otRefresh(); }
 function otReasonRow(v){ v=v||{}; const cell=(cls,val,ph)=>`<input class="${cls}" value="${(val||'').replace(/"/g,'&quot;')}" placeholder="${ph}" style="flex:1;min-width:110px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>`; return `<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">${cell('ot-r-es',v.es,'Español')}${cell('ot-r-zh',v.zh,'中文')}${cell('ot-r-en',v.en,'English')}<button class="mt-perm" onclick="this.parentNode.remove()">✕</button></div>`; }
 function otAddReason(){ const c=document.getElementById('ot-reasons'); if(!c) return; const d=document.createElement('div'); d.innerHTML=otReasonRow({}); c.appendChild(d.firstChild); }
-function otWhoCount(){ const e=document.getElementById('ot-who-count'); if(e) e.textContent=document.querySelectorAll('#ot-who-list .ot-who:checked').length; }
-function otWhoAll(on){ document.querySelectorAll('#ot-who-list .ot-who').forEach(c=>c.checked=on); otWhoCount(); }
-function otWhoFilter(q){
-  q=(q||'').toLowerCase(); const el=document.getElementById('ot-who-list'); if(!el) return;
-  const rows=Object.entries(STAFF).filter(([id,n])=>!q||id.toLowerCase().includes(q)||String(n).toLowerCase().includes(q)).sort((a,b)=>a[0].localeCompare(b[0]));
-  el.innerHTML=rows.length?rows.map(([id,n])=>`<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--bg3);font-size:13px;cursor:pointer"><input type="checkbox" class="ot-who" value="${id.replace(/"/g,'')}" ${OT_CONFIG.allowed[id]?'checked':''} onchange="otWhoCount()" style="width:16px;height:16px"/><span style="font-weight:700;min-width:60px">${id}</span><span>${n}</span></label>`).join(''):`<div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">${otT('noStaff')}</div>`;
-  otWhoCount();
-}
-async function otSaveWho(){
-  // 保留未在目前搜尋結果中的既有勾選：先以現有 allowed 為底，再用畫面上顯示的覆蓋
-  const shown={}; document.querySelectorAll('#ot-who-list .ot-who').forEach(c=>{ shown[c.value]=c.checked; });
-  Object.keys(shown).forEach(id=>{ if(shown[id]) OT_CONFIG.allowed[id]=true; else delete OT_CONFIG.allowed[id]; });
-  try{ await fetch(`${FB}/ot_config/allowed.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(OT_CONFIG.allowed)}); alert(otT('saved')); }catch(e){ alert('✗ '+e.message); }
-}
 async function otSaveReasons(){
   const arr=[...document.querySelectorAll('#ot-reasons > div')].map(row=>{ const g=c=>{const e=row.querySelector('.'+c); return e?e.value.trim():'';}; return {es:g('ot-r-es'),zh:g('ot-r-zh'),en:g('ot-r-en')}; }).filter(o=>o.zh||o.es||o.en);
   OT_CONFIG.reject_reasons=arr;
