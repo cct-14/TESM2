@@ -3883,7 +3883,10 @@ function wiRenderEntry(){
   }).join('');
   const th=MN.map(m=>`<th>${m}</th>`).join('');
   const table=`<div class="wi-move-wrap"><table class="wi-move-tbl"><thead><tr><th>${L.wiMachine}</th>${th}<th>${L.wiYearTot}</th><th>${L.wiCum}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-  return bar+`<div class="wi-entry-scroll">`+table+`<div class="wi-sub-h">${L.wiInitReplHdr}</div>`+wiRenderInitSection()+`</div>`;
+  const isGuest=(typeof guestMode!=='undefined'&&guestMode);
+  const show14=!isGuest && (typeof mtIs14==='function'&&mtIs14());
+  const initPart = show14 ? `<div class="wi-sub-h">${L.wiInitReplHdr}</div>`+wiRenderInitSection() : '';
+  return bar+`<div class="wi-entry-scroll">`+table+initPart+`</div>`;
 }
 async function wiSaveMove(year){
   if(!((typeof maintCanEdit==='function')&&maintCanEdit())){ if(typeof maintPermAlert==='function') maintPermAlert(); return; }
@@ -4787,6 +4790,21 @@ function otRenderReview(){ const t=otTodayStr(); otRenderCards(otSortedEntries()
 function otRenderPend1(){ otRenderCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='section'), 'noReq'); }
 function otRenderPend2(){ otRenderCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='manager'), 'noReq'); }
 function otRefresh(){ if(otSysTabCur==='history') otHistRenderGroups(); else if(otSysTabCur==='pend1') otRenderPend1(); else if(otSysTabCur==='pend2') otRenderPend2(); else otRenderReview(); }
+let _otPollHash='';
+async function pollOt(){ // 加班自動更新（只在看加班頁、且沒在操作時）
+  const pg=document.getElementById('page-otsys');
+  if(!pg || !pg.classList.contains('active')) return;
+  if(otSysTabCur==='apply') return;                      // 別蓋掉填寫中的申請表
+  if(typeof otRejTarget!=='undefined' && otRejTarget) return; // 駁回視窗開著
+  const ae=document.activeElement;
+  if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) && pg.contains(ae)) return; // 正在輸入
+  try{
+    const r=await fetch(`${FB}/ot_requests.json`); const d=(await r.json())||{};
+    const hash=JSON.stringify(d);
+    if(hash===_otPollHash) return;                        // 沒變就不重繪
+    _otPollHash=hash; OT_REQUESTS=d; otRefresh();
+  }catch(e){}
+}
 function otStatusBadge(r){
   if(r.status==='cancelled') return `<span class="ot-badge no">${otT('cancelled')}</span>`;
   if(r.status==='approved') return `<span class="ot-badge ok">${otT('approved')}</span>`;
@@ -6041,6 +6059,7 @@ initEqTip();
 })();
 poll();
 setInterval(poll,3000);
+setInterval(pollOt,4000);
 setInterval(pollMessages,3000);
 </script>
 </body>
