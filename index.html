@@ -330,6 +330,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .wr-mets{font-variant-numeric:tabular-nums}
 .wr-badge{font-size:11px;font-weight:800;color:#fff;background:var(--red);border-radius:6px;padding:1px 7px;letter-spacing:0}
 .wr-badge.warn{background:#e07a00}
+.wr-repl{border:none;background:var(--blue);color:#fff;border-radius:7px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;margin-left:6px}
 .wr-ext{display:inline-flex;align-items:center;gap:4px;margin-left:6px}
 .wr-ext input{width:56px;padding:3px 6px;border:1px solid var(--border);border-radius:7px;font-size:12px;background:var(--bg);color:var(--text)}
 .wr-ext button{background:var(--purple);color:#fff;border:none;border-radius:7px;padding:4px 11px;font-size:12px;font-weight:800;cursor:pointer}
@@ -2120,15 +2121,15 @@ const UM_I18N={
   zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼（可留空）',add:'新增人員',impBtn:'匯入名冊',impHint:'批次匯入：從 Excel 貼兩欄（編號、名字），一行一筆',imported:'已匯入 {n} 人',needIdName:'請填編號和名字',
     newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
-    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
+    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',wiRepl:'鋼索更換授權',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
   es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial (opcional)',add:'Añadir usuario',impBtn:'Importar lista',impHint:'Importar: pegue dos columnas (N.º, nombre) de Excel, una por línea',imported:'{n} importados',needIdName:'N.º y nombre obligatorios',
     newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
-    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
+    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',wiRepl:'Autorización de cambio de cable',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
   en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password (optional)',add:'Add user',impBtn:'Import list',impHint:'Import: paste two columns (ID, name) from Excel, one per line',imported:'{n} imported',needIdName:'ID and name required',
     newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
-    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
+    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',wiRepl:'Wire replacement permission',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
 };
 function umT(k){ const L=UM_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||UM_I18N.zh; return L[k]||UM_I18N.zh[k]||k; }
 function umTn(k,map){ let s=umT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
@@ -2139,8 +2140,8 @@ function featLabel(f){
   const t=(typeof aT==='function')?aT('feat_'+f.id):null;
   return (t&&t!=='feat_'+f.id)?t:f.label;
 }
-const OT_APPROVE_FEATURES=[{id:'ot_apply'},{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'},{id:'wi_initial'},{id:'wi_extend'}];
-function approveLabel(id){ const m={ot_apply:'applyF',ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg',wi_initial:'wiInit',wi_extend:'wiExt'}; return umT(m[id]||id); }
+const OT_APPROVE_FEATURES=[{id:'ot_apply'},{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'},{id:'wi_initial'},{id:'wi_extend'},{id:'wi_replace'}];
+function approveLabel(id){ const m={ot_apply:'applyF',ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg',wi_initial:'wiInit',wi_extend:'wiExt',wi_replace:'wiRepl'}; return umT(m[id]||id); }
 function renderUsers(){
   const el=document.getElementById('um-list'); if(!el) return;
   const q=(document.getElementById('um-search')&&document.getElementById('um-search').value||'').toLowerCase();
@@ -3017,7 +3018,7 @@ const MT_I18N = {
     planHint:'Toca un día para ver los trabajos de MT1 y MT2', planNoDay:'Sin trabajos ese día',
     planCount:(n,m1,m2)=>`${n} este mes（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} tareas`, teamCnt:(t,n)=>`${t}　${n}`,
     searchPh:'🔍 Buscar máquina', doneLog:'📋 Historial', overdueBanner:(ty,n)=>`⚠️ ${ty}: ${n} vencidos`, viewMore:'ver', jumpTitle:'Ir a fecha', todo:'Pendiente',
-    wiTabDash:'📊 Panel', wiTabEntry:'✏️ Registro', wiNoGc:'Sin datos de grúas GC', wiNoReading:'Sin lectura', wiNoReplDate:'Sin fecha de cambio', wiNeed:'Cambiar', wiNear:'Cerca', wiNearLimit:'Cerca del límite', wiNextRound:'(modelo por días: próx.)', wiMoveHint:'Movimientos por mes (el registro móvil de MOVEMENT llena el mes actual; editable aquí)', wiSave:'💾 Guardar', wiReadonly:'Solo lectura', wiMachine:'Grúa', wiYearTot:'Año', wiCum:'Acum.', wiNoChange:'Sin cambios', wiSavedN:n=>`Guardado ${n} ✓`, wiInitReplHdr:'Base inicial / Último cambio', wiInitCan:'Puede fijar la base inicial y la fecha del último cambio.', wiInitNo:'(Solo ciertos permisos editan la base inicial)', wiCurMove:'Movimientos actuales (acum.):', wiInitBase:'Base inicial', wiNotSet:'Sin fijar', wiInitPh:'Movimientos iniciales', wiLastRepl:'Último cambio:', wiByPlan:'(marcado en plan)', wiNone:'Ninguno', wiPlanCtrl:'Control por plan', wiSaved:'Guardado', wiCurShort:'Actual', wiInitShort:'Inicial', wiMonthUnit:' meses', wiSideSea:'Mar', wiSideLand:'Tierra', wiSideConn:'Conexión', wiDayUnit:' d', wiLastReplDate:'Fecha de cambio', wiInitMove:'Mov. inicial', wiNextLabel:'Próx.', wiFAll:'Todos', wiFWarn:'≥90%', wiFOver:'Excedido', wiExtBtn:'Extender', wiExtDays:'días', wiExtInvalid:'Ingrese días válidos', wiExtNote:'ext.', wiExtWarn:'La extensión del cable requiere una evaluación cuidadosa. Quien lo extienda sin evaluación asumirá toda la responsabilidad por accidentes posteriores. ¿Confirma extender este cable?', wiExtConfirm2:'Segunda confirmación: ¿extender definitivamente este cable?', wiExtClear:'Quitar extensión', wiExtClearQ:'¿Quitar la extensión y restaurar el límite original?' },
+    wiTabDash:'📊 Panel', wiTabEntry:'✏️ Registro', wiNoGc:'Sin datos de grúas GC', wiNoReading:'Sin lectura', wiNoReplDate:'Sin fecha de cambio', wiNeed:'Cambiar', wiNear:'Cerca', wiNearLimit:'Cerca del límite', wiNextRound:'(modelo por días: próx.)', wiMoveHint:'Movimientos por mes (el registro móvil de MOVEMENT llena el mes actual; editable aquí)', wiSave:'💾 Guardar', wiReadonly:'Solo lectura', wiMachine:'Grúa', wiYearTot:'Año', wiCum:'Acum.', wiNoChange:'Sin cambios', wiSavedN:n=>`Guardado ${n} ✓`, wiInitReplHdr:'Base inicial / Último cambio', wiInitCan:'Puede fijar la base inicial y la fecha del último cambio.', wiInitNo:'(Solo ciertos permisos editan la base inicial)', wiCurMove:'Movimientos actuales (acum.):', wiInitBase:'Base inicial', wiNotSet:'Sin fijar', wiInitPh:'Movimientos iniciales', wiLastRepl:'Último cambio:', wiByPlan:'(marcado en plan)', wiNone:'Ninguno', wiPlanCtrl:'Control por plan', wiSaved:'Guardado', wiCurShort:'Actual', wiInitShort:'Inicial', wiMonthUnit:' meses', wiSideSea:'Mar', wiSideLand:'Tierra', wiSideConn:'Conexión', wiDayUnit:' d', wiLastReplDate:'Fecha de cambio', wiInitMove:'Mov. inicial', wiNextLabel:'Próx.', wiFAll:'Todos', wiFWarn:'≥90%', wiFOver:'Excedido', wiExtBtn:'Extender', wiExtDays:'días', wiExtInvalid:'Ingrese días válidos', wiExtNote:'ext.', wiExtWarn:'La extensión del cable requiere una evaluación cuidadosa. Quien lo extienda sin evaluación asumirá toda la responsabilidad por accidentes posteriores. ¿Confirma extender este cable?', wiExtConfirm2:'Segunda confirmación: ¿extender definitivamente este cable?', wiExtClear:'Quitar extensión', wiExtClearQ:'¿Quitar la extensión y restaurar el límite original?', wiReplBtn:'Cambiar', wiReplToday:'¿Cambio hoy? (Aceptar = hoy; Cancelar = otra fecha)', wiReplAsk:'Ingrese la fecha de cambio (AAAA-MM-DD)', wiReplBad:'Formato de fecha inválido (AAAA-MM-DD)', wiReplConfirm:'¿Cambiar este cable con fecha {d}? Los días y movimientos se recalcularán desde esa fecha.' },
   zh:{ hrSection:'⏱ 時數保養', hrItemLabel:'運轉時數項目', hrRemain:'還剩', hrOver:'已超過', hrUnit:'h', hrCur:'目前', hrDue:'該保養', hrComplete:'✓ 完成', hrNoReading:'無時數讀數', hrNoBase:'未設基準', hrSetBase:'設基準', del14Only:'只有 14 可以刪除工程。', modeAll:'全部清單', modeDay:'依點選日期', pickDay:'點月曆選一天', hrNoItem:'請先選擇運轉時數項目', hrDoneQ:'確定完成？當下時數 {h}h 會設為新的基準。', up1:'⬆️ 上傳 MT-1', up2:'⬆️ 上傳 MT-2', sched:'✏️ 排程', schedDone:'✓ 完成排程', showDone:'顯示已完成', msgTitle:'傳訊息', msgPh:'輸入訊息…', msgSend:'送出', msgNoperm:'你沒有發訊息權限，只能接收。', msgReply:'回一句…', msgGot:'收到', msgOk:'已收到',
     notUploaded:'尚未上傳', dow:['日','一','二','三','四','五','六'],
     monthN:n=>`本月 ${n} 件`, backlog:(d,n)=>`到 ${d} 未完成 <b>${n}</b> 件`,
@@ -3028,7 +3029,7 @@ const MT_I18N = {
     planHint:'點月曆上任一天，看 MT1、MT2 當天要做的保養工程', planNoDay:'這天沒有排定保養工程',
     planCount:(n,m1,m2)=>`本月 ${n} 件（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · 共 ${n} 件`, teamCnt:(t,n)=>`${t}　${n} 件`,
     searchPh:'🔍 搜尋機號', doneLog:'📋 完成紀錄', overdueBanner:(ty,n)=>`⚠️ ${ty} 逾期未完成 ${n} 件`, viewMore:'點擊查看', jumpTitle:'跳到指定日期', todo:'待辦',
-    wiTabDash:'📊 儀表板', wiTabEntry:'✏️ 填寫', wiNoGc:'沒有 GC 機器資料', wiNoReading:'無讀數', wiNoReplDate:'未設更換日', wiNeed:'需更換', wiNear:'快到', wiNearLimit:'快到門檻', wiNextRound:'(天數模型下一輪)', wiMoveHint:'每月動作數（手機現場登入 MOVEMENT 會自動填入當月，此處可修改）', wiSave:'💾 儲存', wiReadonly:'唯讀', wiMachine:'機號', wiYearTot:'年計', wiCum:'累計', wiNoChange:'沒有變更', wiSavedN:n=>`已儲存 ${n} 筆 ✓`, wiInitReplHdr:'初始基準 / 上次更換', wiInitCan:'可設定初始基準與上次更換時間。', wiInitNo:'（僅特定權限可編輯初始基準）', wiCurMove:'目前動作數（累計）：', wiInitBase:'初始基準', wiNotSet:'尚未設定', wiInitPh:'第一次的動作數', wiLastRepl:'上次更換：', wiByPlan:'（計畫打勾）', wiNone:'尚無', wiPlanCtrl:'計畫控制', wiSaved:'已儲存', wiCurShort:'目前', wiInitShort:'初始', wiMonthUnit:'個月', wiSideSea:'海側', wiSideLand:'陸側', wiSideConn:'連接', wiDayUnit:' 天', wiLastReplDate:'更換時間', wiInitMove:'初始動作數', wiNextLabel:'下次', wiFAll:'全部', wiFWarn:'≥90%', wiFOver:'超過', wiExtBtn:'沿用', wiExtDays:'天數', wiExtInvalid:'請輸入正確天數', wiExtNote:'沿用', wiExtWarn:'延用鋼索需要經過謹慎的評估，如果未經評估而擅自沿用者，將承擔後續所有事故責任，此鋼索確定沿用？', wiExtConfirm2:'再次確認：確定沿用此鋼索？', wiExtClear:'清除沿用', wiExtClearQ:'清除沿用、還原成原本門檻？' },
+    wiTabDash:'📊 儀表板', wiTabEntry:'✏️ 填寫', wiNoGc:'沒有 GC 機器資料', wiNoReading:'無讀數', wiNoReplDate:'未設更換日', wiNeed:'需更換', wiNear:'快到', wiNearLimit:'快到門檻', wiNextRound:'(天數模型下一輪)', wiMoveHint:'每月動作數（手機現場登入 MOVEMENT 會自動填入當月，此處可修改）', wiSave:'💾 儲存', wiReadonly:'唯讀', wiMachine:'機號', wiYearTot:'年計', wiCum:'累計', wiNoChange:'沒有變更', wiSavedN:n=>`已儲存 ${n} 筆 ✓`, wiInitReplHdr:'初始基準 / 上次更換', wiInitCan:'可設定初始基準與上次更換時間。', wiInitNo:'（僅特定權限可編輯初始基準）', wiCurMove:'目前動作數（累計）：', wiInitBase:'初始基準', wiNotSet:'尚未設定', wiInitPh:'第一次的動作數', wiLastRepl:'上次更換：', wiByPlan:'（計畫打勾）', wiNone:'尚無', wiPlanCtrl:'計畫控制', wiSaved:'已儲存', wiCurShort:'目前', wiInitShort:'初始', wiMonthUnit:'個月', wiSideSea:'海側', wiSideLand:'陸側', wiSideConn:'連接', wiDayUnit:' 天', wiLastReplDate:'更換時間', wiInitMove:'初始動作數', wiNextLabel:'下次', wiFAll:'全部', wiFWarn:'≥90%', wiFOver:'超過', wiExtBtn:'沿用', wiExtDays:'天數', wiExtInvalid:'請輸入正確天數', wiExtNote:'沿用', wiExtWarn:'延用鋼索需要經過謹慎的評估，如果未經評估而擅自沿用者，將承擔後續所有事故責任，此鋼索確定沿用？', wiExtConfirm2:'再次確認：確定沿用此鋼索？', wiExtClear:'清除沿用', wiExtClearQ:'清除沿用、還原成原本門檻？', wiReplBtn:'更換', wiReplToday:'是今天更換嗎？（確定＝今天；取消＝自訂日期）', wiReplAsk:'請輸入更換日期（YYYY-MM-DD）', wiReplBad:'日期格式不對，請用 YYYY-MM-DD', wiReplConfirm:'確定以 {d} 更換此鋼索？該條的天數與動作數會從這天重新計算。' },
   en:{ hrSection:'⏱ Hour-based maintenance', hrItemLabel:'Operating hours', hrRemain:'Left', hrOver:'Overdue', hrUnit:'h', hrCur:'Current', hrDue:'Due at', hrComplete:'✓ Done', hrNoReading:'No hour reading', hrNoBase:'No baseline', hrSetBase:'Set base', del14Only:'Only 14 can delete tasks.', modeAll:'Full list', modeDay:'By date', pickDay:'Pick a day on the calendar', hrNoItem:'Select the operating-hours item', hrDoneQ:'Complete? Current hours ({h}h) become the new baseline.', up1:'⬆️ Upload MT-1', up2:'⬆️ Upload MT-2', sched:'✏️ Schedule', schedDone:'✓ Done', showDone:'Show done', msgTitle:'Send message', msgPh:'Type a message…', msgSend:'Send', msgNoperm:'You can only receive, not send.', msgReply:'Reply…', msgGot:'Got it', msgOk:'Received',
     notUploaded:'Not uploaded', dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
     monthN:n=>`${n} this month`, backlog:(d,n)=>`Open until ${d}: <b>${n}</b>`,
@@ -3039,7 +3040,7 @@ const MT_I18N = {
     planHint:'Tap any day to see MT1 & MT2 tasks', planNoDay:'No tasks scheduled that day',
     planCount:(n,m1,m2)=>`${n} this month（MT1 ${m1} · MT2 ${m2}）`, planHead:(d,n)=>`${d} · ${n} items`, teamCnt:(t,n)=>`${t}　${n}`,
     searchPh:'🔍 Search machine', doneLog:'📋 Completion log', overdueBanner:(ty,n)=>`⚠️ ${ty}: ${n} overdue`, viewMore:'view', jumpTitle:'Jump to date', todo:'Pending',
-    wiTabDash:'📊 Dashboard', wiTabEntry:'✏️ Entry', wiNoGc:'No GC machine data', wiNoReading:'No reading', wiNoReplDate:'No change date', wiNeed:'Replace', wiNear:'Near', wiNearLimit:'Near limit', wiNextRound:'(days model: next)', wiMoveHint:'Monthly movements (mobile MOVEMENT entry fills the current month; editable here)', wiSave:'💾 Save', wiReadonly:'Read-only', wiMachine:'Machine', wiYearTot:'Year', wiCum:'Cum.', wiNoChange:'No changes', wiSavedN:n=>`Saved ${n} ✓`, wiInitReplHdr:'Initial base / Last change', wiInitCan:'You can set the initial baseline and last-change date.', wiInitNo:'(Only certain permissions can edit the initial baseline)', wiCurMove:'Current movements (cum.):', wiInitBase:'Initial base', wiNotSet:'Not set', wiInitPh:'Initial movements', wiLastRepl:'Last change:', wiByPlan:'(checked in plan)', wiNone:'None', wiPlanCtrl:'Plan-controlled', wiSaved:'Saved', wiCurShort:'Current', wiInitShort:'Init', wiMonthUnit:' mo', wiSideSea:'Sea', wiSideLand:'Land', wiSideConn:'Connection', wiDayUnit:' d', wiLastReplDate:'Change date', wiInitMove:'Init. movements', wiNextLabel:'Next', wiFAll:'All', wiFWarn:'≥90%', wiFOver:'Over', wiExtBtn:'Extend', wiExtDays:'days', wiExtInvalid:'Enter valid days', wiExtNote:'ext.', wiExtWarn:'Extending a wire rope requires careful evaluation. Anyone who extends it without evaluation bears full responsibility for any subsequent accidents. Confirm extending this rope?', wiExtConfirm2:'Second confirmation: definitely extend this rope?', wiExtClear:'Clear extension', wiExtClearQ:'Clear the extension and restore the original limit?' }
+    wiTabDash:'📊 Dashboard', wiTabEntry:'✏️ Entry', wiNoGc:'No GC machine data', wiNoReading:'No reading', wiNoReplDate:'No change date', wiNeed:'Replace', wiNear:'Near', wiNearLimit:'Near limit', wiNextRound:'(days model: next)', wiMoveHint:'Monthly movements (mobile MOVEMENT entry fills the current month; editable here)', wiSave:'💾 Save', wiReadonly:'Read-only', wiMachine:'Machine', wiYearTot:'Year', wiCum:'Cum.', wiNoChange:'No changes', wiSavedN:n=>`Saved ${n} ✓`, wiInitReplHdr:'Initial base / Last change', wiInitCan:'You can set the initial baseline and last-change date.', wiInitNo:'(Only certain permissions can edit the initial baseline)', wiCurMove:'Current movements (cum.):', wiInitBase:'Initial base', wiNotSet:'Not set', wiInitPh:'Initial movements', wiLastRepl:'Last change:', wiByPlan:'(checked in plan)', wiNone:'None', wiPlanCtrl:'Plan-controlled', wiSaved:'Saved', wiCurShort:'Current', wiInitShort:'Init', wiMonthUnit:' mo', wiSideSea:'Sea', wiSideLand:'Land', wiSideConn:'Connection', wiDayUnit:' d', wiLastReplDate:'Change date', wiInitMove:'Init. movements', wiNextLabel:'Next', wiFAll:'All', wiFWarn:'≥90%', wiFOver:'Over', wiExtBtn:'Extend', wiExtDays:'days', wiExtInvalid:'Enter valid days', wiExtNote:'ext.', wiExtWarn:'Extending a wire rope requires careful evaluation. Anyone who extends it without evaluation bears full responsibility for any subsequent accidents. Confirm extending this rope?', wiExtConfirm2:'Second confirmation: definitely extend this rope?', wiExtClear:'Clear extension', wiExtClearQ:'Clear the extension and restore the original limit?', wiReplBtn:'Replace', wiReplToday:'Replaced today? (OK = today; Cancel = custom date)', wiReplAsk:'Enter replacement date (YYYY-MM-DD)', wiReplBad:'Invalid date format (YYYY-MM-DD)', wiReplConfirm:'Replace this rope with date {d}? Days and movements will recalculate from that date.' }
 };
 let maintLang = 'es';
 try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }catch(_){}
@@ -3725,8 +3726,8 @@ const WI_CAT={};
   ['GC-07','GC-08','GC-09','GC-10','GC-11'].forEach(m=>WI_CAT[m]=sl);
   const mm4=[{k:'o12l',t:'12mm LH',th:912.5},{k:'o12r',t:'12mm RH',th:912.5},{k:'i16l',t:'16mm LH',th:912.5},{k:'i16r',t:'16mm RH',th:912.5}];
   ['GC-12','GC-13','GC-15'].forEach(m=>WI_CAT[m]=mm4);
-  const mm2=[{k:'o12',t:'12mm LH',th:912.5},{k:'i16',t:'16mm LH',th:912.5}];
-  ['GC-16','GC-17'].forEach(m=>WI_CAT[m]=mm2);
+  const mm4b=[{k:'o121',t:'Outside(12mm) 1',th:912.5},{k:'o122',t:'Outside(12mm) 2',th:912.5},{k:'i161',t:'Inside(16mm) 1',th:912.5},{k:'i162',t:'Inside(16mm) 2',th:912.5}];
+  ['GC-16','GC-17'].forEach(m=>WI_CAT[m]=mm4b);
 })();
 function wiCatName(c){ const L=mtL(); return c.s?(L[WI_SIDEK[c.s]]||c.s):c.t; }
 function wiRopes(mac){ // 這台機的所有子鋼索
@@ -3796,6 +3797,7 @@ function wiCardLines(mac){
   const ropes=wiRopes(mac);
   const isGuest=(typeof guestMode!=='undefined'&&guestMode);
   const canExt=!isGuest && ((typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('wi_extend','v')));
+  const canRepl=!isGuest && ((typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('wi_replace','v')));
   return KINDS.map(([kind,title])=>{
     const rs=ropes.filter(r=>r.kind===kind);
     if(!rs.length) return '';
@@ -3815,7 +3817,8 @@ function wiCardLines(mac){
       const ex=wiRopeExt(mac,r.key);
       const exNote = ex>0?`<span style="color:var(--purple);font-size:12px;font-weight:700">· ${L.wiExtNote}+${ex}</span>${canExt?`<button onclick="event.stopPropagation();wiExtClear('${mac}','${r.key}')" style="border:none;background:none;color:var(--purple);font-size:11px;font-weight:700;cursor:pointer;padding:0 4px;text-decoration:underline">${L.wiExtClear}</button>`:''}`:'';
       const extCtl = (canExt && r.dayTh)?`<span class="wr-ext" onclick="event.stopPropagation()"><input type="text" inputmode="numeric" id="wiext-${mac}-${r.key}" placeholder="${L.wiExtDays}" onclick="event.stopPropagation()"><button onclick="event.stopPropagation();wiExtend('${mac}','${r.key}')">${L.wiExtBtn}</button></span>`:'';
-      return `<div class="wr-row">${nm}<span class="wr-mets">${mets}</span>${ncHtml}${exNote}${extCtl}</div>`;
+      const replBtn = canRepl?`<button class="wr-repl" onclick="event.stopPropagation();wiReplace('${mac}','${r.key}')">${L.wiReplBtn}</button>`:'';
+      return `<div class="wr-row">${nm}<span class="wr-mets">${mets}</span>${ncHtml}${exNote}${extCtl}${replBtn}</div>`;
     }).join('');
     return `<div class="wr-box ${boxCls}"><div class="wr-h"><span>${title}</span>${badge}</div>${rows}</div>`;
   }).join('');
@@ -3834,6 +3837,26 @@ async function wiExtend(mac,key){
   const cur=parseFloat(WI[mac].ext[key])||0; const nv=cur+v;
   WI[mac].ext[key]=nv;
   try{ await fetch(`${FB}/wi/${encodeURIComponent(mac)}/ext/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(nv)}); }catch(e){ alert('✗ '+e.message); }
+  renderWI();
+}
+async function wiReplace(mac,key){ // 更換鋼索：選日期→天數/動作數/沿用全部從該日重算
+  const L=mtL();
+  const isGuest=(typeof guestMode!=='undefined'&&guestMode);
+  const canRepl=!isGuest && ((typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('wi_replace','v')));
+  if(!canRepl){ if(typeof maintPermAlert==='function') maintPermAlert(); return; }
+  let date;
+  if(confirm(L.wiReplToday)){ const p=panYmd(); date=p.slice(0,4)+'-'+p.slice(4,6)+'-'+p.slice(6,8); }
+  else { const inp=prompt(L.wiReplAsk,''); if(inp==null) return; const m=String(inp).trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if(!m){ alert(L.wiReplBad); return; } date=m[1]+'-'+String(+m[2]).padStart(2,'0')+'-'+String(+m[3]).padStart(2,'0'); }
+  if(!confirm(L.wiReplConfirm.replace('{d}',date))) return;
+  WI[mac]=WI[mac]||{}; WI[mac].rdate=WI[mac].rdate||{}; WI[mac].rmove=WI[mac].rmove||{}; WI[mac].rbase=WI[mac].rbase||{}; WI[mac].ext=WI[mac].ext||{};
+  const snap=wiMoveTotal(mac); const sv=(snap==null?0:snap);
+  WI[mac].rdate[key]=date; WI[mac].rmove[key]=0; WI[mac].rbase[key]=sv; delete WI[mac].ext[key];
+  try{
+    await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rdate/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(date)});
+    await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rmove/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(0)});
+    await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rbase/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(sv)});
+    await fetch(`${FB}/wi/${encodeURIComponent(mac)}/ext/${key}.json`,{method:'DELETE'});
+  }catch(e){ alert('✗ '+e.message); }
   renderWI();
 }
 async function wiExtClear(mac,key){
