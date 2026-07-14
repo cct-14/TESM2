@@ -93,8 +93,10 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <button class="back" onclick="home()" id="b-back1">‹</button>
       <label class="lbl" id="l-s-kind">Tipo</label>
       <select class="inp" id="s-kind" onchange="statusCur()"></select>
+      <div id="s-num-wrap">
       <label class="lbl" id="l-s-num">Número</label>
       <input class="inp up" id="s-num" inputmode="text" autocomplete="off" oninput="statusCur()"/>
+      </div>
       <div class="cur" id="s-cur"></div>
       <label class="lbl" id="l-s-status">Estado</label>
       <select class="inp" id="s-status"></select>
@@ -121,8 +123,10 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <button class="back" onclick="home()" id="b-back2">‹</button>
       <label class="lbl" id="l-h-kind">Tipo</label>
       <select class="inp" id="h-kind" onchange="hoursRender()"></select>
+      <div id="h-num-wrap">
       <label class="lbl" id="l-h-num">Número</label>
       <input class="inp up" id="h-num" inputmode="text" autocomplete="off" oninput="hoursRender()"/>
+      </div>
       <div id="h-fields" style="margin-top:12px"></div>
       <div class="err" id="h-err"></div>
       <button class="btn primary" id="h-submit" onclick="submitHours()">Enviar</button>
@@ -173,11 +177,13 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <div id="ot-people-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>
       <label class="lbl" id="l-ot-kind">Tipo de equipo</label>
       <select class="inp" id="ot-kind" onchange="otKindChange()"></select>
+      <div id="ot-num-wrap">
       <label class="lbl" id="l-ot-num">Número</label>
       <div style="display:flex;gap:6px;align-items:center">
         <select class="inp" id="ot-sub" style="display:none;width:auto;flex:0 0 auto"><option value="AE">AE</option><option value="T">T</option><option value="TS">TS</option><option value="TW">TW</option></select>
         <span id="ot-prefix" style="display:none;font-weight:700;color:var(--text2,#334155)">PPG-CCT</span>
         <input class="inp up" id="ot-num" inputmode="text" autocomplete="off"/>
+      </div>
       </div>
       <label class="lbl" id="l-ot-reason">Motivo</label>
       <input class="inp" id="ot-reason" autocomplete="off"/>
@@ -234,7 +240,8 @@ const I18N={
   en:{sub:'Field entry',status:'Status',hours:'Hours',kind:'Equipment type',num:'Number',statusL:'Status',person:'Staff (employee no.)',submit:'Submit',again:'New entry',end:'Finish',done:'Submitted!',pass:'Password',enter:'Enter',hgSub:'Enter password',wrong:'Wrong password',noPass:'Password not set',errS:'Fill type, number, status and staff',errH:'Enter number and at least one hour',noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used',ot:'Overtime',otPass:'Overtime password',group:'Section',people:'Personnel (ID)',date:'Date',reason:'Reason',applicant:'Applicant (leader ID)',otErr:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no overtime permission',confirmT:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',withdrawn:'Withdrawn',otLoginT:'Overtime',uid:'Employee ID',upass:'Password',login:'Sign in',wrongLogin:'Wrong ID or password',noMobilePerm:'No mobile overtime permission',chgT:'Set new password',newpw:'New password',newpw2:'Repeat password',pwshort:'At least 4 characters',pwmis:'Do not match',applicantIs:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',fromL:'From',toL:'To',myList:'My requests',myEmpty:'No recent requests',stW1:'Awaiting 1',stW2:'Awaiting 2',stAp:'Approved',stRj:'Rejected',stCan:'Withdrawn',recent3:'Last 3 days',dupPerson:'Duplicate: this person is already on the list.',notInStaff:'This ID is not in the staff list.',noMachine:'Equipment not found: {m}. Check type and number.',fillFirst:'Fill date and time first.',conflict:'Time conflict: {name} already has overtime in that period.'}
 };
 let LANG=localStorage.getItem('app_lang')||'es';
-let KINDS=DEFAULT_KINDS.slice(), STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, HDEFS={};
+let KINDS=DEFAULT_KINDS.slice(), STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, HDEFS={}, NONUM=[];
+function isNoNum(k){ return NONUM.indexOf(k)>=0 || NONUM.indexOf(canon(k))>=0; }
 let flow='status', hoursOK=false, otOK=false;
 let OTC={allowed:{},reminder:{}}, otPeople=[], USERS_APP={}, otUser=null, otPendId=null, OT_MY=[], ALL_REQ={};
 function daysAgoStr(n){ return new Date(Date.now()-n*86400000).toLocaleString('en-CA',{timeZone:PA_TZ}).slice(0,10); }
@@ -256,6 +263,7 @@ function show(v){ ['home','status','hgate','hours','otgate','ot','otconfirm','ot
 
 async function load(){
   try{ const r=await fetch(FB+'/field_kinds.json'); const d=await r.json(); if(Array.isArray(d)&&d.length) KINDS=d; }catch(e){}
+  try{ const r=await fetch(FB+'/field_nonum.json'); const d=await r.json(); NONUM=Array.isArray(d)?d:[]; }catch(e){ NONUM=[]; }
   try{ const r=await fetch(FB+'/field_statuses.json'); const d=await r.json(); if(Array.isArray(d)&&d.length) STATUSES=d; }catch(e){}
   try{ const r=await fetch(FB+'/hours_defs.json'); HDEFS=(await r.json())||{}; }catch(e){}
   try{ const r=await fetch(FB+'/staff.json'); STAFF=(await r.json())||{}; }catch(e){}
@@ -308,9 +316,11 @@ async function hoursUnlock(){
 function enterHours(){ $('h-num').value=''; $('h-err').textContent=''; show('hours'); hoursRender(); }
 
 async function statusCur(){
-  const el=$('s-cur'); const k=canon($('s-kind').value); const n=($('s-num').value||'').trim().toUpperCase();
-  if(!n){ el.innerHTML=''; return; }
-  const kk=key(k,n); let html='';
+  const el=$('s-cur'); const dk=$('s-kind').value; const k=canon(dk); const nn=isNoNum(dk);
+  const w=$('s-num-wrap'); if(w) w.style.display=nn?'none':'';
+  const n=nn?'':($('s-num').value||'').trim().toUpperCase();
+  if(!nn && !n){ el.innerHTML=''; return; }
+  const kk=nn?k.replace(/[\/\.\#\$\[\]]/g,'_'):key(k,n); let html='';
   try{ const r=await fetch(FB+'/equipment/'+kk+'.json'); const d=await r.json();
     if(d&&d.status){ const s=SC[d.status]; html+=`${L().cur} <span class="st" style="${s?`background:${s.bg};color:${s.fg}`:''}">${d.status}</span>`; } }catch(e){}
   try{ const r=await fetch(FB+'/eq_hours/'+kk+'.json'); const d=await r.json();
@@ -325,7 +335,9 @@ function personLookup(){
   else { el.textContent=L().notFound; el.className='pname miss'; }
 }
 async function hoursRender(){
-  const c=canon($('h-kind').value); const n=($('h-num').value||'').trim().toUpperCase();
+  const dk=$('h-kind').value; const c=canon(dk); const nn=isNoNum(dk);
+  const hw=$('h-num-wrap'); if(hw) hw.style.display=nn?'none':'';
+  const n=nn?'':($('h-num').value||'').trim().toUpperCase();
   const wrap=$('h-fields'); const cs=cats(c);
   if(!cs.length){ wrap.innerHTML=`<div class="cur">${L().noCats}</div>`; return; }
   let prev={};
@@ -336,12 +348,12 @@ async function hoursRender(){
   }).join('');
 }
 async function submitStatus(){
-  const t=L(); const dk=$('s-kind').value, k=canon(dk);
-  const n=($('s-num').value||'').trim().toUpperCase();
+  const t=L(); const dk=$('s-kind').value, k=canon(dk); const nn=isNoNum(dk);
+  const n=nn?'':($('s-num').value||'').trim().toUpperCase();
   const st=$('s-status').value; const pid=($('s-person').value||'').trim();
-  if(!n||!st||!pid){ $('s-err').textContent=t.errS; return; }
+  if((!nn&&!n)||!st||!pid){ $('s-err').textContent=t.errS; return; }
   $('s-err').textContent='';
-  const person=STAFF[pid]||STAFF[pid.toUpperCase()]||pid; const id=k+'-'+n, kk=key(k,n), tnow=now();
+  const person=STAFF[pid]||STAFF[pid.toUpperCase()]||pid; const id=nn?k:(k+'-'+n), kk=nn?k.replace(/[\/\.\#\$\[\]]/g,'_'):key(k,n), tnow=now();
   const btn=$('s-submit'); btn.disabled=true;
   try{
     await fetch(FB+'/equipment/'+kk+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,machine_type:k,status:st,crew:person,note:'',last_updated:tnow})});
@@ -408,30 +420,34 @@ function otAddP(){ const id=($('ot-p-id').value||'').trim(); if(!id) return; con
   otPeople.push({id,name}); $('ot-p-id').value=''; $('ot-p-name').textContent=''; renderOtPeople(); }
 function otAppLookup(){ const id=($('ot-app').value||'').trim(); $('ot-app-name').textContent=id?(STAFF[id]||STAFF[id.toUpperCase()]||L().notFound):''; }
 let lastOtId=null;
-function otKindChange(){ const k=($('ot-kind').value||''); const sub=$('ot-sub'), pre=$('ot-prefix'); const isSP=/^SP$/i.test(k), isPPG=/^PPG$/i.test(k); if(sub) sub.style.display=isSP?'':'none'; if(pre) pre.style.display=isPPG?'':'none'; }
+function otKindChange(){ const k=($('ot-kind').value||''); const sub=$('ot-sub'), pre=$('ot-prefix'); const nn=isNoNum(k); const isSP=/^SP$/i.test(k), isPPG=/^PPG$/i.test(k); if(sub) sub.style.display=(isSP&&!nn)?'':'none'; if(pre) pre.style.display=(isPPG&&!nn)?'':'none'; const w=$('ot-num-wrap'); if(w) w.style.display=nn?'none':''; }
 function otFinalNum(){ const k=($('ot-kind').value||''); const raw=(($('ot-num').value||'').trim().toUpperCase()); if(/^SP$/i.test(k)){ return (($('ot-sub').value||'')+raw); } if(/^PPG$/i.test(k)){ return 'CCT'+raw.replace(/^CCT/i,''); } return raw; }
 async function otReview(){ const t=L();
-  const group=($('ot-group').value||'').trim(); const num=otFinalNum(); const reason=($('ot-reason').value||'').trim();
-  const date=$('ot-date').value, dateEnd=$('ot-date-end').value||date; const type=canon($('ot-kind').value);
+  const dk=$('ot-kind').value; const nn=isNoNum(dk);
+  const group=($('ot-group').value||'').trim(); const num=nn?'':otFinalNum(); const reason=($('ot-reason').value||'').trim();
+  const date=$('ot-date').value, dateEnd=$('ot-date-end').value||date; const type=canon(dk);
+  const mLabel=nn?type:(type+'-'+num);
   if(!otUser){ otShowLogin(); return; }
   const start=$('ot-start').value, end=$('ot-end').value;
-  if(!group||!otPeople.length||!num||!reason){ $('ot-err').textContent=t.otErr; return; }
+  if(!group||!otPeople.length||(!nn&&!num)||!reason){ $('ot-err').textContent=t.otErr; return; }
   if(!start||!end){ $('ot-err').textContent=t.needTime; return; }
-  if(!machineExists(type,num)){ $('ot-err').textContent=t.noMachine.replace('{m}',(type+'-'+num)); return; }
+  if(!nn && !machineExists(type,num)){ $('ot-err').textContent=t.noMachine.replace('{m}',(type+'-'+num)); return; }
   $('ot-err').textContent='';
   let allReq={}; try{ const r=await fetch(FB+'/ot_requests.json'); allReq=(await r.json())||{}; }catch(e){}
   for(const p of otPeople){ if(personConflict(allReq,p.id,date,start,end)){ $('ot-err').textContent=t.conflict.replace('{name}',p.name); return; } }
   const hrs=calcHoursDT(date,start,dateEnd,end);
-  $('otc-detail').innerHTML=`<b>${t.group}</b>: ${group}<br><b>${t.people}</b>: ${otPeople.map(p=>p.name).join('、')}<br><b>${t.date}</b>: ${date} ${start}~${(dateEnd&&dateEnd!==date)?(dateEnd+' '):''}${end}（${hrs}${t.hoursUnit}）<br><b>${t.kind}</b>: ${type}-${num}<br><b>${t.reason}</b>: ${reason}<br><b>${t.applicantIs}</b>: ${otUser.name}`;
+  $('otc-detail').innerHTML=`<b>${t.group}</b>: ${group}<br><b>${t.people}</b>: ${otPeople.map(p=>p.name).join('、')}<br><b>${t.date}</b>: ${date} ${start}~${(dateEnd&&dateEnd!==date)?(dateEnd+' '):''}${end}（${hrs}${t.hoursUnit}）<br><b>${t.kind}</b>: ${mLabel}<br><b>${t.reason}</b>: ${reason}<br><b>${t.applicantIs}</b>: ${otUser.name}`;
   show('otconfirm');
 }
 async function otConfirmSend(){ const t=L();
-  const group=($('ot-group').value||'').trim(); const date=$('ot-date').value; const type=canon($('ot-kind').value); const num=otFinalNum(); const reason=($('ot-reason').value||'').trim();
+  const dk=$('ot-kind').value; const nn=isNoNum(dk);
+  const group=($('ot-group').value||'').trim(); const date=$('ot-date').value; const type=canon(dk); const num=nn?'':otFinalNum(); const reason=($('ot-reason').value||'').trim();
+  const mLabel=nn?type:(type+'-'+num);
   const start=$('ot-start').value, end=$('ot-end').value; const dateEnd=$('ot-date-end').value||date; const hours=calcHoursDT(date,start,dateEnd,end);
   const rec={group,people:otPeople.slice(),date,end_date:dateEnd,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:otUser.id,name:otUser.name},status:'pending',stage:'section',created:now()};
   const btn=$('otc-send'); btn.disabled=true;
   try{ const r=await fetch(FB+'/ot_requests.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const j=await r.json(); lastOtId=(j&&j.name)||null; }catch(e){ btn.disabled=false; show('ot'); $('ot-err').textContent='✗ '+e.message; return; }
-  btn.disabled=false; $('d-detail').textContent=`${type}-${num} · ${date} · ${otUser.name}`;
+  btn.disabled=false; $('d-detail').textContent=`${mLabel} · ${date} · ${otUser.name}`;
   $('d-withdraw').style.display=lastOtId?'block':'none'; show('done');
 }
 async function otLoadMy(){ if(!otUser) return; let all={}; try{ const r=await fetch(FB+'/ot_requests.json'); all=(await r.json())||{}; }catch(e){}
