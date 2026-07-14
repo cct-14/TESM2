@@ -1827,6 +1827,8 @@ const ALL_FEATURES = [
   {id:'password', label:'🔑 密碼管理'},
   {id:'roles',    label:'🏢 部門管理'}, // 14 only
 ];
+// 左側選單頁（可對個別使用者隱藏；map 保留為安全首頁不列入）
+const NAV_PAGES = ['allEq','maintenance','attendance','field','otsys','notify','secondary','trailer','realtime','history','changelog','admin'];
 
 // 預設角色設定（Firebase 載入後覆蓋）
 let ROLES = {
@@ -1886,6 +1888,13 @@ function applyNavPerms(){
     // 若目前正停在被擋的頁 → 導回地圖
     if(!ok){ const pg=document.getElementById('page-'+f.id); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } }
   });
+  // 個別使用者的左側選單隱藏（勾選＝對此人隱藏）
+  if(indiv){
+    NAV_PAGES.forEach(id=>{
+      const nav=document.querySelector('.nav-item[data-page="'+id+'"]'); if(!nav) return;
+      if(umCan('navhide_'+id,'v')){ nav.style.display='none'; const pg=document.getElementById('page-'+id); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } }
+    });
+  }
 }
 function restoreRole(){
   try{ const r=localStorage.getItem('tesm_role'); if(r&&ROLES[r]) currentRole=r; }catch(_){}
@@ -2118,15 +2127,15 @@ async function deleteRole(key) {
 // ── 密碼管理 Panel ───────────────────────────
 // ── 使用者管理（密碼管理頁內）──
 const UM_I18N={
-  zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼（可留空）',add:'新增人員',impBtn:'匯入名冊',impHint:'批次匯入：從 Excel 貼兩欄（編號、名字），一行一筆',imported:'已匯入 {n} 人',needIdName:'請填編號和名字',
+  zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼（可留空）',add:'新增人員',impBtn:'匯入名冊',impHint:'批次匯入：從 Excel 貼兩欄（編號、名字），一行一筆',imported:'已匯入 {n} 人',needIdName:'請填編號和名字',navHideTitle:'隱藏左側功能',navHideHint:'勾選＝這個使用者登入後看不到該左側選單。',
     newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
     hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',wiRepl:'鋼索更換授權',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
-  es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial (opcional)',add:'Añadir usuario',impBtn:'Importar lista',impHint:'Importar: pegue dos columnas (N.º, nombre) de Excel, una por línea',imported:'{n} importados',needIdName:'N.º y nombre obligatorios',
+  es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial (opcional)',add:'Añadir usuario',impBtn:'Importar lista',impHint:'Importar: pegue dos columnas (N.º, nombre) de Excel, una por línea',imported:'{n} importados',needIdName:'N.º y nombre obligatorios',navHideTitle:'Ocultar menú lateral',navHideHint:'Marcado = este usuario no verá ese elemento del menú lateral.',
     newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
     hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',wiRepl:'Autorización de cambio de cable',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
-  en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password (optional)',add:'Add user',impBtn:'Import list',impHint:'Import: paste two columns (ID, name) from Excel, one per line',imported:'{n} imported',needIdName:'ID and name required',
+  en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password (optional)',add:'Add user',impBtn:'Import list',impHint:'Import: paste two columns (ID, name) from Excel, one per line',imported:'{n} imported',needIdName:'ID and name required',navHideTitle:'Hide sidebar items',navHideHint:'Checked = this user will not see that sidebar item.',
     newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
     hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',wiRepl:'Wire replacement permission',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
@@ -2167,6 +2176,11 @@ function renderUsers(){
           ${ALL_FEATURES.map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
           ${OT_APPROVE_FEATURES.map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3);background:var(--bg2)"><td style="padding:6px;font-weight:700;color:var(--blue)">${approveLabel(f.id)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center;color:var(--text3)">—</td></tr>`;}).join('')}
         </table>
+        <div style="margin-top:12px;padding:10px;background:var(--purple-l);border:1px solid var(--purple);border-radius:10px">
+          <div style="font-weight:800;color:var(--purple);font-size:13px;margin-bottom:2px">${umT('navHideTitle')}</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${umT('navHideHint')}</div>
+          ${NAV_PAGES.map(pg=>{const hid=!!(u.perms&&u.perms['navhide_'+pg]&&u.perms['navhide_'+pg].v);return `<label style="display:flex;align-items:center;gap:8px;padding:3px 2px;font-size:13px;cursor:pointer"><input type="checkbox" ${hid?'checked':''} onchange="umPerm('${id}','navhide_${pg}','v',this.checked)" style="width:15px;height:15px;accent-color:var(--purple)"/>${navLabel(pg)}</label>`;}).join('')}
+        </div>
       </div>`:''}
     </div>`;
   }).join('');
