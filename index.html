@@ -3063,7 +3063,7 @@ const ADMIN_I18N={
   zh:{
     feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_password:'密碼管理',feat_roles:'部門管理',
     st_kinds:'車機種類',st_statuses:'狀態選項',st_hours:'時數種類',st_staff:'人員清單',st_pass:'密碼',
-    desc_kinds:'車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）',noNum:'無編號',
+    desc_kinds:'車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）',
     desc_statuses:'車機狀態選項（現場「狀態更改」的下拉）',
     btn_additem:'＋ 加一項',btn_save:'儲存',btn_addrow:'＋ 加一格',btn_import:'匯入',btn_add:'新增',btn_selall:'全選',
     hd_desc:'選機型 → 設定該型的時數種類（例 POWER、ENGINE）。留空＝該型免時數。',
@@ -3087,7 +3087,7 @@ const ADMIN_I18N={
   es:{
     feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_password:'Contraseñas',feat_roles:'Departamentos',
     st_kinds:'Tipos',st_statuses:'Estados',st_hours:'Cat. horas',st_staff:'Personal',st_pass:'Contraseña',
-    desc_kinds:'Tipos de equipo (para «Estado» y «Horas» en campo. AR se asigna a ARMGC).',noNum:'Sin número',
+    desc_kinds:'Tipos de equipo (para «Estado» y «Horas» en campo. AR se asigna a ARMGC).',
     desc_statuses:'Opciones de estado (menú de «Cambiar estado» en campo).',
     btn_additem:'＋ Añadir',btn_save:'Guardar',btn_addrow:'＋ Fila',btn_import:'Importar',btn_add:'Añadir',btn_selall:'Todos',
     hd_desc:'Elija el tipo → defina sus categorías de horas (ej. POWER, ENGINE). Vacío = sin horas.',
@@ -3111,7 +3111,7 @@ const ADMIN_I18N={
   en:{
     feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_password:'Passwords',feat_roles:'Departments',
     st_kinds:'Types',st_statuses:'Statuses',st_hours:'Hour cats',st_staff:'Staff',st_pass:'Password',
-    desc_kinds:'Equipment types (used by field Status & Hours. AR maps to ARMGC).',noNum:'No number',
+    desc_kinds:'Equipment types (used by field Status & Hours. AR maps to ARMGC).',
     desc_statuses:'Status options (the field «Change status» dropdown).',
     btn_additem:'＋ Add',btn_save:'Save',btn_addrow:'＋ Row',btn_import:'Import',btn_add:'Add',btn_selall:'All',
     hd_desc:'Pick a type → set its hour categories (e.g. POWER, ENGINE). Empty = no hours.',
@@ -4369,17 +4369,9 @@ function amAddItem(){
   rows.appendChild(div);
 }
 function amCollect(){ return [...document.querySelectorAll('#am-rows .am-item')].map(i=>i.value.trim()).filter(Boolean); }
-function amKindsEditor(){
-  const mk=(v,nn)=>`<div class="am-krow" style="display:flex;gap:6px;margin-bottom:6px;align-items:center"><input class="am-kind" value="${(v||'').replace(/"/g,'&quot;')}" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><label style="display:flex;align-items:center;gap:4px;font-size:12px;white-space:nowrap;color:var(--text3);cursor:pointer"><input type="checkbox" class="am-nonum" ${nn?'checked':''} style="width:15px;height:15px"/>${aT('noNum')}</label><button class="mt-perm" onclick="this.closest('.am-krow').remove()">✕</button></div>`;
-  const rows=(FIELD_KINDS&&FIELD_KINDS.length?FIELD_KINDS:['']).map(v=>mk(v,isNoNum(v))).join('');
-  return `<div style="font-size:12px;color:var(--text3);margin-bottom:10px">${aT('desc_kinds')}</div><div id="am-krows">${rows}</div><div style="display:flex;gap:8px;margin-top:4px"><button class="mt-perm" onclick="amAddKind()">${aT('btn_additem')}</button><button class="mt-perm on" onclick="saveKinds()">${aT('btn_save')}</button></div>`;
-}
-function amAddKind(){ const rows=document.getElementById('am-krows'); if(!rows) return; const div=document.createElement('div'); div.className='am-krow'; div.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center'; div.innerHTML=`<input class="am-kind" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><label style="display:flex;align-items:center;gap:4px;font-size:12px;white-space:nowrap;color:var(--text3);cursor:pointer"><input type="checkbox" class="am-nonum" style="width:15px;height:15px"/>${aT('noNum')}</label><button class="mt-perm" onclick="this.closest('.am-krow').remove()">✕</button>`; rows.appendChild(div); }
 async function saveKinds(){
-  const arr=[], nonum=[];
-  document.querySelectorAll('#am-krows .am-krow').forEach(row=>{ const inp=row.querySelector('.am-kind'); const v=(inp&&inp.value||'').trim(); if(!v) return; arr.push(v); const cb=row.querySelector('.am-nonum'); if(cb&&cb.checked) nonum.push(v); });
-  FIELD_KINDS=arr; FIELD_NONUM=nonum;
-  try{ await fetch(`${FB}/field_kinds.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); await fetch(`${FB}/field_nonum.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(nonum)}); alert(aTn('m_saved',{name:aT('m_kinds'),n:arr.length})); }
+  const arr=amCollect(); FIELD_KINDS=arr;
+  try{ await fetch(`${FB}/field_kinds.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}); alert(aTn('m_saved',{name:aT('m_kinds'),n:arr.length})); }
   catch(e){ alert(aT('m_savefail')+e.message); }
 }
 async function saveStatuses(){
@@ -4481,11 +4473,9 @@ async function renderAddEq(){
   el.innerHTML=`<div class="fp-sec-title">${aT('ae_title')}</div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:12px">${aT('ae_desc')}</div>
     <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">${aT('ae_kind')}</label>
-    <select id="ae-kind" onchange="aeKindChange()" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px">${FIELD_KINDS.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
-    <div id="ae-num-wrap">
+    <select id="ae-kind" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px">${FIELD_KINDS.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
     <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">${aT('ae_num')}</label>
     <input id="ae-num" placeholder="${aT('ae_numph')}" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px;text-transform:uppercase"/>
-    </div>
     <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">${aT('ae_status')}</label>
     <select id="ae-status" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:14px">${FIELD_STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
     <button class="mt-perm on" onclick="addEqSubmit()">${aT('ae_addbtn')}</button>
@@ -4497,8 +4487,7 @@ async function renderAddEq(){
     <button class="mt-perm on" onclick="addEqBulk()">${aT('ae_importbtn')}</button>
     <div id="ae-bmsg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>
     <div class="fp-sec-title" style="margin-top:26px;padding-top:18px;border-top:1px solid var(--border)">${aT('st_kinds')}</div>
-    ${amKindsEditor()}`;
-  aeKindChange();
+    ${amListEditor(aT('desc_kinds'), FIELD_KINDS, 'saveKinds')}`;
 }
 function aeExpandNums(raw){
   const out=[];
@@ -4509,22 +4498,20 @@ function aeExpandNums(raw){
   });
   return [...new Set(out)];
 }
-function aeKindChange(){ const dispKind=(document.getElementById('ae-kind')||{}).value||''; const w=document.getElementById('ae-num-wrap'); if(w) w.style.display=isNoNum(dispKind)?'none':''; }
 async function aeWrite(kind,num,status,by,now){
-  const id=num?(kind+'-'+num):kind, key=id.replace(/[\/\.\#\$\[\]]/g,'_');
+  const id=kind+'-'+num, key=id.replace(/[\/\.\#\$\[\]]/g,'_');
   const rec={machine_id:id,machine_type:kind,status,crew:by,note:'',last_updated:now};
   try{ await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); data[key]=rec; return true; }catch(e){ return false; }
 }
 async function addEqSubmit(){
   const dispKind=document.getElementById('ae-kind').value, kind=fieldCanon(dispKind);
+  const raw=(document.getElementById('ae-num').value||'').trim().toUpperCase();
   const status=document.getElementById('ae-status').value;
   const msg=document.getElementById('ae-msg');
-  const now=(typeof fldPanNow==='function')?fldPanNow():new Date().toLocaleString('zh-TW',{timeZone:'America/Panama'});
-  const by=(typeof maintUser!=='undefined'&&maintUser&&maintUser.name)?maintUser.name:'Admin';
-  if(isNoNum(dispKind)){ const ok=await aeWrite(kind,'',status,by,now); if(msg) msg.textContent=aTn('m_added',{n:ok?1:0}); if(typeof renderAllEq==='function') renderAllEq(); return; }
-  const raw=(document.getElementById('ae-num').value||'').trim().toUpperCase();
   if(!raw){ alert(aT('m_enternum')); return; }
   const nums=aeExpandNums(raw);
+  const now=(typeof fldPanNow==='function')?fldPanNow():new Date().toLocaleString('zh-TW',{timeZone:'America/Panama'});
+  const by=(typeof maintUser!=='undefined'&&maintUser&&maintUser.name)?maintUser.name:'Admin';
   let ok=0; for(const num of nums){ if(await aeWrite(kind,num,status,by,now)) ok++; }
   if(msg) msg.textContent=aTn('m_added',{n:ok});
   document.getElementById('ae-num').value='';
@@ -4646,21 +4633,21 @@ async function otSavePass(){
 }
 
 // ── 加班申請系統（網頁：申請 + 兩關審核）──
-Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',notInStaff:'此編號不在員工名單，不能加入。',noMachine:'查無此車機：{m}，請確認種類與編號。',dupPerson:'人員重複：此員工已在加班名單內。',fillFirst:'請先填加班日期與時間，再加入人員。',conflict:'時間衝突：{name} 在該時段已有加班。',overrideRole:'最大駁回',overrideBtn:'最大駁回',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',exportPdf:'🧾 產生 PDF',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colPersonId:'人事代號',colPersonName:'姓名',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colReview:'審核',histStatus:'審核狀況',stAll:'全部',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
+Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',notInStaff:'此編號不在員工名單，不能加入。',noMachine:'查無此車機：{m}，請確認種類與編號。',dupPerson:'人員重複：此員工已在加班名單內。',fillFirst:'請先填加班日期與時間，再加入人員。',conflict:'時間衝突：{name} 在該時段已有加班。',overrideRole:'最大駁回',overrideBtn:'最大駁回',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',exportPdf:'🧾 產生 PDF',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colPersonId:'人事代號',colPersonName:'姓名',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colConfirmHrs:'確認時數',colReview:'審核',histStatus:'審核狀況',stAll:'全部',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
   group:'課別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
   errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',confirmTitle:'確認申請內容',confirmSend:'確定送出',backEdit:'返回修改',withdraw:'撤回',withdrawQ:'確定撤回這筆申請？',withdrawNoperm:'只有申請人本人可以撤回。',cancelled:'已撤回',
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
   noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needApply:'請登入有加班申請權限的帳號',fromL:'開始',toL:'結束',del:'刪除',delQ:'確定刪除這筆記錄？此動作無法復原。',delNoperm:'你沒有刪除記錄的權限。',delAdminTitle:'🗑 可刪除記錄的人事代號',delAdminDesc:'在此填入的人事代號（登入後）才能刪除加班記錄，可多個，用逗號或換行分隔。',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
-Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',notInStaff:'Este N.º no está en la lista de personal, no se puede agregar.',noMachine:'Equipo no encontrado: {m}. Verifique tipo y número.',dupPerson:'Personal duplicado: ya está en la lista.',fillFirst:'Complete primero la fecha y la hora antes de agregar personal.',conflict:'Conflicto de horario: {name} ya tiene horas extra en ese período.',overrideRole:'Rechazo final',overrideBtn:'Rechazo final',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',exportPdf:'🧾 Generar PDF',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colPersonId:'N.º empleado',colPersonName:'Nombre',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
+Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',notInStaff:'Este N.º no está en la lista de personal, no se puede agregar.',noMachine:'Equipo no encontrado: {m}. Verifique tipo y número.',dupPerson:'Personal duplicado: ya está en la lista.',fillFirst:'Complete primero la fecha y la hora antes de agregar personal.',conflict:'Conflicto de horario: {name} ya tiene horas extra en ese período.',overrideRole:'Rechazo final',overrideBtn:'Rechazo final',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',exportPdf:'🧾 Generar PDF',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colPersonId:'N.º empleado',colPersonName:'Nombre',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colConfirmHrs:'Confirmar horas',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
   group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',withdrawNoperm:'Solo el solicitante puede retirar.',cancelled:'Retirado',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
   noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needApply:'Inicie sesión con una cuenta con permiso de solicitud',fromL:'Desde',toL:'Hasta',del:'Eliminar',delQ:'¿Eliminar este registro? No se puede deshacer.',delNoperm:'No tiene permiso para eliminar registros.',delAdminTitle:'🗑 N.º de empleado con permiso de eliminación',delAdminDesc:'Solo los N.º aquí ingresados (tras iniciar sesión) pueden eliminar registros. Varios separados por coma o salto de línea.',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
-Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',notInStaff:'This ID is not in the staff list; cannot add.',noMachine:'Equipment not found: {m}. Check type and number.',dupPerson:'Duplicate: this person is already on the list.',fillFirst:'Fill date and time first before adding personnel.',conflict:'Time conflict: {name} already has overtime in that period.',overrideRole:'Override reject',overrideBtn:'Override reject',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',exportPdf:'🧾 Generate PDF',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colPersonId:'Employee ID',colPersonName:'Name',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
+Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',notInStaff:'This ID is not in the staff list; cannot add.',noMachine:'Equipment not found: {m}. Check type and number.',dupPerson:'Duplicate: this person is already on the list.',fillFirst:'Fill date and time first before adding personnel.',conflict:'Time conflict: {name} already has overtime in that period.',overrideRole:'Override reject',overrideBtn:'Override reject',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',exportPdf:'🧾 Generate PDF',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colPersonId:'Employee ID',colPersonName:'Name',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colConfirmHrs:'Confirm hours',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
   group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',withdrawNoperm:'Only the applicant can withdraw.',cancelled:'Withdrawn',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
@@ -4723,13 +4710,11 @@ function otRenderApply(){
     <div id="ota-pname" style="font-size:13px;font-weight:700;color:var(--green);min-height:18px;margin:4px 2px"></div>
     <div id="ota-people" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
     <label class="lbl2">${otT('machine')}</label><select id="ota-kind" class="ot-in" onchange="otaKindChange()">${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
-    <div id="ota-num-wrap">
     <label class="lbl2">${otT('num')}</label>
     <div style="display:flex;gap:6px;align-items:center">
       <select id="ota-sub" class="ot-in" style="display:none;width:auto;flex:0 0 auto">${['AE','T','TS','TW'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
       <span id="ota-prefix" style="display:none;font-weight:700;color:var(--text2)">PPG-CCT</span>
       <input id="ota-num" class="ot-in" style="text-transform:uppercase"/>
-    </div>
     </div>
     <label class="lbl2">${otT('reason')}</label><input id="ota-reason" class="ot-in"/>
     <label class="lbl2">${otT('applicantL')}</label>
@@ -4761,23 +4746,21 @@ function otMachineExists(type,num){
   for(const k in data){ const e=data[k]; const mid=(e&&e.machine_id)?e.machine_id:k; if(norm(mid)===target) return true; }
   return false;
 }
-function otaKindChange(){ const k=(document.getElementById('ota-kind')||{}).value||''; const sub=document.getElementById('ota-sub'); const pre=document.getElementById('ota-prefix'); const isSP=/^SP$/i.test(k), isPPG=/^PPG$/i.test(k); const nn=isNoNum(k); if(sub) sub.style.display=(isSP&&!nn)?'':'none'; if(pre) pre.style.display=(isPPG&&!nn)?'':'none'; const w=document.getElementById('ota-num-wrap'); if(w) w.style.display=nn?'none':''; }
+function otaKindChange(){ const k=(document.getElementById('ota-kind')||{}).value||''; const sub=document.getElementById('ota-sub'); const pre=document.getElementById('ota-prefix'); const isSP=/^SP$/i.test(k), isPPG=/^PPG$/i.test(k); if(sub) sub.style.display=isSP?'':'none'; if(pre) pre.style.display=isPPG?'':'none'; }
 function otaFinalNum(){ const k=(document.getElementById('ota-kind')||{}).value||''; const raw=((document.getElementById('ota-num')||{}).value||'').trim().toUpperCase(); if(/^SP$/i.test(k)){ const s=(document.getElementById('ota-sub')||{}).value||''; return (s+raw); } if(/^PPG$/i.test(k)){ return 'CCT'+raw.replace(/^CCT/i,''); } return raw; }
 async function otaReview(){
   const group=(document.getElementById('ota-group').value||'').trim();
-  const dispK=document.getElementById('ota-kind').value; const noNum=isNoNum(dispK);
-  const num=noNum?'':otaFinalNum();
+  const num=otaFinalNum();
   const reason=(document.getElementById('ota-reason').value||'').trim();
   const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value;
   const err=document.getElementById('ota-err');
   if(!umCurrentUser){ err.textContent=otT('needApply'); return; }
-  if(!group||!otAppPeople.length||(!noNum&&!num)||!reason){ err.textContent=otT('errForm'); return; }
+  if(!group||!otAppPeople.length||!num||!reason){ err.textContent=otT('errForm'); return; }
   if(!start||!end){ err.textContent=otT('needTime'); return; }
   err.textContent='';
-  const type=(typeof fieldCanon==='function')?fieldCanon(dispK):dispK;
-  const mLabel=noNum?type:(type+'-'+num);
+  const type=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value;
   const date=document.getElementById('ota-date').value; const dateEnd=document.getElementById('ota-date-end').value||date; const hrs=otCalcHoursDT(date,start,dateEnd,end);
-  if(!noNum && !otMachineExists(type,num)){ err.textContent=otT('noMachine').replace('{m}',(type+'-'+num)); return; }
+  if(!otMachineExists(type,num)){ err.textContent=otT('noMachine').replace('{m}',(type+'-'+num)); return; }
   await otLoadRequests();
   for(const p of otAppPeople){ if(otPersonConflict(p.id,date,start,end)){ err.textContent=otT('conflict').replace('{name}',p.name); return; } }
   otEnsureConfirmModal();
@@ -4786,7 +4769,7 @@ async function otaReview(){
     <b>${otT('group')}</b>: ${group}<br>
     <b>${otT('people1')}</b>: ${otAppPeople.map(p=>p.name).join('、')}<br>
     <b>${otT('date')}</b>: ${date}　<b>${otT('timeRange')}</b>: ${start} ~ ${(dateEnd&&dateEnd!==date)?(dateEnd+' '):''}${end}（${hrs} ${otT('hoursUnit')}）<br>
-    <b>${otT('machine')}</b>: ${mLabel}<br>
+    <b>${otT('machine')}</b>: ${type}-${num}<br>
     <b>${otT('reasonL')}</b>: ${reason}<br>
     <b>${otT('applicantL')}</b>: ${umCurrentUser.name}</div>`;
   document.getElementById('otc-back').textContent=otT('backEdit');
@@ -4811,13 +4794,12 @@ async function otaConfirmSend(){ document.getElementById('ot-confirm-modal').sty
 async function otaSubmit(){
   const group=(document.getElementById('ota-group').value||'').trim();
   const date=document.getElementById('ota-date').value;
-  const dispK=document.getElementById('ota-kind').value; const noNum=isNoNum(dispK);
-  const type=(typeof fieldCanon==='function')?fieldCanon(dispK):dispK;
-  const num=noNum?'':otaFinalNum();
+  const type=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value;
+  const num=otaFinalNum();
   const reason=(document.getElementById('ota-reason').value||'').trim();
   const err=document.getElementById('ota-err');
   if(!umCurrentUser){ err.textContent=otT('needApply'); return; }
-  if(!group||!otAppPeople.length||(!noNum&&!num)||!reason){ err.textContent=otT('errForm'); return; }
+  if(!group||!otAppPeople.length||!num||!reason){ err.textContent=otT('errForm'); return; }
   err.textContent='';
   const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value; const dateEnd=document.getElementById('ota-date-end').value||date; const hours=otCalcHoursDT(date,start,dateEnd,end);
   const rec={group,people:otAppPeople.slice(),date,end_date:dateEnd,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:umCurrentUser.id,name:umCurrentUser.name},status:'pending',stage:'section',created:fldPanNow()};
@@ -4974,7 +4956,7 @@ function otRenderHistory(){
     <input id="oth-person" class="ot-in" style="width:160px;margin:0" placeholder="${otT('histPersonPh')}"/>
     <select id="oth-status" class="ot-in" style="width:auto;margin:0">
       <option value="">${otT('histStatus')}: ${otT('stAll')}</option>
-      <option value="approved" selected>${otT('stApproved')}</option>
+      <option value="approved">${otT('stApproved')}</option>
       <option value="rejected">${otT('stRejected')}</option>
       <option value="w1">${otT('stW1')}</option>
       <option value="w2">${otT('stW2')}</option>
@@ -5059,13 +5041,13 @@ function otExportPdf(){
   const up=s=>String(s||'').toUpperCase();
   const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const title='TESM2 · '+otT('tabHistory');
-  const cols=[otT('colDate'),otT('timeRange'),otT('colGroup'),otT('colMachine'),otT('colApplicant'),otT('colPeople'),otT('colReason'),otT('colStatus')];
+  const cols=[otT('colDate'),otT('timeRange'),otT('colGroup'),otT('colMachine'),otT('colApplicant'),otT('colPeople'),otT('colReason'),otT('colStatus'),otT('colConfirmHrs')];
   const head=`<tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>`;
   const body=rows.map(r=>{
     const time=r.start_time?`${r.start_time}~${(r.end_date&&r.end_date!==r.date)?(r.end_date+' '):''}${r.end_time}（${r.hours}${otT('hoursUnit')}）`:'';
     const app=r.applicant?`${up(String(r.applicant.id||'').replace(/\.0+$/,''))} ${esc(r.applicant.name||'')}`:'';
     const ppl=(r.people||[]).map(p=>{ const pid=up(String(p.id||'').replace(/\.0+$/,'')); let pn=String(p.name||'').trim(); if(!pn||pn.replace(/\.0+$/,'').toUpperCase()===pid) pn=''; return `<div><b>${esc(pid)}</b> ${esc(pn)}</div>`; }).join('')||'';
-    return `<tr><td>${esc(r.date||'')}</td><td>${esc(time)}</td><td>${esc(r.group||'')}</td><td>${esc(r.machine_type)}-${esc(r.machine_num)}</td><td>${app}</td><td>${ppl}</td><td>${esc(r.reason||'')}</td><td>${esc(otReqStatusText(r))}</td></tr>`;
+    return `<tr><td>${esc(r.date||'')}</td><td>${esc(time)}</td><td>${esc(r.group||'')}</td><td>${esc(r.machine_type)}${r.machine_num?('-'+esc(r.machine_num)):''}</td><td>${app}</td><td>${ppl}</td><td>${esc(r.reason||'')}</td><td>${esc(otReqStatusText(r))}</td><td class="c-chk"><span class="chkbox"></span></td></tr>`;
   }).join('');
   const doc=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>
   <style>
@@ -5079,14 +5061,15 @@ function otExportPdf(){
     th{background:#eef2ff;font-weight:700}
     thead{display:table-header-group}
     tr{page-break-inside:avoid}
-    col.c-date{width:78px} col.c-time{width:132px} col.c-grp{width:56px} col.c-mac{width:66px} col.c-app{width:130px} col.c-sta{width:70px}
+    col.c-date{width:78px} col.c-time{width:132px} col.c-grp{width:56px} col.c-mac{width:66px} col.c-app{width:130px} col.c-sta{width:70px} col.c-chk{width:58px}
+    .c-chk{text-align:center;vertical-align:middle} .chkbox{display:inline-block;width:15px;height:15px;border:1.5px solid #333;border-radius:2px}
     td b{font-family:ui-monospace,Menlo,monospace}
     .ot-sum{margin-top:12px;padding:8px 12px;background:#eef2ff;border:1px solid #99a;border-radius:6px;font-weight:700;font-size:13px}
   </style></head><body>
   <h1>${esc(title)}</h1>
   <div class="sub">${esc(otTodayStr())} · ${rows.length} ${esc(otT('events')||'')}</div>
   <table>
-    <colgroup><col class="c-date"><col class="c-time"><col class="c-grp"><col class="c-mac"><col class="c-app"><col><col><col class="c-sta"></colgroup>
+    <colgroup><col class="c-date"><col class="c-time"><col class="c-grp"><col class="c-mac"><col class="c-app"><col><col><col class="c-sta"><col class="c-chk"></colgroup>
     <thead>${head}</thead><tbody>${body}</tbody>
   </table>
   <div class="ot-sum">${(function(){ const totItems=rows.length; const totPeople=rows.reduce((s,r)=>s+((r.people&&r.people.length)||0),0); const totManHours=rows.reduce((s,r)=>s+((parseFloat(r.hours)||0)*((r.people&&r.people.length)||0)),0); const hh=(Math.round(totManHours*100)/100); return ({zh:`總計：${totItems} 件  · ${totPeople} 人次 · 總工時 ${hh} 小時（時數×人數）`,es:`Total: ${totItems} registros · ${totPeople} personas · ${hh} h-hombre`,en:`Total: ${totItems} items · ${totPeople} people · ${hh} man-hours`})[(typeof maintLang!=='undefined'?maintLang:'es')] || `Total: ${totItems} / ${totPeople} / ${hh}h`; })()}</div>
@@ -5537,8 +5520,7 @@ const DEFAULT_KINDS=['GC','RTG','AR','SL','ESL','TR','CH','FL','PPG','SP'];
 const DEFAULT_STATUSES=['Available','Running','Emergency Maintenance','Out Of Service','Planned Maintenance','Damaged'];
 const FIELD_ALIAS={AR:'ARMGC'};                 // 顯示 AR、存 ARMGC
 function fieldCanon(k){ return FIELD_ALIAS[k]||k; }
-let FIELD_KINDS=DEFAULT_KINDS.slice(), FIELD_STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, FIELD_NONUM=[];
-function isNoNum(k){ return FIELD_NONUM.indexOf(k)>=0 || FIELD_NONUM.indexOf(fieldCanon(k))>=0; }
+let FIELD_KINDS=DEFAULT_KINDS.slice(), FIELD_STATUSES=DEFAULT_STATUSES.slice(), STAFF={};
 let fldFlow='status', fldHoursUnlocked=false, fldStatus=null;
 
 const FIELD_I18N={
@@ -5568,7 +5550,6 @@ function hoursCats(canonType){ return (HOURS_DEFS[canonType]||[]).filter(Boolean
 
 async function fldLoadConfig(){
   try{ const r=await fetch(`${FB}/field_kinds.json`); const d=await r.json(); if(Array.isArray(d)&&d.length) FIELD_KINDS=d; }catch(e){}
-  try{ const r=await fetch(`${FB}/field_nonum.json`); const d=await r.json(); FIELD_NONUM=Array.isArray(d)?d:[]; }catch(e){ FIELD_NONUM=[]; }
   try{ const r=await fetch(`${FB}/field_statuses.json`); const d=await r.json(); if(Array.isArray(d)&&d.length) FIELD_STATUSES=d; }catch(e){}
   try{ const r=await fetch(`${FB}/hours_defs.json`); HOURS_DEFS=(await r.json())||HOURS_DEFS||{}; }catch(e){}
   try{ const r=await fetch(`${FB}/staff.json`); STAFF=(await r.json())||{}; }catch(e){}
