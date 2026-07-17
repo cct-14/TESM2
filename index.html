@@ -775,6 +775,10 @@ select.fld-input.big{height:56px}
         <div class="nav-icon">📰</div>
         <span class="nav-label">更新日誌</span>
       </div>
+      <div class="nav-item" data-page="projtrack" data-tip="專案追蹤系統" style="display:none" onclick="navTo('projtrack',this)">
+        <div class="nav-icon">📁</div>
+        <span class="nav-label">專案追蹤系統</span>
+      </div>
       <div class="nav-item" data-page="admin" data-tip="管理者介面" onclick="navTo('admin',this)">
         <div class="nav-icon">⚙️</div>
         <span class="nav-label">管理者介面</span>
@@ -1290,6 +1294,11 @@ select.fld-input.big{height:56px}
         <div id="changelog-page-list">
           <div class="loading"><div class="spin"></div> Loading...</div>
         </div>
+      </div>
+    </div>
+    <div class="page" id="page-projtrack">
+      <div class="page-scroll">
+        <div id="projtrack-root" style="max-width:1100px;margin:0 auto"></div>
       </div>
     </div>
     <div class="page" id="page-admin">
@@ -1824,6 +1833,7 @@ const ALL_FEATURES = [
   {id:'overtime', label:'⏰ 加班申請設定'},
   {id:'changelog',label:'📝 更新日誌'},
   {id:'email',    label:'📧 Email 設定'},
+  {id:'projset',  label:'📁 專案追蹤系統設定'},
   {id:'password', label:'🔑 密碼管理'},
   {id:'roles',    label:'🏢 部門管理'}, // 14 only
 ];
@@ -1895,6 +1905,9 @@ function applyNavPerms(){
       if(umCan('navhide_'+id,'v')){ nav.style.display='none'; const pg=document.getElementById('page-'+id); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } }
     });
   }
+  // 專案追蹤系統：預設隱藏，只有 14 或有「專案追蹤-檢視」權限者看得到
+  const ptNav=document.querySelector('.nav-item[data-page="projtrack"]');
+  if(ptNav){ const canPT = all || (indiv && umCan('proj_view','v')); ptNav.style.display=canPT?'':'none'; if(!canPT){ const pg=document.getElementById('page-projtrack'); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } } }
 }
 function restoreRole(){
   try{ const r=localStorage.getItem('tesm_role'); if(r&&ROLES[r]) currentRole=r; }catch(_){}
@@ -2034,6 +2047,7 @@ function renderFeaturePanel(featureId, deptKey) {
   if (featureId==='overtime') { panel.innerHTML='<div id="fp-ot"></div>'; renderOtConfig(); }
   if (featureId==='changelog'){ panel.innerHTML='<div id="fp-changelog"></div>'; renderChangelogInPanel(); }
   if (featureId==='email')    { panel.innerHTML='<div id="fp-email"></div>'; renderEmailPanel(); }
+  if (featureId==='projset')  { panel.innerHTML='<div id="fp-projset"></div>'; renderProjSettings(); }
   if (featureId==='password') { panel.innerHTML=''; renderPasswordPanel(deptKey); }
 }
 
@@ -2127,18 +2141,18 @@ async function deleteRole(key) {
 // ── 密碼管理 Panel ───────────────────────────
 // ── 使用者管理（密碼管理頁內）──
 const UM_I18N={
-  zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼（可留空）',add:'新增人員',impBtn:'匯入名冊',impHint:'批次匯入：從 Excel 貼兩欄（編號、名字），一行一筆',imported:'已匯入 {n} 人',needIdName:'請填編號和名字',navHideTitle:'隱藏左側功能',navHideHint:'勾選＝這個使用者登入後看不到該左側選單。',
+  zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼（可留空）',add:'新增人員',impBtn:'匯入名冊',impHint:'批次匯入：從 Excel 貼兩欄（編號、名字），一行一筆',imported:'已匯入 {n} 人',needIdName:'請填編號和名字',navHideTitle:'顯示左側功能',navHideHint:'勾選＝這個使用者登入後看得到該左側選單（預設全部顯示）。',
     newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
-    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',wiRepl:'鋼索更換授權',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
-  es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial (opcional)',add:'Añadir usuario',impBtn:'Importar lista',impHint:'Importar: pegue dos columnas (N.º, nombre) de Excel, una por línea',imported:'{n} importados',needIdName:'N.º y nombre obligatorios',navHideTitle:'Ocultar menú lateral',navHideHint:'Marcado = este usuario no verá ese elemento del menú lateral.',
+    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',wiRepl:'鋼索更換授權',projView:'專案追蹤-檢視',projCreate:'專案追蹤-開案',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能'},
+  es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial (opcional)',add:'Añadir usuario',impBtn:'Importar lista',impHint:'Importar: pegue dos columnas (N.º, nombre) de Excel, una por línea',imported:'{n} importados',needIdName:'N.º y nombre obligatorios',navHideTitle:'Mostrar menú lateral',navHideHint:'Marcado = este usuario verá ese elemento del menú lateral (todos visibles por defecto).',
     newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
-    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',wiRepl:'Autorización de cambio de cable',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
-  en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password (optional)',add:'Add user',impBtn:'Import list',impHint:'Import: paste two columns (ID, name) from Excel, one per line',imported:'{n} imported',needIdName:'ID and name required',navHideTitle:'Hide sidebar items',navHideHint:'Checked = this user will not see that sidebar item.',
+    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',wiRepl:'Autorización de cambio de cable',projView:'Proyectos - Ver',projCreate:'Proyectos - Crear',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones'},
+  en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password (optional)',add:'Add user',impBtn:'Import list',impHint:'Import: paste two columns (ID, name) from Excel, one per line',imported:'{n} imported',needIdName:'ID and name required',navHideTitle:'Show sidebar items',navHideHint:'Checked = this user can see that sidebar item (all visible by default).',
     newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
-    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',wiRepl:'Wire replacement permission',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
+    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',wiRepl:'Wire replacement permission',projView:'Projects - View',projCreate:'Projects - Create',setpw:'Set/reset password',active:'Active',funcs:'Functions'}
 };
 function umT(k){ const L=UM_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||UM_I18N.zh; return L[k]||UM_I18N.zh[k]||k; }
 function umTn(k,map){ let s=umT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
@@ -2149,8 +2163,8 @@ function featLabel(f){
   const t=(typeof aT==='function')?aT('feat_'+f.id):null;
   return (t&&t!=='feat_'+f.id)?t:f.label;
 }
-const OT_APPROVE_FEATURES=[{id:'ot_apply'},{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'},{id:'wi_initial'},{id:'wi_extend'},{id:'wi_replace'}];
-function approveLabel(id){ const m={ot_apply:'applyF',ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg',wi_initial:'wiInit',wi_extend:'wiExt',wi_replace:'wiRepl'}; return umT(m[id]||id); }
+const OT_APPROVE_FEATURES=[{id:'ot_apply'},{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'},{id:'wi_initial'},{id:'wi_extend'},{id:'wi_replace'},{id:'proj_view'},{id:'proj_create'}];
+function approveLabel(id){ const m={ot_apply:'applyF',ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg',wi_initial:'wiInit',wi_extend:'wiExt',wi_replace:'wiRepl',proj_view:'projView',proj_create:'projCreate'}; return umT(m[id]||id); }
 function renderUsers(){
   const el=document.getElementById('um-list'); if(!el) return;
   const q=(document.getElementById('um-search')&&document.getElementById('um-search').value||'').toLowerCase();
@@ -2179,7 +2193,7 @@ function renderUsers(){
         <div style="margin-top:12px;padding:10px;background:var(--purple-l);border:1px solid var(--purple);border-radius:10px">
           <div style="font-weight:800;color:var(--purple);font-size:13px;margin-bottom:2px">${umT('navHideTitle')}</div>
           <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${umT('navHideHint')}</div>
-          ${NAV_PAGES.map(pg=>{const hid=!!(u.perms&&u.perms['navhide_'+pg]&&u.perms['navhide_'+pg].v);return `<label style="display:flex;align-items:center;gap:8px;padding:3px 2px;font-size:13px;cursor:pointer"><input type="checkbox" ${hid?'checked':''} onchange="umPerm('${id}','navhide_${pg}','v',this.checked)" style="width:15px;height:15px;accent-color:var(--purple)"/>${navLabel(pg)}</label>`;}).join('')}
+          ${NAV_PAGES.map(pg=>{const hid=!!(u.perms&&u.perms['navhide_'+pg]&&u.perms['navhide_'+pg].v);return `<label style="display:flex;align-items:center;gap:8px;padding:3px 2px;font-size:13px;cursor:pointer"><input type="checkbox" ${hid?'':'checked'} onchange="umPerm('${id}','navhide_${pg}','v',!this.checked)" style="width:15px;height:15px;accent-color:var(--purple)"/>${navLabel(pg)}</label>`;}).join('')}
         </div>
       </div>`:''}
     </div>`;
@@ -3061,7 +3075,7 @@ try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }ca
 // ── 管理介面三語字典 ──
 const ADMIN_I18N={
   zh:{
-    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_password:'密碼管理',feat_roles:'部門管理',
+    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_projset:'📁 專案追蹤系統',feat_password:'密碼管理',feat_roles:'部門管理',
     st_kinds:'車機種類',st_statuses:'狀態選項',st_hours:'時數種類',st_staff:'人員清單',st_pass:'密碼',
     desc_kinds:'車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）',
     desc_statuses:'車機狀態選項（現場「狀態更改」的下拉）',
@@ -3085,7 +3099,7 @@ const ADMIN_I18N={
     m_built:'補建 {n} 台 ✓',m_skipped:'（略過已存在 {n} 台）',m_bad:'（{n} 筆格式不符）'
   },
   es:{
-    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_password:'Contraseñas',feat_roles:'Departamentos',
+    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_projset:'📁 Proyectos',feat_password:'Contraseñas',feat_roles:'Departamentos',
     st_kinds:'Tipos',st_statuses:'Estados',st_hours:'Cat. horas',st_staff:'Personal',st_pass:'Contraseña',
     desc_kinds:'Tipos de equipo (para «Estado» y «Horas» en campo. AR se asigna a ARMGC).',
     desc_statuses:'Opciones de estado (menú de «Cambiar estado» en campo).',
@@ -3109,7 +3123,7 @@ const ADMIN_I18N={
     m_built:'{n} creados ✓',m_skipped:'({n} existentes omitidos)',m_bad:'({n} con formato inválido)'
   },
   en:{
-    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_password:'Passwords',feat_roles:'Departments',
+    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_projset:'📁 Projects',feat_password:'Passwords',feat_roles:'Departments',
     st_kinds:'Types',st_statuses:'Statuses',st_hours:'Hour cats',st_staff:'Staff',st_pass:'Password',
     desc_kinds:'Equipment types (used by field Status & Hours. AR maps to ARMGC).',
     desc_statuses:'Status options (the field «Change status» dropdown).',
@@ -3145,7 +3159,8 @@ function setMaintLang(l){
   if(typeof applyFieldLang==='function') applyFieldLang();
   if(typeof updateMsgLang==='function') updateMsgLang();
   if(typeof aT==='function'){
-    ['movelog','teu','announce','maintain','app','addeq','changelog','email','password','roles'].forEach(id=>{ const b=document.getElementById('ftab-'+id); if(b) b.textContent=aT('feat_'+id); });
+    ['movelog','teu','announce','maintain','app','addeq','changelog','email','projset','password','roles'].forEach(id=>{ const b=document.getElementById('ftab-'+id); if(b) b.textContent=aT('feat_'+id); });
+    if(document.getElementById('fp-projset')) renderProjSettings();
     if(document.getElementById('fp-app')) renderAppManage();
     if(document.getElementById('fp-addeq')) renderAddEq();
     if(document.getElementById('fp-ot')) renderOtConfig();
@@ -3154,6 +3169,7 @@ function setMaintLang(l){
   }
   if(typeof initMarquee==='function') initMarquee();
   if(typeof initAnnounce==='function') initAnnounce();
+  { const pt=document.getElementById('page-projtrack'); if(pt&&pt.classList.contains('active')&&typeof renderProjTrack==='function') renderProjTrack(); }
   const cp=document.getElementById('page-changelog');
   if(cp&&cp.classList.contains('active')&&typeof loadChangelogPage==='function') loadChangelogPage();
   // 管理介面裡開著的更新日誌／公告清單也一起重繪
@@ -5695,11 +5711,11 @@ const PAGE_TITLES = {
 // 導航多語（沿用 maintLang 全站生效）
 const NAV_I18N = {
   es:{ groups:{monitor:'Monitoreo',reports:'Reportes',manage:'Administración'},
-    pages:{map:'Estado del mapa',allEq:'Monitor de equipos',maintenance:'Plan de mantenimiento',attendance:'Asistencia',field:'Registro en campo',otsys:'Solicitud de horas extra',notify:'Alertas de fallas',secondary:'Equipos secundarios',trailer:'Enlace de remolques',realtime:'Reporte en vivo',history:'Historial',changelog:'Registro de cambios',admin:'Administración'} },
+    pages:{map:'Estado del mapa',allEq:'Monitor de equipos',maintenance:'Plan de mantenimiento',attendance:'Asistencia',field:'Registro en campo',otsys:'Solicitud de horas extra',notify:'Alertas de fallas',secondary:'Equipos secundarios',trailer:'Enlace de remolques',realtime:'Reporte en vivo',history:'Historial',changelog:'Registro de cambios',admin:'Administración',projtrack:'Seguimiento de proyectos'} },
   zh:{ groups:{monitor:'監控',reports:'報表',manage:'管理'},
-    pages:{map:'地圖狀態',allEq:'全車機監控',maintenance:'保養計畫',attendance:'點名簿',field:'現場登錄',otsys:'加班申請系統',notify:'即時故障通知',secondary:'非主力車機',trailer:'拖車板台連結',realtime:'即時報表',history:'歷史查詢',changelog:'更新日誌',admin:'管理者介面'} },
+    pages:{map:'地圖狀態',allEq:'全車機監控',maintenance:'保養計畫',attendance:'點名簿',field:'現場登錄',otsys:'加班申請系統',notify:'即時故障通知',secondary:'非主力車機',trailer:'拖車板台連結',realtime:'即時報表',history:'歷史查詢',changelog:'更新日誌',admin:'管理者介面',projtrack:'專案追蹤系統'} },
   en:{ groups:{monitor:'Monitoring',reports:'Reports',manage:'Management'},
-    pages:{map:'Map status',allEq:'Equipment monitor',maintenance:'Maintenance plan',attendance:'Attendance',field:'Field entry',otsys:'Overtime requests',notify:'Fault alerts',secondary:'Secondary equipment',trailer:'Trailer link',realtime:'Live report',history:'History',changelog:'Changelog',admin:'Admin'} }
+    pages:{map:'Map status',allEq:'Equipment monitor',maintenance:'Maintenance plan',attendance:'Attendance',field:'Field entry',otsys:'Overtime requests',notify:'Fault alerts',secondary:'Secondary equipment',trailer:'Trailer link',realtime:'Live report',history:'History',changelog:'Changelog',admin:'Admin',projtrack:'Project tracking'} }
 };
 function navLabel(page){ const L=NAV_I18N[maintLang]||NAV_I18N.es; return (L.pages&&L.pages[page])||PAGE_TITLES[page]||page; }
 function applyNavLang(){
@@ -5726,6 +5742,7 @@ function navTo(page, el){
   if(page==='attendance') initAttendance();
   if(page==='field') initField();
   if(page==='otsys') initOtSys();
+  if(page==='projtrack') renderProjTrack();
   if(page==='changelog') loadChangelogPage();
   if(page==='admin') {
     // 每次進入管理者頁面都要重新登入
@@ -6069,12 +6086,155 @@ function addToHome(){
   alert(`"${title}" 加到首頁功能即將推出！`);
 }
 
+/* ===================== 專案追蹤系統 Project Tracking ===================== */
+let PROJECTS={}, PROJ_PEOPLE=[];
+const PROJ_DEPTS=['MT1','MT2','MT3','MTD'];
+let projShowForm=false;
+const PROJ_I18N={
+  es:{title:'Seguimiento de proyectos',newProj:'Nuevo proyecto',no:'N.º de proyecto',date:'Fecha de registro',pname:'Nombre del proyecto',dept:'Departamento',sup:'Supervisor',lead:'Responsable',creator:'Asignado por',save:'Guardar',cancel:'Cancelar',create:'Crear',empty:'Aún no hay proyectos',sel:'Seleccione…',needName:'Ingrese el nombre del proyecto',needDept:'Seleccione un departamento',needSup:'Seleccione un supervisor',needLead:'Seleccione un responsable',people:'Lista de personal',addRow:'Añadir persona',pid:'ID',personName:'Nombre',remove:'Eliminar',saved:'Guardado',noPeople:'Sin personal en este departamento'},
+  zh:{title:'專案追蹤系統',newProj:'開專案',no:'專案編號',date:'立案時間',pname:'專案名稱',dept:'部門',sup:'專案監督人',lead:'專案主辦人',creator:'指派人',save:'儲存',cancel:'取消',create:'建立',empty:'尚無專案',sel:'請選擇…',needName:'請輸入專案名稱',needDept:'請選擇部門',needSup:'請選擇監督人',needLead:'請選擇主辦人',people:'人員名單',addRow:'新增人員',pid:'ID',personName:'名字',remove:'刪除',saved:'已儲存',noPeople:'此部門尚無人員'},
+  en:{title:'Project Tracking',newProj:'New Project',no:'Project No.',date:'Date',pname:'Project Name',dept:'Dept.',sup:'Supervisor',lead:'Lead',creator:'Assigned by',save:'Save',cancel:'Cancel',create:'Create',empty:'No projects yet',sel:'Select…',needName:'Enter a project name',needDept:'Select a department',needSup:'Select a supervisor',needLead:'Select a lead',people:'Personnel list',addRow:'Add person',pid:'ID',personName:'Name',remove:'Remove',saved:'Saved',noPeople:'No personnel in this department'}
+};
+function pT(k){ const L=PROJ_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||PROJ_I18N.es; return (k in L)?L[k]:(PROJ_I18N.zh[k]||k); }
+async function loadProjects(){
+  try{ const r=await fetch(`${FB}/projects.json`); PROJECTS=(await r.json())||{}; }catch(e){ PROJECTS={}; }
+  try{ const r=await fetch(`${FB}/proj_people.json`); const pp=await r.json(); PROJ_PEOPLE=Array.isArray(pp)?pp:(pp?Object.values(pp):[]); }catch(e){ PROJ_PEOPLE=[]; }
+}
+function projCanView(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_view','v')); }
+function projCanCreate(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_create','v')); }
+function projCurId(){ if(typeof umCurrentUser!=='undefined'&&umCurrentUser) return String(umCurrentUser.id); return currentRole||'14'; }
+function projCurName(){ if(typeof umCurrentUser!=='undefined'&&umCurrentUser&&umCurrentUser.name) return umCurrentUser.name; return (ROLES[currentRole]&&ROLES[currentRole].label)||currentRole||'14'; }
+function projNextSeq(dept,year){
+  let mx=0;
+  Object.values(PROJECTS||{}).forEach(p=>{ if(p&&p.dept===dept&&String(p.year)===String(year)){ const s=parseInt(p.seq,10); if(!isNaN(s)&&s>mx) mx=s; } });
+  return mx+1;
+}
+function projPeopleByDept(dept){ return (PROJ_PEOPLE||[]).filter(p=>p&&p.dept===dept); }
+function projPersonName(id){ const p=(PROJ_PEOPLE||[]).find(x=>x&&String(x.id)===String(id)); return p?p.name:id; }
+function projDeptPeopleOptions(dept,sel){
+  const ppl=projPeopleByDept(dept);
+  return `<option value="">${pT('sel')}</option>`+ppl.map(p=>`<option value="${p.id}" ${String(sel)===String(p.id)?'selected':''}>${p.name} (${p.id})</option>`).join('');
+}
+function projToggleForm(){ projShowForm=!projShowForm; renderProjTrack(); }
+function projFormDeptChange(){
+  const dept=document.getElementById('proj-f-dept').value;
+  const sup=document.getElementById('proj-f-sup'); const lead=document.getElementById('proj-f-lead');
+  if(sup) sup.innerHTML=projDeptPeopleOptions(dept);
+  if(lead) lead.innerHTML=projDeptPeopleOptions(dept);
+}
+async function projCreate(){
+  const dept=document.getElementById('proj-f-dept').value;
+  const name=document.getElementById('proj-f-name').value.trim();
+  const sup=document.getElementById('proj-f-sup').value;
+  const lead=document.getElementById('proj-f-lead').value;
+  if(!dept){ alert(pT('needDept')); return; }
+  if(!name){ alert(pT('needName')); return; }
+  if(!sup){ alert(pT('needSup')); return; }
+  if(!lead){ alert(pT('needLead')); return; }
+  const pp=panParts(); const year=pp.y;
+  const seq=projNextSeq(dept,year);
+  const no=`CCTMTD-${dept}-R${year}-${String(seq).padStart(3,'0')}`;
+  const dateStr=`${pp.y}-${String(pp.m).padStart(2,'0')}-${String(pp.d).padStart(2,'0')}`;
+  const obj={ no, dept, year, seq, name, sup, lead, creator:projCurId(), creatorName:projCurName(), date:dateStr, ts:Date.now() };
+  const btn=document.getElementById('proj-f-create'); if(btn){ btn.disabled=true; btn.textContent='…'; }
+  try{
+    const r=await fetch(`${FB}/projects.json`,{method:'POST',body:JSON.stringify(obj)});
+    const j=await r.json(); const key=(j&&j.name)?j.name:('local_'+obj.ts);
+    PROJECTS[key]=obj;
+    projShowForm=false; renderProjTrack();
+  }catch(e){ alert('Error: '+e.message); if(btn){ btn.disabled=false; btn.textContent=pT('create'); } }
+}
+function renderProjTrack(){
+  const root=document.getElementById('projtrack-root'); if(!root) return;
+  if(!projCanView()){ root.innerHTML=`<div style="padding:40px;text-align:center;color:var(--text3)">🔒</div>`; return; }
+  const canCreate=projCanCreate();
+  const rows=Object.entries(PROJECTS||{}).map(([k,p])=>({k,...p})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  let form='';
+  if(projShowForm&&canCreate){
+    const d0=PROJ_DEPTS[0];
+    form=`<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label class="lbl2">${pT('dept')}</label>
+          <select class="eq-input" id="proj-f-dept" style="width:100%" onchange="projFormDeptChange()">${PROJ_DEPTS.map(x=>`<option value="${x}">${x}</option>`).join('')}</select></div>
+        <div><label class="lbl2">${pT('pname')}</label>
+          <input class="eq-input" id="proj-f-name" style="width:100%" placeholder="${pT('pname')}"/></div>
+        <div><label class="lbl2">${pT('sup')}</label>
+          <select class="eq-input" id="proj-f-sup" style="width:100%">${projDeptPeopleOptions(d0)}</select></div>
+        <div><label class="lbl2">${pT('lead')}</label>
+          <select class="eq-input" id="proj-f-lead" style="width:100%">${projDeptPeopleOptions(d0)}</select></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+        <button class="btn-sm" onclick="projToggleForm()">${pT('cancel')}</button>
+        <button class="btn-sm btn-primary" id="proj-f-create" onclick="projCreate()">${pT('create')}</button>
+      </div>
+    </div>`;
+  }
+  const table = rows.length? `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr style="text-align:left;color:var(--text3);border-bottom:2px solid var(--border)">
+      <th style="padding:8px">${pT('no')}</th><th style="padding:8px">${pT('date')}</th><th style="padding:8px">${pT('pname')}</th>
+      <th style="padding:8px">${pT('dept')}</th><th style="padding:8px">${pT('sup')}</th><th style="padding:8px">${pT('lead')}</th><th style="padding:8px">${pT('creator')}</th></tr></thead>
+    <tbody>${rows.map(p=>`<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px;font-weight:700;white-space:nowrap">${p.no||''}</td>
+      <td style="padding:8px;white-space:nowrap">${(p.date||'').slice(0,10)}</td>
+      <td style="padding:8px">${p.name||''}</td>
+      <td style="padding:8px">${p.dept||''}</td>
+      <td style="padding:8px">${projPersonName(p.sup)||''}</td>
+      <td style="padding:8px">${projPersonName(p.lead)||''}</td>
+      <td style="padding:8px">${p.creatorName||p.creator||''}</td></tr>`).join('')}</tbody></table></div>`
+    : `<div style="padding:40px;text-align:center;color:var(--text3)">${pT('empty')}</div>`;
+  root.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h2 style="margin:0;font-size:20px">📁 ${pT('title')}</h2>
+      ${canCreate?`<button class="btn-sm btn-primary" onclick="projToggleForm()">➕ ${pT('newProj')}</button>`:''}
+    </div>${form}${table}`;
+}
+function renderProjSettings(){
+  const root=document.getElementById('fp-projset'); if(!root) return;
+  root.innerHTML=`<div class="fp-sec-title">👥 ${pT('people')}</div>
+    <div id="proj-people-rows"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn-sm" onclick="projAddPersonRow()">➕ ${pT('addRow')}</button>
+      <button class="btn-sm btn-primary" onclick="projSavePeople()">💾 ${pT('save')}</button>
+    </div>`;
+  projRenderPeopleRows();
+}
+function projRenderPeopleRows(){
+  const box=document.getElementById('proj-people-rows'); if(!box) return;
+  const rows=(PROJ_PEOPLE&&PROJ_PEOPLE.length)?PROJ_PEOPLE:[];
+  box.innerHTML=`<div style="display:grid;grid-template-columns:120px 130px 1fr 40px;gap:8px;font-size:12px;color:var(--text3);font-weight:700;margin-bottom:4px">
+      <div>${pT('dept')}</div><div>${pT('pid')}</div><div>${pT('personName')}</div><div></div></div>`+
+    rows.map((p,i)=>`<div class="proj-prow" style="display:grid;grid-template-columns:120px 130px 1fr 40px;gap:8px;margin-bottom:6px">
+      <select class="eq-input pp-dept">${PROJ_DEPTS.map(d=>`<option value="${d}" ${p.dept===d?'selected':''}>${d}</option>`).join('')}</select>
+      <input class="eq-input pp-id" value="${p.id||''}" placeholder="ID"/>
+      <input class="eq-input pp-name" value="${p.name||''}" placeholder="${pT('personName')}"/>
+      <button class="btn-sm" onclick="this.parentElement.remove()" title="${pT('remove')}">✕</button></div>`).join('')||'';
+}
+function projAddPersonRow(){
+  const box=document.getElementById('proj-people-rows'); if(!box) return;
+  const div=document.createElement('div'); div.className='proj-prow';
+  div.style.cssText='display:grid;grid-template-columns:120px 130px 1fr 40px;gap:8px;margin-bottom:6px';
+  div.innerHTML=`<select class="eq-input pp-dept">${PROJ_DEPTS.map(d=>`<option value="${d}">${d}</option>`).join('')}</select>
+    <input class="eq-input pp-id" placeholder="ID"/>
+    <input class="eq-input pp-name" placeholder="${pT('personName')}"/>
+    <button class="btn-sm" onclick="this.parentElement.remove()" title="${pT('remove')}">✕</button>`;
+  box.appendChild(div);
+}
+async function projSavePeople(){
+  const rows=[...document.querySelectorAll('#proj-people-rows .proj-prow')];
+  const arr=rows.map(r=>({ dept:r.querySelector('.pp-dept').value, id:r.querySelector('.pp-id').value.trim(), name:r.querySelector('.pp-name').value.trim() })).filter(x=>x.id||x.name);
+  try{
+    await fetch(`${FB}/proj_people.json`,{method:'PUT',body:JSON.stringify(arr)});
+    PROJ_PEOPLE=arr; alert(pT('saved')); projRenderPeopleRows();
+  }catch(e){ alert('Error: '+e.message); }
+}
+/* =================== 專案追蹤系統 end =================== */
+
 // Init
 const p=panParts(), y=p.y, m=String(p.m).padStart(2,'0'), d=String(p.d).padStart(2,'0');
 document.getElementById('h-from').value=`${y}-${m}-01`;
 document.getElementById('h-to').value=`${y}-${m}-${d}`;
 
 loadRoles();
+loadProjects();
 loadRTGPositions();
 initMarquee();
 initAnnounce();
