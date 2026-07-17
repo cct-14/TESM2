@@ -6257,7 +6257,10 @@ initMessaging();
 restoreMaintUser();
 restoreRole();
 if(typeof umUpdateBar==='function') umUpdateBar();
-loadGuestAccess(); loadUsers().then(()=>{ if(typeof umRestoreSession==='function' && umRestoreSession()){ hideGate(); } else { if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof showGate==='function') showGate(); } });
+loadGuestAccess(); loadUsers().then(()=>{ if(typeof umRestoreSession==='function' && umRestoreSession()){ hideGate();
+  // 用 Firebase 上的最新權限覆蓋本機快取，避免管理者改了權限但已登入的使用者端沒更新
+  try{ const u=USERS[umCurrentUser.id]; if(u){ umCurrentUser.perms=u.perms||{}; if(u.name) umCurrentUser.name=u.name; if(typeof umSaveSession==='function') umSaveSession(); if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); } }catch(e){}
+} else { if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof showGate==='function') showGate(); } });
 initPresence();
 initEqTip();
 (function(){
