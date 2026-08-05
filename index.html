@@ -4716,8 +4716,8 @@ function otOverlap(s1,e1,s2,e2){ let a1=otToMin(s1),b1=otToMin(e1); if(b1<=a1)b1
 function otPersonConflict(pid,date,start,end,excludeId){ pid=String(pid).toUpperCase(); for(const k in (OT_REQUESTS||{})){ if(k===excludeId) continue; const r=OT_REQUESTS[k]; if(!r||r.status==='rejected'||r.status==='cancelled') continue; if(r.date!==date||!r.start_time||!r.end_time) continue; if(!(r.people||[]).some(p=>String(p.id).toUpperCase()===pid)) continue; if(otOverlap(start,end,r.start_time,r.end_time)) return true; } return false; }
 function otReqDate(){ return new Date().toLocaleString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}).slice(0,10); }
 function otStaffName(id){ return (typeof STAFF!=='undefined'&&(STAFF[id]||STAFF[String(id).toUpperCase()]))||id; }
-function otCourseDept(g){ const m={'MT-1':'MT1','MT-2':'MT2','MT-3':'MT3','MTD':'MTD'}; return m[String(g||'').trim().toUpperCase()]||null; }
-function otStaffOptions(dept){ let opts='<option value="">'+otT('pickPerson')+'</option>'; if(typeof STAFF!=='undefined'&&STAFF){ Object.keys(STAFF).sort().forEach(id=>{ const d=(typeof STAFF_DEPT!=='undefined'&&STAFF_DEPT[id])||''; if(dept && d && d!==dept) return; /* 有指定部門且此人部門不符→略過；未分類一律顯示 */ opts+=`<option value="${id}">${id}·${STAFF[id]}${d?(' ['+d+']'):''}</option>`; }); } return opts; }
+function otCourseDept(g){ const m={'MT-1':'MT1','MT-2':'MT2','MT-3':'MT3','MTD':'MTD','INVENTORY':'INVENTORY','MT1-ONDUTY':'MT1-ONDUTY','MT2-ONDUTY':'MT2-ONDUTY'}; return m[String(g||'').trim().toUpperCase()]||null; }
+function otStaffOptions(dept){ let opts='<option value="">'+otT('pickPerson')+'</option>'; if(typeof STAFF!=='undefined'&&STAFF){ Object.keys(STAFF).sort().forEach(id=>{ const d=(typeof STAFF_DEPT!=='undefined'&&STAFF_DEPT[id])||''; if(dept && d!==dept) return; /* 有對應部門時：只顯示完全符合該部門的人；沒對應部門(dept=null)才列全部 */ opts+=`<option value="${id}">${id}·${STAFF[id]}${d?(' ['+d+']'):''}</option>`; }); } return opts; }
 function otaGroupChange(){ const g=(document.getElementById('ota-group')||{}).value||''; const sel=document.getElementById('ota-pid'); if(sel) sel.innerHTML=otStaffOptions(otCourseDept(g)); }
 async function otLoadRequests(){ try{ const r=await fetch(`${FB}/ot_requests.json`); OT_REQUESTS=(await r.json())||{}; }catch(e){ OT_REQUESTS={}; } }
 async function initOtSys(){
@@ -4746,7 +4746,7 @@ function otRenderApply(){
   otAppPeople=[]; otLoadRequests();
   const kinds=(typeof FIELD_KINDS!=='undefined'?FIELD_KINDS:['RTG']);
   el.innerHTML=`<div style="max-width:460px">
-    <label class="lbl2">${otT('group')}</label><select id="ota-group" class="ot-in" onchange="otaGroupChange()">${['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'].map(g=>`<option value="${g}">${g}</option>`).join('')}</select>
+    <label class="lbl2">${otT('group')}</label><select id="ota-group" class="ot-in" onchange="otaGroupChange()">${['MT-1','MT-2','MT-3','MTD','INVENTORY','MT1-ONDUTY','MT2-ONDUTY'].map(g=>`<option value="${g}">${g}</option>`).join('')}</select>
     <label class="lbl2">${otT('timeRange')}</label>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
       <span style="width:46px;font-size:12px;color:var(--text3);flex-shrink:0">${otT('fromL')}</span>
@@ -5008,7 +5008,7 @@ let otHistGroups=[], otHistOpen={};
 function otRenderHistory(){
   const el=document.getElementById('ots-body'); if(!el) return;
   const kinds=(typeof FIELD_KINDS!=='undefined'?FIELD_KINDS:['RTG']);
-  const courses=['MT-1','MT-2','MT-3','MTD','INVENTORY','ON DUTY'];
+  const courses=['MT-1','MT-2','MT-3','MTD','INVENTORY','MT1-ONDUTY','MT2-ONDUTY'];
   el.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
     <input id="oth-date" type="date" class="ot-in" style="width:auto;margin:0" title="${otT('histDate')}"/>
     <select id="oth-course" class="ot-in" style="width:auto;margin:0"><option value="">${otT('histCourse')}: ${otT('histAll')}</option>${courses.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
@@ -5582,7 +5582,7 @@ const DEFAULT_STATUSES=['Available','Running','Emergency Maintenance','Out Of Se
 const FIELD_ALIAS={AR:'ARMGC'};                 // 顯示 AR、存 ARMGC
 function fieldCanon(k){ return FIELD_ALIAS[k]||k; }
 let FIELD_KINDS=DEFAULT_KINDS.slice(), FIELD_STATUSES=DEFAULT_STATUSES.slice(), STAFF={};
-let STAFF_DEPT={}; const STAFF_DEPTS=['MT1','MT2','MT3','MTD'];
+let STAFF_DEPT={}; const STAFF_DEPTS=['MT1','MT2','MT3','MTD','INVENTORY','MT1-ONDUTY','MT2-ONDUTY'];
 let fldFlow='status', fldHoursUnlocked=false, fldStatus=null;
 
 const FIELD_I18N={
