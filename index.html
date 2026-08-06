@@ -1834,6 +1834,7 @@ const ALL_FEATURES = [
   {id:'changelog',label:'📝 更新日誌'},
   {id:'email',    label:'📧 Email 設定'},
   {id:'projset',  label:'📁 專案追蹤系統設定'},
+  {id:'auditlog', label:'📜 系統日誌'}, // 14 only
   {id:'password', label:'🔑 密碼管理'},
   {id:'roles',    label:'🏢 部門管理'}, // 14 only
 ];
@@ -1878,6 +1879,7 @@ async function adminLogin() {
   err.style.display='none';
   currentRole = matched;
   try{ localStorage.setItem('tesm_role', matched); }catch(_){}
+  if(typeof logAudit==='function') logAudit('login', (ROLES[matched]?.label||matched)+' (後台)');
   applyNavPerms();
   document.getElementById('admin-lock').style.display='none';
   document.getElementById('admin-content').style.display='block';
@@ -1992,7 +1994,8 @@ function renderDeptTabs(deptKey) {
   }
 
   if(typeof umCurrentUser!=='undefined' && umCurrentUser){ features = ALL_FEATURES.filter(f=>umCan(f.id,'v')).map(f=>f.id); }
-  const tabs = ALL_FEATURES.filter(f=>!f.page && features.includes(f.id));
+  const only14 = (ROLES[currentRole]?.features?.includes('*')) && !(typeof umCurrentUser!=='undefined' && umCurrentUser);
+  const tabs = ALL_FEATURES.filter(f=>!f.page && features.includes(f.id) && (f.id!=='auditlog' || only14));
   const bar  = document.getElementById('dept-tab-bar');
   bar.innerHTML = tabs.map((t,i)=>`
     <button onclick="switchFeatureTab('${t.id}','${deptKey}',this)"
@@ -2048,6 +2051,7 @@ function renderFeaturePanel(featureId, deptKey) {
   if (featureId==='changelog'){ panel.innerHTML='<div id="fp-changelog"></div>'; renderChangelogInPanel(); }
   if (featureId==='email')    { panel.innerHTML='<div id="fp-email"></div>'; renderEmailPanel(); }
   if (featureId==='projset')  { panel.innerHTML='<div id="fp-projset"></div>'; renderProjSettings(); }
+  if (featureId==='auditlog') { panel.innerHTML='<div id="fp-audit"></div>'; renderAuditLog(); }
   if (featureId==='password') { panel.innerHTML=''; renderPasswordPanel(deptKey); }
 }
 
@@ -2195,7 +2199,7 @@ function renderUsers(){
         </div>
         <table style="width:100%;font-size:12px;border-collapse:collapse">
           <tr style="color:var(--text3)"><td style="padding:4px 6px">${umT('funcs')}</td><td style="text-align:center;width:56px">${umT('view')}</td><td style="text-align:center;width:56px">${umT('edit')}</td></tr>
-          ${ALL_FEATURES.map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
+          ${ALL_FEATURES.filter(f=>f.id!=='auditlog').map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
           ${OT_APPROVE_FEATURES.map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3);background:var(--bg2)"><td style="padding:6px;font-weight:700;color:var(--blue)">${approveLabel(f.id)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center;color:var(--text3)">—</td></tr>`;}).join('')}
         </table>
         <div style="margin-top:12px;padding:10px;background:var(--purple-l);border:1px solid var(--purple);border-radius:10px">
@@ -2221,6 +2225,7 @@ async function umAdd(){
   STAFF[id]=name; /* 名冊（不需密碼也能加）*/
   try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(name)}); }catch(e){ alert('✗ '+e.message); return; }
   if(dept){ STAFF_DEPT[id]=dept; try{ await fetch(`${FB}/staff_dept/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(dept)}); }catch(e){} }
+  if(typeof logAudit==='function') logAudit('user_add', id+'·'+name+(dept?(' ['+dept+']'):''));
   if(pass){ /* 有填密碼 → 同時建立登入 */
     if(!USERS[id]) USERS[id]={name,pass,mustChange:true,perms:{}};
     else { USERS[id].name=name; USERS[id].pass=pass; USERS[id].mustChange=true; }
@@ -2233,6 +2238,7 @@ async function umAdd(){
 async function umSetDept(id,dept){
   if(dept){ STAFF_DEPT[id]=dept; } else { delete STAFF_DEPT[id]; }
   try{ await fetch(`${FB}/staff_dept/${encodeURIComponent(id)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(dept||null)}); }catch(e){}
+  if(typeof logAudit==='function') logAudit('dept', id+' → '+(dept||'未分類'));
 }
 async function umBulk(){
   const ta=document.getElementById('um-bulk'); const txt=(ta&&ta.value||'').trim(); if(!txt) return;
@@ -2242,14 +2248,16 @@ async function umBulk(){
   Object.assign(STAFF,obj);
   try{ await fetch(`${FB}/staff.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}); }catch(e){ alert('✗ '+e.message); return; }
   if(Object.keys(deptObj).length){ Object.assign(STAFF_DEPT,deptObj); try{ await fetch(`${FB}/staff_dept.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(deptObj)}); }catch(e){} }
+  if(typeof logAudit==='function') logAudit('staff_import', n+(Object.keys(deptObj).length?(' ('+Object.keys(deptObj).length+' dept)'):''));
   alert(umTn('imported',{n}));
   if(ta) ta.value=''; renderUsers();
 }
 async function umRemove(id){
   if(!confirm(umTn('delQ',{id}))) return;
-  delete STAFF[id]; delete USERS[id];
+  const nm=STAFF[id]||''; delete STAFF[id]; delete USERS[id];
   try{ await fetch(`${FB}/staff/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(_){}
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(_){}
+  if(typeof logAudit==='function') logAudit('user_del', id+(nm?('·'+nm):''));
   renderUsers();
 }
 async function umDel(id){
@@ -2264,6 +2272,7 @@ async function umSetPass(id){
   if(!USERS[id]) USERS[id]={perms:{}};
   USERS[id].pass=val; USERS[id].mustChange=true; USERS[id].name=(STAFF&&STAFF[id])||USERS[id].name||id;
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:val,mustChange:true,name:USERS[id].name})}); }catch(e){ alert('✗ '+e.message); return; }
+  if(typeof logAudit==='function') logAudit('pw', id);
   inp.value=''; renderUsers();
 }
 async function umPerm(id,fid,which,on){
@@ -2272,6 +2281,7 @@ async function umPerm(id,fid,which,on){
   if(!USERS[id].perms[fid]) USERS[id].perms[fid]={};
   USERS[id].perms[fid][which]=on;
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/perms/${fid}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(USERS[id].perms[fid])}); }catch(e){}
+  if(typeof logAudit==='function'){ if(String(fid).indexOf('navhide_')===0) logAudit('navshow', id+' '+fid.replace('navhide_','')+(on?' 隱藏':' 顯示')); else logAudit('perm', id+' '+fid+'/'+(which||'v')+'='+(on?'✓':'✗')); }
 }
 // 一鍵：全部顯示 (show=true) / 全部隱藏 (show=false) 左側功能
 async function umNavShowAll(id,show){
@@ -2281,6 +2291,7 @@ async function umNavShowAll(id,show){
   NAV_PAGES.forEach(pg=>{ USERS[id].perms['navhide_'+pg]={v:!show}; patch['navhide_'+pg]={v:!show}; });
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/perms.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){}
   if(typeof umCurrentUser!=='undefined'&&umCurrentUser&&String(umCurrentUser.id)===String(id)){ if(!umCurrentUser.perms)umCurrentUser.perms={}; NAV_PAGES.forEach(pg=>{ umCurrentUser.perms['navhide_'+pg]={v:!show}; }); if(typeof applyNavPerms==='function') applyNavPerms(); }
+  if(typeof logAudit==='function') logAudit('navshow', id+(show?' 全部顯示':' 全部隱藏'));
   renderUsers();
 }
 // ── 使用者登入（點功能跳出、遮碼、首次強制改密碼）──
@@ -2450,6 +2461,7 @@ function gateFinish(id,u){
   guestMode=false; try{ localStorage.removeItem('tesm_guest'); }catch(e){}
   umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{}};
   if(typeof umSaveSession==='function') umSaveSession();
+  if(typeof logAudit==='function') logAudit('login', umCurrentUser.id+'·'+umCurrentUser.name);
   if(typeof umUpdateBar==='function') umUpdateBar();
   refreshUIAfterAuth();
   try{ localStorage.setItem('tesm_returning','1'); }catch(e){}
@@ -2515,6 +2527,7 @@ function umRestoreSession(){
 function umFinish(id,u){
   umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{}};
   umSaveSession();
+  if(typeof logAudit==='function') logAudit('login', umCurrentUser.id+'·'+umCurrentUser.name);
   umModalClose(); umUpdateBar();
   if(typeof applyNavPerms==='function') applyNavPerms();
   if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell();
@@ -2595,6 +2608,7 @@ async function renderGuestAccess(){
 async function guestPermSet(pg,on){
   GUEST_ACCESS[pg]=on;
   try{ await fetch(`${FB}/guest_access/${pg}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(on)}); }catch(e){ alert('✗ '+e.message); }
+  if(typeof logAudit==='function') logAudit('guest_perm', pg+(on?' 開放':' 關閉'));
 }
 async function changeMiscPw(kind){
   const input=document.getElementById('pw-misc-'+kind); const val=input&&input.value.trim();
@@ -2613,6 +2627,7 @@ async function changeRolePw(key) {
   ROLES[key].password = val;
   input.value='';
   await saveRoles();
+  if(typeof logAudit==='function') logAudit('rolepw', (ROLES[key]&&ROLES[key].label)||key);
   const msg=document.getElementById('pw-msg');
   if(msg){msg.style.display='block';setTimeout(()=>msg.style.display='none',2000);}
 }
@@ -3110,7 +3125,7 @@ try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }ca
 // ── 管理介面三語字典 ──
 const ADMIN_I18N={
   zh:{
-    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_projset:'📁 專案追蹤系統',feat_password:'密碼管理',feat_roles:'部門管理',
+    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_projset:'📁 專案追蹤系統',feat_auditlog:'📜 系統日誌',feat_password:'密碼管理',feat_roles:'部門管理',
     st_kinds:'車機種類',st_statuses:'狀態選項',st_hours:'時數種類',st_staff:'人員清單',st_pass:'密碼',
     desc_kinds:'車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）',
     desc_statuses:'車機狀態選項（現場「狀態更改」的下拉）',
@@ -3134,7 +3149,7 @@ const ADMIN_I18N={
     m_built:'補建 {n} 台 ✓',m_skipped:'（略過已存在 {n} 台）',m_bad:'（{n} 筆格式不符）'
   },
   es:{
-    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_projset:'📁 Proyectos',feat_password:'Contraseñas',feat_roles:'Departamentos',
+    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_projset:'📁 Proyectos',feat_auditlog:'📜 Registro',feat_password:'Contraseñas',feat_roles:'Departamentos',
     st_kinds:'Tipos',st_statuses:'Estados',st_hours:'Cat. horas',st_staff:'Personal',st_pass:'Contraseña',
     desc_kinds:'Tipos de equipo (para «Estado» y «Horas» en campo. AR se asigna a ARMGC).',
     desc_statuses:'Opciones de estado (menú de «Cambiar estado» en campo).',
@@ -3158,7 +3173,7 @@ const ADMIN_I18N={
     m_built:'{n} creados ✓',m_skipped:'({n} existentes omitidos)',m_bad:'({n} con formato inválido)'
   },
   en:{
-    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_projset:'📁 Projects',feat_password:'Passwords',feat_roles:'Departments',
+    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_projset:'📁 Projects',feat_auditlog:'📜 Audit log',feat_password:'Passwords',feat_roles:'Departments',
     st_kinds:'Types',st_statuses:'Statuses',st_hours:'Hour cats',st_staff:'Staff',st_pass:'Password',
     desc_kinds:'Equipment types (used by field Status & Hours. AR maps to ARMGC).',
     desc_statuses:'Status options (the field «Change status» dropdown).',
@@ -3194,8 +3209,9 @@ function setMaintLang(l){
   if(typeof applyFieldLang==='function') applyFieldLang();
   if(typeof updateMsgLang==='function') updateMsgLang();
   if(typeof aT==='function'){
-    ['movelog','teu','announce','maintain','app','addeq','changelog','email','projset','password','roles'].forEach(id=>{ const b=document.getElementById('ftab-'+id); if(b) b.textContent=aT('feat_'+id); });
+    ['movelog','teu','announce','maintain','app','addeq','changelog','email','projset','auditlog','password','roles'].forEach(id=>{ const b=document.getElementById('ftab-'+id); if(b) b.textContent=aT('feat_'+id); });
     if(document.getElementById('fp-projset')) renderProjSettings();
+    if(document.getElementById('fp-audit')) renderAuditLog();
     if(document.getElementById('fp-app')) renderAppManage();
     if(document.getElementById('fp-addeq')) renderAddEq();
     if(document.getElementById('fp-ot')) renderOtConfig();
@@ -3902,6 +3918,7 @@ async function wiExtend(mac,key){
   const cur=parseFloat(WI[mac].ext[key])||0; const nv=cur+v;
   WI[mac].ext[key]=nv;
   try{ await fetch(`${FB}/wi/${encodeURIComponent(mac)}/ext/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(nv)}); }catch(e){ alert('✗ '+e.message); }
+  if(typeof logAudit==='function') logAudit('wire_ext', mac+' '+key+' +'+v);
   renderWI();
 }
 async function wiReplace(mac,key){ // 更換鋼索：選日期→天數/動作數/沿用全部從該日重算
@@ -3922,6 +3939,7 @@ async function wiReplace(mac,key){ // 更換鋼索：選日期→天數/動作�
     await fetch(`${FB}/wi/${encodeURIComponent(mac)}/rbase/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(sv)});
     await fetch(`${FB}/wi/${encodeURIComponent(mac)}/ext/${key}.json`,{method:'DELETE'});
   }catch(e){ alert('✗ '+e.message); }
+  if(typeof logAudit==='function') logAudit('wire_repl', mac+' '+key+' → '+date);
   renderWI();
 }
 async function wiExtClear(mac,key){
@@ -3932,6 +3950,7 @@ async function wiExtClear(mac,key){
   if(!confirm(L.wiExtClearQ)) return;
   if(WI[mac]&&WI[mac].ext){ delete WI[mac].ext[key]; }
   try{ await fetch(`${FB}/wi/${encodeURIComponent(mac)}/ext/${key}.json`,{method:'DELETE'}); }catch(e){ alert('✗ '+e.message); }
+  if(typeof logAudit==='function') logAudit('wire_extclear', mac+' '+key);
   renderWI();
 }
 let wiExpanded={};
@@ -4565,6 +4584,7 @@ async function addEqSubmit(){
   const by=(typeof maintUser!=='undefined'&&maintUser&&maintUser.name)?maintUser.name:'Admin';
   let ok=0; for(const num of nums){ if(await aeWrite(kind,num,status,by,now)) ok++; }
   if(msg) msg.textContent=aTn('m_added',{n:ok});
+  if(typeof logAudit==='function') logAudit('eq_add', kind+' '+raw+' ('+ok+')');
   document.getElementById('ae-num').value='';
   if(typeof renderAllEq==='function') renderAllEq();
 }
@@ -4866,6 +4886,7 @@ async function otaSubmit(){
   const rec={group,people:otAppPeople.slice(),date,end_date:dateEnd,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:umCurrentUser.id,name:umCurrentUser.name},status:'pending',stage:'section',created:fldPanNow()};
   const btn=document.getElementById('ota-submit'); btn.disabled=true;
   try{ const r=await fetch(`${FB}/ot_requests.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const j=await r.json(); if(j&&j.name) OT_REQUESTS[j.name]=rec; }catch(e){ err.textContent='✗ '+e.message; btn.disabled=false; return; }
+  if(typeof logAudit==='function') logAudit('ot_submit', group+' '+date+' '+otMachLabel(type,num)+' ('+otAppPeople.length+'人)');
   btn.disabled=false; alert(otT('sent')); otSysTab('review');
 }
 // ── 審核 ──
@@ -4883,9 +4904,25 @@ function otRenderCards(entries, emptyKey){
   const body = entries.length ? entries.map(([id,r])=>otReqCard(id,r)).join('') : `<div style="padding:30px;text-align:center;color:var(--text3)">${otT(emptyKey||'noReq')}</div>`;
   el.innerHTML=otReviewBar()+`<div>${body}</div>`;
 }
-function otRenderReview(){ const t=otTodayStr(); otRenderCards(otSortedEntries().filter(([id,r])=>r.date===t), 'noToday'); }
-function otRenderPend1(){ otRenderCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='section'), 'noReq'); }
-function otRenderPend2(){ otRenderCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='manager'), 'noReq'); }
+let otRevCourse='', otP1Course='', otP2Course='';
+function otCourseCards(entries, emptyKey, cur, setter){
+  const el=document.getElementById('ots-body'); if(!el) return;
+  let ents=entries; if(cur) ents=entries.filter(([id,r])=>String(r.group||'').trim()===cur);
+  const courses=['MT-1','MT-2','MT-3','MTD','INVENTORY','MT1-ONDUTY','MT2-ONDUTY'];
+  const bar=`<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+    <span style="font-size:12px;color:var(--text3)">${otT('colGroup')}</span>
+    <select class="ot-in" style="width:auto;margin:0" onchange="${setter}(this.value)">
+      <option value="">${otT('histAll')}</option>${courses.map(c=>`<option value="${c}" ${cur===c?'selected':''}>${c}</option>`).join('')}
+    </select></div>`;
+  const body = ents.length ? ents.map(([id,r])=>otReqCard(id,r)).join('') : `<div style="padding:30px;text-align:center;color:var(--text3)">${otT(emptyKey)}</div>`;
+  el.innerHTML=otReviewBar()+bar+`<div>${body}</div>`;
+}
+function otRevSetCourse(v){ otRevCourse=v; otRenderReview(); }
+function otP1SetCourse(v){ otP1Course=v; otRenderPend1(); }
+function otP2SetCourse(v){ otP2Course=v; otRenderPend2(); }
+function otRenderReview(){ const t=otTodayStr(); otCourseCards(otSortedEntries().filter(([id,r])=>r.date===t), 'noToday', otRevCourse, 'otRevSetCourse'); }
+function otRenderPend1(){ otCourseCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='section'), 'noReq', otP1Course, 'otP1SetCourse'); }
+function otRenderPend2(){ otCourseCards(otSortedEntries().filter(([id,r])=>r.status==='pending'&&r.stage==='manager'), 'noReq', otP2Course, 'otP2SetCourse'); }
 function otRefresh(){ if(otSysTabCur==='history') otHistRenderGroups(); else if(otSysTabCur==='pend1') otRenderPend1(); else if(otSysTabCur==='pend2') otRenderPend2(); else otRenderReview(); }
 let _otPollHash='';
 async function pollOt(){ // 加班自動更新（只在看加班頁、且沒在操作時）
@@ -4951,6 +4988,7 @@ async function otApprove(id,role){
   else { patch={stage:'done',status:'approved',mgr:{by:who,role:otT('mgrRole'),time:now,result:'approve'}}; }
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ alert('✗ '+e.message); }
+  if(typeof logAudit==='function') logAudit('ot_approve', (r.group||'')+' '+(r.date||'')+' '+(role==='sec'?'一段':'二段')+' '+otMachLabel(r.machine_type,r.machine_num));
   otRefresh();
 }
 function otRejectOpen(id,role){
@@ -4992,6 +5030,7 @@ async function otRejectConfirm(){
   const patch={stage:'done',status:'rejected',reject:{by:who,role:(role==='sec'?otT('secRole'):role==='mgr'?otT('mgrRole'):otT('overrideRole')),reason,note,time:now}};
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ document.getElementById('otrej-err').textContent='✗ '+e.message; return; }
+  if(typeof logAudit==='function') logAudit(role==='override'?'ot_override':'ot_reject', (r?(r.group||'')+' '+(r.date||'')+' '+otMachLabel(r.machine_type,r.machine_num):'')+' — '+otReasonText(reason));
   document.getElementById('ot-rej-modal').style.display='none'; otRejTarget=null; otRefresh();
 }
 
@@ -5991,6 +6030,7 @@ async function submitEq(){
   const now=new Date().toLocaleString('zh-TW',{timeZone:PA_TZ});
   await fetch(`${FB}/equipment/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({machine_id:selId,machine_type:type,status:pendSt,crew,note,last_updated:now})});
+  if(typeof logAudit==='function') logAudit('eq_status', selId+' → '+pendSt);
   const num=selId.startsWith(type+'-')?selId.slice(type.length+1):selId;
   fetch(`${GAS}?${new URLSearchParams({action:'write',machine_kind:type,number:num,status:pendSt,process:note||'Web',crew})}`,{method:'GET',mode:'no-cors'});
   document.getElementById('eq-crew').value='';
@@ -6188,6 +6228,7 @@ async function projCreate(){
     const r=await fetch(`${FB}/projects.json`,{method:'POST',body:JSON.stringify(obj)});
     const j=await r.json(); const key=(j&&j.name)?j.name:('local_'+obj.ts);
     PROJECTS[key]=obj;
+    if(typeof logAudit==='function') logAudit('proj_create', no+' — '+name);
     projShowForm=false; renderProjTrack();
   }catch(e){ alert('Error: '+e.message); if(btn){ btn.disabled=false; btn.textContent=pT('create'); } }
 }
@@ -6274,6 +6315,64 @@ async function projSavePeople(){
   }catch(e){ alert('Error: '+e.message); }
 }
 /* =================== 專案追蹤系統 end =================== */
+
+/* ===================== 系統日誌 Audit Log（14 專用） ===================== */
+const AUDIT_LIMIT=1000;
+let AUDIT_LOG={}, alFilterAct='', alFilterActor='';
+const AL_I18N={
+  es:{title:'📜 Registro del sistema',fActor:'Filtrar por usuario',fAction:'Acción',all:'Todas',clear:'🗑 Borrar todo',clearQ:'¿Borrar todo el registro? No se puede deshacer.',empty:'Sin registros',colTime:'Hora',colActor:'Usuario',colAction:'Acción',colDetail:'Detalle',cleared:'Registro borrado',count:'{n} registros'},
+  zh:{title:'📜 系統日誌',fActor:'依操作者篩選',fAction:'動作',all:'全部',clear:'🗑 清除全部',clearQ:'確定清除全部日誌？此動作無法復原。',empty:'尚無日誌',colTime:'時間',colActor:'操作者',colAction:'動作',colDetail:'細節',cleared:'日誌已清除',count:'{n} 筆'},
+  en:{title:'📜 Audit log',fActor:'Filter by user',fAction:'Action',all:'All',clear:'🗑 Clear all',clearQ:'Clear the entire log? This cannot be undone.',empty:'No log entries',colTime:'Time',colActor:'User',colAction:'Action',colDetail:'Detail',cleared:'Log cleared',count:'{n} entries'}
+};
+function alT(k){ const L=AL_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||AL_I18N.es; return (k in L)?L[k]:(AL_I18N.zh[k]||k); }
+const AL_ACT={
+  es:{login:'Inicio de sesión',logout:'Cierre de sesión',user_add:'Alta de usuario',user_del:'Baja de usuario',perm:'Cambio de permiso',dept:'Cambio de depto.',pw:'Restablecer contraseña',navshow:'Menú lateral',staff_import:'Importar personal',ot_submit:'Solicitud de horas extra',ot_approve:'Aprobar horas extra',ot_reject:'Rechazar horas extra',ot_override:'Rechazo final',maint_sched:'Programar mantenimiento',maint_done:'Mantenimiento completado',wire_ext:'Extender cable',wire_extclear:'Quitar extensión',wire_repl:'Cambio de cable',proj_create:'Nuevo proyecto',eq_add:'Añadir equipo',eq_status:'Estado de equipo',guest_perm:'Acceso de invitado',rolepw:'Contraseña de depto.'},
+  zh:{login:'登入',logout:'登出',user_add:'新增人員',user_del:'刪除人員',perm:'變更權限',dept:'變更部門',pw:'重設密碼',navshow:'左側功能顯示',staff_import:'匯入名冊',ot_submit:'加班申請',ot_approve:'加班核准',ot_reject:'加班駁回',ot_override:'加班最大駁回',maint_sched:'保養排程',maint_done:'保養完成',wire_ext:'鋼索沿用',wire_extclear:'清除沿用',wire_repl:'鋼索更換',proj_create:'專案開案',eq_add:'新增車機',eq_status:'車機狀態變更',guest_perm:'訪客權限',rolepw:'部門密碼'},
+  en:{login:'Login',logout:'Logout',user_add:'Add user',user_del:'Delete user',perm:'Permission change',dept:'Dept. change',pw:'Reset password',navshow:'Sidebar toggle',staff_import:'Import staff',ot_submit:'Overtime request',ot_approve:'Overtime approved',ot_reject:'Overtime rejected',ot_override:'Overtime override',maint_sched:'Schedule maintenance',maint_done:'Maintenance done',wire_ext:'Wire extend',wire_extclear:'Clear extension',wire_repl:'Wire replace',proj_create:'New project',eq_add:'Add equipment',eq_status:'Equipment status',guest_perm:'Guest access',rolepw:'Dept. password'}
+};
+function alActLabel(k){ const L=AL_ACT[(typeof maintLang!=='undefined'?maintLang:'es')]||AL_ACT.es; return L[k]||(AL_ACT.zh[k]||k); }
+function logActor(){ if(typeof umCurrentUser!=='undefined'&&umCurrentUser) return String(umCurrentUser.id)+'·'+(umCurrentUser.name||''); if(typeof currentRole!=='undefined'&&currentRole) return (ROLES[currentRole]&&ROLES[currentRole].label)||currentRole; return '—'; }
+async function logAudit(action,detail){ try{ const rec={ts:(typeof fldPanNow==='function'?fldPanNow():''),actor:logActor(),action:action,detail:detail||''}; await fetch(`${FB}/audit_log.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); }catch(e){} }
+async function renderAuditLog(){
+  const root=document.getElementById('fp-audit'); if(!root) return;
+  root.innerHTML=`<div style="padding:20px;text-align:center;color:var(--text3)"><div class="spin"></div></div>`;
+  try{ const r=await fetch(`${FB}/audit_log.json`); AUDIT_LOG=(await r.json())||{}; }catch(e){ AUDIT_LOG={}; }
+  let rows=Object.entries(AUDIT_LOG).map(([k,v])=>({k,...v})).sort((a,b)=>String(b.ts||'').localeCompare(String(a.ts||'')));
+  // 汰舊：超過上限刪最舊
+  if(rows.length>AUDIT_LIMIT){ const extra=rows.slice(AUDIT_LIMIT); extra.forEach(e=>{ fetch(`${FB}/audit_log/${e.k}.json`,{method:'DELETE'}).catch(()=>{}); delete AUDIT_LOG[e.k]; }); rows=rows.slice(0,AUDIT_LIMIT); }
+  const actKeys=[...new Set(rows.map(r=>r.action))];
+  const filtered=rows.filter(r=>{ if(alFilterAct && r.action!==alFilterAct) return false; if(alFilterActor && !String(r.actor||'').toLowerCase().includes(alFilterActor.toLowerCase())) return false; return true; });
+  const table = filtered.length? `<div style="overflow:auto;max-height:560px;border:1px solid var(--border);border-radius:10px"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="position:sticky;top:0;background:var(--bg2);text-align:left;color:var(--text3)">
+      <th style="padding:8px;white-space:nowrap">${alT('colTime')}</th><th style="padding:8px;white-space:nowrap">${alT('colActor')}</th><th style="padding:8px;white-space:nowrap">${alT('colAction')}</th><th style="padding:8px">${alT('colDetail')}</th></tr></thead>
+    <tbody>${filtered.map(r=>`<tr style="border-top:1px solid var(--bg3)">
+      <td style="padding:7px 8px;white-space:nowrap;color:var(--text3)">${r.ts||''}</td>
+      <td style="padding:7px 8px;white-space:nowrap;font-weight:600">${r.actor||'—'}</td>
+      <td style="padding:7px 8px;white-space:nowrap"><span style="background:var(--blue-l);color:var(--blue);padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600">${alActLabel(r.action)}</span></td>
+      <td style="padding:7px 8px;color:var(--text2)">${(r.detail||'').replace(/</g,'&lt;')}</td></tr>`).join('')}</tbody></table></div>`
+    : `<div style="padding:40px;text-align:center;color:var(--text3)">${alT('empty')}</div>`;
+  root.innerHTML=`<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:700">${alT('title')}</div>
+      <span style="font-size:12px;color:var(--text3)">${alT('count').replace('{n}',rows.length)}</span>
+      <button class="btn-sm" style="margin-left:auto" onclick="alClear()">${alT('clear')}</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <input id="al-actor" value="${alFilterActor.replace(/"/g,'&quot;')}" placeholder="${alT('fActor')}" oninput="alFilterActor=this.value;alApply()" style="flex:1;min-width:140px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
+      <select id="al-act" onchange="alFilterAct=this.value;renderAuditLog()" style="min-width:140px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"><option value="">${alT('all')}</option>${actKeys.map(a=>`<option value="${a}" ${alFilterAct===a?'selected':''}>${alActLabel(a)}</option>`).join('')}</select>
+    </div>
+    ${table}</div>`;
+}
+function alApply(){ // 只重繪表格，不整頁 reload（保留輸入焦點）
+  const root=document.getElementById('fp-audit'); if(!root) return;
+  const rows=Object.entries(AUDIT_LOG).map(([k,v])=>({k,...v})).sort((a,b)=>String(b.ts||'').localeCompare(String(a.ts||'')));
+  const filtered=rows.filter(r=>{ if(alFilterAct && r.action!==alFilterAct) return false; if(alFilterActor && !String(r.actor||'').toLowerCase().includes(alFilterActor.toLowerCase())) return false; return true; });
+  const holder=root.querySelector('table'); const wrap=holder?holder.closest('div'):null;
+  const html = filtered.length? `<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="position:sticky;top:0;background:var(--bg2);text-align:left;color:var(--text3)"><th style="padding:8px;white-space:nowrap">${alT('colTime')}</th><th style="padding:8px;white-space:nowrap">${alT('colActor')}</th><th style="padding:8px;white-space:nowrap">${alT('colAction')}</th><th style="padding:8px">${alT('colDetail')}</th></tr></thead><tbody>${filtered.map(r=>`<tr style="border-top:1px solid var(--bg3)"><td style="padding:7px 8px;white-space:nowrap;color:var(--text3)">${r.ts||''}</td><td style="padding:7px 8px;white-space:nowrap;font-weight:600">${r.actor||'—'}</td><td style="padding:7px 8px;white-space:nowrap"><span style="background:var(--blue-l);color:var(--blue);padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600">${alActLabel(r.action)}</span></td><td style="padding:7px 8px;color:var(--text2)">${(r.detail||'').replace(/</g,'&lt;')}</td></tr>`).join('')}</tbody></table>` : '';
+  if(wrap && html){ wrap.innerHTML=html; }
+}
+async function alClear(){ if(!confirm(alT('clearQ'))) return; try{ await fetch(`${FB}/audit_log.json`,{method:'DELETE'}); }catch(e){} AUDIT_LOG={}; renderAuditLog(); }
+/* =================== 系統日誌 end =================== */
 
 // Init
 const p=panParts(), y=p.y, m=String(p.m).padStart(2,'0'), d=String(p.d).padStart(2,'0');
