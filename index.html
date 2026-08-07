@@ -4196,6 +4196,7 @@ async function mtReschedule(team,id,newDate){
     await fetch(`${FB}/maintenance/${maintType}/${team}/tasks/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({nextTime:newDate,dueTime:t.dueTime||''})});
     t.nextTime=newDate;
     await maintLog('改期', `${maintType} ${team} ${t.machine} ${t.code}：${fmtYmd(oldDate)} → ${fmtYmd(newDate)}`);
+    if(typeof logAudit==='function') logAudit('maint_sched', `${maintType} ${team} ${t.machine} ${t.code}：${fmtYmd(oldDate)} → ${fmtYmd(newDate)}`);
     renderMaintenance();
   }catch(e){ alert('改期失敗：'+e.message); }
 }
@@ -4272,6 +4273,7 @@ async function toggleMaintDone(team, id, checked){
       if(comp && curReading!=null){ WI[t.machine]=WI[t.machine]||{}; WI[t.machine].base=WI[t.machine].base||{}; WI[t.machine].base[comp]=curReading; try{ await fetch(`${FB}/wi/${encodeURIComponent(t.machine)}/base/${comp}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(curReading)}); }catch(_){} }
     }
     await maintLog(checked?'完成':'恢復', `${maintType} ${team} ${t?t.machine:''} ${t?t.code:id}`);
+    if(typeof logAudit==='function') logAudit('maint_done', `${maintType} ${team} ${t?t.machine:''} ${t?(t.name||t.code):id}${checked?'':' (恢復)'}`);
     renderMaintenance();
   }catch(e){ alert('更新失敗：'+e.message); }
 }
@@ -6320,9 +6322,9 @@ async function projSavePeople(){
 const AUDIT_LIMIT=1000;
 let AUDIT_LOG={}, alFilterAct='', alFilterActor='';
 const AL_I18N={
-  es:{title:'📜 Registro del sistema',fActor:'Filtrar por usuario',fAction:'Acción',all:'Todas',clear:'🗑 Borrar todo',clearQ:'¿Borrar todo el registro? No se puede deshacer.',empty:'Sin registros',colTime:'Hora',colActor:'Usuario',colAction:'Acción',colDetail:'Detalle',cleared:'Registro borrado',count:'{n} registros'},
-  zh:{title:'📜 系統日誌',fActor:'依操作者篩選',fAction:'動作',all:'全部',clear:'🗑 清除全部',clearQ:'確定清除全部日誌？此動作無法復原。',empty:'尚無日誌',colTime:'時間',colActor:'操作者',colAction:'動作',colDetail:'細節',cleared:'日誌已清除',count:'{n} 筆'},
-  en:{title:'📜 Audit log',fActor:'Filter by user',fAction:'Action',all:'All',clear:'🗑 Clear all',clearQ:'Clear the entire log? This cannot be undone.',empty:'No log entries',colTime:'Time',colActor:'User',colAction:'Action',colDetail:'Detail',cleared:'Log cleared',count:'{n} entries'}
+  es:{title:'📜 Registro del sistema',fActor:'Filtrar por usuario',allPeople:'Todo el personal',personLog:'Actividad de {p}',fAction:'Acción',all:'Todas',clear:'🗑 Borrar todo',clearQ:'¿Borrar todo el registro? No se puede deshacer.',empty:'Sin registros',colTime:'Hora',colActor:'Usuario',colAction:'Acción',colDetail:'Detalle',cleared:'Registro borrado',count:'{n} registros'},
+  zh:{title:'📜 系統日誌',fActor:'依操作者篩選',allPeople:'全部人員',personLog:'{p} 的操作',fAction:'動作',all:'全部',clear:'🗑 清除全部',clearQ:'確定清除全部日誌？此動作無法復原。',empty:'尚無日誌',colTime:'時間',colActor:'操作者',colAction:'動作',colDetail:'細節',cleared:'日誌已清除',count:'{n} 筆'},
+  en:{title:'📜 Audit log',fActor:'Filter by user',allPeople:'All people',personLog:"{p}'s activity",fAction:'Action',all:'All',clear:'🗑 Clear all',clearQ:'Clear the entire log? This cannot be undone.',empty:'No log entries',colTime:'Time',colActor:'User',colAction:'Action',colDetail:'Detail',cleared:'Log cleared',count:'{n} entries'}
 };
 function alT(k){ const L=AL_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||AL_I18N.es; return (k in L)?L[k]:(AL_I18N.zh[k]||k); }
 const AL_ACT={
@@ -6341,7 +6343,8 @@ async function renderAuditLog(){
   // 汰舊：超過上限刪最舊
   if(rows.length>AUDIT_LIMIT){ const extra=rows.slice(AUDIT_LIMIT); extra.forEach(e=>{ fetch(`${FB}/audit_log/${e.k}.json`,{method:'DELETE'}).catch(()=>{}); delete AUDIT_LOG[e.k]; }); rows=rows.slice(0,AUDIT_LIMIT); }
   const actKeys=[...new Set(rows.map(r=>r.action))];
-  const filtered=rows.filter(r=>{ if(alFilterAct && r.action!==alFilterAct) return false; if(alFilterActor && !String(r.actor||'').toLowerCase().includes(alFilterActor.toLowerCase())) return false; return true; });
+  const people=[...new Set(rows.map(r=>r.actor||'—'))].sort();
+  const filtered=rows.filter(r=>{ if(alFilterAct && r.action!==alFilterAct) return false; if(alFilterActor && String(r.actor||'—')!==alFilterActor) return false; return true; });
   const table = filtered.length? `<div style="overflow:auto;max-height:560px;border:1px solid var(--border);border-radius:10px"><table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead><tr style="position:sticky;top:0;background:var(--bg2);text-align:left;color:var(--text3)">
       <th style="padding:8px;white-space:nowrap">${alT('colTime')}</th><th style="padding:8px;white-space:nowrap">${alT('colActor')}</th><th style="padding:8px;white-space:nowrap">${alT('colAction')}</th><th style="padding:8px">${alT('colDetail')}</th></tr></thead>
@@ -6351,14 +6354,16 @@ async function renderAuditLog(){
       <td style="padding:7px 8px;white-space:nowrap"><span style="background:var(--blue-l);color:var(--blue);padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600">${alActLabel(r.action)}</span></td>
       <td style="padding:7px 8px;color:var(--text2)">${(r.detail||'').replace(/</g,'&lt;')}</td></tr>`).join('')}</tbody></table></div>`
     : `<div style="padding:40px;text-align:center;color:var(--text3)">${alT('empty')}</div>`;
+  const headTxt = alFilterActor ? alT('personLog').replace('{p}',alFilterActor) : alT('title');
+  const countTxt = alFilterActor ? alT('count').replace('{n}',filtered.length) : alT('count').replace('{n}',rows.length);
   root.innerHTML=`<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-      <div style="font-size:15px;font-weight:700">${alT('title')}</div>
-      <span style="font-size:12px;color:var(--text3)">${alT('count').replace('{n}',rows.length)}</span>
+      <div style="font-size:15px;font-weight:700">${headTxt}</div>
+      <span style="font-size:12px;color:var(--text3)">${countTxt}</span>
       <button class="btn-sm" style="margin-left:auto" onclick="alClear()">${alT('clear')}</button>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-      <input id="al-actor" value="${alFilterActor.replace(/"/g,'&quot;')}" placeholder="${alT('fActor')}" oninput="alFilterActor=this.value;alApply()" style="flex:1;min-width:140px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
+      <select id="al-actor" onchange="alFilterActor=this.value;renderAuditLog()" style="flex:1;min-width:160px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"><option value="">👥 ${alT('allPeople')}</option>${people.map(p=>`<option value="${p.replace(/"/g,'&quot;')}" ${alFilterActor===p?'selected':''}>${p}</option>`).join('')}</select>
       <select id="al-act" onchange="alFilterAct=this.value;renderAuditLog()" style="min-width:140px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"><option value="">${alT('all')}</option>${actKeys.map(a=>`<option value="${a}" ${alFilterAct===a?'selected':''}>${alActLabel(a)}</option>`).join('')}</select>
     </div>
     ${table}</div>`;
