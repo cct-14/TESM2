@@ -1951,6 +1951,12 @@ function renderAdminShell() {
             background:var(--bg);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer">
             🏢 部門管理
           </button>
+          <button onclick="selectDept('__audit__',this)"
+            id="dept-btn-__audit__"
+            style="padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);
+            background:var(--bg);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer">
+            📜 系統日誌
+          </button>
         </div>
       </div>
       <div id="dept-tab-bar" style="display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;gap:0;overflow-x:auto"></div>
@@ -1974,6 +1980,10 @@ function selectDept(deptKey, btn) {
   if (deptKey==='__roles__') {
     document.getElementById('dept-tab-bar').innerHTML='';
     renderRolesManager();
+  } else if (deptKey==='__audit__') {
+    document.getElementById('dept-tab-bar').innerHTML='';
+    document.getElementById('dept-panel').innerHTML='<div id="fp-audit"></div>';
+    renderAuditLog();
   } else {
     renderDeptTabs(deptKey);
   }
@@ -1994,8 +2004,7 @@ function renderDeptTabs(deptKey) {
   }
 
   if(typeof umCurrentUser!=='undefined' && umCurrentUser){ features = ALL_FEATURES.filter(f=>umCan(f.id,'v')).map(f=>f.id); }
-  const only14 = (ROLES[currentRole]?.features?.includes('*')) && !(typeof umCurrentUser!=='undefined' && umCurrentUser);
-  const tabs = ALL_FEATURES.filter(f=>!f.page && features.includes(f.id) && (f.id!=='auditlog' || only14));
+  const tabs = ALL_FEATURES.filter(f=>!f.page && f.id!=='auditlog' && features.includes(f.id));
   const bar  = document.getElementById('dept-tab-bar');
   bar.innerHTML = tabs.map((t,i)=>`
     <button onclick="switchFeatureTab('${t.id}','${deptKey}',this)"
