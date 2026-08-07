@@ -6331,9 +6331,9 @@ async function projSavePeople(){
 const AUDIT_LIMIT=1000;
 let AUDIT_LOG={}, alFilterAct='', alFilterActor='';
 const AL_I18N={
-  es:{title:'📜 Registro del sistema',fActor:'Filtrar por usuario',allPeople:'Todo el personal',personLog:'Actividad de {p}',fAction:'Acción',all:'Todas',clear:'🗑 Borrar todo',clearQ:'¿Borrar todo el registro? No se puede deshacer.',empty:'Sin registros',colTime:'Hora',colActor:'Usuario',colAction:'Acción',colDetail:'Detalle',cleared:'Registro borrado',count:'{n} registros'},
-  zh:{title:'📜 系統日誌',fActor:'依操作者篩選',allPeople:'全部人員',personLog:'{p} 的操作',fAction:'動作',all:'全部',clear:'🗑 清除全部',clearQ:'確定清除全部日誌？此動作無法復原。',empty:'尚無日誌',colTime:'時間',colActor:'操作者',colAction:'動作',colDetail:'細節',cleared:'日誌已清除',count:'{n} 筆'},
-  en:{title:'📜 Audit log',fActor:'Filter by user',allPeople:'All people',personLog:"{p}'s activity",fAction:'Action',all:'All',clear:'🗑 Clear all',clearQ:'Clear the entire log? This cannot be undone.',empty:'No log entries',colTime:'Time',colActor:'User',colAction:'Action',colDetail:'Detail',cleared:'Log cleared',count:'{n} entries'}
+  es:{title:'📜 Registro del sistema',fActor:'Filtrar por usuario',allPeople:'Todo el personal',personLog:'Actividad de {p}',fAction:'Acción',all:'Todas',exportCsv:'⬇ CSV',clear:'🗑 Borrar todo',clearQ:'¿Borrar todo el registro? No se puede deshacer.',empty:'Sin registros',colTime:'Hora',colActor:'Usuario',colAction:'Acción',colDetail:'Detalle',cleared:'Registro borrado',count:'{n} registros'},
+  zh:{title:'📜 系統日誌',fActor:'依操作者篩選',allPeople:'全部人員',personLog:'{p} 的操作',fAction:'動作',all:'全部',exportCsv:'⬇ 匯出 CSV',clear:'🗑 清除全部',clearQ:'確定清除全部日誌？此動作無法復原。',empty:'尚無日誌',colTime:'時間',colActor:'操作者',colAction:'動作',colDetail:'細節',cleared:'日誌已清除',count:'{n} 筆'},
+  en:{title:'📜 Audit log',fActor:'Filter by user',allPeople:'All people',personLog:"{p}'s activity",fAction:'Action',all:'All',exportCsv:'⬇ CSV',clear:'🗑 Clear all',clearQ:'Clear the entire log? This cannot be undone.',empty:'No log entries',colTime:'Time',colActor:'User',colAction:'Action',colDetail:'Detail',cleared:'Log cleared',count:'{n} entries'}
 };
 function alT(k){ const L=AL_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||AL_I18N.es; return (k in L)?L[k]:(AL_I18N.zh[k]||k); }
 const AL_ACT={
@@ -6349,8 +6349,8 @@ async function renderAuditLog(){
   root.innerHTML=`<div style="padding:20px;text-align:center;color:var(--text3)"><div class="spin"></div></div>`;
   try{ const r=await fetch(`${FB}/audit_log.json`); AUDIT_LOG=(await r.json())||{}; }catch(e){ AUDIT_LOG={}; }
   let rows=Object.entries(AUDIT_LOG).map(([k,v])=>({k,...v})).sort((a,b)=>String(b.ts||'').localeCompare(String(a.ts||'')));
-  // 汰舊：超過上限刪最舊
-  if(rows.length>AUDIT_LIMIT){ const extra=rows.slice(AUDIT_LIMIT); extra.forEach(e=>{ fetch(`${FB}/audit_log/${e.k}.json`,{method:'DELETE'}).catch(()=>{}); delete AUDIT_LOG[e.k]; }); rows=rows.slice(0,AUDIT_LIMIT); }
+  // 汰舊：超過上限先「封存到雲端」再從主日誌刪除（資料不遺失）
+  if(rows.length>AUDIT_LIMIT){ const extra=rows.slice(AUDIT_LIMIT); extra.forEach(e=>{ const {k,...rest}=e; fetch(`${FB}/audit_log_archive/${k}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(rest)}).then(()=>fetch(`${FB}/audit_log/${k}.json`,{method:'DELETE'})).catch(()=>{}); delete AUDIT_LOG[k]; }); rows=rows.slice(0,AUDIT_LIMIT); }
   const actKeys=[...new Set(rows.map(r=>r.action))];
   const people=[...new Set(rows.map(r=>r.actor||'—'))].sort();
   const filtered=rows.filter(r=>{ if(alFilterAct && r.action!==alFilterAct) return false; if(alFilterActor && String(r.actor||'—')!==alFilterActor) return false; return true; });
@@ -6369,7 +6369,8 @@ async function renderAuditLog(){
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
       <div style="font-size:15px;font-weight:700">${headTxt}</div>
       <span style="font-size:12px;color:var(--text3)">${countTxt}</span>
-      <button class="btn-sm" style="margin-left:auto" onclick="alClear()">${alT('clear')}</button>
+      <button class="btn-sm" style="margin-left:auto" onclick="alExport()">${alT('exportCsv')}</button>
+      <button class="btn-sm" onclick="alClear()">${alT('clear')}</button>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
       <select id="al-actor" onchange="alFilterActor=this.value;renderAuditLog()" style="flex:1;min-width:160px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"><option value="">👥 ${alT('allPeople')}</option>${people.map(p=>`<option value="${p.replace(/"/g,'&quot;')}" ${alFilterActor===p?'selected':''}>${p}</option>`).join('')}</select>
@@ -6385,7 +6386,21 @@ function alApply(){ // 只重繪表格，不整頁 reload（保留輸入焦點�
   const html = filtered.length? `<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="position:sticky;top:0;background:var(--bg2);text-align:left;color:var(--text3)"><th style="padding:8px;white-space:nowrap">${alT('colTime')}</th><th style="padding:8px;white-space:nowrap">${alT('colActor')}</th><th style="padding:8px;white-space:nowrap">${alT('colAction')}</th><th style="padding:8px">${alT('colDetail')}</th></tr></thead><tbody>${filtered.map(r=>`<tr style="border-top:1px solid var(--bg3)"><td style="padding:7px 8px;white-space:nowrap;color:var(--text3)">${r.ts||''}</td><td style="padding:7px 8px;white-space:nowrap;font-weight:600">${r.actor||'—'}</td><td style="padding:7px 8px;white-space:nowrap"><span style="background:var(--blue-l);color:var(--blue);padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600">${alActLabel(r.action)}</span></td><td style="padding:7px 8px;color:var(--text2)">${(r.detail||'').replace(/</g,'&lt;')}</td></tr>`).join('')}</tbody></table>` : '';
   if(wrap && html){ wrap.innerHTML=html; }
 }
-async function alClear(){ if(!confirm(alT('clearQ'))) return; try{ await fetch(`${FB}/audit_log.json`,{method:'DELETE'}); }catch(e){} AUDIT_LOG={}; renderAuditLog(); }
+async function alExport(){
+  let all=Object.entries(AUDIT_LOG).map(([k,v])=>({k,...v}));
+  try{ const r=await fetch(`${FB}/audit_log_archive.json`); const a=await r.json(); if(a&&typeof a==='object') all=all.concat(Object.entries(a).map(([k,v])=>({k,...v}))); }catch(e){}
+  all.sort((a,b)=>String(b.ts||'').localeCompare(String(a.ts||'')));
+  const esc=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
+  const head=[alT('colTime'),alT('colActor'),alT('colAction'),alT('colDetail')].map(esc).join(',');
+  const body=all.map(r=>[r.ts,r.actor,alActLabel(r.action),r.detail].map(esc).join(',')).join('\n');
+  const csv='﻿'+head+'\n'+body;
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='TESM2_audit_log.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function alClear(){ if(!confirm(alT('clearQ'))) return;
+  try{ const arch={}; Object.entries(AUDIT_LOG).forEach(([k,v])=>{ arch[k]=v; }); if(Object.keys(arch).length) await fetch(`${FB}/audit_log_archive.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(arch)}); }catch(e){}
+  try{ await fetch(`${FB}/audit_log.json`,{method:'DELETE'}); }catch(e){} AUDIT_LOG={}; renderAuditLog();
+}
 /* =================== 系統日誌 end =================== */
 
 // Init
