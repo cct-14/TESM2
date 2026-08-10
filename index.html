@@ -4716,21 +4716,21 @@ async function otSavePass(){
 
 // ── 加班申請系統（網頁：申請 + 兩關審核）──
 Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',needTime:'請填開始與結束時間',pickPerson:'請選擇人員…',notInStaff:'此編號不在員工名單，不能加入。',noMachine:'查無此車機：{m}，請確認種類與編號。',dupPerson:'人員重複：此員工已在加班名單內。',fillFirst:'請先填加班日期與時間，再加入人員。',conflict:'時間衝突：{name} 在該時段已有加班。',overrideRole:'最大駁回',overrideBtn:'最大駁回',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',hFrom:'起',hTo:'迄',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',exportPdf:'🧾 產生 PDF',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colPersonId:'人事代號',colPersonName:'姓名',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colConfirmHrs:'確認時數',colReview:'審核',histStatus:'審核狀況',stAll:'全部',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
-  group:'課別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
+  group:'課別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',multi:'多台',multiAdd:'➕ 多一台',multiNeed:'請至少加入一台車機並填編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
   errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',confirmTitle:'確認申請內容',confirmSend:'確定送出',backEdit:'返回修改',withdraw:'撤回',withdrawQ:'確定撤回這筆申請？',withdrawNoperm:'只有申請人本人可以撤回。',cancelled:'已撤回',
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
   noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needApply:'請登入有加班申請權限的帳號',fromL:'開始',toL:'結束',del:'刪除',delQ:'確定刪除這筆記錄？此動作無法復原。',delNoperm:'你沒有刪除記錄的權限。',delAdminTitle:'🗑 可刪除記錄的人事代號',delAdminDesc:'在此填入的人事代號（登入後）才能刪除加班記錄，可多個，用逗號或換行分隔。',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
 Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',needTime:'Ingrese hora de inicio y fin',pickPerson:'Seleccione personal…',notInStaff:'Este N.º no está en la lista de personal, no se puede agregar.',noMachine:'Equipo no encontrado: {m}. Verifique tipo y número.',dupPerson:'Personal duplicado: ya está en la lista.',fillFirst:'Complete primero la fecha y la hora antes de agregar personal.',conflict:'Conflicto de horario: {name} ya tiene horas extra en ese período.',overrideRole:'Rechazo final',overrideBtn:'Rechazo final',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',hFrom:'Desde',hTo:'Hasta',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',exportPdf:'🧾 Generar PDF',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colPersonId:'N.º empleado',colPersonName:'Nombre',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colConfirmHrs:'Confirmar horas',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
-  group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
+  group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',multi:'Varios',multiAdd:'➕ Otro equipo',multiNeed:'Agregue al menos un equipo con número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
   errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',withdrawNoperm:'Solo el solicitante puede retirar.',cancelled:'Retirado',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
   noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needApply:'Inicie sesión con una cuenta con permiso de solicitud',fromL:'Desde',toL:'Hasta',del:'Eliminar',delQ:'¿Eliminar este registro? No se puede deshacer.',delNoperm:'No tiene permiso para eliminar registros.',delAdminTitle:'🗑 N.º de empleado con permiso de eliminación',delAdminDesc:'Solo los N.º aquí ingresados (tras iniciar sesión) pueden eliminar registros. Varios separados por coma o salto de línea.',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
 Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',needTime:'Enter start and end time',pickPerson:'Select personnel…',notInStaff:'This ID is not in the staff list; cannot add.',noMachine:'Equipment not found: {m}. Check type and number.',dupPerson:'Duplicate: this person is already on the list.',fillFirst:'Fill date and time first before adding personnel.',conflict:'Time conflict: {name} already has overtime in that period.',overrideRole:'Override reject',overrideBtn:'Override reject',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',hFrom:'From',hTo:'To',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',exportPdf:'🧾 Generate PDF',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colPersonId:'Employee ID',colPersonName:'Name',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colConfirmHrs:'Confirm hours',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
-  group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
+  group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',multi:'Multiple',multiAdd:'➕ Add machine',multiNeed:'Add at least one machine with a number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
   errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',withdrawNoperm:'Only the applicant can withdraw.',cancelled:'Withdrawn',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
   waitSec:'Awaiting approval 1',waitMgr:'Awaiting approval 2',approved:'Approved',rejected:'Rejected',
@@ -4794,7 +4794,7 @@ function otRenderApply(){
     <div style="display:flex;gap:8px"><select id="ota-pid" class="ot-in" style="flex:1;margin:0" onchange="otaPidLook()">${otStaffOptions()}</select><button class="mt-perm" onclick="otaAddP()">${otT('addp')}</button></div>
     <div id="ota-pname" style="font-size:13px;font-weight:700;color:var(--green);min-height:18px;margin:4px 2px"></div>
     <div id="ota-people" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
-    <label class="lbl2">${otT('machine')}</label><select id="ota-kind" class="ot-in" onchange="otaKindChange()">${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
+    <label class="lbl2">${otT('machine')}</label><select id="ota-kind" class="ot-in" onchange="otaKindChange()">${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}<option value="__MULTI__">🔢 ${otT('multi')}</option></select>
     <div id="ota-num-wrap">
     <label class="lbl2">${otT('num')}</label>
     <div style="display:flex;gap:6px;align-items:center">
@@ -4802,6 +4802,11 @@ function otRenderApply(){
       <span id="ota-prefix" style="display:none;font-weight:700;color:var(--text2)">PPG-CCT</span>
       <input id="ota-num" class="ot-in" style="text-transform:uppercase"/>
     </div>
+    </div>
+    <div id="ota-multi" style="display:none">
+      <label class="lbl2">${otT('machine')} & ${otT('num')}</label>
+      <div id="ota-multi-rows"></div>
+      <button type="button" class="btn-sm" style="margin-top:4px" onclick="otaMultiAdd()">${otT('multiAdd')}</button>
     </div>
     <label class="lbl2">${otT('reason')}</label><input id="ota-reason" class="ot-in"/>
     <label class="lbl2">${otT('applicantL')}</label>
@@ -4836,22 +4841,33 @@ function otMachineExists(type,num){
 }
 function otIsNoNum(k){ const t=String(k||'').trim().toUpperCase(); return t==='OTHER'||t==='INVENTORY'; }
 function otMachLabel(type,num){ return String(type||'')+(num?('-'+num):''); }
-function otaKindChange(){ const k=(document.getElementById('ota-kind')||{}).value||''; const sub=document.getElementById('ota-sub'); const pre=document.getElementById('ota-prefix'); const isSP=/^SP$/i.test(k), isPPG=/^PPG$/i.test(k); if(sub) sub.style.display=isSP?'':'none'; if(pre) pre.style.display=isPPG?'':'none'; const w=document.getElementById('ota-num-wrap'); if(w) w.style.display=otIsNoNum(k)?'none':''; }
+// 統一取一筆申請的車機清單（相容單台舊資料）
+function otReqMachines(r){ if(r&&Array.isArray(r.machines)&&r.machines.length) return r.machines.map(m=>({type:m.type||m.machine_type||'',num:m.num||m.machine_num||''})); return [{type:(r&&r.machine_type)||'',num:(r&&r.machine_num)||''}]; }
+function otReqMachLabel(r){ return otReqMachines(r).map(m=>otMachLabel(m.type,m.num)).join(', '); }
+function otaMultiAdd(){ const box=document.getElementById('ota-multi-rows'); if(!box) return; const kinds=(typeof FIELD_KINDS!=='undefined'?FIELD_KINDS:['RTG']); const div=document.createElement('div'); div.className='ota-mrow'; div.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center'; div.innerHTML=`<select class="ot-in ota-mkind" style="margin:0;width:auto;flex:0 0 auto">${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}</select><input class="ot-in ota-mnum" style="margin:0;flex:1;text-transform:uppercase" placeholder="${otT('num')}"/><button type="button" class="btn-sm" onclick="this.closest('.ota-mrow').remove()">✕</button>`; box.appendChild(div); }
+function otaMultiList(){ const rows=[...document.querySelectorAll('#ota-multi-rows .ota-mrow')]; return rows.map(r=>{ const dispType=r.querySelector('.ota-mkind').value; const type=(typeof fieldCanon==='function')?fieldCanon(dispType):dispType; const num=(r.querySelector('.ota-mnum').value||'').trim().toUpperCase(); return {type, num: otIsNoNum(type)?'':num}; }).filter(m=>m.type); }
+function otaIsMulti(){ return ((document.getElementById('ota-kind')||{}).value||'')==='__MULTI__'; }
+function otaKindChange(){ const k=(document.getElementById('ota-kind')||{}).value||''; const multi=(k==='__MULTI__'); const sub=document.getElementById('ota-sub'); const pre=document.getElementById('ota-prefix'); const isSP=/^SP$/i.test(k), isPPG=/^PPG$/i.test(k); if(sub) sub.style.display=(multi||!isSP)?'none':''; if(pre) pre.style.display=(multi||!isPPG)?'none':''; const w=document.getElementById('ota-num-wrap'); if(w) w.style.display=(multi||otIsNoNum(k))?'none':''; const mw=document.getElementById('ota-multi'); if(mw){ mw.style.display=multi?'':'none'; if(multi && !document.querySelector('#ota-multi-rows .ota-mrow')){ otaMultiAdd(); } } }
 function otaFinalNum(){ const k=(document.getElementById('ota-kind')||{}).value||''; if(otIsNoNum(k)) return ''; const raw=((document.getElementById('ota-num')||{}).value||'').trim().toUpperCase(); if(/^SP$/i.test(k)){ const s=(document.getElementById('ota-sub')||{}).value||''; return (s+raw); } if(/^PPG$/i.test(k)){ return 'CCT'+raw.replace(/^CCT/i,''); } return raw; }
 async function otaReview(){
   const group=(document.getElementById('ota-group').value||'').trim();
+  const multi=otaIsMulti();
   const num=otaFinalNum();
   const noNum=otIsNoNum(document.getElementById('ota-kind').value);
   const reason=(document.getElementById('ota-reason').value||'').trim();
   const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value;
   const err=document.getElementById('ota-err');
   if(!umCurrentUser){ err.textContent=otT('needApply'); return; }
-  if(!group||!otAppPeople.length||(!noNum&&!num)||!reason){ err.textContent=otT('errForm'); return; }
+  const machines = multi ? otaMultiList() : [];
+  if(multi){ if(!machines.length || machines.some(m=>!otIsNoNum(m.type)&&!m.num)){ err.textContent=otT('multiNeed'); return; } }
+  if(!group||!otAppPeople.length||(!multi&&!noNum&&!num)||!reason){ err.textContent=otT('errForm'); return; }
   if(!start||!end){ err.textContent=otT('needTime'); return; }
   err.textContent='';
   const type=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value;
   const date=document.getElementById('ota-date').value; const dateEnd=document.getElementById('ota-date-end').value||date; const hrs=otCalcHoursDT(date,start,dateEnd,end);
-  if(!noNum&&!otMachineExists(type,num)){ err.textContent=otT('noMachine').replace('{m}',(type+'-'+num)); return; }
+  if(multi){ for(const m of machines){ if(!otIsNoNum(m.type)&&!otMachineExists(m.type,m.num)){ err.textContent=otT('noMachine').replace('{m}',otMachLabel(m.type,m.num)); return; } } }
+  else if(!noNum&&!otMachineExists(type,num)){ err.textContent=otT('noMachine').replace('{m}',(type+'-'+num)); return; }
+  const machLabel = multi ? machines.map(m=>otMachLabel(m.type,m.num)).join(', ') : otMachLabel(type,num);
   await otLoadRequests();
   for(const p of otAppPeople){ if(otPersonConflict(p.id,date,start,end)){ err.textContent=otT('conflict').replace('{name}',p.name); return; } }
   otEnsureConfirmModal();
@@ -4860,7 +4876,7 @@ async function otaReview(){
     <b>${otT('group')}</b>: ${group}<br>
     <b>${otT('people1')}</b>: ${otAppPeople.map(p=>p.name).join('、')}<br>
     <b>${otT('date')}</b>: ${date}　<b>${otT('timeRange')}</b>: ${start} ~ ${(dateEnd&&dateEnd!==date)?(dateEnd+' '):''}${end}（${hrs} ${otT('hoursUnit')}）<br>
-    <b>${otT('machine')}</b>: ${otMachLabel(type,num)}<br>
+    <b>${otT('machine')}</b>: ${machLabel}<br>
     <b>${otT('reasonL')}</b>: ${reason}<br>
     <b>${otT('applicantL')}</b>: ${umCurrentUser.name}</div>`;
   document.getElementById('otc-back').textContent=otT('backEdit');
@@ -4885,19 +4901,23 @@ async function otaConfirmSend(){ document.getElementById('ot-confirm-modal').sty
 async function otaSubmit(){
   const group=(document.getElementById('ota-group').value||'').trim();
   const date=document.getElementById('ota-date').value;
-  const type=(typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value;
-  const num=otaFinalNum();
+  const multi=otaIsMulti();
+  const machines = multi ? otaMultiList() : [];
+  const type= multi ? (machines[0]&&machines[0].type||'') : ((typeof fieldCanon==='function')?fieldCanon(document.getElementById('ota-kind').value):document.getElementById('ota-kind').value);
+  const num= multi ? (machines[0]&&machines[0].num||'') : otaFinalNum();
   const noNum=otIsNoNum(document.getElementById('ota-kind').value);
   const reason=(document.getElementById('ota-reason').value||'').trim();
   const err=document.getElementById('ota-err');
   if(!umCurrentUser){ err.textContent=otT('needApply'); return; }
-  if(!group||!otAppPeople.length||(!noNum&&!num)||!reason){ err.textContent=otT('errForm'); return; }
+  if(multi && !machines.length){ err.textContent=otT('multiNeed'); return; }
+  if(!group||!otAppPeople.length||(!multi&&!noNum&&!num)||!reason){ err.textContent=otT('errForm'); return; }
   err.textContent='';
   const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value; const dateEnd=document.getElementById('ota-date-end').value||date; const hours=otCalcHoursDT(date,start,dateEnd,end);
   const rec={group,people:otAppPeople.slice(),date,end_date:dateEnd,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:umCurrentUser.id,name:umCurrentUser.name},status:'pending',stage:'section',created:fldPanNow()};
+  if(multi) rec.machines=machines;
   const btn=document.getElementById('ota-submit'); btn.disabled=true;
   try{ const r=await fetch(`${FB}/ot_requests.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const j=await r.json(); if(j&&j.name) OT_REQUESTS[j.name]=rec; }catch(e){ err.textContent='✗ '+e.message; btn.disabled=false; return; }
-  if(typeof logAudit==='function') logAudit('ot_submit', group+' '+date+' '+otMachLabel(type,num)+' ('+otAppPeople.length+'人)');
+  if(typeof logAudit==='function') logAudit('ot_submit', group+' '+date+' '+otReqMachLabel(rec)+' ('+otAppPeople.length+'人)');
   btn.disabled=false; alert(otT('sent')); otSysTab('review');
 }
 // ── 審核 ──
@@ -4969,7 +4989,7 @@ function otReqCard(id,r){
   const hist = [r.sec&&`${otT('secRole')} ✓ ${r.sec.by||''}`, r.mgr&&`${otT('mgrRole')} ✓ ${r.mgr.by||''}`].filter(Boolean).join('　');
   return `<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--bg)">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-      <span style="font-weight:800">${otMachLabel(r.machine_type,r.machine_num)}</span>
+      <span style="font-weight:800">${otReqMachLabel(r)}</span>
       <span style="color:var(--text3);font-size:13px">${r.date||''}${r.start_time?` ${r.start_time}~${(r.end_date&&r.end_date!==r.date)?(r.end_date+' '):''}${r.end_time}（${r.hours} ${otT('hoursUnit')}）`:''}</span>
       <span style="margin-left:auto">${otStatusBadge(r)}</span>
     </div>
@@ -4999,7 +5019,7 @@ async function otApprove(id,role){
   else { patch={stage:'done',status:'approved',mgr:{by:who,role:otT('mgrRole'),time:now,result:'approve'}}; }
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ alert('✗ '+e.message); }
-  if(typeof logAudit==='function') logAudit('ot_approve', (r.group||'')+' '+(r.date||'')+' '+(role==='sec'?'一段':'二段')+' '+otMachLabel(r.machine_type,r.machine_num));
+  if(typeof logAudit==='function') logAudit('ot_approve', (r.group||'')+' '+(r.date||'')+' '+(role==='sec'?'一段':'二段')+' '+otReqMachLabel(r));
   otRefresh();
 }
 function otRejectOpen(id,role){
@@ -5041,7 +5061,7 @@ async function otRejectConfirm(){
   const patch={stage:'done',status:'rejected',reject:{by:who,role:(role==='sec'?otT('secRole'):role==='mgr'?otT('mgrRole'):otT('overrideRole')),reason,note,time:now}};
   Object.assign(r,patch);
   try{ await fetch(`${FB}/ot_requests/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){ document.getElementById('otrej-err').textContent='✗ '+e.message; return; }
-  if(typeof logAudit==='function') logAudit(role==='override'?'ot_override':'ot_reject', (r?(r.group||'')+' '+(r.date||'')+' '+otMachLabel(r.machine_type,r.machine_num):'')+' — '+otReasonText(reason));
+  if(typeof logAudit==='function') logAudit(role==='override'?'ot_override':'ot_reject', (r?(r.group||'')+' '+(r.date||'')+' '+otReqMachLabel(r):'')+' — '+otReasonText(reason));
   document.getElementById('ot-rej-modal').style.display='none'; otRejTarget=null; otRefresh();
 }
 
@@ -5097,8 +5117,9 @@ function otHistSearch(){
     if(from && String(r.date||'')<from) return;
     if(to && String(r.date||'')>to) return;
     if(course && r.group!==course) return;
-    if(mtype && r.machine_type!==mtype) return;
-    if(mnum && r.machine_num!==mnum) return;
+    const _ms=otReqMachines(r);
+    if(mtype && !_ms.some(m=>m.type===mtype)) return;
+    if(mnum && !_ms.some(m=>String(m.num).toUpperCase()===mnum)) return;
     if(person){ const ppl=[...(r.people||[]), r.applicant].filter(Boolean); if(!ppl.some(p=>String(p.id).toLowerCase().includes(person)||String(p.name).toLowerCase().includes(person))) return; }
     if(!matchSt(r)) return;
     add(r.group||'—', r.group||'—', [id,r]);
@@ -5139,7 +5160,8 @@ function otExportExcel(){
     const ppl=(r.people&&r.people.length)?r.people:[{id:'',name:''}];
     ppl.forEach(p=>{
       const pid=(p.id||'').toString().trim(), pname=(p.name||'').toString().trim();
-      lines.push([r.date,r.start_time,r.end_time,r.hours,r.group,r.machine_type,r.machine_num,pid,pname,app,r.reason,otReqStatusText(r),rev].map(otCsvCell).join(','));
+      const _ms=otReqMachines(r); const _mt=_ms.map(m=>m.type).join(' / '); const _mn=_ms.map(m=>m.num).join(' / ');
+      lines.push([r.date,r.start_time,r.end_time,r.hours,r.group,_mt,_mn,pid,pname,app,r.reason,otReqStatusText(r),rev].map(otCsvCell).join(','));
     });
   });
   const csv='\uFEFF'+lines.join('\r\n');
@@ -5161,7 +5183,7 @@ function otExportPdf(){
     const time=r.start_time?`${r.start_time}~${(r.end_date&&r.end_date!==r.date)?(r.end_date+' '):''}${r.end_time}（${r.hours}${otT('hoursUnit')}）`:'';
     const app=r.applicant?`${up(String(r.applicant.id||'').replace(/\.0+$/,''))} ${esc(r.applicant.name||'')}`:'';
     const ppl=(r.people||[]).map(p=>{ const pid=up(String(p.id||'').replace(/\.0+$/,'')); let pn=String(p.name||'').trim(); if(!pn||pn.replace(/\.0+$/,'').toUpperCase()===pid) pn=''; return `<div><b>${esc(pid)}</b> ${esc(pn)}</div>`; }).join('')||'';
-    return `<tr><td>${esc(r.date||'')}</td><td>${esc(time)}</td><td>${esc(r.group||'')}</td><td>${esc(r.machine_type)}${r.machine_num?('-'+esc(r.machine_num)):''}</td><td>${app}</td><td>${ppl}</td><td>${esc(r.reason||'')}</td><td>${esc(otReqStatusText(r))}</td><td class="c-chk"><span class="chkbox"></span></td></tr>`;
+    return `<tr><td>${esc(r.date||'')}</td><td>${esc(time)}</td><td>${esc(r.group||'')}</td><td>${esc(otReqMachLabel(r))}</td><td>${app}</td><td>${ppl}</td><td>${esc(r.reason||'')}</td><td>${esc(otReqStatusText(r))}</td><td class="c-chk"><span class="chkbox"></span></td></tr>`;
   }).join('');
   const doc=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>
   <style>
@@ -5204,7 +5226,7 @@ function otHistLine(id,r){
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <span style="color:var(--text3);min-width:92px">${r.date||''}</span>
         ${r.start_time?`<span style="color:var(--text3)">${r.start_time}~${(r.end_date&&r.end_date!==r.date)?(r.end_date+' '):''}${r.end_time}（${r.hours}${otT('hoursUnit')}）</span>`:''}
-        <b>${otMachLabel(r.machine_type,r.machine_num)}</b>
+        <b>${otReqMachLabel(r)}</b>
         <span style="color:var(--text2)">${r.group||''}</span>
         <span style="color:var(--text2)">${otT('histApplicant')}: ${appTxt}</span>
       </div>
