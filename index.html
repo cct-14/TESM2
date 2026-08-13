@@ -2155,15 +2155,15 @@ async function deleteRole(key) {
 // ── 使用者管理（密碼管理頁內）──
 const UM_I18N={
   zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼（可留空）',add:'新增人員',impBtn:'匯入名冊',impHint:'批次匯入：從 Excel 貼兩欄（編號、名字），一行一筆',imported:'已匯入 {n} 人',needIdName:'請填編號和名字',navHideTitle:'顯示左側功能',navHideHint:'勾選＝這個使用者登入後看得到該左側選單（預設全部顯示）。',navShowAll:'全部顯示',navHideAll:'全部隱藏',
-    newpw:'重設密碼',resetpw:'重設',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
+    newpw:'重設密碼',resetpw:'重設',reqpw:'🔑 要求改密碼',reqpwOk:'已要求：此人下次登入需改密碼',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
     hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',wiRepl:'鋼索更換授權',projView:'專案追蹤-檢視',projCreate:'專案追蹤-開案',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能',dept:'部門',allDepts:'全部部門',unassigned:'未分類'},
   es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial (opcional)',add:'Añadir usuario',impBtn:'Importar lista',impHint:'Importar: pegue dos columnas (N.º, nombre) de Excel, una por línea',imported:'{n} importados',needIdName:'N.º y nombre obligatorios',navHideTitle:'Mostrar menú lateral',navHideHint:'Marcado = este usuario verá ese elemento del menú lateral (todos visibles por defecto).',navShowAll:'Mostrar todo',navHideAll:'Ocultar todo',
-    newpw:'Nueva contraseña',resetpw:'Restablecer',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
+    newpw:'Nueva contraseña',resetpw:'Restablecer',reqpw:'🔑 Exigir cambio',reqpwOk:'Listo: deberá cambiar la contraseña al próximo inicio.',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
     hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',wiRepl:'Autorización de cambio de cable',projView:'Proyectos - Ver',projCreate:'Proyectos - Crear',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones',dept:'Departamento',allDepts:'Todos los deptos.',unassigned:'Sin asignar'},
   en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password (optional)',add:'Add user',impBtn:'Import list',impHint:'Import: paste two columns (ID, name) from Excel, one per line',imported:'{n} imported',needIdName:'ID and name required',navHideTitle:'Show sidebar items',navHideHint:'Checked = this user can see that sidebar item (all visible by default).',navShowAll:'Show all',navHideAll:'Hide all',
-    newpw:'New password',resetpw:'Reset',func:'Function',view:'View',edit:'Edit',nousers:'No users',
+    newpw:'New password',resetpw:'Reset',reqpw:'🔑 Require change',reqpwOk:'Done: must change password on next login.',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
     hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',wiRepl:'Wire replacement permission',projView:'Projects - View',projCreate:'Projects - Create',setpw:'Set/reset password',active:'Active',funcs:'Functions',dept:'Dept.',allDepts:'All depts.',unassigned:'Unassigned'}
 };
@@ -2202,10 +2202,11 @@ function renderUsers(){
         <button onclick="event.stopPropagation();umRemove('${id}')" title="✕" style="border:none;background:none;color:var(--red);font-size:15px;cursor:pointer;padding:2px 6px;flex-shrink:0">✕</button>
       </div>
       ${open?`<div style="padding:10px">
-        <div style="display:flex;gap:6px;margin-bottom:10px">
+        <div style="display:flex;gap:6px;margin-bottom:6px">
           <input id="um-pw-${id}" type="password" placeholder="${umT('setpw')}" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
           <button class="mt-perm" onclick="umSetPass('${id}')">${umT('resetpw')}</button>
         </div>
+        <div style="margin-bottom:10px"><button class="btn-sm" onclick="umRequirePw('${id}')" ${(u.mustChange?'disabled style="opacity:.5"':'')}>${umT('reqpw')}${u.mustChange?' ✓':''}</button></div>
         <table style="width:100%;font-size:12px;border-collapse:collapse">
           <tr style="color:var(--text3)"><td style="padding:4px 6px">${umT('funcs')}</td><td style="text-align:center;width:56px">${umT('view')}</td><td style="text-align:center;width:56px">${umT('edit')}</td></tr>
           ${ALL_FEATURES.filter(f=>f.id!=='auditlog').map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
@@ -2283,6 +2284,13 @@ async function umSetPass(id){
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:val,mustChange:true,name:USERS[id].name})}); }catch(e){ alert('✗ '+e.message); return; }
   if(typeof logAudit==='function') logAudit('pw', id);
   inp.value=''; renderUsers();
+}
+async function umRequirePw(id){
+  if(!USERS[id]||!USERS[id].pass){ alert(umT('setpw')); return; }
+  USERS[id].mustChange=true;
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/mustChange.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:'true'}); }catch(e){ alert('✗ '+e.message); return; }
+  if(typeof logAudit==='function') logAudit('pw', id+' 要求改密碼');
+  alert(umT('reqpwOk')); renderUsers();
 }
 async function umPerm(id,fid,which,on){
   if(!USERS[id]) USERS[id]={perms:{},name:(STAFF&&STAFF[id])||id};
@@ -6210,146 +6218,177 @@ function addToHome(){
   alert(`"${title}" 加到首頁功能即將推出！`);
 }
 
-/* ===================== 專案追蹤系統 Project Tracking ===================== */
-let PROJECTS={}, PROJ_PEOPLE=[];
+/* ===================== 專案追蹤系統 Project Tracking（維修外修控制清單） ===================== */
+let PROJECTS={}, PROJ_VENDORS=[];
 const PROJ_DEPTS=['MT1','MT2','MT3','MTD'];
-let projShowForm=false;
+const PROJ_VENDOR_SEED=['MASTER TECH','ROBDEK','AMCO SERVICIOS','GEMCO','GRUPO VARGAS MATAMOROS','MINDI PORT','SETIMSA','GRUPO ASM','MASTER TRUCK','SELLOS HIDRAULICOS DE PANAMA','M & C','MULTISERVICIOS GUERRA (COVRA)','CUMMINS PANAMA','DIESEL & TURBO','HYDRAULIC PARTS PANAMA','GMP','PECSCO','IPS','GLOBAL PORT EQUIPMENT','TEISCA','SANY','CIMC','RENFRIO','YOSHIYA'];
+let projShowForm=false, projEditKey=null, projFDept='', projFYear='', projSearch='';
 const PROJ_I18N={
-  es:{title:'Seguimiento de proyectos',newProj:'Nuevo proyecto',no:'N.º de proyecto',date:'Fecha de registro',pname:'Nombre del proyecto',dept:'Departamento',sup:'Supervisor',lead:'Responsable',creator:'Asignado por',save:'Guardar',cancel:'Cancelar',create:'Crear',empty:'Aún no hay proyectos',sel:'Seleccione…',needName:'Ingrese el nombre del proyecto',needDept:'Seleccione un departamento',needSup:'Seleccione un supervisor',needLead:'Seleccione un responsable',people:'Lista de personal',addRow:'Añadir persona',pid:'ID',personName:'Nombre',remove:'Eliminar',saved:'Guardado',noPeople:'Sin personal en este departamento'},
-  zh:{title:'專案追蹤系統',newProj:'開專案',no:'專案編號',date:'立案時間',pname:'專案名稱',dept:'部門',sup:'專案監督人',lead:'專案主辦人',creator:'指派人',save:'儲存',cancel:'取消',create:'建立',empty:'尚無專案',sel:'請選擇…',needName:'請輸入專案名稱',needDept:'請選擇部門',needSup:'請選擇監督人',needLead:'請選擇主辦人',people:'人員名單',addRow:'新增人員',pid:'ID',personName:'名字',remove:'刪除',saved:'已儲存',noPeople:'此部門尚無人員'},
-  en:{title:'Project Tracking',newProj:'New Project',no:'Project No.',date:'Date',pname:'Project Name',dept:'Dept.',sup:'Supervisor',lead:'Lead',creator:'Assigned by',save:'Save',cancel:'Cancel',create:'Create',empty:'No projects yet',sel:'Select…',needName:'Enter a project name',needDept:'Select a department',needSup:'Select a supervisor',needLead:'Select a lead',people:'Personnel list',addRow:'Add person',pid:'ID',personName:'Name',remove:'Remove',saved:'Saved',noPeople:'No personnel in this department'}
+  es:{title:'Control de proyectos de reparación',newProj:'Nuevo proyecto',no:'N.º',subject:'Asunto',approvedDate:'Fecha aprob.',cost:'Costo',vendor:'Proveedor',attr:'Equipo',attrNum:'Número',finishDate:'Fecha fin',remark:'Nota',pay1:'1.er pago',pay2:'2.º pago',pay3:'3.er pago',payDate:'Fecha',payAmt:'Monto',paid:'Pagado',balance:'Saldo',status:'Estado',stUnpaid:'Sin pago',stPartial:'Parcial',stPaid:'Pagado',stDone:'Finalizado',dept:'Depto.',lead:'Responsable',sup:'Supervisor',creator:'Creado por',save:'Guardar',cancel:'Cancelar',edit:'Editar',sel:'Seleccione…',none:'—',needDept:'Seleccione depto.',needSubject:'Ingrese el asunto',noPerm:'Solo el responsable/supervisor/creador puede editar.',empty:'Aún no hay proyectos',allDepts:'Todos deptos.',allYears:'Todos años',searchPh:'🔍 N.º o asunto',totCount:'Proyectos',totCost:'Costo total',totPaid:'Pagado',totBal:'Saldo',saved:'Guardado',payments:'Pagos',vendors:'Proveedores',addVendor:'Añadir proveedor'},
+  zh:{title:'維修外修專案控制清單',newProj:'開專案',no:'編號',subject:'主旨',approvedDate:'核准日期',cost:'專案金額',vendor:'廠商',attr:'車機類型',attrNum:'編號',finishDate:'完成日期',remark:'備註',pay1:'第1期付款',pay2:'第2期付款',pay3:'第3期付款',payDate:'日期',payAmt:'金額',paid:'已付',balance:'差額',status:'狀態',stUnpaid:'未付',stPartial:'部分付款',stPaid:'已付清',stDone:'已完成',dept:'部門',lead:'主辦人',sup:'監督人',creator:'開案者',save:'儲存',cancel:'取消',edit:'編輯',sel:'請選擇…',none:'—',needDept:'請選擇部門',needSubject:'請輸入主旨',noPerm:'只有主辦/監督/開案者能編輯。',empty:'尚無專案',allDepts:'全部部門',allYears:'全部年份',searchPh:'🔍 編號或主旨',totCount:'專案數',totCost:'總金額',totPaid:'已付',totBal:'差額',saved:'已儲存',payments:'分期付款',vendors:'廠商名單',addVendor:'新增廠商'},
+  en:{title:'Repair Project Control List',newProj:'New Project',no:'No.',subject:'Subject',approvedDate:'Approved',cost:'Cost',vendor:'Vendor',attr:'Equipment',attrNum:'Number',finishDate:'Finish date',remark:'Remark',pay1:'1st payment',pay2:'2nd payment',pay3:'3rd payment',payDate:'Date',payAmt:'Amount',paid:'Paid',balance:'Balance',status:'Status',stUnpaid:'Unpaid',stPartial:'Partial',stPaid:'Paid',stDone:'Finished',dept:'Dept.',lead:'Lead',sup:'Supervisor',creator:'Created by',save:'Save',cancel:'Cancel',edit:'Edit',sel:'Select…',none:'—',needDept:'Select a dept.',needSubject:'Enter the subject',noPerm:'Only lead/supervisor/creator can edit.',empty:'No projects yet',allDepts:'All depts.',allYears:'All years',searchPh:'🔍 No. or subject',totCount:'Projects',totCost:'Total cost',totPaid:'Paid',totBal:'Balance',saved:'Saved',payments:'Payments',vendors:'Vendors',addVendor:'Add vendor'}
 };
 function pT(k){ const L=PROJ_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||PROJ_I18N.es; return (k in L)?L[k]:(PROJ_I18N.zh[k]||k); }
-async function loadProjects(){
-  try{ const r=await fetch(`${FB}/projects.json`); PROJECTS=(await r.json())||{}; }catch(e){ PROJECTS={}; }
-  try{ const r=await fetch(`${FB}/proj_people.json`); const pp=await r.json(); PROJ_PEOPLE=Array.isArray(pp)?pp:(pp?Object.values(pp):[]); }catch(e){ PROJ_PEOPLE=[]; }
-}
+async function loadProjects(){ try{ const r=await fetch(`${FB}/projects.json`); PROJECTS=(await r.json())||{}; }catch(e){ PROJECTS={}; } try{ const r=await fetch(`${FB}/proj_vendors.json`); const v=await r.json(); PROJ_VENDORS=Array.isArray(v)?v:(v?Object.values(v):[]); }catch(e){ PROJ_VENDORS=[]; } }
+function projVendorOptions(sel){ const list=PROJ_VENDORS.slice(); if(sel&&list.indexOf(sel)<0) list.unshift(sel); return `<option value="">${pT('none')}</option>`+list.map(x=>`<option value="${String(x).replace(/"/g,'&quot;')}" ${sel===x?'selected':''}>${x}</option>`).join(''); }
 function projCanView(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_view','v')); }
 function projCanCreate(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_create','v')); }
 function projCurId(){ if(typeof umCurrentUser!=='undefined'&&umCurrentUser) return String(umCurrentUser.id); return currentRole||'14'; }
 function projCurName(){ if(typeof umCurrentUser!=='undefined'&&umCurrentUser&&umCurrentUser.name) return umCurrentUser.name; return (ROLES[currentRole]&&ROLES[currentRole].label)||currentRole||'14'; }
-function projNextSeq(dept,year){
-  let mx=0;
-  Object.values(PROJECTS||{}).forEach(p=>{ if(p&&p.dept===dept&&String(p.year)===String(year)){ const s=parseInt(p.seq,10); if(!isNaN(s)&&s>mx) mx=s; } });
-  return mx+1;
+function projCanEditRec(p){ if(typeof mtIs14==='function'&&mtIs14()) return true; const me=projCurId(); return !!(me && p && (String(p.lead)===me||String(p.sup)===me||String(p.creator)===me)); }
+function projNextSeq(dept,year){ let mx=0; Object.values(PROJECTS||{}).forEach(p=>{ if(p&&p.dept===dept&&String(p.year)===String(year)){ const s=parseInt(p.seq,10); if(!isNaN(s)&&s>mx) mx=s; } }); return mx+1; }
+function projPeopleByDept(dept){ const out=[]; if(typeof STAFF!=='undefined'&&STAFF){ Object.keys(STAFF).sort().forEach(id=>{ const d=(typeof STAFF_DEPT!=='undefined'&&STAFF_DEPT[id])||''; if(!dept||d===dept) out.push({id,name:STAFF[id]}); }); } return out; }
+function projPersonName(id){ if(!id) return ''; if(typeof STAFF!=='undefined'&&STAFF&&STAFF[id]) return STAFF[id]; return id; }
+function projDeptPeopleOptions(dept,sel){ return `<option value="">${pT('sel')}</option>`+projPeopleByDept(dept).map(p=>`<option value="${p.id}" ${String(sel)===String(p.id)?'selected':''}>${p.id}·${p.name}</option>`).join(''); }
+function projAttrKinds(){ let ks=(typeof FIELD_KINDS!=='undefined'&&FIELD_KINDS&&FIELD_KINDS.length)?FIELD_KINDS.slice():['GC','RTG','AR','SL','TR','CH','SP']; ['YT','OTHER'].forEach(x=>{ if(ks.indexOf(x)<0) ks.push(x); }); return ks; }
+function projAttrLabel(p){ const t=p&&p.attrType||''; const n=p&&p.attrNum||''; return t+(n?('-'+n):''); }
+function projPaid(p){ return (parseFloat(p&&p.pay1&&p.pay1.amt)||0)+(parseFloat(p&&p.pay2&&p.pay2.amt)||0)+(parseFloat(p&&p.pay3&&p.pay3.amt)||0); }
+function projMoney(n){ n=parseFloat(n)||0; return n.toLocaleString('en-US',{maximumFractionDigits:2}); }
+function projStatus(p){ const cost=parseFloat(p&&p.cost)||0, paid=projPaid(p); if(p&&p.finishDate&&paid>=cost&&cost>0) return {k:'stDone',c:'#16a34a',bg:'#dcfce7'}; if(cost>0&&paid>=cost) return {k:'stPaid',c:'#16a34a',bg:'#dcfce7'}; if(paid>0) return {k:'stPartial',c:'#b45309',bg:'#ffedd5'}; return {k:'stUnpaid',c:'#64748b',bg:'#e2e8f0'}; }
+function projToggleForm(){ projShowForm=!projShowForm; projEditKey=null; renderProjTrack(); }
+function projOpenEdit(key){ const p=PROJECTS[key]; if(!p) return; if(!projCanEditRec(p)){ alert(pT('noPerm')); return; } projEditKey=key; projShowForm=true; renderProjTrack(); setTimeout(()=>{ const el=document.getElementById('proj-form-card'); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); },30); }
+function projFormDeptChange(){ const dept=(document.getElementById('proj-f-dept')||{}).value||''; const lead=document.getElementById('proj-f-lead'), sup=document.getElementById('proj-f-sup'); if(lead) lead.innerHTML=projDeptPeopleOptions(dept); if(sup) sup.innerHTML=projDeptPeopleOptions(dept); }
+function projFormHtml(){
+  const editing=!!projEditKey; const p=editing?(PROJECTS[projEditKey]||{}):{};
+  const d0=p.dept||PROJ_DEPTS[0];
+  const kinds=projAttrKinds();
+  const v=(x)=>String(x==null?'':x).replace(/"/g,'&quot;');
+  const pay=(n,pp)=>`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end">
+      <div><label class="lbl2">${pT('pay'+n)} · ${pT('payDate')}</label><input type="date" class="eq-input" id="proj-f-p${n}d" style="width:100%" value="${v(pp&&pp.date)}"/></div>
+      <div><label class="lbl2">${pT('payAmt')}</label><input type="number" class="eq-input" id="proj-f-p${n}a" style="width:100%" value="${v(pp&&pp.amt)}"/></div>
+    </div>`;
+  return `<div id="proj-form-card" style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+    <div style="font-weight:800;margin-bottom:12px">${editing?(p.no||''):('➕ '+pT('newProj'))}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><label class="lbl2">${pT('dept')}</label>
+        <select class="eq-input" id="proj-f-dept" style="width:100%" ${editing?'disabled':''} onchange="projFormDeptChange()">${PROJ_DEPTS.map(x=>`<option value="${x}" ${d0===x?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div><label class="lbl2">${pT('approvedDate')}</label><input type="date" class="eq-input" id="proj-f-approved" style="width:100%" value="${v(p.approvedDate)}"/></div>
+      <div style="grid-column:1/-1"><label class="lbl2">${pT('subject')}</label><input class="eq-input" id="proj-f-subject" style="width:100%" value="${v(p.subject)}" placeholder="${pT('subject')}"/></div>
+      <div><label class="lbl2">${pT('attr')}</label><select class="eq-input" id="proj-f-attrtype" style="width:100%">${kinds.map(k=>`<option value="${k}" ${p.attrType===k?'selected':''}>${k}</option>`).join('')}</select></div>
+      <div><label class="lbl2">${pT('attrNum')}</label><input class="eq-input" id="proj-f-attrnum" style="width:100%;text-transform:uppercase" value="${v(p.attrNum)}"/></div>
+      <div><label class="lbl2">${pT('cost')}</label><input type="number" class="eq-input" id="proj-f-cost" style="width:100%" value="${v(p.cost)}"/></div>
+      <div><label class="lbl2">${pT('vendor')}</label><select class="eq-input" id="proj-f-vendor" style="width:100%">${projVendorOptions(p.vendor)}</select></div>
+      <div><label class="lbl2">${pT('lead')}</label><select class="eq-input" id="proj-f-lead" style="width:100%">${projDeptPeopleOptions(d0,p.lead)}</select></div>
+      <div><label class="lbl2">${pT('sup')}</label><select class="eq-input" id="proj-f-sup" style="width:100%">${projDeptPeopleOptions(d0,p.sup)}</select></div>
+      <div><label class="lbl2">${pT('finishDate')}</label><input type="date" class="eq-input" id="proj-f-finish" style="width:100%" value="${v(p.finishDate)}"/></div>
+      <div style="grid-column:1/-1"><label class="lbl2">${pT('remark')}</label><input class="eq-input" id="proj-f-remark" style="width:100%" value="${v(p.remark)}"/></div>
+    </div>
+    <div class="fp-sec-title" style="margin-top:14px">💵 ${pT('payments')}</div>
+    <div style="display:flex;flex-direction:column;gap:8px">${pay(1,p.pay1)}${pay(2,p.pay2)}${pay(3,p.pay3)}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn-sm" onclick="projToggleForm()">${pT('cancel')}</button>
+      <button class="btn-sm btn-primary" id="proj-f-save" onclick="projSave()">💾 ${pT('save')}</button>
+    </div>
+  </div>`;
 }
-function projPeopleByDept(dept){ return (PROJ_PEOPLE||[]).filter(p=>p&&p.dept===dept); }
-function projPersonName(id){ const p=(PROJ_PEOPLE||[]).find(x=>x&&String(x.id)===String(id)); return p?p.name:id; }
-function projDeptPeopleOptions(dept,sel){
-  const ppl=projPeopleByDept(dept);
-  return `<option value="">${pT('sel')}</option>`+ppl.map(p=>`<option value="${p.id}" ${String(sel)===String(p.id)?'selected':''}>${p.name} (${p.id})</option>`).join('');
-}
-function projToggleForm(){ projShowForm=!projShowForm; renderProjTrack(); }
-function projFormDeptChange(){
-  const dept=document.getElementById('proj-f-dept').value;
-  const sup=document.getElementById('proj-f-sup'); const lead=document.getElementById('proj-f-lead');
-  if(sup) sup.innerHTML=projDeptPeopleOptions(dept);
-  if(lead) lead.innerHTML=projDeptPeopleOptions(dept);
-}
-async function projCreate(){
-  const dept=document.getElementById('proj-f-dept').value;
-  const name=document.getElementById('proj-f-name').value.trim();
-  const sup=document.getElementById('proj-f-sup').value;
-  const lead=document.getElementById('proj-f-lead').value;
+async function projSave(){
+  const editing=!!projEditKey;
+  const dept=(document.getElementById('proj-f-dept')||{}).value||'';
+  const subject=(document.getElementById('proj-f-subject').value||'').trim();
   if(!dept){ alert(pT('needDept')); return; }
-  if(!name){ alert(pT('needName')); return; }
-  if(!sup){ alert(pT('needSup')); return; }
-  if(!lead){ alert(pT('needLead')); return; }
-  const pp=panParts(); const year=pp.y;
-  const seq=projNextSeq(dept,year);
-  const no=`CCTMTD-${dept}-R${year}-${String(seq).padStart(3,'0')}`;
-  const dateStr=`${pp.y}-${String(pp.m).padStart(2,'0')}-${String(pp.d).padStart(2,'0')}`;
-  const obj={ no, dept, year, seq, name, sup, lead, creator:projCurId(), creatorName:projCurName(), date:dateStr, ts:Date.now() };
-  const btn=document.getElementById('proj-f-create'); if(btn){ btn.disabled=true; btn.textContent='…'; }
+  if(!subject){ alert(pT('needSubject')); return; }
+  const num=v=>{ const n=parseFloat(v); return isNaN(n)?0:n; };
+  const pay=n=>({date:(document.getElementById('proj-f-p'+n+'d').value||''), amt:num(document.getElementById('proj-f-p'+n+'a').value)});
+  const fields={ subject, approvedDate:document.getElementById('proj-f-approved').value||'', cost:num(document.getElementById('proj-f-cost').value), vendor:(document.getElementById('proj-f-vendor').value||'').trim(), attrType:document.getElementById('proj-f-attrtype').value, attrNum:(document.getElementById('proj-f-attrnum').value||'').trim().toUpperCase(), finishDate:document.getElementById('proj-f-finish').value||'', remark:(document.getElementById('proj-f-remark').value||'').trim(), lead:document.getElementById('proj-f-lead').value, sup:document.getElementById('proj-f-sup').value, pay1:pay(1), pay2:pay(2), pay3:pay(3) };
+  const btn=document.getElementById('proj-f-save'); if(btn){ btn.disabled=true; btn.textContent='…'; }
   try{
-    const r=await fetch(`${FB}/projects.json`,{method:'POST',body:JSON.stringify(obj)});
-    const j=await r.json(); const key=(j&&j.name)?j.name:('local_'+obj.ts);
-    PROJECTS[key]=obj;
-    if(typeof logAudit==='function') logAudit('proj_create', no+' — '+name);
-    projShowForm=false; renderProjTrack();
-  }catch(e){ alert('Error: '+e.message); if(btn){ btn.disabled=false; btn.textContent=pT('create'); } }
+    if(editing){
+      if(!projCanEditRec(PROJECTS[projEditKey])){ alert(pT('noPerm')); return; }
+      const obj=Object.assign({},PROJECTS[projEditKey],fields);
+      await fetch(`${FB}/projects/${projEditKey}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
+      PROJECTS[projEditKey]=obj;
+      if(typeof logAudit==='function') logAudit('proj_edit', obj.no+' — '+subject);
+    } else {
+      const pp=panParts(); const year=pp.y; const seq=projNextSeq(dept,year);
+      const no=`CCTMTD-${dept}-R${year}-${String(seq).padStart(3,'0')}`;
+      const obj=Object.assign({ no, dept, year, seq, creator:projCurId(), creatorName:projCurName(), ts:Date.now() }, fields);
+      const r=await fetch(`${FB}/projects.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
+      const j=await r.json(); const key=(j&&j.name)?j.name:('local_'+obj.ts); PROJECTS[key]=obj;
+      if(typeof logAudit==='function') logAudit('proj_create', no+' — '+subject);
+    }
+    projShowForm=false; projEditKey=null; renderProjTrack();
+  }catch(e){ alert('Error: '+e.message); if(btn){ btn.disabled=false; btn.textContent='💾 '+pT('save'); } }
 }
-function renderProjTrack(){
+async function renderProjTrack(){
   const root=document.getElementById('projtrack-root'); if(!root) return;
   if(!projCanView()){ root.innerHTML=`<div style="padding:40px;text-align:center;color:var(--text3)">🔒</div>`; return; }
+  if((typeof STAFF==='undefined'||!STAFF||!Object.keys(STAFF).length) && typeof fldLoadConfig==='function'){ try{ await fldLoadConfig(); }catch(e){} }
   const canCreate=projCanCreate();
-  const rows=Object.entries(PROJECTS||{}).map(([k,p])=>({k,...p})).sort((a,b)=>(b.ts||0)-(a.ts||0));
-  let form='';
-  if(projShowForm&&canCreate){
-    const d0=PROJ_DEPTS[0];
-    form=`<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="lbl2">${pT('dept')}</label>
-          <select class="eq-input" id="proj-f-dept" style="width:100%" onchange="projFormDeptChange()">${PROJ_DEPTS.map(x=>`<option value="${x}">${x}</option>`).join('')}</select></div>
-        <div><label class="lbl2">${pT('pname')}</label>
-          <input class="eq-input" id="proj-f-name" style="width:100%" placeholder="${pT('pname')}"/></div>
-        <div><label class="lbl2">${pT('sup')}</label>
-          <select class="eq-input" id="proj-f-sup" style="width:100%">${projDeptPeopleOptions(d0)}</select></div>
-        <div><label class="lbl2">${pT('lead')}</label>
-          <select class="eq-input" id="proj-f-lead" style="width:100%">${projDeptPeopleOptions(d0)}</select></div>
-      </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-        <button class="btn-sm" onclick="projToggleForm()">${pT('cancel')}</button>
-        <button class="btn-sm btn-primary" id="proj-f-create" onclick="projCreate()">${pT('create')}</button>
-      </div>
-    </div>`;
-  }
-  const table = rows.length? `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr style="text-align:left;color:var(--text3);border-bottom:2px solid var(--border)">
-      <th style="padding:8px">${pT('no')}</th><th style="padding:8px">${pT('date')}</th><th style="padding:8px">${pT('pname')}</th>
-      <th style="padding:8px">${pT('dept')}</th><th style="padding:8px">${pT('sup')}</th><th style="padding:8px">${pT('lead')}</th><th style="padding:8px">${pT('creator')}</th></tr></thead>
-    <tbody>${rows.map(p=>`<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:8px;font-weight:700;white-space:nowrap">${p.no||''}</td>
-      <td style="padding:8px;white-space:nowrap">${(p.date||'').slice(0,10)}</td>
-      <td style="padding:8px">${p.name||''}</td>
-      <td style="padding:8px">${p.dept||''}</td>
-      <td style="padding:8px">${projPersonName(p.sup)||''}</td>
-      <td style="padding:8px">${projPersonName(p.lead)||''}</td>
-      <td style="padding:8px">${p.creatorName||p.creator||''}</td></tr>`).join('')}</tbody></table></div>`
+  let all=Object.entries(PROJECTS||{}).map(([k,p])=>({k,...p})).sort((a,b)=>(b.ts||0)-(a.ts||0)||String(b.no||'').localeCompare(String(a.no||'')));
+  const years=[...new Set(all.map(p=>String(p.year||'')).filter(Boolean))].sort().reverse();
+  const q=projSearch.toLowerCase();
+  const rows=all.filter(p=>{ if(projFDept && p.dept!==projFDept) return false; if(projFYear && String(p.year)!==projFYear) return false; if(q && !((p.no||'').toLowerCase().includes(q)||(p.subject||'').toLowerCase().includes(q))) return false; return true; });
+  const form=(projShowForm&&(canCreate||projEditKey))?projFormHtml():'';
+  const th=(t,ex)=>`<th style="padding:7px 8px;text-align:left;white-space:nowrap;${ex||''}">${t}</th>`;
+  const totCost=rows.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
+  const totPaid=rows.reduce((s,p)=>s+projPaid(p),0);
+  const table = rows.length? `<div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="background:var(--bg2);color:var(--text3);border-bottom:2px solid var(--border)">
+      ${th(pT('no'))}${th(pT('subject'))}${th(pT('approvedDate'))}${th(pT('attr'))}${th(pT('vendor'))}${th(pT('cost'),'text-align:right')}${th(pT('paid'),'text-align:right')}${th(pT('balance'),'text-align:right')}${th(pT('finishDate'))}${th(pT('status'))}${th('')}</tr></thead>
+    <tbody>${rows.map(p=>{ const paid=projPaid(p); const bal=(parseFloat(p.cost)||0)-paid; const st=projStatus(p); const canE=projCanEditRec(p);
+      return `<tr style="border-bottom:1px solid var(--bg3)">
+      <td style="padding:7px 8px;font-weight:700;white-space:nowrap">${p.no||''}</td>
+      <td style="padding:7px 8px;min-width:180px">${(p.subject||'').replace(/</g,'&lt;')}${p.remark?`<div style="color:var(--text3);font-size:11px">${(p.remark||'').replace(/</g,'&lt;')}</div>`:''}</td>
+      <td style="padding:7px 8px;white-space:nowrap">${(p.approvedDate||'').slice(0,10)}</td>
+      <td style="padding:7px 8px;white-space:nowrap">${projAttrLabel(p)}</td>
+      <td style="padding:7px 8px">${(p.vendor||'').replace(/</g,'&lt;')}</td>
+      <td style="padding:7px 8px;text-align:right;white-space:nowrap">${p.cost?projMoney(p.cost):''}</td>
+      <td style="padding:7px 8px;text-align:right;white-space:nowrap;color:var(--green)">${paid?projMoney(paid):''}</td>
+      <td style="padding:7px 8px;text-align:right;white-space:nowrap;${bal>0?'color:#b45309':''}">${p.cost?projMoney(bal):''}</td>
+      <td style="padding:7px 8px;white-space:nowrap">${(p.finishDate||'').slice(0,10)}</td>
+      <td style="padding:7px 8px;white-space:nowrap"><span style="background:${st.bg};color:${st.c};padding:1px 8px;border-radius:10px;font-weight:700;font-size:11px">${pT(st.k)}</span></td>
+      <td style="padding:7px 8px;white-space:nowrap">${canE?`<button class="btn-sm" onclick="projOpenEdit('${p.k}')">${pT('edit')}</button>`:''}</td></tr>`; }).join('')}</tbody>
+    <tfoot><tr style="background:var(--bg2);font-weight:800;border-top:2px solid var(--border)">
+      <td style="padding:8px" colspan="5">${pT('totCount')}: ${rows.length}</td>
+      <td style="padding:8px;text-align:right;white-space:nowrap">${projMoney(totCost)}</td>
+      <td style="padding:8px;text-align:right;white-space:nowrap;color:var(--green)">${projMoney(totPaid)}</td>
+      <td style="padding:8px;text-align:right;white-space:nowrap">${projMoney(totCost-totPaid)}</td>
+      <td colspan="3"></td></tr></tfoot>
+    </table></div>`
     : `<div style="padding:40px;text-align:center;color:var(--text3)">${pT('empty')}</div>`;
+  const filterBar=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+    <select class="eq-input" style="width:auto" onchange="projFDept=this.value;renderProjTrack()"><option value="">${pT('allDepts')}</option>${PROJ_DEPTS.map(d=>`<option value="${d}" ${projFDept===d?'selected':''}>${d}</option>`).join('')}</select>
+    <select class="eq-input" style="width:auto" onchange="projFYear=this.value;renderProjTrack()"><option value="">${pT('allYears')}</option>${years.map(y=>`<option value="${y}" ${projFYear===y?'selected':''}>${y}</option>`).join('')}</select>
+    <input class="eq-input" style="flex:1;min-width:160px" value="${projSearch.replace(/"/g,'&quot;')}" placeholder="${pT('searchPh')}" oninput="projSearch=this.value;projRenderTableOnly()"/>
+  </div>`;
   root.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <h2 style="margin:0;font-size:20px">📁 ${pT('title')}</h2>
       ${canCreate?`<button class="btn-sm btn-primary" onclick="projToggleForm()">➕ ${pT('newProj')}</button>`:''}
-    </div>${form}${table}`;
+    </div>${form}${filterBar}<div id="proj-table-wrap">${table}</div>`;
 }
+function projRenderTableOnly(){ /* 搜尋時重繪並保留輸入焦點 */ renderProjTrack(); const inp=document.querySelector('#projtrack-root input[placeholder^="🔍"]'); if(inp){ inp.focus(); const v=inp.value; try{ inp.setSelectionRange(v.length,v.length); }catch(e){} } }
 function renderProjSettings(){
   const root=document.getElementById('fp-projset'); if(!root) return;
-  root.innerHTML=`<div class="fp-sec-title">👥 ${pT('people')}</div>
-    <div id="proj-people-rows"></div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn-sm" onclick="projAddPersonRow()">➕ ${pT('addRow')}</button>
-      <button class="btn-sm btn-primary" onclick="projSavePeople()">💾 ${pT('save')}</button>
+  root.innerHTML=`<div class="fp-sec-title">🏢 ${pT('vendors')}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px">開專案時「廠商」下拉會用這份名單。</div>
+    <div id="proj-vend-rows"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn-sm" onclick="projAddVendorRow('')">➕ ${pT('addVendor')}</button>
+      <button class="btn-sm btn-primary" onclick="projSaveVendors()">💾 ${pT('save')}</button>
+    </div>
+    <div style="margin-top:20px;font-size:13px;color:var(--text2);line-height:1.8;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
+      專案的「主辦／監督」下拉直接用<b>主名單(密碼管理)</b>依部門過濾,不需在此維護人員。
     </div>`;
-  projRenderPeopleRows();
+  projRenderVendorRows();
 }
-function projRenderPeopleRows(){
-  const box=document.getElementById('proj-people-rows'); if(!box) return;
-  const rows=(PROJ_PEOPLE&&PROJ_PEOPLE.length)?PROJ_PEOPLE:[];
-  box.innerHTML=`<div style="display:grid;grid-template-columns:120px 130px 1fr 40px;gap:8px;font-size:12px;color:var(--text3);font-weight:700;margin-bottom:4px">
-      <div>${pT('dept')}</div><div>${pT('pid')}</div><div>${pT('personName')}</div><div></div></div>`+
-    rows.map((p,i)=>`<div class="proj-prow" style="display:grid;grid-template-columns:120px 130px 1fr 40px;gap:8px;margin-bottom:6px">
-      <select class="eq-input pp-dept">${PROJ_DEPTS.map(d=>`<option value="${d}" ${p.dept===d?'selected':''}>${d}</option>`).join('')}</select>
-      <input class="eq-input pp-id" value="${p.id||''}" placeholder="ID"/>
-      <input class="eq-input pp-name" value="${p.name||''}" placeholder="${pT('personName')}"/>
-      <button class="btn-sm" onclick="this.parentElement.remove()" title="${pT('remove')}">✕</button></div>`).join('')||'';
+function projRenderVendorRows(){
+  const box=document.getElementById('proj-vend-rows'); if(!box) return;
+  const list=(PROJ_VENDORS&&PROJ_VENDORS.length)?PROJ_VENDORS.slice():PROJ_VENDOR_SEED.slice();
+  box.innerHTML='';
+  list.forEach(v=>projAddVendorRow(v));
 }
-function projAddPersonRow(){
-  const box=document.getElementById('proj-people-rows'); if(!box) return;
-  const div=document.createElement('div'); div.className='proj-prow';
-  div.style.cssText='display:grid;grid-template-columns:120px 130px 1fr 40px;gap:8px;margin-bottom:6px';
-  div.innerHTML=`<select class="eq-input pp-dept">${PROJ_DEPTS.map(d=>`<option value="${d}">${d}</option>`).join('')}</select>
-    <input class="eq-input pp-id" placeholder="ID"/>
-    <input class="eq-input pp-name" placeholder="${pT('personName')}"/>
-    <button class="btn-sm" onclick="this.parentElement.remove()" title="${pT('remove')}">✕</button>`;
+function projAddVendorRow(val){
+  const box=document.getElementById('proj-vend-rows'); if(!box) return;
+  const div=document.createElement('div'); div.className='proj-vrow';
+  div.style.cssText='display:flex;gap:8px;margin-bottom:6px;align-items:center';
+  div.innerHTML=`<input class="eq-input pv-name" style="flex:1" value="${String(val||'').replace(/"/g,'&quot;')}" placeholder="${pT('vendor')}"/><button class="btn-sm" onclick="this.closest('.proj-vrow').remove()">✕</button>`;
   box.appendChild(div);
 }
-async function projSavePeople(){
-  const rows=[...document.querySelectorAll('#proj-people-rows .proj-prow')];
-  const arr=rows.map(r=>({ dept:r.querySelector('.pp-dept').value, id:r.querySelector('.pp-id').value.trim(), name:r.querySelector('.pp-name').value.trim() })).filter(x=>x.id||x.name);
-  try{
-    await fetch(`${FB}/proj_people.json`,{method:'PUT',body:JSON.stringify(arr)});
-    PROJ_PEOPLE=arr; alert(pT('saved')); projRenderPeopleRows();
-  }catch(e){ alert('Error: '+e.message); }
+async function projSaveVendors(){
+  const arr=[...document.querySelectorAll('#proj-vend-rows .pv-name')].map(i=>i.value.trim()).filter(Boolean);
+  const seen={}; const uniq=arr.filter(x=>{ const k=x.toUpperCase(); if(seen[k])return false; seen[k]=1; return true; });
+  try{ await fetch(`${FB}/proj_vendors.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(uniq)}); PROJ_VENDORS=uniq; alert(pT('saved')); }catch(e){ alert('Error: '+e.message); }
 }
 /* =================== 專案追蹤系統 end =================== */
 
@@ -6364,9 +6403,9 @@ const AL_I18N={
 };
 function alT(k){ const L=AL_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||AL_I18N.es; return (k in L)?L[k]:(AL_I18N.zh[k]||k); }
 const AL_ACT={
-  es:{login:'Inicio de sesión',logout:'Cierre de sesión',user_add:'Alta de usuario',user_del:'Baja de usuario',perm:'Cambio de permiso',dept:'Cambio de depto.',pw:'Restablecer contraseña',navshow:'Menú lateral',staff_import:'Importar personal',ot_submit:'Solicitud de horas extra',ot_approve:'Aprobar horas extra',ot_reject:'Rechazar horas extra',ot_override:'Rechazo final',maint_sched:'Programar mantenimiento',maint_done:'Mantenimiento completado',wire_ext:'Extender cable',wire_extclear:'Quitar extensión',wire_repl:'Cambio de cable',proj_create:'Nuevo proyecto',eq_add:'Añadir equipo',eq_status:'Estado de equipo',guest_perm:'Acceso de invitado',rolepw:'Contraseña de depto.'},
-  zh:{login:'登入',logout:'登出',user_add:'新增人員',user_del:'刪除人員',perm:'變更權限',dept:'變更部門',pw:'重設密碼',navshow:'左側功能顯示',staff_import:'匯入名冊',ot_submit:'加班申請',ot_approve:'加班核准',ot_reject:'加班駁回',ot_override:'加班最大駁回',maint_sched:'保養排程',maint_done:'保養完成',wire_ext:'鋼索沿用',wire_extclear:'清除沿用',wire_repl:'鋼索更換',proj_create:'專案開案',eq_add:'新增車機',eq_status:'車機狀態變更',guest_perm:'訪客權限',rolepw:'部門密碼'},
-  en:{login:'Login',logout:'Logout',user_add:'Add user',user_del:'Delete user',perm:'Permission change',dept:'Dept. change',pw:'Reset password',navshow:'Sidebar toggle',staff_import:'Import staff',ot_submit:'Overtime request',ot_approve:'Overtime approved',ot_reject:'Overtime rejected',ot_override:'Overtime override',maint_sched:'Schedule maintenance',maint_done:'Maintenance done',wire_ext:'Wire extend',wire_extclear:'Clear extension',wire_repl:'Wire replace',proj_create:'New project',eq_add:'Add equipment',eq_status:'Equipment status',guest_perm:'Guest access',rolepw:'Dept. password'}
+  es:{login:'Inicio de sesión',logout:'Cierre de sesión',user_add:'Alta de usuario',user_del:'Baja de usuario',perm:'Cambio de permiso',dept:'Cambio de depto.',pw:'Restablecer contraseña',navshow:'Menú lateral',staff_import:'Importar personal',ot_submit:'Solicitud de horas extra',ot_approve:'Aprobar horas extra',ot_reject:'Rechazar horas extra',ot_override:'Rechazo final',maint_sched:'Programar mantenimiento',maint_done:'Mantenimiento completado',wire_ext:'Extender cable',wire_extclear:'Quitar extensión',wire_repl:'Cambio de cable',proj_create:'Nuevo proyecto',proj_edit:'Editar proyecto',eq_add:'Añadir equipo',eq_status:'Estado de equipo',guest_perm:'Acceso de invitado',rolepw:'Contraseña de depto.'},
+  zh:{login:'登入',logout:'登出',user_add:'新增人員',user_del:'刪除人員',perm:'變更權限',dept:'變更部門',pw:'重設密碼',navshow:'左側功能顯示',staff_import:'匯入名冊',ot_submit:'加班申請',ot_approve:'加班核准',ot_reject:'加班駁回',ot_override:'加班最大駁回',maint_sched:'保養排程',maint_done:'保養完成',wire_ext:'鋼索沿用',wire_extclear:'清除沿用',wire_repl:'鋼索更換',proj_create:'專案開案',proj_edit:'專案編輯',eq_add:'新增車機',eq_status:'車機狀態變更',guest_perm:'訪客權限',rolepw:'部門密碼'},
+  en:{login:'Login',logout:'Logout',user_add:'Add user',user_del:'Delete user',perm:'Permission change',dept:'Dept. change',pw:'Reset password',navshow:'Sidebar toggle',staff_import:'Import staff',ot_submit:'Overtime request',ot_approve:'Overtime approved',ot_reject:'Overtime rejected',ot_override:'Overtime override',maint_sched:'Schedule maintenance',maint_done:'Maintenance done',wire_ext:'Wire extend',wire_extclear:'Clear extension',wire_repl:'Wire replace',proj_create:'New project',proj_edit:'Edit project',eq_add:'Add equipment',eq_status:'Equipment status',guest_perm:'Guest access',rolepw:'Dept. password'}
 };
 function alActLabel(k){ const L=AL_ACT[(typeof maintLang!=='undefined'?maintLang:'es')]||AL_ACT.es; return L[k]||(AL_ACT.zh[k]||k); }
 function logActor(){ if(typeof umCurrentUser!=='undefined'&&umCurrentUser) return String(umCurrentUser.id)+'·'+(umCurrentUser.name||''); if(typeof currentRole!=='undefined'&&currentRole) return (ROLES[currentRole]&&ROLES[currentRole].label)||currentRole; return '—'; }
