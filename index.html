@@ -5209,7 +5209,7 @@ function otExportPdf(){
     <colgroup><col class="c-date"><col class="c-time"><col class="c-grp"><col class="c-mac"><col class="c-app"><col><col><col class="c-sta"><col class="c-chk"></colgroup>
     <thead>${head}</thead><tbody>${body}</tbody>
   </table>
-  <div class="ot-sum">${(function(){ const totItems=rows.length; const totPeople=rows.reduce((s,r)=>s+((r.people&&r.people.length)||0),0); const totManHours=rows.reduce((s,r)=>s+((parseFloat(r.hours)||0)*((r.people&&r.people.length)||0)),0); const hh=(Math.round(totManHours*100)/100); return ({zh:`總計：${totItems} 件  · ${totPeople} 人次 · 總工時 ${hh} 小時（時數×人數）`,es:`Total: ${totItems} registros · ${totPeople} personas · ${hh} h-hombre`,en:`Total: ${totItems} items · ${totPeople} people · ${hh} man-hours`})[(typeof maintLang!=='undefined'?maintLang:'es')] || `Total: ${totItems} / ${totPeople} / ${hh}h`; })()}</div>
+  <div class="ot-sum">${(function(){ const totItems=rows.length; const _seen={}; let uniq=0; rows.forEach(r=>(r.people||[]).forEach(p=>{ const k=String(p.id||p.name||'').trim().toUpperCase(); if(k&&!_seen[k]){_seen[k]=1;uniq++;} })); const totPeople=uniq; const totManHours=rows.reduce((s,r)=>s+((parseFloat(r.hours)||0)*((r.people&&r.people.length)||0)),0); const hh=(Math.round(totManHours*100)/100); return ({zh:`總計：${totItems} 件  · ${totPeople} 人 · 總工時 ${hh} 小時`,es:`Total: ${totItems} registros · ${totPeople} personas · ${hh} h-hombre`,en:`Total: ${totItems} items · ${totPeople} people · ${hh} man-hours`})[(typeof maintLang!=='undefined'?maintLang:'es')] || `Total: ${totItems} / ${totPeople} / ${hh}h`; })()}</div>
   </body></html>`;
   const w=window.open('','_blank');
   if(!w){ alert('請允許彈出視窗以列印 PDF'); return; }
