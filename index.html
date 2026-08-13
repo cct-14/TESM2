@@ -4748,7 +4748,8 @@ function otPersonConflict(pid,date,start,end,excludeId){ pid=String(pid).toUpper
 function otReqDate(){ return new Date().toLocaleString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}).slice(0,10); }
 function otStaffName(id){ return (typeof STAFF!=='undefined'&&(STAFF[id]||STAFF[String(id).toUpperCase()]))||id; }
 function otCourseDept(g){ const m={'MT-1':'MT1','MT-2':'MT2','MT-3':'MT3','MTD':'MTD','INVENTORY':'INVENTORY','MT1-ONDUTY':'MT1-ONDUTY','MT2-ONDUTY':'MT2-ONDUTY'}; return m[String(g||'').trim().toUpperCase()]||null; }
-function otStaffOptions(dept){ let opts='<option value="">'+otT('pickPerson')+'</option>'; if(typeof STAFF!=='undefined'&&STAFF){ Object.keys(STAFF).sort().forEach(id=>{ const d=(typeof STAFF_DEPT!=='undefined'&&STAFF_DEPT[id])||''; if(dept && d!==dept) return; /* 有對應部門時：只顯示完全符合該部門的人；沒對應部門(dept=null)才列全部 */ opts+=`<option value="${id}">${id}·${STAFF[id]}${d?(' ['+d+']'):''}</option>`; }); } return opts; }
+const OT_HIDDEN_STAFF=['123456']; const OT_HIDDEN_VIEWER='H00929'; /* 測試帳號：只有本人(H00929)看得到 */
+function otStaffOptions(dept){ let opts='<option value="">'+otT('pickPerson')+'</option>'; const viewer=(typeof umCurrentUser!=='undefined'&&umCurrentUser)?String(umCurrentUser.id):''; if(typeof STAFF!=='undefined'&&STAFF){ Object.keys(STAFF).sort().forEach(id=>{ if(OT_HIDDEN_STAFF.indexOf(String(id))>=0 && viewer!==OT_HIDDEN_VIEWER) return; const d=(typeof STAFF_DEPT!=='undefined'&&STAFF_DEPT[id])||''; if(dept && d!==dept) return; /* 有對應部門時：只顯示完全符合該部門的人；沒對應部門(dept=null)才列全部 */ opts+=`<option value="${id}">${id}·${STAFF[id]}${d?(' ['+d+']'):''}</option>`; }); } return opts; }
 function otaGroupChange(){ const g=(document.getElementById('ota-group')||{}).value||''; const sel=document.getElementById('ota-pid'); if(sel) sel.innerHTML=otStaffOptions(otCourseDept(g)); }
 async function otLoadRequests(){ try{ const r=await fetch(`${FB}/ot_requests.json`); OT_REQUESTS=(await r.json())||{}; }catch(e){ OT_REQUESTS={}; } }
 async function initOtSys(){
@@ -5197,7 +5198,7 @@ function otExportPdf(){
     th{background:#eef2ff;font-weight:700}
     thead{display:table-header-group}
     tr{page-break-inside:avoid}
-    col.c-date{width:78px} col.c-time{width:132px} col.c-grp{width:56px} col.c-mac{width:66px} col.c-app{width:130px} col.c-sta{width:70px} col.c-chk{width:58px}
+    col.c-date{width:78px} col.c-time{width:132px} col.c-grp{width:56px} col.c-mac{width:118px} col.c-app{width:120px} col.c-sta{width:66px} col.c-chk{width:54px}
     .c-chk{text-align:center;vertical-align:middle} .chkbox{display:inline-block;width:15px;height:15px;border:1.5px solid #333;border-radius:2px}
     td b{font-family:ui-monospace,Menlo,monospace}
     .ot-sum{margin-top:12px;padding:8px 12px;background:#eef2ff;border:1px solid #99a;border-radius:6px;font-weight:700;font-size:13px}
