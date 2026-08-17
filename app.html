@@ -283,7 +283,16 @@ async function logAudit(action,detail){ try{ const actor=(typeof otUser!=='undef
 function otMachLabel(type,num){ return String(type||'')+(num?('-'+num):''); }
 function cats(t){ return (HDEFS[t]||[]).filter(Boolean); }
 function $(id){ return document.getElementById(id); }
-function show(v){ ['home','status','hgate','hours','otgate','ot','otconfirm','otlist','otreview','otreject','done'].forEach(x=>{ const e=$('v-'+x); if(e) e.classList.toggle('on',x===v); }); }
+function show(v){ ['home','status','hgate','hours','otgate','ot','otconfirm','otlist','otreview','otreject','done'].forEach(x=>{ const e=$('v-'+x); if(e) e.classList.toggle('on',x===v); }); try{ localStorage.setItem('tesm_view',v); }catch(e){} }
+function restoreView(){
+  let v='home'; try{ v=localStorage.getItem('tesm_view')||'home'; }catch(e){}
+  if(v==='status') return goStatus();
+  if(v==='hours'||v==='hgate') return goHours();
+  if(v==='home'||!v) return home();
+  // 其餘皆為加班相關頁：登入還在就回加班（審核頁若有權限就回審核）
+  if(typeof otUser!=='undefined'&&otUser){ if(v==='otreview'&&typeof otCanAnyApprove==='function'&&otCanAnyApprove()) return otOpenReview(); return enterOt(); }
+  return (typeof otShowLogin==='function')?otShowLogin():home();
+}
 
 async function load(){
   try{ const r=await fetch(FB+'/field_kinds.json'); const d=await r.json(); if(Array.isArray(d)&&d.length) KINDS=d; }catch(e){}
@@ -295,6 +304,7 @@ async function load(){
   try{ const r=await fetch(FB+'/users.json'); USERS_APP=(await r.json())||{}; }catch(e){ USERS_APP={}; }
   buildSelects(); applyLang();
   if(typeof otRestoreSession==='function') otRestoreSession();
+  restoreView();
 }
 function buildSelects(){
   $('s-kind').innerHTML=KINDS.map(k=>`<option value="${k}">${k}</option>`).join('');
