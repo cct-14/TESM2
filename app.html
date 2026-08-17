@@ -269,7 +269,7 @@ function daysAgoStr(n){ return new Date(Date.now()-n*86400000).toLocaleString('e
 function panamaDate(){ return new Date().toLocaleString('en-CA',{timeZone:PA_TZ}).slice(0,10); }
 function toMin(t){ const p=String(t||'').split(':').map(Number); return (p[0]||0)*60+(p[1]||0); }
 function overlap(s1,e1,s2,e2){ let a1=toMin(s1),b1=toMin(e1); if(b1<=a1)b1+=1440; let a2=toMin(s2),b2=toMin(e2); if(b2<=a2)b2+=1440; return a1<b2&&a2<b1; }
-function personConflict(all,pid,date,start,end){ pid=String(pid).toUpperCase(); for(const k in all){ const r=all[k]; if(!r||r.status==='rejected'||r.status==='cancelled') continue; if(r.date!==date||!r.start_time||!r.end_time) continue; if(!(r.people||[]).some(p=>String(p.id).toUpperCase()===pid)) continue; if(overlap(start,end,r.start_time,r.end_time)) return true; } return false; }
+function personConflict(all,pid,date,start,end){ pid=String(pid).toUpperCase(); for(const k in all){ const r=all[k]; if(!r||!(r.status==='pending'||r.status==='approved')) continue; if(r.date!==date||!r.start_time||!r.end_time) continue; if(!(r.people||[]).some(p=>String(p.id).toUpperCase()===pid)) continue; if(overlap(start,end,r.start_time,r.end_time)) return true; } return false; }
 function calcHours(s,e){ if(!s||!e) return null; const a=s.split(':').map(Number),b=e.split(':').map(Number); let m=(b[0]*60+b[1])-(a[0]*60+a[1]); if(m<=0)m+=1440; return Math.round(m/60*10)/10; }
 function calcHoursDT(sd,st,ed,et){ if(!sd||!st||!et) return null; ed=ed||sd; const s=new Date(sd+'T'+st+':00'),e=new Date(ed+'T'+et+':00'); let m=(e-s)/60000; if(m<=0)m+=1440; return Math.round(m/60*10)/10; }
 function otSyncEnd(){ const sd=$('ot-date').value, e=$('ot-date-end'); if(e&&(!e.value||e.value<sd)) e.value=sd; }
