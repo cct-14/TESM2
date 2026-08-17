@@ -431,6 +431,16 @@ function otCanAppr1(){ return otP('ot_mobile_approve')&&otP('ot_approve1'); }
 function otCanAppr2(){ return otP('ot_mobile_approve')&&otP('ot_approve2'); }
 function otCanOverride(){ return otP('ot_mobile_approve')&&otP('ot_override'); }
 function otCanAnyApprove(){ return otCanAppr1()||otCanAppr2()||otCanOverride(); }
+const OT_DEFAULT_REASONS=[
+  {zh:'人力已足夠，不需加班',es:'Personal suficiente, no se requieren horas extra',en:'Enough staff, no overtime needed'},
+  {zh:'加班時段/時間不正確',es:'Horario/período de horas extra incorrecto',en:'Incorrect overtime time/period'},
+  {zh:'事由不充分',es:'Motivo insuficiente',en:'Insufficient reason'},
+  {zh:'重複申請',es:'Solicitud duplicada',en:'Duplicate request'},
+  {zh:'超出加班時數/預算上限',es:'Excede el límite de horas extra/presupuesto',en:'Exceeds overtime/budget limit'},
+  {zh:'資料填寫不完整',es:'Datos incompletos',en:'Incomplete information'},
+  {zh:'其他（自行填寫）',es:'Otro (especificar)',en:'Other (specify)'}
+];
+function otRejReasons(){ const r=OTC&&OTC.reject_reasons; return (Array.isArray(r)&&r.length)?r:OT_DEFAULT_REASONS; }
 function otReasonText(x){ if(!x) return ''; if(typeof x==='string') return x; return x[LANG]||x.zh||x.es||x.en||''; }
 let otRevCourse='', otRevDate='';
 function otOpenReview(){ otRevCourse=''; otRevDate=panamaDate(); otShowReview(); }
@@ -473,11 +483,11 @@ async function otMobApprove(id){ const t=L(); const r=ALL_REQ[id]; if(!r) return
   otShowReview();
 }
 let otRejTarget=null;
-function otMobRejectOpen(id,role){ const t=L(); otRejTarget={id,role}; const reasons=(OTC&&OTC.reject_reasons)||[];
+function otMobRejectOpen(id,role){ const t=L(); otRejTarget={id,role}; const reasons=otRejReasons();
   $('otrej-sel').innerHTML=`<option value="">${t.pickReason}</option>`+reasons.map((x,i)=>`<option value="${i}">${otReasonText(x)}</option>`).join('');
   $('otrej-note').value=''; $('otrej-err').textContent=''; show('otreject');
 }
-async function otMobRejectConfirm(){ const t=L(); if(!otRejTarget) return; const reasons=(OTC&&OTC.reject_reasons)||[]; const idx=$('otrej-sel').value;
+async function otMobRejectConfirm(){ const t=L(); if(!otRejTarget) return; const reasons=otRejReasons(); const idx=$('otrej-sel').value;
   if(reasons.length && idx===''){ $('otrej-err').textContent=t.pickReason; return; }
   const reason=(idx!=='')?reasons[parseInt(idx,10)]:null; const note=($('otrej-note').value||'').trim();
   const {id,role}=otRejTarget; const r=ALL_REQ[id]; const nw=now();
