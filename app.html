@@ -155,7 +155,7 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
         <button class="btn ghost" id="ot-logout-btn" style="width:auto;margin:0;padding:0 18px;color:var(--red)" onclick="otLogout()">🚪 <span id="ot-logout-lbl">Salir</span></button>
       </div>
       <label class="lbl" id="l-ot-group">Grupo</label>
-      <select class="inp" id="ot-group"><option value="MT-1">MT-1</option><option value="MT-2">MT-2</option><option value="MT-3">MT-3</option><option value="MTD">MTD</option><option value="INVENTORY">INVENTORY</option><option value="MT1-ONDUTY">MT1-ONDUTY</option><option value="MT2-ONDUTY">MT2-ONDUTY</option></select>
+      <select class="inp" id="ot-group" onchange="otGroupChange()"><option value="MT-1">MT-1</option><option value="MT-2">MT-2</option><option value="MT-3">MT-3</option><option value="MTD">MTD</option><option value="INVENTORY">INVENTORY</option><option value="MT1-ONDUTY">MT1-ONDUTY</option><option value="MT2-ONDUTY">MT2-ONDUTY</option></select>
       <label class="lbl" id="l-ot-time">Horario</label>
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
         <span id="l-ot-from" style="width:44px;font-size:12px;color:var(--text3);flex-shrink:0">Desde</span>
@@ -262,7 +262,7 @@ const I18N={
   en:{sub:'Field entry',status:'Status',hours:'Hours',kind:'Equipment type',num:'Number',statusL:'Status',person:'Staff (employee no.)',submit:'Submit',again:'New entry',end:'Finish',done:'Submitted!',pass:'Password',enter:'Enter',hgSub:'Enter password',wrong:'Wrong password',noPass:'Password not set',errS:'Fill type, number, status and staff',errH:'Enter number and at least one hour',noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used',ot:'Overtime',otPass:'Overtime password',group:'Section',people:'Personnel (ID)',pickPerson:'Select personnel…',multi:'Multiple',multiAdd:'➕ Add machine',multiNeed:'Add at least one machine with a number',date:'Date',reason:'Reason',applicant:'Applicant (leader ID)',otErr:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no overtime permission',confirmT:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',withdrawn:'Withdrawn',otLoginT:'Overtime',uid:'Employee ID',upass:'Password',login:'Sign in',wrongLogin:'Wrong ID or password',noMobilePerm:'No mobile overtime permission',chgT:'Set new password',newpw:'New password',newpw2:'Repeat password',pwshort:'At least 4 characters',pwmis:'Do not match',applicantIs:'Applicant',timeRange:'Time',hoursUnit:'h',totalTime:'Total Time',needTime:'Enter start and end time',fromL:'From',toL:'To',myList:'My requests',logout:'Log out',review:'Review',reviewTitle:'Overtime approval',reviewEmpty:'Nothing to review',revAll:'All',revAllDates:'All dates',approve:'Approve',reject:'Reject',override:'Override reject',pickReason:'Select a reason',rejNote:'Note (optional)',rejConfirm:'Confirm reject',secRole:'Section chief',mgrRole:'Manager',overrideRole:'Override reject',myEmpty:'No recent requests',stW1:'Awaiting 1',stW2:'Awaiting 2',stAp:'Approved',stRj:'Rejected',stCan:'Withdrawn',recent3:'Last 3 days',dupPerson:'Duplicate: this person is already on the list.',notInStaff:'This ID is not in the staff list.',noMachine:'Equipment not found: {m}. Check type and number.',fillFirst:'Fill date and time first.',conflict:'Time conflict: {name} already has overtime in that period.'}
 };
 let LANG=localStorage.getItem('app_lang')||'es';
-let KINDS=DEFAULT_KINDS.slice(), STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, HDEFS={};
+let KINDS=DEFAULT_KINDS.slice(), STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, STAFF_DEPT={}, HDEFS={};
 let flow='status', hoursOK=false, otOK=false;
 let OTC={allowed:{},reminder:{}}, otPeople=[], USERS_APP={}, otUser=null, otPendId=null, OT_MY=[], ALL_REQ={};
 function daysAgoStr(n){ return new Date(Date.now()-n*86400000).toLocaleString('en-CA',{timeZone:PA_TZ}).slice(0,10); }
@@ -290,6 +290,7 @@ async function load(){
   try{ const r=await fetch(FB+'/field_statuses.json'); const d=await r.json(); if(Array.isArray(d)&&d.length) STATUSES=d; }catch(e){}
   try{ const r=await fetch(FB+'/hours_defs.json'); HDEFS=(await r.json())||{}; }catch(e){}
   try{ const r=await fetch(FB+'/staff.json'); STAFF=(await r.json())||{}; }catch(e){}
+  try{ const r=await fetch(FB+'/staff_dept.json'); STAFF_DEPT=(await r.json())||{}; }catch(e){ STAFF_DEPT={}; }
   try{ const r=await fetch(FB+'/ot_config.json'); OTC=(await r.json())||{}; }catch(e){ OTC={}; } if(!OTC.allowed)OTC.allowed={}; if(!OTC.reminder)OTC.reminder={};
   try{ const r=await fetch(FB+'/users.json'); USERS_APP=(await r.json())||{}; }catch(e){ USERS_APP={}; }
   buildSelects(); applyLang();
@@ -304,7 +305,9 @@ function buildSelects(){
   if($('ot-p-id')) $('ot-p-id').innerHTML=otPeopleOptions();
 }
 const OT_HIDDEN_STAFF=['123456'], OT_HIDDEN_VIEWER='H00929'; /* 測試帳號：只有本人(H00929)登入才看得到 */
-function otPeopleOptions(){ let o='<option value="">'+(L().pickPerson||'—')+'</option>'; const viewer=(typeof otUser!=='undefined'&&otUser)?String(otUser.id):''; if(STAFF){ Object.keys(STAFF).sort().forEach(id=>{ if(OT_HIDDEN_STAFF.indexOf(String(id))>=0 && viewer!==OT_HIDDEN_VIEWER) return; o+=`<option value="${id}">${id}·${STAFF[id]}</option>`; }); } return o; }
+function otCourseDept(g){ const m={'MT-1':'MT1','MT-2':'MT2','MT-3':'MT3','MTD':'MTD','INVENTORY':'INVENTORY','MT1-ONDUTY':'MT1-ONDUTY','MT2-ONDUTY':'MT2-ONDUTY'}; return m[String(g||'').trim().toUpperCase()]||null; }
+function otPeopleOptions(dept){ let o='<option value="">'+(L().pickPerson||'—')+'</option>'; const viewer=(typeof otUser!=='undefined'&&otUser)?String(otUser.id):''; if(STAFF){ Object.keys(STAFF).sort().forEach(id=>{ if(OT_HIDDEN_STAFF.indexOf(String(id))>=0 && viewer!==OT_HIDDEN_VIEWER) return; const d=(STAFF_DEPT&&STAFF_DEPT[id])||''; if(dept && d!==dept) return; o+=`<option value="${id}">${id}·${STAFF[id]}${d?(' ['+d+']'):''}</option>`; }); } return o; }
+function otGroupChange(){ const g=($('ot-group')||{}).value||''; const sel=$('ot-p-id'); if(sel) sel.innerHTML=otPeopleOptions(otCourseDept(g)); }
 function setLang(l){ LANG=l; localStorage.setItem('app_lang',l); applyLang(); }
 function applyLang(){
   const t=L(); document.documentElement.lang=LANG;
@@ -437,7 +440,7 @@ async function otShowReview(){ const t=L(); await otLoadAll();
     if(r.status==='pending'&&r.stage==='manager'&&otCanAppr2()) return true;
     if(r.status==='approved'&&otCanOverride()) return true; return false;
   });
-  const courses=[...new Set(base.map(([id,r])=>String(r.group||'').trim()).filter(Boolean))].sort();
+  const courses=['MT-1','MT-2','MT-3','MTD','INVENTORY','MT1-ONDUTY','MT2-ONDUTY'];
   const items=base.filter(([id,r])=>{ if(otRevCourse && String(r.group||'').trim()!==otRevCourse) return false; if(otRevDate && String(r.date||'')!==otRevDate) return false; return true; })
     .sort((a,b)=>String(b[1].created||'').localeCompare(String(a[1].created||'')));
   const bar=`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
@@ -485,7 +488,7 @@ async function otMobRejectConfirm(){ const t=L(); if(!otRejTarget) return; const
   otRejTarget=null; otShowReview();
 }
 function otLogout(){ otUser=null; try{ localStorage.removeItem('tesm_ot'); }catch(e){} otShowLogin(); }
-function enterOt(){ otPeople=[]; if($('ot-p-id'))$('ot-p-id').innerHTML=otPeopleOptions(); ['ot-num','ot-reason','ot-p-id','ot-start','ot-end'].forEach(i=>$(i).value=''); if($('ot-sub'))$('ot-sub').selectedIndex=0; if($('ot-kind'))$('ot-kind').selectedIndex=0; { const _mr=$('ot-multi-rows'); if(_mr)_mr.innerHTML=''; } if(typeof otKindChange==='function') setTimeout(otKindChange,0); $('ot-hours').textContent=''; $('ot-app-name').textContent=otUser?('👤 '+otUser.name):''; { const rb=$('ot-review-btn'); if(rb) rb.style.display=otCanAnyApprove()?'':'none'; } $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); $('ot-date-end').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); otLoadMy(); otLoadAll(); otLoadMachines(); }
+function enterOt(){ otPeople=[]; if($('ot-group'))$('ot-group').selectedIndex=0; if(typeof otGroupChange==='function') otGroupChange(); ['ot-num','ot-reason','ot-p-id','ot-start','ot-end'].forEach(i=>$(i).value=''); if($('ot-sub'))$('ot-sub').selectedIndex=0; if($('ot-kind'))$('ot-kind').selectedIndex=0; { const _mr=$('ot-multi-rows'); if(_mr)_mr.innerHTML=''; } if(typeof otKindChange==='function') setTimeout(otKindChange,0); $('ot-hours').textContent=''; $('ot-app-name').textContent=otUser?('👤 '+otUser.name):''; { const rb=$('ot-review-btn'); if(rb) rb.style.display=otCanAnyApprove()?'':'none'; } $('ot-p-name').textContent=''; $('ot-date').value=panamaDate(); $('ot-date-end').value=panamaDate(); renderOtPeople(); $('ot-remind').textContent=(OTC.reminder&&OTC.reminder[LANG])||''; $('ot-err').textContent=''; show('ot'); otLoadMy(); otLoadAll(); otLoadMachines(); }
 async function otLoadAll(){ try{ const r=await fetch(FB+'/ot_requests.json'); ALL_REQ=(await r.json())||{}; }catch(e){ ALL_REQ={}; } }
 let MACHINES=null;
 async function otLoadMachines(){ try{ const r=await fetch(FB+'/equipment.json'); const d=(await r.json())||{}; const norm=s=>String(s==null?'':s).replace(/[\/\.\#\$\[\]\s]/g,'_').toUpperCase(); const set={}; for(const k in d){ const e=d[k]; const mid=(e&&e.machine_id)?e.machine_id:k; set[norm(mid)]=true; } MACHINES=set; }catch(e){ MACHINES=null; } }
