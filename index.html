@@ -2557,7 +2557,7 @@ function umFinish(id,u){
   if(cb) cb(true);
 }
 function umLogout(){ umCurrentUser=null; guestMode=false; try{ localStorage.removeItem('tesm_um'); localStorage.removeItem('tesm_guest'); }catch(e){} if(typeof showGate==='function') showGate(); umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell(); }
-function umCan(featId,level){ if(typeof ROLES!=='undefined' && ROLES[currentRole] && ROLES[currentRole].features && ROLES[currentRole].features.indexOf('*')>=0) return true; return !!(umCurrentUser&&umCurrentUser.perms&&umCurrentUser.perms[featId]&&umCurrentUser.perms[featId][level||'v']); }
+function umCan(featId,level){ return !!(umCurrentUser&&umCurrentUser.perms&&umCurrentUser.perms[featId]&&umCurrentUser.perms[featId][level||'v']); }
 const PW_I18N={
   zh:{title:'🔑 密碼管理',dept:'部門密碼',app:'現場 / 加班密碼',field:'現場時數',otLeader:'組長（手機加班）',otSec:'課長審核',otMgr:'經理審核',newpw:'新密碼',change:'更改',updated:'✓ 已更新',need:'請輸入密碼'},
   es:{title:'🔑 Contraseñas',dept:'Departamentos',app:'Campo / Horas extra',field:'Horas (campo)',otLeader:'Jefe de grupo (móvil)',otSec:'Jefe de sección',otMgr:'Gerente',newpw:'Nueva contraseña',change:'Cambiar',updated:'✓ Actualizado',need:'Ingrese la contraseña'},
