@@ -1835,6 +1835,7 @@ const ALL_FEATURES = [
   {id:'changelog',label:'📝 更新日誌'},
   {id:'email',    label:'📧 Email 設定'},
   {id:'projset',  label:'📁 專案追蹤系統設定'},
+  {id:'projadmin',label:'📁 專案系統管理'},
   {id:'auditlog', label:'📜 系統日誌'}, // 14 only
   {id:'password', label:'🔑 密碼管理'},
   {id:'roles',    label:'🏢 部門管理'}, // 14 only
@@ -2004,7 +2005,7 @@ function renderDeptTabs(deptKey) {
     features = cfg.features || [];
   }
 
-  if(typeof umCurrentUser!=='undefined' && umCurrentUser){ features = ALL_FEATURES.filter(f=>umCan(f.id,'v')).map(f=>f.id); }
+  if(typeof umCurrentUser!=='undefined' && umCurrentUser && !is14){ features = ALL_FEATURES.filter(f=>umCan(f.id,'v')).map(f=>f.id); }
   const tabs = ALL_FEATURES.filter(f=>!f.page && f.id!=='auditlog' && features.includes(f.id));
   const bar  = document.getElementById('dept-tab-bar');
   bar.innerHTML = tabs.map((t,i)=>`
@@ -2061,6 +2062,7 @@ function renderFeaturePanel(featureId, deptKey) {
   if (featureId==='changelog'){ panel.innerHTML='<div id="fp-changelog"></div>'; renderChangelogInPanel(); }
   if (featureId==='email')    { panel.innerHTML='<div id="fp-email"></div>'; renderEmailPanel(); }
   if (featureId==='projset')  { panel.innerHTML='<div id="fp-projset"></div>'; renderProjSettings(); }
+  if (featureId==='projadmin'){ panel.innerHTML='<div id="fp-projadmin"></div>'; renderProjAdmin(); }
   if (featureId==='auditlog') { panel.innerHTML='<div id="fp-audit"></div>'; renderAuditLog(); }
   if (featureId==='password') { panel.innerHTML=''; renderPasswordPanel(deptKey); }
 }
@@ -2158,15 +2160,15 @@ const UM_I18N={
   zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼（可留空）',add:'新增人員',impBtn:'匯入名冊',impHint:'批次匯入：從 Excel 貼兩欄（編號、名字），一行一筆',imported:'已匯入 {n} 人',needIdName:'請填編號和名字',navHideTitle:'顯示左側功能',navHideHint:'勾選＝這個使用者登入後看得到該左側選單（預設全部顯示）。',navShowAll:'全部顯示',navHideAll:'全部隱藏',
     newpw:'重設密碼',resetpw:'重設',reqpw:'🔑 要求改密碼',reqpwOk:'已要求：此人下次登入需改密碼',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
-    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',mobileAppr:'手機加班核准',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',wiRepl:'鋼索更換授權',projView:'專案追蹤-檢視',projCreate:'專案追蹤-開案',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能',dept:'部門',allDepts:'全部部門',unassigned:'未分類'},
+    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',mobileAppr:'手機加班核准',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',wiRepl:'鋼索更換授權',projView:'專案追蹤-檢視',projCreate:'專案追蹤-開案',projDelete:'專案追蹤-刪除',projLead:'專案追蹤-可負責',umail:'信箱',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能',dept:'部門',allDepts:'全部部門',unassigned:'未分類'},
   es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial (opcional)',add:'Añadir usuario',impBtn:'Importar lista',impHint:'Importar: pegue dos columnas (N.º, nombre) de Excel, una por línea',imported:'{n} importados',needIdName:'N.º y nombre obligatorios',navHideTitle:'Mostrar menú lateral',navHideHint:'Marcado = este usuario verá ese elemento del menú lateral (todos visibles por defecto).',navShowAll:'Mostrar todo',navHideAll:'Ocultar todo',
     newpw:'Nueva contraseña',resetpw:'Restablecer',reqpw:'🔑 Exigir cambio',reqpwOk:'Listo: deberá cambiar la contraseña al próximo inicio.',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
-    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',mobileAppr:'Aprobación H.E. (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',wiRepl:'Autorización de cambio de cable',projView:'Proyectos - Ver',projCreate:'Proyectos - Crear',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones',dept:'Departamento',allDepts:'Todos los deptos.',unassigned:'Sin asignar'},
+    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',mobileAppr:'Aprobación H.E. (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',wiRepl:'Autorización de cambio de cable',projView:'Proyectos - Ver',projCreate:'Proyectos - Crear',projDelete:'Proyectos - Eliminar',projLead:'Proyectos - Responsable',umail:'Correo',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones',dept:'Departamento',allDepts:'Todos los deptos.',unassigned:'Sin asignar'},
   en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password (optional)',add:'Add user',impBtn:'Import list',impHint:'Import: paste two columns (ID, name) from Excel, one per line',imported:'{n} imported',needIdName:'ID and name required',navHideTitle:'Show sidebar items',navHideHint:'Checked = this user can see that sidebar item (all visible by default).',navShowAll:'Show all',navHideAll:'Hide all',
     newpw:'New password',resetpw:'Reset',reqpw:'🔑 Require change',reqpwOk:'Done: must change password on next login.',func:'Function',view:'View',edit:'Edit',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
-    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',mobileAppr:'Overtime approve (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',wiRepl:'Wire replacement permission',projView:'Projects - View',projCreate:'Projects - Create',setpw:'Set/reset password',active:'Active',funcs:'Functions',dept:'Dept.',allDepts:'All depts.',unassigned:'Unassigned'}
+    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',mobileAppr:'Overtime approve (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',wiRepl:'Wire replacement permission',projView:'Projects - View',projCreate:'Projects - Create',projDelete:'Projects - Delete',projLead:'Projects - Lead',umail:'Email',setpw:'Set/reset password',active:'Active',funcs:'Functions',dept:'Dept.',allDepts:'All depts.',unassigned:'Unassigned'}
 };
 function umT(k){ const L=UM_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||UM_I18N.zh; return L[k]||UM_I18N.zh[k]||k; }
 function umTn(k,map){ let s=umT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
@@ -2177,8 +2179,8 @@ function featLabel(f){
   const t=(typeof aT==='function')?aT('feat_'+f.id):null;
   return (t&&t!=='feat_'+f.id)?t:f.label;
 }
-const OT_APPROVE_FEATURES=[{id:'ot_apply'},{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'ot_mobile_approve'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'},{id:'wi_initial'},{id:'wi_extend'},{id:'wi_replace'},{id:'proj_view'},{id:'proj_create'}];
-function approveLabel(id){ const m={ot_apply:'applyF',ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',ot_mobile_approve:'mobileAppr',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg',wi_initial:'wiInit',wi_extend:'wiExt',wi_replace:'wiRepl',proj_view:'projView',proj_create:'projCreate'}; return umT(m[id]||id); }
+const OT_APPROVE_FEATURES=[{id:'ot_apply'},{id:'ot_approve1'},{id:'ot_approve2'},{id:'ot_override'},{id:'ot_mobile'},{id:'ot_mobile_approve'},{id:'export'},{id:'maint_schedule'},{id:'maint_message'},{id:'wi_initial'},{id:'wi_extend'},{id:'wi_replace'},{id:'proj_view'},{id:'proj_create'},{id:'proj_delete'},{id:'proj_lead'}];
+function approveLabel(id){ const m={ot_apply:'applyF',ot_approve1:'appr1',ot_approve2:'appr2',ot_override:'overrideF',ot_mobile:'mobileOt',ot_mobile_approve:'mobileAppr',export:'exportF',maint_schedule:'maintSched',maint_message:'maintMsg',wi_initial:'wiInit',wi_extend:'wiExt',wi_replace:'wiRepl',proj_view:'projView',proj_create:'projCreate',proj_delete:'projDelete',proj_lead:'projLead'}; return umT(m[id]||id); }
 function renderUsers(){
   const el=document.getElementById('um-list'); if(!el) return;
   const q=(document.getElementById('um-search')&&document.getElementById('um-search').value||'').toLowerCase();
@@ -2211,7 +2213,7 @@ function renderUsers(){
         <table style="width:100%;font-size:12px;border-collapse:collapse">
           <tr style="color:var(--text3)"><td style="padding:4px 6px">${umT('funcs')}</td><td style="text-align:center;width:56px">${umT('view')}</td><td style="text-align:center;width:56px">${umT('edit')}</td></tr>
           ${ALL_FEATURES.filter(f=>f.id!=='auditlog').map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
-          ${OT_APPROVE_FEATURES.map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3);background:var(--bg2)"><td style="padding:6px;font-weight:700;color:var(--blue)">${approveLabel(f.id)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center;color:var(--text3)">—</td></tr>`;}).join('')}
+          ${OT_APPROVE_FEATURES.filter(f=>!String(f.id).startsWith('proj_')).map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3);background:var(--bg2)"><td style="padding:6px;font-weight:700;color:var(--blue)">${approveLabel(f.id)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center;color:var(--text3)">—</td></tr>`;}).join('')}
         </table>
         <div style="margin-top:12px;padding:10px;background:var(--purple-l);border:1px solid var(--purple);border-radius:10px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
@@ -2227,6 +2229,7 @@ function renderUsers(){
   }).join('');
 }
 function umToggle(id){ umOpen[id]=!umOpen[id]; renderUsers(); }
+async function umSetEmail(id,val){ val=(val||'').trim(); if(!USERS[id]) USERS[id]={perms:{},name:(STAFF&&STAFF[id])||id}; USERS[id].email=val; try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/email.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); if(typeof logAudit==='function') logAudit('user_email', id+' → '+(val||'(清空)')); }catch(e){ alert('✗ '+e.message); } }
 async function umAdd(){
   const id=(document.getElementById('um-add-id').value||'').trim();
   const name=(document.getElementById('um-add-name').value||'').trim();
@@ -3143,7 +3146,7 @@ try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }ca
 // ── 管理介面三語字典 ──
 const ADMIN_I18N={
   zh:{
-    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_projset:'📁 專案追蹤系統',feat_auditlog:'📜 系統日誌',feat_password:'密碼管理',feat_roles:'部門管理',
+    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_projset:'📁 專案追蹤系統',feat_projadmin:'📁 專案系統管理',feat_auditlog:'📜 系統日誌',feat_password:'密碼管理',feat_roles:'部門管理',
     st_kinds:'車機種類',st_statuses:'狀態選項',st_hours:'時數種類',st_staff:'人員清單',st_pass:'密碼',
     desc_kinds:'車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）',
     desc_statuses:'車機狀態選項（現場「狀態更改」的下拉）',
@@ -3167,7 +3170,7 @@ const ADMIN_I18N={
     m_built:'補建 {n} 台 ✓',m_skipped:'（略過已存在 {n} 台）',m_bad:'（{n} 筆格式不符）'
   },
   es:{
-    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_projset:'📁 Proyectos',feat_auditlog:'📜 Registro',feat_password:'Contraseñas',feat_roles:'Departamentos',
+    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_projset:'📁 Proyectos',feat_projadmin:'📁 Admin proyectos',feat_auditlog:'📜 Registro',feat_password:'Contraseñas',feat_roles:'Departamentos',
     st_kinds:'Tipos',st_statuses:'Estados',st_hours:'Cat. horas',st_staff:'Personal',st_pass:'Contraseña',
     desc_kinds:'Tipos de equipo (para «Estado» y «Horas» en campo. AR se asigna a ARMGC).',
     desc_statuses:'Opciones de estado (menú de «Cambiar estado» en campo).',
@@ -3191,7 +3194,7 @@ const ADMIN_I18N={
     m_built:'{n} creados ✓',m_skipped:'({n} existentes omitidos)',m_bad:'({n} con formato inválido)'
   },
   en:{
-    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_projset:'📁 Projects',feat_auditlog:'📜 Audit log',feat_password:'Passwords',feat_roles:'Departments',
+    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_projset:'📁 Projects',feat_projadmin:'📁 Project admin',feat_auditlog:'📜 Audit log',feat_password:'Passwords',feat_roles:'Departments',
     st_kinds:'Types',st_statuses:'Statuses',st_hours:'Hour cats',st_staff:'Staff',st_pass:'Password',
     desc_kinds:'Equipment types (used by field Status & Hours. AR maps to ARMGC).',
     desc_statuses:'Status options (the field «Change status» dropdown).',
@@ -6221,26 +6224,32 @@ function addToHome(){
 
 /* ===================== 專案追蹤系統 Project Tracking（維修外修控制清單） ===================== */
 let PROJECTS={}, PROJ_VENDORS=[];
+let PROJ_CFG={template:'{prefix}-{dept}-R{year}-{seq}',seqDigits:3,prefix:'CCTMTD',deptPrefix:{}};
 const PROJ_DEPTS=['MT1','MT2','MT3','MTD'];
 const PROJ_VENDOR_SEED=['MASTER TECH','ROBDEK','AMCO SERVICIOS','GEMCO','GRUPO VARGAS MATAMOROS','MINDI PORT','SETIMSA','GRUPO ASM','MASTER TRUCK','SELLOS HIDRAULICOS DE PANAMA','M & C','MULTISERVICIOS GUERRA (COVRA)','CUMMINS PANAMA','DIESEL & TURBO','HYDRAULIC PARTS PANAMA','GMP','PECSCO','IPS','GLOBAL PORT EQUIPMENT','TEISCA','SANY','CIMC','RENFRIO','YOSHIYA'];
-let projShowForm=false, projEditKey=null, projFDept='', projFYear='', projSearch='';
+let projShowForm=false, projEditKey=null, projFDept='', projFYear='', projSearch='', projDetailKey=null;
 const PROJ_I18N={
-  es:{title:'Control de proyectos de reparación',newProj:'Nuevo proyecto',no:'N.º',subject:'Asunto',approvedDate:'Fecha aprob.',cost:'Costo',vendor:'Proveedor',attr:'Equipo',attrNum:'Número',finishDate:'Fecha fin',remark:'Nota',pay1:'1.er pago',pay2:'2.º pago',pay3:'3.er pago',payDate:'Fecha',payAmt:'Monto',paid:'Pagado',balance:'Saldo',status:'Estado',stUnpaid:'Sin pago',stPartial:'Parcial',stPaid:'Pagado',stDone:'Finalizado',dept:'Depto.',lead:'Responsable',sup:'Supervisor',creator:'Creado por',save:'Guardar',cancel:'Cancelar',edit:'Editar',sel:'Seleccione…',none:'—',needDept:'Seleccione depto.',needSubject:'Ingrese el asunto',noPerm:'Solo el responsable/supervisor/creador puede editar.',empty:'Aún no hay proyectos',allDepts:'Todos deptos.',allYears:'Todos años',searchPh:'🔍 N.º o asunto',totCount:'Proyectos',totCost:'Costo total',totPaid:'Pagado',totBal:'Saldo',saved:'Guardado',payments:'Pagos',vendors:'Proveedores',addVendor:'Añadir proveedor'},
-  zh:{title:'維修外修專案控制清單',newProj:'開專案',no:'編號',subject:'主旨',approvedDate:'核准日期',cost:'專案金額',vendor:'廠商',attr:'車機類型',attrNum:'編號',finishDate:'完成日期',remark:'備註',pay1:'第1期付款',pay2:'第2期付款',pay3:'第3期付款',payDate:'日期',payAmt:'金額',paid:'已付',balance:'差額',status:'狀態',stUnpaid:'未付',stPartial:'部分付款',stPaid:'已付清',stDone:'已完成',dept:'部門',lead:'主辦人',sup:'監督人',creator:'開案者',save:'儲存',cancel:'取消',edit:'編輯',sel:'請選擇…',none:'—',needDept:'請選擇部門',needSubject:'請輸入主旨',noPerm:'只有主辦/監督/開案者能編輯。',empty:'尚無專案',allDepts:'全部部門',allYears:'全部年份',searchPh:'🔍 編號或主旨',totCount:'專案數',totCost:'總金額',totPaid:'已付',totBal:'差額',saved:'已儲存',payments:'分期付款',vendors:'廠商名單',addVendor:'新增廠商'},
-  en:{title:'Repair Project Control List',newProj:'New Project',no:'No.',subject:'Subject',approvedDate:'Approved',cost:'Cost',vendor:'Vendor',attr:'Equipment',attrNum:'Number',finishDate:'Finish date',remark:'Remark',pay1:'1st payment',pay2:'2nd payment',pay3:'3rd payment',payDate:'Date',payAmt:'Amount',paid:'Paid',balance:'Balance',status:'Status',stUnpaid:'Unpaid',stPartial:'Partial',stPaid:'Paid',stDone:'Finished',dept:'Dept.',lead:'Lead',sup:'Supervisor',creator:'Created by',save:'Save',cancel:'Cancel',edit:'Edit',sel:'Select…',none:'—',needDept:'Select a dept.',needSubject:'Enter the subject',noPerm:'Only lead/supervisor/creator can edit.',empty:'No projects yet',allDepts:'All depts.',allYears:'All years',searchPh:'🔍 No. or subject',totCount:'Projects',totCost:'Total cost',totPaid:'Paid',totBal:'Balance',saved:'Saved',payments:'Payments',vendors:'Vendors',addVendor:'Add vendor'}
+  es:{title:'Control de proyectos de reparación',newProj:'Nuevo proyecto',no:'N.º',subject:'Asunto',approvedDate:'Fecha aprob.',cost:'Costo',vendor:'Proveedor',attr:'Equipo',attrNum:'Número',finishDate:'Fecha est. entrega',remark:'Nota',pay1:'1.er pago',pay2:'2.º pago',pay3:'3.er pago',payDate:'Fecha',payAmt:'Monto',paid:'Pagado',balance:'Saldo',status:'Estado',stUnpaid:'Sin pago',stPartial:'Parcial',stPaid:'Pagado',stDone:'Finalizado',dept:'Depto.',lead:'Responsable',sup:'Supervisor',creator:'Creado por',save:'Guardar',cancel:'Cancelar',edit:'Editar',sel:'Seleccione…',none:'—',needDept:'Seleccione depto.',needSubject:'Ingrese el asunto',noPerm:'Solo el responsable/supervisor/creador puede editar.',empty:'Aún no hay proyectos',allDepts:'Todos deptos.',allYears:'Todos años',searchPh:'🔍 N.º o asunto',totCount:'Proyectos',totCost:'Costo total',totPaid:'Pagado',totBal:'Saldo',saved:'Guardado',payments:'Pagos',vendors:'Proveedores',addVendor:'Añadir proveedor',backList:'← Volver a la lista',secItems:'Detalle de cotización',itName:'Ítem',itDesc:'Descripción',itQty:'Cant.',itPrice:'P. unit.',itAmt:'Importe',quoteTotal:'Total cotizado',vsCost:'Dif. vs costo',addItem:'Añadir ítem',secTimeline:'Progreso',tlStage:'Etapa',tlNote:'Nota',addStage:'Añadir etapa',stgEstablish:'Crear proyecto',stgApproval:'Requisición aprobada',stgInquiry:'Cotización',stgVendor:'Selección proveedor',stgRepairing:'En reparación/compra',stgComplete:'Completado/Almacén',payTotalField:'Total a pagar',terms:'N.º de cuotas',termCol:'Cuota',payDone:'Pago completo',sumTotal:'Total',secPayplan:'Términos de pago acordados',ppName:'Concepto',ppPct:'%',ppAmt:'Importe',pctTotal:'Total %',amtTotal:'Total',addPayItem:'Añadir término',secPays:'Detalle de pagos',pInv:'N.º factura',pNote:'Nota',addPay:'Añadir pago',payTotal:'Total pagado',saveDetail:'Guardar detalle',detailSaved:'Detalle guardado',viewOnlyNote:'Solo lectura',noItems:'Sin ítems',del:'Eliminar',delConfirm:'¿Eliminar el proyecto {no}? No se puede deshacer.',deleted:'Eliminado',noCfgTitle:'Formato de N.º de proyecto',noCfgTemplate:'Formato',noCfgHint:'Variables: {prefix} {dept} {year} {seq}',noCfgSeqDigits:'Dígitos de secuencia',noCfgPrefix:'Prefijo por defecto',noCfgDeptPrefix:'Prefijo por depto. (vacío=por defecto)',noCfgPreview:'Vista previa',noCfgSaved:'Formato guardado',paTitle:'Gestión del sistema de proyectos',paPeople:'Permisos y correo',paView:'Ver',paCreate:'Crear',paDelete:'Eliminar',paLead:'Responsable',paSearch:'🔍 N.º o nombre',paDeptAll:'Todos deptos.',paEmailPh:'Correo (para informe diario)',paEmpty:'Sin personal'},
+  zh:{title:'維修外修專案控制清單',newProj:'開專案',no:'編號',subject:'主旨',approvedDate:'核准日期',cost:'專案金額',vendor:'廠商',attr:'車機類型',attrNum:'編號',finishDate:'預計完工/出貨日期',remark:'備註',pay1:'第1期付款',pay2:'第2期付款',pay3:'第3期付款',payDate:'日期',payAmt:'金額',paid:'已付',balance:'差額',status:'狀態',stUnpaid:'未付',stPartial:'部分付款',stPaid:'已付清',stDone:'已完成',dept:'部門',lead:'主辦人',sup:'監督人',creator:'開案者',save:'儲存',cancel:'取消',edit:'編輯',sel:'請選擇…',none:'—',needDept:'請選擇部門',needSubject:'請輸入主旨',noPerm:'只有主辦/監督/開案者能編輯。',empty:'尚無專案',allDepts:'全部部門',allYears:'全部年份',searchPh:'🔍 編號或主旨',totCount:'專案數',totCost:'總金額',totPaid:'已付',totBal:'差額',saved:'已儲存',payments:'分期付款',vendors:'廠商名單',addVendor:'新增廠商',backList:'← 返回清單',secItems:'工項/報價明細',itName:'品項',itDesc:'說明',itQty:'數量',itPrice:'單價',itAmt:'金額',quoteTotal:'報價總額',vsCost:'與專案金額差異',addItem:'新增工項',secTimeline:'進度時間軸',tlStage:'階段',tlNote:'備註',addStage:'新增階段',stgEstablish:'成立專案',stgApproval:'申議書核決',stgInquiry:'詢價',stgVendor:'廠商決議',stgRepairing:'維修中/採購中',stgComplete:'完成/入庫',payTotalField:'付款總額',terms:'分幾期',termCol:'期別',payDone:'付款完成',sumTotal:'總額',secPayplan:'約定付款細項',ppName:'付款項目',ppPct:'百分比(%)',ppAmt:'金額',pctTotal:'百分比合計',amtTotal:'金額合計',addPayItem:'新增付款項目',secPays:'付款明細',pInv:'發票號碼',pNote:'備註',addPay:'新增付款',payTotal:'付款合計',saveDetail:'儲存明細',detailSaved:'明細已儲存',viewOnlyNote:'唯讀檢視',noItems:'尚無工項',del:'刪除',delConfirm:'確定刪除專案 {no}?此動作無法復原。',deleted:'已刪除',noCfgTitle:'專案編號設置',noCfgTemplate:'編號格式',noCfgHint:'可用變數:{prefix} {dept} {year} {seq}',noCfgSeqDigits:'序號位數',noCfgPrefix:'預設前綴',noCfgDeptPrefix:'各部門前綴(留空=用預設)',noCfgPreview:'預覽',noCfgSaved:'編號設定已儲存',paTitle:'專案系統管理',paPeople:'人員權限與信箱',paView:'檢視',paCreate:'開案',paDelete:'刪除',paLead:'可負責',paSearch:'🔍 編號或姓名',paDeptAll:'全部部門',paEmailPh:'信箱(每日進度報告用)',paEmpty:'查無人員'},
+  en:{title:'Repair Project Control List',newProj:'New Project',no:'No.',subject:'Subject',approvedDate:'Approved',cost:'Cost',vendor:'Vendor',attr:'Equipment',attrNum:'Number',finishDate:'Est. completion/delivery',remark:'Remark',pay1:'1st payment',pay2:'2nd payment',pay3:'3rd payment',payDate:'Date',payAmt:'Amount',paid:'Paid',balance:'Balance',status:'Status',stUnpaid:'Unpaid',stPartial:'Partial',stPaid:'Paid',stDone:'Finished',dept:'Dept.',lead:'Lead',sup:'Supervisor',creator:'Created by',save:'Save',cancel:'Cancel',edit:'Edit',sel:'Select…',none:'—',needDept:'Select a dept.',needSubject:'Enter the subject',noPerm:'Only lead/supervisor/creator can edit.',empty:'No projects yet',allDepts:'All depts.',allYears:'All years',searchPh:'🔍 No. or subject',totCount:'Projects',totCost:'Total cost',totPaid:'Paid',totBal:'Balance',saved:'Saved',payments:'Payments',vendors:'Vendors',addVendor:'Add vendor',backList:'← Back to list',secItems:'Quotation detail',itName:'Item',itDesc:'Description',itQty:'Qty',itPrice:'Unit price',itAmt:'Amount',quoteTotal:'Quoted total',vsCost:'Diff. vs cost',addItem:'Add item',secTimeline:'Progress',tlStage:'Stage',tlNote:'Note',addStage:'Add stage',stgEstablish:'Create project',stgApproval:'Requisition approved',stgInquiry:'Inquiry',stgVendor:'Vendor selection',stgRepairing:'In repair/purchase',stgComplete:'Completed/Stock-in',payTotalField:'Payment total',terms:'Installments',termCol:'Installment',payDone:'Payment complete',sumTotal:'Total',secPayplan:'Agreed payment terms',ppName:'Item',ppPct:'%',ppAmt:'Amount',pctTotal:'Total %',amtTotal:'Total',addPayItem:'Add term',secPays:'Payment detail',pInv:'Invoice no.',pNote:'Note',addPay:'Add payment',payTotal:'Total paid',saveDetail:'Save detail',detailSaved:'Detail saved',viewOnlyNote:'View only',noItems:'No items',del:'Delete',delConfirm:'Delete project {no}? This cannot be undone.',deleted:'Deleted',noCfgTitle:'Project number format',noCfgTemplate:'Format',noCfgHint:'Variables: {prefix} {dept} {year} {seq}',noCfgSeqDigits:'Sequence digits',noCfgPrefix:'Default prefix',noCfgDeptPrefix:'Per-dept prefix (blank=default)',noCfgPreview:'Preview',noCfgSaved:'Format saved',paTitle:'Project system admin',paPeople:'Permissions & email',paView:'View',paCreate:'Create',paDelete:'Delete',paLead:'Lead',paSearch:'🔍 ID or name',paDeptAll:'All depts.',paEmailPh:'Email (for daily report)',paEmpty:'No staff'}
 };
 function pT(k){ const L=PROJ_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||PROJ_I18N.es; return (k in L)?L[k]:(PROJ_I18N.zh[k]||k); }
-async function loadProjects(){ try{ const r=await fetch(`${FB}/projects.json`); PROJECTS=(await r.json())||{}; }catch(e){ PROJECTS={}; } try{ const r=await fetch(`${FB}/proj_vendors.json`); const v=await r.json(); PROJ_VENDORS=Array.isArray(v)?v:(v?Object.values(v):[]); }catch(e){ PROJ_VENDORS=[]; } }
+async function loadProjects(){ try{ const r=await fetch(`${FB}/projects.json`); PROJECTS=(await r.json())||{}; }catch(e){ PROJECTS={}; } try{ const r=await fetch(`${FB}/proj_vendors.json`); const v=await r.json(); PROJ_VENDORS=Array.isArray(v)?v:(v?Object.values(v):[]); }catch(e){ PROJ_VENDORS=[]; } try{ const r=await fetch(`${FB}/proj_config.json`); const c=await r.json(); if(c&&typeof c==='object'){ PROJ_CFG=Object.assign({template:'{prefix}-{dept}-R{year}-{seq}',seqDigits:3,prefix:'CCTMTD',deptPrefix:{}},c); if(!PROJ_CFG.deptPrefix||typeof PROJ_CFG.deptPrefix!=='object') PROJ_CFG.deptPrefix={}; } }catch(e){} }
+function projNoBuild(dept,year,seq){ const dp=(PROJ_CFG.deptPrefix&&PROJ_CFG.deptPrefix[dept])||''; const pfx=dp||PROJ_CFG.prefix||'CCTMTD'; const digits=parseInt(PROJ_CFG.seqDigits,10)||3; const t=PROJ_CFG.template||'{prefix}-{dept}-R{year}-{seq}'; return t.replace(/\{prefix\}/g,pfx).replace(/\{dept\}/g,dept).replace(/\{year\}/g,year).replace(/\{seq\}/g,String(seq).padStart(digits,'0')); }
 function projVendorOptions(sel){ const list=PROJ_VENDORS.slice(); if(sel&&list.indexOf(sel)<0) list.unshift(sel); return `<option value="">${pT('none')}</option>`+list.map(x=>`<option value="${String(x).replace(/"/g,'&quot;')}" ${sel===x?'selected':''}>${x}</option>`).join(''); }
 function projCanView(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_view','v')); }
 function projCanCreate(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_create','v')); }
+function projCanDelete(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_delete','v')); }
+function projLeadActive(){ if(typeof USERS==='undefined'||!USERS) return false; for(const k in USERS){ const p=USERS[k]&&USERS[k].perms&&USERS[k].perms.proj_lead; if(p&&p.v) return true; } return false; }
+function projIsLead(id){ const u=(typeof USERS!=='undefined')&&USERS&&USERS[id]; return !!(u&&u.perms&&u.perms.proj_lead&&u.perms.proj_lead.v); }
+async function projDelete(key){ const p=PROJECTS[key]; if(!p) return; if(!projCanDelete()){ alert(pT('noPerm')); return; } if(!confirm(pT('delConfirm').replace('{no}',p.no||''))) return; try{ await fetch(`${FB}/projects/${key}.json`,{method:'DELETE'}); delete PROJECTS[key]; if(typeof logAudit==='function') logAudit('proj_delete',(p.no||'')+' — '+(p.subject||'')); if(projDetailKey===key) projDetailKey=null; renderProjTrack(); }catch(e){ alert('Error: '+e.message); } }
 function projCurId(){ if(typeof umCurrentUser!=='undefined'&&umCurrentUser) return String(umCurrentUser.id); return currentRole||'14'; }
 function projCurName(){ if(typeof umCurrentUser!=='undefined'&&umCurrentUser&&umCurrentUser.name) return umCurrentUser.name; return (ROLES[currentRole]&&ROLES[currentRole].label)||currentRole||'14'; }
 function projCanEditRec(p){ if(typeof mtIs14==='function'&&mtIs14()) return true; const me=projCurId(); return !!(me && p && (String(p.lead)===me||String(p.sup)===me||String(p.creator)===me)); }
 function projNextSeq(dept,year){ let mx=0; Object.values(PROJECTS||{}).forEach(p=>{ if(p&&p.dept===dept&&String(p.year)===String(year)){ const s=parseInt(p.seq,10); if(!isNaN(s)&&s>mx) mx=s; } }); return mx+1; }
-function projPeopleByDept(dept){ const out=[]; if(typeof STAFF!=='undefined'&&STAFF){ Object.keys(STAFF).sort().forEach(id=>{ const d=(typeof STAFF_DEPT!=='undefined'&&STAFF_DEPT[id])||''; if(!dept||d===dept) out.push({id,name:STAFF[id]}); }); } return out; }
+function projPeopleByDept(dept){ const out=[]; const filt=projLeadActive(); if(typeof STAFF!=='undefined'&&STAFF){ Object.keys(STAFF).sort().forEach(id=>{ const d=(typeof STAFF_DEPT!=='undefined'&&STAFF_DEPT[id])||''; if(dept&&d!==dept) return; if(filt&&!projIsLead(id)) return; out.push({id,name:STAFF[id]}); }); } return out; }
 function projPersonName(id){ if(!id) return ''; if(typeof STAFF!=='undefined'&&STAFF&&STAFF[id]) return STAFF[id]; return id; }
-function projDeptPeopleOptions(dept,sel){ return `<option value="">${pT('sel')}</option>`+projPeopleByDept(dept).map(p=>`<option value="${p.id}" ${String(sel)===String(p.id)?'selected':''}>${p.id}·${p.name}</option>`).join(''); }
+function projDeptPeopleOptions(dept,sel){ let list=projPeopleByDept(dept); if(sel&&!list.some(p=>String(p.id)===String(sel))) list=[{id:sel,name:(projPersonName(sel)||sel)}].concat(list); return `<option value="">${pT('sel')}</option>`+list.map(p=>`<option value="${p.id}" ${String(sel)===String(p.id)?'selected':''}>${p.id}·${p.name}</option>`).join(''); }
 function projAttrKinds(){ let ks=(typeof FIELD_KINDS!=='undefined'&&FIELD_KINDS&&FIELD_KINDS.length)?FIELD_KINDS.slice():['GC','RTG','AR','SL','TR','CH','SP']; ['YT','OTHER'].forEach(x=>{ if(ks.indexOf(x)<0) ks.push(x); }); return ks; }
 function projAttrLabel(p){ const t=p&&p.attrType||''; const n=p&&p.attrNum||''; return t+(n?('-'+n):''); }
 function projPaid(p){ return (parseFloat(p&&p.pay1&&p.pay1.amt)||0)+(parseFloat(p&&p.pay2&&p.pay2.amt)||0)+(parseFloat(p&&p.pay3&&p.pay3.amt)||0); }
@@ -6268,7 +6277,7 @@ function projFormHtml(){
       <div><label class="lbl2">${pT('attr')}</label><select class="eq-input" id="proj-f-attrtype" style="width:100%">${kinds.map(k=>`<option value="${k}" ${p.attrType===k?'selected':''}>${k}</option>`).join('')}</select></div>
       <div><label class="lbl2">${pT('attrNum')}</label><input class="eq-input" id="proj-f-attrnum" style="width:100%;text-transform:uppercase" value="${v(p.attrNum)}"/></div>
       <div><label class="lbl2">${pT('cost')}</label><input type="number" class="eq-input" id="proj-f-cost" style="width:100%" value="${v(p.cost)}"/></div>
-      <div><label class="lbl2">${pT('vendor')}</label><select class="eq-input" id="proj-f-vendor" style="width:100%">${projVendorOptions(p.vendor)}</select></div>
+      <div><label class="lbl2">${pT('vendor')}</label><input class="eq-input" id="proj-f-vendor" style="width:100%" value="${v(p.vendor)}" placeholder="${pT('vendor')}"/></div>
       <div><label class="lbl2">${pT('lead')}</label><select class="eq-input" id="proj-f-lead" style="width:100%">${projDeptPeopleOptions(d0,p.lead)}</select></div>
       <div><label class="lbl2">${pT('sup')}</label><select class="eq-input" id="proj-f-sup" style="width:100%">${projDeptPeopleOptions(d0,p.sup)}</select></div>
       <div><label class="lbl2">${pT('finishDate')}</label><input type="date" class="eq-input" id="proj-f-finish" style="width:100%" value="${v(p.finishDate)}"/></div>
@@ -6301,8 +6310,9 @@ async function projSave(){
       if(typeof logAudit==='function') logAudit('proj_edit', obj.no+' — '+subject);
     } else {
       const pp=panParts(); const year=pp.y; const seq=projNextSeq(dept,year);
-      const no=`CCTMTD-${dept}-R${year}-${String(seq).padStart(3,'0')}`;
-      const obj=Object.assign({ no, dept, year, seq, creator:projCurId(), creatorName:projCurName(), ts:Date.now() }, fields);
+      const estDate=pp.y+'-'+String(pp.m).padStart(2,'0')+'-'+String(pp.d).padStart(2,'0');
+      const no=projNoBuild(dept,year,seq);
+      const obj=Object.assign({ no, dept, year, seq, estDate, creator:projCurId(), creatorName:projCurName(), ts:Date.now() }, fields);
       const r=await fetch(`${FB}/projects.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
       const j=await r.json(); const key=(j&&j.name)?j.name:('local_'+obj.ts); PROJECTS[key]=obj;
       if(typeof logAudit==='function') logAudit('proj_create', no+' — '+subject);
@@ -6314,6 +6324,7 @@ async function renderProjTrack(){
   const root=document.getElementById('projtrack-root'); if(!root) return;
   if(!projCanView()){ root.innerHTML=`<div style="padding:40px;text-align:center;color:var(--text3)">🔒</div>`; return; }
   if((typeof STAFF==='undefined'||!STAFF||!Object.keys(STAFF).length) && typeof fldLoadConfig==='function'){ try{ await fldLoadConfig(); }catch(e){} }
+  if(projDetailKey){ if(PROJECTS[projDetailKey]){ root.innerHTML=projDetailHtml(projDetailKey); return; } projDetailKey=null; }
   const canCreate=projCanCreate();
   let all=Object.entries(PROJECTS||{}).map(([k,p])=>({k,...p})).sort((a,b)=>(b.ts||0)-(a.ts||0)||String(b.no||'').localeCompare(String(a.no||'')));
   const years=[...new Set(all.map(p=>String(p.year||'')).filter(Boolean))].sort().reverse();
@@ -6329,7 +6340,7 @@ async function renderProjTrack(){
       ${th(pT('no'))}${th(pT('subject'))}${th(pT('approvedDate'))}${th(pT('attr'))}${th(pT('vendor'))}${th(pT('cost'),'text-align:right')}${th(pT('paid'),'text-align:right')}${th(pT('balance'),'text-align:right')}${th(pT('finishDate'))}${th(pT('status'))}${th('')}</tr></thead>
     <tbody>${rows.map(p=>{ const paid=projPaid(p); const bal=(parseFloat(p.cost)||0)-paid; const st=projStatus(p); const canE=projCanEditRec(p);
       return `<tr style="border-bottom:1px solid var(--bg3)">
-      <td style="padding:7px 8px;font-weight:700;white-space:nowrap">${p.no||''}</td>
+      <td style="padding:7px 8px;font-weight:700;white-space:nowrap"><a onclick="projOpenDetail('${p.k}')" style="color:var(--blue);cursor:pointer;text-decoration:underline">${p.no||''}</a></td>
       <td style="padding:7px 8px;min-width:180px">${(p.subject||'').replace(/</g,'&lt;')}${p.remark?`<div style="color:var(--text3);font-size:11px">${(p.remark||'').replace(/</g,'&lt;')}</div>`:''}</td>
       <td style="padding:7px 8px;white-space:nowrap">${(p.approvedDate||'').slice(0,10)}</td>
       <td style="padding:7px 8px;white-space:nowrap">${projAttrLabel(p)}</td>
@@ -6339,7 +6350,7 @@ async function renderProjTrack(){
       <td style="padding:7px 8px;text-align:right;white-space:nowrap;${bal>0?'color:#b45309':''}">${p.cost?projMoney(bal):''}</td>
       <td style="padding:7px 8px;white-space:nowrap">${(p.finishDate||'').slice(0,10)}</td>
       <td style="padding:7px 8px;white-space:nowrap"><span style="background:${st.bg};color:${st.c};padding:1px 8px;border-radius:10px;font-weight:700;font-size:11px">${pT(st.k)}</span></td>
-      <td style="padding:7px 8px;white-space:nowrap">${canE?`<button class="btn-sm" onclick="projOpenEdit('${p.k}')">${pT('edit')}</button>`:''}</td></tr>`; }).join('')}</tbody>
+      <td style="padding:7px 8px;white-space:nowrap">${canE?`<button class="btn-sm" onclick="projOpenEdit('${p.k}')">${pT('edit')}</button>`:''}${projCanDelete()?` <button class="btn-sm" style="color:var(--red)" onclick="projDelete('${p.k}')">${pT('del')}</button>`:''}</td></tr>`; }).join('')}</tbody>
     <tfoot><tr style="background:var(--bg2);font-weight:800;border-top:2px solid var(--border)">
       <td style="padding:8px" colspan="5">${pT('totCount')}: ${rows.length}</td>
       <td style="padding:8px;text-align:right;white-space:nowrap">${projMoney(totCost)}</td>
@@ -6359,10 +6370,190 @@ async function renderProjTrack(){
     </div>${form}${filterBar}<div id="proj-table-wrap">${table}</div>`;
 }
 function projRenderTableOnly(){ /* 搜尋時重繪並保留輸入焦點 */ renderProjTrack(); const inp=document.querySelector('#projtrack-root input[placeholder^="🔍"]'); if(inp){ inp.focus(); const v=inp.value; try{ inp.setSelectionRange(v.length,v.length); }catch(e){} } }
+/* ---------- 專案明細頁 (Phase 2) ---------- */
+function projStages(){ return [{k:'stgEstablish'},{k:'stgApproval'},{k:'stgInquiry'},{k:'stgVendor'},{k:'stgRepairing'},{k:'stgComplete'}]; }
+function projTermLabel(i){ const n=i+1; const lang=(typeof maintLang!=='undefined'?maintLang:'es'); if(lang==='zh') return '第 '+n+' 期'; if(lang==='en') return 'Installment '+n; return 'Cuota '+n; }
+function projOpenDetail(key){ if(!PROJECTS[key]) return; projDetailKey=key; projShowForm=false; projEditKey=null; renderProjTrack(); try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); } }
+function projCloseDetail(){ projDetailKey=null; renderProjTrack(); }
+function projDEsc(x){ return String(x==null?'':x).replace(/"/g,'&quot;'); }
+function projDItemRowHtml(it,canE){ it=it||{}; const v=projDEsc; const amt=(parseFloat(it.qty)||0)*(parseFloat(it.price)||0);
+  if(canE){ return `<tr class="pd-item-row">
+    <td style="padding:2px 4px"><input class="eq-input pd-i-name" style="width:100%" value="${v(it.name)}"/></td>
+    <td style="padding:2px 4px"><input class="eq-input pd-i-desc" style="width:100%" value="${v(it.desc)}"/></td>
+    <td style="padding:2px 4px"><input type="number" class="eq-input pd-i-qty" style="width:70px;text-align:right" value="${v(it.qty)}" oninput="projDRecalc()"/></td>
+    <td style="padding:2px 4px"><input type="number" class="eq-input pd-i-price" style="width:100px;text-align:right" value="${v(it.price)}" oninput="projDRecalc()"/></td>
+    <td class="pd-i-amt" style="text-align:right;white-space:nowrap;padding:2px 8px">${projMoney(amt)}</td>
+    <td style="padding:2px 4px"><button class="btn-sm" onclick="this.closest('tr').remove();projDRecalc()">✕</button></td></tr>`; }
+  return `<tr style="border-bottom:1px solid var(--bg3)">
+    <td style="padding:5px 8px">${v(it.name)}</td><td style="padding:5px 8px">${v(it.desc)}</td>
+    <td style="padding:5px 8px;text-align:right">${v(it.qty)}</td>
+    <td style="padding:5px 8px;text-align:right">${(it.price!=null&&it.price!=='')?projMoney(it.price):''}</td>
+    <td style="padding:5px 8px;text-align:right;white-space:nowrap">${projMoney(amt)}</td><td></td></tr>`; }
+function projDTlRowHtml(t,canE){ t=t||{}; const v=projDEsc; const hasDate=!!(t.date);
+  if(canE){ return `<tr class="pd-tl-row">
+    <td style="padding:2px 4px"><input class="eq-input pd-t-stage" style="width:100%" value="${v(t.stage)}"/></td>
+    <td style="padding:2px 4px"><input type="date" class="eq-input pd-t-date" style="width:150px" value="${v(t.date)}"/></td>
+    <td style="padding:2px 4px"><input class="eq-input pd-t-note" style="width:100%" value="${v(t.note)}"/></td>
+    <td style="padding:2px 4px"><button class="btn-sm" onclick="this.closest('tr').remove()">✕</button></td></tr>`; }
+  return `<tr style="border-bottom:1px solid var(--bg3)">
+    <td style="padding:5px 8px;font-weight:600;${hasDate?'':'color:var(--text3)'}">${hasDate?'● ':'○ '}${v(t.stage)}</td>
+    <td style="padding:5px 8px;white-space:nowrap">${v(t.date)}</td>
+    <td style="padding:5px 8px">${v(t.note)}</td><td></td></tr>`; }
+function projDPlanRowHtml(pp,canE){ pp=pp||{}; const v=projDEsc; const cost=parseFloat((PROJECTS[projDetailKey]||{}).cost)||0; const amt=(parseFloat(pp.pct)||0)/100*cost;
+  if(canE){ return `<tr class="pd-plan-row">
+    <td style="padding:2px 4px"><input class="eq-input pd-pp-name" style="width:100%" value="${v(pp.name)}"/></td>
+    <td style="padding:2px 4px"><input type="number" class="eq-input pd-pp-pct" style="width:80px;text-align:right" value="${v(pp.pct)}" oninput="projDRecalc()"/></td>
+    <td class="pd-pp-amt" style="text-align:right;white-space:nowrap;padding:2px 8px">${projMoney(amt)}</td>
+    <td style="padding:2px 4px"><input class="eq-input pd-pp-note" style="width:100%" value="${v(pp.note)}"/></td>
+    <td style="padding:2px 4px"><button class="btn-sm" onclick="this.closest('tr').remove();projDRecalc()">✕</button></td></tr>`; }
+  return `<tr style="border-bottom:1px solid var(--bg3)">
+    <td style="padding:5px 8px;font-weight:600">${v(pp.name)}</td>
+    <td style="padding:5px 8px;text-align:right">${(pp.pct!=null&&pp.pct!=='')?(pp.pct+'%'):''}</td>
+    <td style="padding:5px 8px;text-align:right;white-space:nowrap">${projMoney(amt)}</td>
+    <td style="padding:5px 8px">${v(pp.note)}</td><td></td></tr>`; }
+function projDAddItem(){ const b=document.getElementById('pd-items-body'); if(!b) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projDItemRowHtml({},true); b.appendChild(tmp.firstElementChild); projDRecalc(); }
+function projDAddStage(){ const b=document.getElementById('pd-tl-body'); if(!b) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projDTlRowHtml({},true); b.appendChild(tmp.firstElementChild); }
+function projDAddPlan(){ const b=document.getElementById('pd-plan-body'); if(!b) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projDPlanRowHtml({},true); b.appendChild(tmp.firstElementChild); projDRecalc(); }
+function projDRecalc(){
+  let tot=0; document.querySelectorAll('#pd-items-body .pd-item-row').forEach(tr=>{ const q=parseFloat(tr.querySelector('.pd-i-qty').value)||0; const pr=parseFloat(tr.querySelector('.pd-i-price').value)||0; const amt=q*pr; tot+=amt; const c=tr.querySelector('.pd-i-amt'); if(c) c.textContent=projMoney(amt); });
+  const qt=document.getElementById('pd-quote-total'); if(qt) qt.textContent=projMoney(tot);
+  const p=PROJECTS[projDetailKey]; const cost=parseFloat(p&&p.cost)||0; const diff=cost-tot;
+  const dc=document.getElementById('pd-quote-diff'); if(dc){ dc.textContent=projMoney(diff); dc.style.color=diff<0?'#dc2626':(diff>0?'#b45309':'#16a34a'); }
+  let pct=0, amtsum=0;
+  document.querySelectorAll('#pd-plan-body .pd-plan-row').forEach(tr=>{ const pc=parseFloat(tr.querySelector('.pd-pp-pct').value)||0; pct+=pc; const amt=pc/100*cost; amtsum+=amt; const c=tr.querySelector('.pd-pp-amt'); if(c) c.textContent=projMoney(amt); });
+  const pctEl=document.getElementById('pd-pct-total'); if(pctEl){ pctEl.textContent=(Math.round(pct*10)/10)+'%'; pctEl.style.color=Math.abs(pct-100)<0.05?'#16a34a':'#b45309'; }
+  const amtEl=document.getElementById('pd-plan-amt-total'); if(amtEl) amtEl.textContent=projMoney(amtsum);
+}
+async function projSaveDetail(){
+  const key=projDetailKey; const p=PROJECTS[key]; if(!p) return;
+  if(!projCanEditRec(p)){ alert(pT('noPerm')); return; }
+  const num=x=>{ const n=parseFloat(x); return isNaN(n)?0:n; };
+  const items=[...document.querySelectorAll('#pd-items-body .pd-item-row')].map(tr=>({ name:(tr.querySelector('.pd-i-name').value||'').trim(), desc:(tr.querySelector('.pd-i-desc').value||'').trim(), qty:num(tr.querySelector('.pd-i-qty').value), price:num(tr.querySelector('.pd-i-price').value) })).filter(it=>it.name||it.desc||it.qty||it.price);
+  const timeline=[...document.querySelectorAll('#pd-tl-body .pd-tl-row')].map(tr=>({ stage:(tr.querySelector('.pd-t-stage').value||'').trim(), date:tr.querySelector('.pd-t-date').value||'', note:(tr.querySelector('.pd-t-note').value||'').trim() })).filter(t=>t.stage||t.date||t.note);
+  const payplan=[...document.querySelectorAll('#pd-plan-body .pd-plan-row')].map(tr=>({ name:(tr.querySelector('.pd-pp-name').value||'').trim(), pct:num(tr.querySelector('.pd-pp-pct').value), note:(tr.querySelector('.pd-pp-note').value||'').trim() })).filter(x=>x.name||x.pct||x.note);
+  const detail={items,timeline,payplan};
+  const btn=document.getElementById('pd-save'); if(btn){ btn.disabled=true; btn.textContent='…'; }
+  try{
+    await fetch(`${FB}/projects/${key}/detail.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(detail)});
+    p.detail=detail;
+    if(typeof logAudit==='function') logAudit('proj_edit',(p.no||'')+' — '+pT('saveDetail'));
+    alert(pT('detailSaved')); renderProjTrack();
+  }catch(e){ alert('Error: '+e.message); if(btn){ btn.disabled=false; btn.textContent='💾 '+pT('saveDetail'); } }
+}
+function projDetailHtml(key){
+  const p=PROJECTS[key]; if(!p) return '';
+  const canE=projCanEditRec(p); const d=p.detail||{};
+  const items=Array.isArray(d.items)?d.items:[];
+  const estD=p.estDate||p.approvedDate||'';
+  const timeline=(Array.isArray(d.timeline)&&d.timeline.length)?d.timeline:projStages().map((s,i)=>({stage:pT(s.k),date:(i===0?estD:''),note:''}));
+  const st=projStatus(p); const cost=parseFloat(p.cost)||0;
+  const quoteTot=items.reduce((s,it)=>s+((parseFloat(it.qty)||0)*(parseFloat(it.price)||0)),0);
+  const diff=cost-quoteTot;
+  const payplan=Array.isArray(d.payplan)?d.payplan:[];
+  const pctSum=payplan.reduce((s,x)=>s+(parseFloat(x.pct)||0),0);
+  const planAmtSum=payplan.reduce((s,x)=>s+((parseFloat(x.pct)||0)/100*cost),0);
+  const th=(t,ex)=>`<th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text3);white-space:nowrap;${ex||''}">${t}</th>`;
+  const itemsBody=items.map(it=>projDItemRowHtml(it,canE)).join('')||(canE?'':`<tr><td colspan="6" style="padding:14px;text-align:center;color:var(--text3)">${pT('noItems')}</td></tr>`);
+  const tlBody=timeline.map(t=>projDTlRowHtml(t,canE)).join('');
+  const planBody=payplan.map(x=>projDPlanRowHtml(x,canE)).join('')||(canE?'':`<tr><td colspan="5" style="padding:14px;text-align:center;color:var(--text3)">${pT('noItems')}</td></tr>`);
+  return `
+  <div style="margin-bottom:14px;display:flex;gap:8px;align-items:center"><button class="btn-sm" onclick="projCloseDetail()">${pT('backList')}</button>${projCanDelete()?`<button class="btn-sm" style="color:var(--red);margin-left:auto" onclick="projDelete('${key}')">🗑 ${pT('del')}</button>`:''}</div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-weight:800;font-size:16px">${p.no||''}</span>
+      <span style="background:${st.bg};color:${st.c};padding:1px 8px;border-radius:10px;font-weight:700;font-size:11px">${pT(st.k)}</span></div>
+    <div style="font-size:15px;margin-top:6px">${(p.subject||'').replace(/</g,'&lt;')}</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-top:8px">
+      <span><b>${pT('dept')}</b>: ${p.dept||''}</span>
+      <span><b>${pT('attr')}</b>: ${projAttrLabel(p)||'—'}</span>
+      <span><b>${pT('vendor')}</b>: ${(p.vendor||'—').replace(/</g,'&lt;')}</span>
+      <span><b>${pT('cost')}</b>: ${cost?projMoney(cost):'—'}</span>
+      <span><b>${pT('paid')}</b>: ${projMoney(projPaid(p))}</span></div>
+    ${!canE?`<div style="font-size:12px;color:var(--text3);margin-top:8px">🔒 ${pT('viewOnlyNote')}</div>`:''}
+  </div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+    <div class="fp-sec-title">🧾 ${pT('secItems')}</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="border-bottom:2px solid var(--border)">${th(pT('itName'))}${th(pT('itDesc'))}${th(pT('itQty'),'text-align:right')}${th(pT('itPrice'),'text-align:right')}${th(pT('itAmt'),'text-align:right')}${th('')}</tr></thead>
+      <tbody id="pd-items-body">${itemsBody}</tbody>
+      <tfoot><tr style="border-top:2px solid var(--border);font-weight:800"><td colspan="4" style="padding:6px 8px;text-align:right">${pT('quoteTotal')}</td><td id="pd-quote-total" style="padding:6px 8px;text-align:right;white-space:nowrap">${projMoney(quoteTot)}</td><td></td></tr>
+      <tr><td colspan="4" style="padding:2px 8px;text-align:right;color:var(--text3);font-weight:600">${pT('vsCost')}</td><td id="pd-quote-diff" style="padding:2px 8px;text-align:right;white-space:nowrap;font-weight:700;color:${diff<0?'#dc2626':(diff>0?'#b45309':'#16a34a')}">${projMoney(diff)}</td><td></td></tr></tfoot>
+    </table></div>
+    ${canE?`<button class="btn-sm" style="margin-top:10px" onclick="projDAddItem()">➕ ${pT('addItem')}</button>`:''}
+  </div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+    <div class="fp-sec-title">📅 ${pT('secTimeline')}</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="border-bottom:2px solid var(--border)">${th(pT('tlStage'))}${th(pT('payDate'))}${th(pT('tlNote'))}${th('')}</tr></thead>
+      <tbody id="pd-tl-body">${tlBody}</tbody></table></div>
+    ${canE?`<button class="btn-sm" style="margin-top:10px" onclick="projDAddStage()">➕ ${pT('addStage')}</button>`:''}
+  </div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+    <div class="fp-sec-title">💵 ${pT('secPayplan')}</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="border-bottom:2px solid var(--border)">${th(pT('ppName'))}${th(pT('ppPct'),'text-align:right')}${th(pT('ppAmt'),'text-align:right')}${th(pT('pNote'))}${th('')}</tr></thead>
+      <tbody id="pd-plan-body">${planBody}</tbody>
+      <tfoot><tr style="border-top:2px solid var(--border);font-weight:800">
+        <td style="padding:6px 8px;text-align:right">${pT('pctTotal')}</td>
+        <td id="pd-pct-total" style="padding:6px 8px;text-align:right;white-space:nowrap;color:${Math.abs(pctSum-100)<0.05?'#16a34a':'#b45309'}">${(Math.round(pctSum*10)/10)}%</td>
+        <td id="pd-plan-amt-total" style="padding:6px 8px;text-align:right;white-space:nowrap">${projMoney(planAmtSum)}</td>
+        <td colspan="2"></td></tr></tfoot>
+    </table></div>
+    ${canE?`<button class="btn-sm" style="margin-top:10px" onclick="projDAddPlan()">➕ ${pT('addPayItem')}</button>`:''}
+  </div>
+  ${canE?`<div style="display:flex;justify-content:flex-end;margin-bottom:30px"><button class="btn-sm btn-primary" id="pd-save" onclick="projSaveDetail()">💾 ${pT('saveDetail')}</button></div>`:''}`;
+}
+let paSearch='', paDept='';
+function renderProjAdmin(){
+  const root=document.getElementById('fp-projadmin'); if(!root) return;
+  if((typeof STAFF==='undefined'||!STAFF||!Object.keys(STAFF).length) && typeof fldLoadConfig==='function'){ try{ fldLoadConfig(); }catch(e){} }
+  const q=paSearch.toLowerCase();
+  const rows=Object.entries(STAFF||{}).filter(([id,n])=>{
+    if(q && !(id.toLowerCase().includes(q)||String(n).toLowerCase().includes(q))) return false;
+    const d=STAFF_DEPT[id]||'';
+    if(paDept==='__none') return !d;
+    if(paDept) return d===paDept;
+    return true;
+  }).sort((a,b)=>a[0].localeCompare(b[0]));
+  const chk=(id,fid)=>{ const p=(USERS[id]&&USERS[id].perms&&USERS[id].perms[fid])||{}; return `<input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${fid}','v',this.checked)" style="width:16px;height:16px"/>`; };
+  const body=rows.map(([id,name])=>{ const dept=STAFF_DEPT[id]||''; const email=(USERS[id]&&USERS[id].email)||'';
+    return `<tr style="border-top:1px solid var(--bg3)">
+      <td style="padding:6px 8px;white-space:nowrap"><b>${id}</b> ${name||''}${dept?` <span style="font-size:11px;color:var(--text3)">[${dept}]</span>`:''}</td>
+      <td style="text-align:center">${chk(id,'proj_view')}</td>
+      <td style="text-align:center">${chk(id,'proj_create')}</td>
+      <td style="text-align:center">${chk(id,'proj_delete')}</td>
+      <td style="text-align:center">${chk(id,'proj_lead')}</td>
+      <td style="padding:4px 8px"><input type="email" value="${String(email).replace(/"/g,'&quot;')}" placeholder="${pT('paEmailPh')}" onchange="umSetEmail('${id}',this.value)" style="width:100%;min-width:160px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg)"/></td></tr>`;
+  }).join('');
+  root.innerHTML=`
+    <div class="fp-sec-title">📁 ${pT('paTitle')}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <select class="eq-input" style="width:auto" onchange="paDept=this.value;renderProjAdmin()"><option value="">${pT('paDeptAll')}</option>${STAFF_DEPTS.map(d=>`<option value="${d}" ${paDept===d?'selected':''}>${d}</option>`).join('')}</select>
+      <input class="eq-input" style="flex:1;min-width:160px" value="${paSearch.replace(/"/g,'&quot;')}" placeholder="${pT('paSearch')}" oninput="paSearch=this.value;paRenderOnly()"/>
+    </div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="color:var(--text3)"><td style="padding:6px 8px">${pT('paPeople')}</td><td style="text-align:center;width:46px">${pT('paView')}</td><td style="text-align:center;width:46px">${pT('paCreate')}</td><td style="text-align:center;width:46px">${pT('paDelete')}</td><td style="text-align:center;width:46px">${pT('paLead')}</td><td style="padding:6px 8px;min-width:170px">${umT('umail')}</td></tr></thead>
+      <tbody>${body||`<tr><td colspan="6" style="padding:14px;text-align:center;color:var(--text3)">${pT('paEmpty')}</td></tr>`}</tbody>
+    </table></div>`;
+}
+function paRenderOnly(){ renderProjAdmin(); const inp=document.querySelector('#fp-projadmin input[placeholder^="🔍"]'); if(inp){ inp.focus(); const v=inp.value; try{ inp.setSelectionRange(v.length,v.length); }catch(e){} } }
 function renderProjSettings(){
   const root=document.getElementById('fp-projset'); if(!root) return;
-  root.innerHTML=`<div class="fp-sec-title">🏢 ${pT('vendors')}</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:8px">開專案時「廠商」下拉會用這份名單。</div>
+  root.innerHTML=`<div class="fp-sec-title">🔢 ${pT('noCfgTitle')}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px">
+      <div style="flex:1;min-width:220px"><label class="lbl2">${pT('noCfgTemplate')}</label><input class="eq-input" id="pcfg-tpl" style="width:100%" value="${String(PROJ_CFG.template||'').replace(/"/g,'&quot;')}" oninput="projCfgPreview()"/></div>
+      <div><label class="lbl2">${pT('noCfgSeqDigits')}</label><input type="number" min="1" max="8" class="eq-input" id="pcfg-digits" style="width:90px" value="${parseInt(PROJ_CFG.seqDigits,10)||3}" oninput="projCfgPreview()"/></div>
+      <div><label class="lbl2">${pT('noCfgPrefix')}</label><input class="eq-input" id="pcfg-prefix" style="width:140px" value="${String(PROJ_CFG.prefix||'').replace(/"/g,'&quot;')}" oninput="projCfgPreview()"/></div>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px">${pT('noCfgHint')}</div>
+    <div style="font-weight:700;font-size:13px;margin:4px 0 4px">${pT('noCfgDeptPrefix')}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+      ${PROJ_DEPTS.map(d=>`<div><label class="lbl2">${d}</label><input class="eq-input pcfg-dp" data-dept="${d}" style="width:120px" value="${String((PROJ_CFG.deptPrefix&&PROJ_CFG.deptPrefix[d])||'').replace(/"/g,'&quot;')}" placeholder="${String(PROJ_CFG.prefix||'')}" oninput="projCfgPreview()"/></div>`).join('')}
+    </div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:8px">${pT('noCfgPreview')}: <b id="pcfg-preview" style="color:var(--blue)"></b></div>
+    <div style="margin-bottom:22px"><button class="btn-sm btn-primary" onclick="projSaveCfg()">💾 ${pT('save')}</button></div>
+    <div class="fp-sec-title">🏢 ${pT('vendors')}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px">開專案時「廠商」欄的建議清單(目前廠商改為直接輸入,此清單先保留供日後使用)。</div>
     <div id="proj-vend-rows"></div>
     <div style="display:flex;gap:8px;margin-top:10px">
       <button class="btn-sm" onclick="projAddVendorRow('')">➕ ${pT('addVendor')}</button>
@@ -6371,8 +6562,10 @@ function renderProjSettings(){
     <div style="margin-top:20px;font-size:13px;color:var(--text2);line-height:1.8;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px">
       專案的「主辦／監督」下拉直接用<b>主名單(密碼管理)</b>依部門過濾,不需在此維護人員。
     </div>`;
-  projRenderVendorRows();
+  projRenderVendorRows(); projCfgPreview();
 }
+function projCfgPreview(){ const el=document.getElementById('pcfg-preview'); if(!el) return; const tpl=(document.getElementById('pcfg-tpl').value||'{prefix}-{dept}-R{year}-{seq}'); const digits=parseInt(document.getElementById('pcfg-digits').value,10)||3; const prefix=(document.getElementById('pcfg-prefix').value||'CCTMTD'); const dept=PROJ_DEPTS[0]||'MT1'; const dp=[...document.querySelectorAll('.pcfg-dp')].find(i=>i.dataset.dept===dept); const pfx=(dp&&dp.value.trim())||prefix; const y=panParts().y; el.textContent=tpl.replace(/\{prefix\}/g,pfx).replace(/\{dept\}/g,dept).replace(/\{year\}/g,y).replace(/\{seq\}/g,String(1).padStart(digits,'0')); }
+async function projSaveCfg(){ const tpl=(document.getElementById('pcfg-tpl').value||'').trim()||'{prefix}-{dept}-R{year}-{seq}'; const digits=Math.max(1,Math.min(8,parseInt(document.getElementById('pcfg-digits').value,10)||3)); const prefix=(document.getElementById('pcfg-prefix').value||'').trim()||'CCTMTD'; const deptPrefix={}; [...document.querySelectorAll('.pcfg-dp')].forEach(i=>{ const v=(i.value||'').trim(); if(v) deptPrefix[i.dataset.dept]=v; }); const cfg={template:tpl,seqDigits:digits,prefix,deptPrefix}; try{ await fetch(`${FB}/proj_config.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)}); PROJ_CFG=cfg; if(typeof logAudit==='function') logAudit('proj_cfg',tpl+' ('+prefix+')'); alert(pT('noCfgSaved')); }catch(e){ alert('Error: '+e.message); } }
 function projRenderVendorRows(){
   const box=document.getElementById('proj-vend-rows'); if(!box) return;
   const list=(PROJ_VENDORS&&PROJ_VENDORS.length)?PROJ_VENDORS.slice():PROJ_VENDOR_SEED.slice();
