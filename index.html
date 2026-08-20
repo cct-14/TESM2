@@ -1894,6 +1894,11 @@ function applyNavPerms(){
   const feats=(currentRole&&ROLES[currentRole]&&ROLES[currentRole].features)||[];
   const all=feats.includes('*');
   const indiv=(typeof umCurrentUser!=='undefined') && umCurrentUser;
+  // 超級管理員 / 最高權限角色：無條件顯示全部選單，忽略任何隱藏與權限
+  if((typeof umIsSuper==='function' && umIsSuper()) || all){
+    document.querySelectorAll('.nav-item[data-page]').forEach(n=>{ n.style.display=''; });
+    return;
+  }
   ALL_FEATURES.filter(f=>f.page).forEach(f=>{
     const nav=document.querySelector('.nav-item[data-page="'+f.id+'"]');
     if(!nav) return;
@@ -1902,16 +1907,20 @@ function applyNavPerms(){
     // 若目前正停在被擋的頁 → 導回地圖
     if(!ok){ const pg=document.getElementById('page-'+f.id); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } }
   });
-  // 個別使用者的左側選單隱藏（勾選＝對此人隱藏）
+  // 個別使用者的左側選單隱藏（勾選＝對此人隱藏）；兩向設定，權限恢復時要能重新顯示
   if(indiv){
     NAV_PAGES.forEach(id=>{
       const nav=document.querySelector('.nav-item[data-page="'+id+'"]'); if(!nav) return;
-      if(umCan('navhide_'+id,'v')){ nav.style.display='none'; const pg=document.getElementById('page-'+id); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } }
+      const feat=ALL_FEATURES.find(f=>f.id===id&&f.page);
+      const permOk = feat ? umCan(id,'v') : true;
+      const hidden = umCan('navhide_'+id,'v') || !permOk;
+      nav.style.display = hidden ? 'none' : '';
+      if(hidden){ const pg=document.getElementById('page-'+id); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } }
     });
   }
   // 專案追蹤系統：預設隱藏，只有 14 或有「專案追蹤-檢視」權限者看得到
   const ptNav=document.querySelector('.nav-item[data-page="projtrack"]');
-  if(ptNav){ const canPT = all || (indiv && umCan('proj_view','v')); ptNav.style.display=canPT?'':'none'; if(!canPT){ const pg=document.getElementById('page-projtrack'); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } } }
+  if(ptNav){ const canPT = all || (indiv && (umCan('proj_view','v')||umCan('projadmin','v')||umCan('projset','v'))); ptNav.style.display=canPT?'':'none'; if(!canPT){ const pg=document.getElementById('page-projtrack'); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } } }
 }
 function restoreRole(){
   try{ const r=localStorage.getItem('tesm_role'); if(r&&ROLES[r]) currentRole=r; }catch(_){}
@@ -2542,8 +2551,20 @@ function umRestoreSession(){
     umCurrentUser={id:s.id,name:s.name,perms:s.perms||{}};
     if(typeof umUpdateBar==='function') umUpdateBar();
     if(typeof applyNavPerms==='function') applyNavPerms();
+    umRefreshPerms();
     return true;
   }catch(e){ return false; }
+}
+// 從 Firebase 重抓最新權限，避免 localStorage 舊快照造成選單缺項
+function umRefreshPerms(){
+  if(!umCurrentUser||!umCurrentUser.id) return;
+  fetch(`${FB}/users/${umCurrentUser.id}.json`).then(r=>r.json()).then(u=>{
+    if(u&&u.perms&&umCurrentUser){ umCurrentUser.perms=u.perms; if(u.name) umCurrentUser.name=u.name;
+      try{ umSaveSession(); }catch(e){}
+      if(typeof umUpdateBar==='function') umUpdateBar();
+      if(typeof applyNavPerms==='function') applyNavPerms();
+    }
+  }).catch(()=>{});
 }
 function umFinish(id,u){
   umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{}};
@@ -2557,7 +2578,13 @@ function umFinish(id,u){
   if(cb) cb(true);
 }
 function umLogout(){ umCurrentUser=null; guestMode=false; try{ localStorage.removeItem('tesm_um'); localStorage.removeItem('tesm_guest'); }catch(e){} if(typeof showGate==='function') showGate(); umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); if(document.getElementById('dept-tab-bar')&&typeof renderAdminShell==='function') renderAdminShell(); }
-function umCan(featId,level){ return !!(umCurrentUser&&umCurrentUser.perms&&umCurrentUser.perms[featId]&&umCurrentUser.perms[featId][level||'v']); }
+const SUPER_ADMIN_IDS=['H00929','14'];
+function umIsSuper(){ if(typeof umCurrentUser==='undefined'||!umCurrentUser) return false; const id=String(umCurrentUser.id||'').toUpperCase(); const nm=String(umCurrentUser.name||'').toUpperCase(); return SUPER_ADMIN_IDS.indexOf(id)>=0 || nm==='FOURTEEN'; }
+function umCan(featId,level){
+  if(typeof ROLES!=='undefined' && ROLES[currentRole] && ROLES[currentRole].features && ROLES[currentRole].features.indexOf('*')>=0) return true;
+  if(umIsSuper()) return String(featId).indexOf('navhide_')!==0; // 超級管理員：全功能有權，且不隱藏任何選單
+  return !!(umCurrentUser&&umCurrentUser.perms&&umCurrentUser.perms[featId]&&umCurrentUser.perms[featId][level||'v']);
+}
 const PW_I18N={
   zh:{title:'🔑 密碼管理',dept:'部門密碼',app:'現場 / 加班密碼',field:'現場時數',otLeader:'組長（手機加班）',otSec:'課長審核',otMgr:'經理審核',newpw:'新密碼',change:'更改',updated:'✓ 已更新',need:'請輸入密碼'},
   es:{title:'🔑 Contraseñas',dept:'Departamentos',app:'Campo / Horas extra',field:'Horas (campo)',otLeader:'Jefe de grupo (móvil)',otSec:'Jefe de sección',otMgr:'Gerente',newpw:'Nueva contraseña',change:'Cambiar',updated:'✓ Actualizado',need:'Ingrese la contraseña'},
@@ -2806,6 +2833,8 @@ async function renderEmailPanel() {
     const d = await r.json();
     if (d && Array.isArray(d)) emails = d;
   } catch(e) {}
+  let cfg = {};
+  try { cfg = (await (await fetch(`${FB}/email_config.json`)).json())||{}; } catch(e) {}
 
   el.innerHTML = `
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
@@ -2837,7 +2866,47 @@ async function renderEmailPanel() {
           💡 發布公告時可選擇是否寄出 Email 通知，需要 GAS 開啟 Gmail 權限
         </div>
       </div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:16px">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">📋 每日專案進度報告 / Informe diario</div>
+      <div style="padding:16px">
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="rpt-enabled" ${cfg.report_enabled?'checked':''} style="width:16px;height:16px"/> 啟用每日自動寄送
+        </label>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;font-size:13px;flex-wrap:wrap">
+          <span>每天</span>
+          <select id="rpt-hour" class="eq-input" style="width:auto">${Array.from({length:24},(_,h)=>`<option value="${h}" ${(cfg.report_hour==null?8:cfg.report_hour)==h?'selected':''}>${String(h).padStart(2,'0')}:00</option>`).join('')}</select>
+          <span>(巴拿馬時間) 寄給上方收件清單</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-sm btn-primary" onclick="saveReportCfg()">💾 儲存設定</button>
+          <button class="btn-sm" onclick="previewProjReport()">👁 預覽今日報告</button>
+        </div>
+        <div style="margin-top:12px;padding:12px;background:#fff7ed;border-radius:6px;font-size:12px;color:#9a3412">
+          ⚠ 自動寄送需要先部署 Google Apps Script(另附腳本與教學)。此設定會存到 Firebase 供 GAS 讀取。
+        </div>
+      </div>
     </div>`;
+}
+async function saveReportCfg(){
+  const en=document.getElementById('rpt-enabled'); const hr=document.getElementById('rpt-hour');
+  const enabled=!!(en&&en.checked); const hour=parseInt(hr&&hr.value,10); const h=isNaN(hour)?8:hour;
+  try{ await fetch(`${FB}/email_config.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({report_enabled:enabled,report_hour:h})}); alert('已儲存 / Guardado'); }catch(e){ alert('✗ '+e.message); }
+}
+async function previewProjReport(){
+  let projects={},staff={};
+  try{ projects=(await (await fetch(`${FB}/projects.json`)).json())||{}; }catch(e){}
+  try{ staff=(await (await fetch(`${FB}/staff.json`)).json())||{}; }catch(e){}
+  const tz=(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama');
+  const today=new Date().toLocaleDateString('en-CA',{timeZone:tz}).slice(0,10);
+  const html=(typeof projReportHtml==='function')?projReportHtml(projects,staff,today):'<div>report fn missing</div>';
+  let m=document.getElementById('rpt-preview-modal');
+  if(!m){ m=document.createElement('div'); m.id='rpt-preview-modal'; m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:4000;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow:auto'; document.body.appendChild(m); }
+  m.innerHTML=`<div style="background:#fff;border-radius:12px;max-width:1060px;width:100%;margin:auto;padding:20px;position:relative;box-shadow:0 12px 48px rgba(0,0,0,.35)">
+    <button onclick="document.getElementById('rpt-preview-modal').remove()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#64748b">✕</button>
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">👁 預覽(實際寄出的內容)</div>
+    ${html}</div>`;
+  m.style.display='flex';
 }
 
 let emailListCache = [];
@@ -3786,7 +3855,7 @@ function mtDayHoverOut(){ clearTimeout(mtTipTimer); if(mtTipEl) mtTipEl.style.di
 
 function toggleMaintShowDone(){ maintShowDone=!maintShowDone; renderMaintenance(); }
 
-function mtIs14(){ return currentRole==='14' || (typeof umCurrentUser!=='undefined' && umCurrentUser && String(umCurrentUser.id)==='14') || (typeof maintIsAdmin==='function' && maintIsAdmin()); }
+function mtIs14(){ return currentRole==='14' || (typeof umIsSuper==='function' && umIsSuper()) || (typeof umCurrentUser!=='undefined' && umCurrentUser && String(umCurrentUser.id)==='14') || (typeof maintIsAdmin==='function' && maintIsAdmin()); }
 async function mtDeleteTaskAdmin(type,team,id){
   if(!mtIs14()){ alert(mtL().del14Only||'只有 14 可以刪除工程。'); return; }
   const g=mtGet(type,team); const t=g&&g.tasks&&g.tasks[id]; if(!t) return;
@@ -6255,6 +6324,44 @@ function projAttrLabel(p){ const t=p&&p.attrType||''; const n=p&&p.attrNum||''; 
 function projPaid(p){ return (parseFloat(p&&p.pay1&&p.pay1.amt)||0)+(parseFloat(p&&p.pay2&&p.pay2.amt)||0)+(parseFloat(p&&p.pay3&&p.pay3.amt)||0); }
 function projMoney(n){ n=parseFloat(n)||0; return n.toLocaleString('en-US',{maximumFractionDigits:2}); }
 function projStatus(p){ const cost=parseFloat(p&&p.cost)||0, paid=projPaid(p); if(p&&p.finishDate&&paid>=cost&&cost>0) return {k:'stDone',c:'#16a34a',bg:'#dcfce7'}; if(cost>0&&paid>=cost) return {k:'stPaid',c:'#16a34a',bg:'#dcfce7'}; if(paid>0) return {k:'stPartial',c:'#b45309',bg:'#ffedd5'}; return {k:'stUnpaid',c:'#64748b',bg:'#e2e8f0'}; }
+// 每日專案進度報告 HTML（預覽與 GAS 郵件共用同一套呈現邏輯，中／西雙語）
+function projReportStage(p){ const d=p&&p.detail; let tl=(d&&Array.isArray(d.timeline)&&d.timeline.length)?d.timeline:null; if(!tl){ const est=(p&&(p.estDate||p.approvedDate))||''; return est?{stage:'成立專案 / Creación',date:est}:{stage:'',date:''}; } let last=null; tl.forEach(t=>{ if(t&&t.date) last=t; }); return last||{stage:'',date:''}; }
+function projReportHtml(projects, staff, todayStr){
+  const arr=Object.values(projects||{}); const year=String(todayStr||'').slice(0,4);
+  const active=arr.filter(p=>projStatus(p).k!=='stDone').sort((a,b)=>String((a.dept||'')+(a.no||'')).localeCompare(String((b.dept||'')+(b.no||''))));
+  let unpaidTotal=0, yearTotal=0;
+  arr.forEach(p=>{ const bal=(parseFloat(p.cost)||0)-projPaid(p); if(bal>0) unpaidTotal+=bal; if(String(p.year)===year) yearTotal+=(parseFloat(p.cost)||0); });
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const td='padding:6px 8px;border:1px solid #e2e8f0;font-size:12px';
+  const th=t=>`<th style="padding:7px 8px;border:1px solid #cbd5e1;background:#1e3a5f;color:#fff;font-size:11px;text-align:left;white-space:nowrap">${t}</th>`;
+  const rows=active.map(p=>{ const cost=parseFloat(p.cost)||0, paid=projPaid(p), bal=cost-paid; const stg=projReportStage(p); const fin=p.finishDate||''; const overdue=!!(fin && fin<todayStr); const leadName=(staff&&(staff[p.lead]||staff[String(p.lead||'').toUpperCase()]))||p.lead||'';
+    return `<tr style="${overdue?'background:#fef2f2':''}">
+      <td style="${td};white-space:nowrap;font-weight:700">${esc(p.no)}</td>
+      <td style="${td}">${esc(p.subject)}</td>
+      <td style="${td}">${esc(p.dept)}</td>
+      <td style="${td}">${esc(p.vendor)}</td>
+      <td style="${td};text-align:right">${cost?projMoney(cost):''}</td>
+      <td style="${td};text-align:right;color:#16a34a">${projMoney(paid)}</td>
+      <td style="${td};text-align:right;color:${bal>0?'#b45309':'#16a34a'}">${projMoney(bal)}</td>
+      <td style="${td}">${esc(stg.stage)}${stg.date?(' <span style="color:#94a3b8">('+stg.date+')</span>'):''}</td>
+      <td style="${td};white-space:nowrap;${overdue?'color:#dc2626;font-weight:700':''}">${esc(fin)}${overdue?' ⚠':''}</td>
+      <td style="${td}">${esc(leadName)}</td></tr>`;
+  }).join('');
+  return `<div style="font-family:system-ui,'Microsoft JhengHei',Arial,sans-serif;color:#0f172a;max-width:1000px">
+    <h2 style="font-size:17px;margin:0 0 4px">📋 專案進度報告 / Informe de avance de proyectos</h2>
+    <div style="color:#64748b;font-size:13px;margin-bottom:14px">${todayStr}　·　CCT · TESM2</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <div style="flex:1;min-width:150px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px"><div style="font-size:11px;color:#3b82f6">進行中 / En curso</div><div style="font-size:22px;font-weight:800">${active.length}</div></div>
+      <div style="flex:1;min-width:150px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px"><div style="font-size:11px;color:#ea580c">未付總額 / Saldo pendiente</div><div style="font-size:22px;font-weight:800">$${projMoney(unpaidTotal)}</div></div>
+      <div style="flex:1;min-width:150px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px"><div style="font-size:11px;color:#16a34a">今年案件總額 / Total ${year}</div><div style="font-size:22px;font-weight:800">$${projMoney(yearTotal)}</div></div>
+    </div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>${th('案號<br>No.')}${th('主旨<br>Asunto')}${th('部門<br>Depto')}${th('廠商<br>Proveedor')}${th('金額<br>Costo')}${th('已付<br>Pagado')}${th('差額<br>Saldo')}${th('目前階段<br>Etapa')}${th('預計完工出貨<br>Entrega est.')}${th('負責人<br>Responsable')}</tr></thead>
+      <tbody>${rows||`<tr><td colspan="10" style="padding:20px;text-align:center;color:#94a3b8;border:1px solid #e2e8f0">目前沒有進行中的專案 / Sin proyectos en curso</td></tr>`}</tbody>
+    </table>
+    <div style="color:#94a3b8;font-size:11px;margin-top:12px">⚠ = 逾期 / Vencido　·　此信由系統自動發送 / Correo automático · TESM2</div>
+  </div>`;
+}
 function projToggleForm(){ projShowForm=!projShowForm; projEditKey=null; renderProjTrack(); }
 function projOpenEdit(key){ const p=PROJECTS[key]; if(!p) return; if(!projCanEditRec(p)){ alert(pT('noPerm')); return; } projEditKey=key; projShowForm=true; renderProjTrack(); setTimeout(()=>{ const el=document.getElementById('proj-form-card'); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); },30); }
 function projFormDeptChange(){ const dept=(document.getElementById('proj-f-dept')||{}).value||''; const lead=document.getElementById('proj-f-lead'), sup=document.getElementById('proj-f-sup'); if(lead) lead.innerHTML=projDeptPeopleOptions(dept); if(sup) sup.innerHTML=projDeptPeopleOptions(dept); }
