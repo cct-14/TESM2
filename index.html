@@ -1304,7 +1304,7 @@ select.fld-input.big{height:56px}
     </div>
     <div class="page" id="page-admin">
       <div class="page-scroll">
-        <div style="max-width:960px">
+        <div style="max-width:100%">
 
           <!-- 未登入提示 -->
           <div id="admin-lock" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px">
@@ -1842,6 +1842,9 @@ const ALL_FEATURES = [
 ];
 // 左側選單頁（可對個別使用者隱藏；map 保留為安全首頁不列入）
 const NAV_PAGES = ['allEq','maintenance','attendance','field','otsys','notify','secondary','trailer','realtime','history','changelog','admin'];
+// 「管理者管理」右欄要管的功能(從使用者管理功能表移過來)
+const ADMIN_FEAT_IDS = ['announce','changelog','email','projadmin','addeq','password'];
+let umAdminOpen = {};
 
 // 預設角色設定（Firebase 載入後覆蓋）
 let ROLES = {
@@ -1894,8 +1897,8 @@ function applyNavPerms(){
   const feats=(currentRole&&ROLES[currentRole]&&ROLES[currentRole].features)||[];
   const all=feats.includes('*');
   const indiv=(typeof umCurrentUser!=='undefined') && umCurrentUser;
-  // 超級管理員 / 最高權限角色：無條件顯示全部選單，忽略任何隱藏與權限
-  if((typeof umIsSuper==='function' && umIsSuper()) || all){
+  // 超級管理員 / 純角色管理員(未用個人帳號登入)：無條件顯示全部選單
+  if((typeof umIsSuper==='function' && umIsSuper()) || (all && !indiv)){
     document.querySelectorAll('.nav-item[data-page]').forEach(n=>{ n.style.display=''; });
     return;
   }
@@ -1920,7 +1923,10 @@ function applyNavPerms(){
   }
   // 專案追蹤系統：預設隱藏，只有 14 或有「專案追蹤-檢視」權限者看得到
   const ptNav=document.querySelector('.nav-item[data-page="projtrack"]');
-  if(ptNav){ const canPT = all || (indiv && (umCan('proj_view','v')||umCan('projadmin','v')||umCan('projset','v'))); ptNav.style.display=canPT?'':'none'; if(!canPT){ const pg=document.getElementById('page-projtrack'); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } } }
+  if(ptNav){ const canPT = (all && !indiv) || (indiv && (umCan('proj_view','v')||umCan('projadmin','v')||umCan('projset','v'))); ptNav.style.display=canPT?'':'none'; if(!canPT){ const pg=document.getElementById('page-projtrack'); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } } }
+  // 管理者介面：只有超級管理員 / 被開通管理者 / 純角色管理員看得到
+  const admNav=document.querySelector('.nav-item[data-page="admin"]');
+  if(admNav){ const canAdmin=(all&&!indiv)||(typeof umIsSuper==='function'&&umIsSuper())||(indiv&&umCurrentUser&&umCurrentUser.admin===true); admNav.style.display=canAdmin?'':'none'; if(!canAdmin){ const pg=document.getElementById('page-admin'); if(pg&&pg.classList.contains('active')){ const mapNav=document.querySelector('.nav-item[data-page="map"]'); if(mapNav) navTo('map',mapNav); } } }
 }
 function restoreRole(){
   try{ const r=localStorage.getItem('tesm_role'); if(r&&ROLES[r]) currentRole=r; }catch(_){}
@@ -1970,12 +1976,12 @@ function renderAdminShell() {
           </button>
         </div>
       </div>
-      <div id="dept-tab-bar" style="display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;gap:0;overflow-x:auto"></div>
+      <div id="dept-tab-bar" style="display:flex;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:16px;gap:0"></div>
       <div id="dept-panel"></div>`;
   } else {
     // 一般角色：直接顯示功能 tabs
     shell.innerHTML = `
-      <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;gap:0;overflow-x:auto" id="dept-tab-bar"></div>
+      <div style="display:flex;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:16px;gap:0" id="dept-tab-bar"></div>
       <div id="dept-panel"></div>`;
     renderDeptTabs(currentRole);
   }
@@ -2002,16 +2008,17 @@ function selectDept(deptKey, btn) {
 
 function renderDeptTabs(deptKey) {
   const cfg = ROLES[deptKey];
-  if (!cfg) return;
+  const hasIndiv = (typeof umCurrentUser!=='undefined' && umCurrentUser);
+  if (!cfg && !hasIndiv) return;   // 個人管理者(無角色)也要能顯示
   const is14 = ROLES[currentRole]?.features?.includes('*');
 
   let features;
-  if (deptKey === currentRole && cfg.features?.includes('*')) {
+  if (cfg && deptKey === currentRole && cfg.features?.includes('*')) {
     // 14 看自己：顯示所有功能
     features = ALL_FEATURES.filter(f=>f.id!=='roles').map(f=>f.id);
   } else {
     // 看其他部門：嚴格只顯示該部門被分配的功能
-    features = cfg.features || [];
+    features = (cfg && cfg.features) || [];
   }
 
   if(typeof umCurrentUser!=='undefined' && umCurrentUser && !is14){ features = ALL_FEATURES.filter(f=>umCan(f.id,'v')).map(f=>f.id); }
@@ -2167,17 +2174,17 @@ async function deleteRole(key) {
 // ── 使用者管理（密碼管理頁內）──
 const UM_I18N={
   zh:{title:'👤 使用者管理',addId:'編號',addName:'名字',addPass:'初始密碼（可留空）',add:'新增人員',impBtn:'匯入名冊',impHint:'批次匯入：從 Excel 貼兩欄（編號、名字），一行一筆',imported:'已匯入 {n} 人',needIdName:'請填編號和名字',navHideTitle:'顯示左側功能',navHideHint:'勾選＝這個使用者登入後看得到該左側選單（預設全部顯示）。',navShowAll:'全部顯示',navHideAll:'全部隱藏',
-    newpw:'重設密碼',resetpw:'重設',reqpw:'🔑 要求改密碼',reqpwOk:'已要求：此人下次登入需改密碼',func:'功能',view:'觀看',edit:'細節',nousers:'尚無使用者',
+    newpw:'重設密碼',resetpw:'重設',reqpw:'🔑 要求改密碼',reqpwOk:'已要求：此人下次登入需改密碼',func:'功能',view:'觀看',edit:'操作',nousers:'尚無使用者',
     needAll:'編號、名字、初始密碼都要填',dup:'此編號已存在',delQ:'刪除使用者 {id}？',mustchg:'待改密碼',
-    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',mobileAppr:'手機加班核准',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',wiRepl:'鋼索更換授權',projView:'專案追蹤-檢視',projCreate:'專案追蹤-開案',projDelete:'專案追蹤-刪除',projLead:'專案追蹤-可負責',umail:'信箱',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能',dept:'部門',allDepts:'全部部門',unassigned:'未分類'},
+    hint:'新增後系統會要求此人首次登入先改密碼。',hint2:'從匯入的名單點開設定：設密碼＋勾功能即啟用；首次登入會要求改密碼。',search:'🔍 搜尋編號/名字',applyF:'加班申請（網頁）',appr1:'一段審核（課長）',appr2:'二段審核（經理）',mobileOt:'手機加班申請',mobileAppr:'手機加班核准',maintSched:'保養計畫排定',maintMsg:'傳送訊息',exportF:'匯出加班 Excel',overrideF:'最大駁回權',wiInit:'鋼索初始動作數',wiExt:'鋼索沿用授權',wiRepl:'鋼索更換授權',projView:'專案追蹤-檢視',projCreate:'專案追蹤-開案',projDelete:'專案追蹤-刪除',projLead:'專案追蹤-可負責',umail:'信箱',setpw:'設定/重設密碼',active:'已啟用',funcs:'功能',dept:'部門',allDepts:'全部部門',unassigned:'未分類'},
   es:{title:'👤 Usuarios',addId:'N.º',addName:'Nombre',addPass:'Contraseña inicial (opcional)',add:'Añadir usuario',impBtn:'Importar lista',impHint:'Importar: pegue dos columnas (N.º, nombre) de Excel, una por línea',imported:'{n} importados',needIdName:'N.º y nombre obligatorios',navHideTitle:'Mostrar menú lateral',navHideHint:'Marcado = este usuario verá ese elemento del menú lateral (todos visibles por defecto).',navShowAll:'Mostrar todo',navHideAll:'Ocultar todo',
-    newpw:'Nueva contraseña',resetpw:'Restablecer',reqpw:'🔑 Exigir cambio',reqpwOk:'Listo: deberá cambiar la contraseña al próximo inicio.',func:'Función',view:'Ver',edit:'Editar',nousers:'Sin usuarios',
+    newpw:'Nueva contraseña',resetpw:'Restablecer',reqpw:'🔑 Exigir cambio',reqpwOk:'Listo: deberá cambiar la contraseña al próximo inicio.',func:'Función',view:'Ver',edit:'Operar',nousers:'Sin usuarios',
     needAll:'N.º, nombre y contraseña inicial son obligatorios',dup:'Este N.º ya existe',delQ:'¿Eliminar usuario {id}?',mustchg:'Debe cambiar',
-    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',mobileAppr:'Aprobación H.E. (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',wiRepl:'Autorización de cambio de cable',projView:'Proyectos - Ver',projCreate:'Proyectos - Crear',projDelete:'Proyectos - Eliminar',projLead:'Proyectos - Responsable',umail:'Correo',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones',dept:'Departamento',allDepts:'Todos los deptos.',unassigned:'Sin asignar'},
+    hint:'Tras crear, se pedirá cambiar la contraseña en el primer inicio de sesión.',hint2:'Desde la lista importada: defina contraseña y marque funciones para activar; se pedirá cambiarla al primer inicio.',search:'🔍 Buscar N.º/nombre',applyF:'Solicitar horas extra (web)',appr1:'Aprobación 1 (jefe de sección)',appr2:'Aprobación 2 (gerente)',mobileOt:'Horas extra (móvil)',mobileAppr:'Aprobación H.E. (móvil)',maintSched:'Programar mantenimiento',maintMsg:'Enviar mensaje',exportF:'Exportar Excel horas extra',overrideF:'Rechazo final',wiInit:'Mov. inicial de cable',wiExt:'Autorización de extensión de cable',wiRepl:'Autorización de cambio de cable',projView:'Proyectos - Ver',projCreate:'Proyectos - Crear',projDelete:'Proyectos - Eliminar',projLead:'Proyectos - Responsable',umail:'Correo',setpw:'Definir/restablecer contraseña',active:'Activo',funcs:'Funciones',dept:'Departamento',allDepts:'Todos los deptos.',unassigned:'Sin asignar'},
   en:{title:'👤 Users',addId:'ID',addName:'Name',addPass:'Initial password (optional)',add:'Add user',impBtn:'Import list',impHint:'Import: paste two columns (ID, name) from Excel, one per line',imported:'{n} imported',needIdName:'ID and name required',navHideTitle:'Show sidebar items',navHideHint:'Checked = this user can see that sidebar item (all visible by default).',navShowAll:'Show all',navHideAll:'Hide all',
-    newpw:'New password',resetpw:'Reset',reqpw:'🔑 Require change',reqpwOk:'Done: must change password on next login.',func:'Function',view:'View',edit:'Edit',nousers:'No users',
+    newpw:'New password',resetpw:'Reset',reqpw:'🔑 Require change',reqpwOk:'Done: must change password on next login.',func:'Function',view:'View',edit:'Operate',nousers:'No users',
     needAll:'ID, name and initial password are required',dup:'This ID already exists',delQ:'Delete user {id}?',mustchg:'Must change',
-    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',mobileAppr:'Overtime approve (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',wiRepl:'Wire replacement permission',projView:'Projects - View',projCreate:'Projects - Create',projDelete:'Projects - Delete',projLead:'Projects - Lead',umail:'Email',setpw:'Set/reset password',active:'Active',funcs:'Functions',dept:'Dept.',allDepts:'All depts.',unassigned:'Unassigned'}
+    hint:'After creating, the user will be asked to change the password on first login.',hint2:'From the imported list: set a password and check functions to activate; change on first login.',search:'🔍 Search ID/name',applyF:'Overtime request (web)',appr1:'Approval 1 (section chief)',appr2:'Approval 2 (manager)',mobileOt:'Overtime (mobile)',mobileAppr:'Overtime approve (mobile)',maintSched:'Schedule maintenance',maintMsg:'Send message',exportF:'Export overtime Excel',overrideF:'Override reject',wiInit:'Wire initial movement',wiExt:'Wire extension permission',wiRepl:'Wire replacement permission',projView:'Projects - View',projCreate:'Projects - Create',projDelete:'Projects - Delete',projLead:'Projects - Lead',umail:'Email',setpw:'Set/reset password',active:'Active',funcs:'Functions',dept:'Dept.',allDepts:'All depts.',unassigned:'Unassigned'}
 };
 function umT(k){ const L=UM_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||UM_I18N.zh; return L[k]||UM_I18N.zh[k]||k; }
 function umTn(k,map){ let s=umT(k); for(const p in map) s=s.split('{'+p+'}').join(map[p]); return s; }
@@ -2208,6 +2215,7 @@ function renderUsers(){
       <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--bg2);cursor:pointer" onclick="umToggle('${id}')">
         <span style="width:14px;color:var(--text3)">${open?'▼':'▶'}</span>
         <span style="font-weight:700;min-width:70px">${id}</span><span style="flex:1">${name||''}</span>
+        ${u.admin?`<span style="font-size:10px;background:var(--purple,#7c3aed);color:#fff;font-weight:700;padding:1px 7px;border-radius:9px">管理者</span>`:''}
         <select onclick="event.stopPropagation()" onchange="umSetDept('${id}',this.value)" title="${umT('dept')}" style="font-size:11px;padding:2px 4px;border:1px solid var(--border);border-radius:5px;background:var(--bg);color:var(--text2);flex-shrink:0"><option value="" ${!dept?'selected':''}>${umT('unassigned')}</option>${STAFF_DEPTS.map(d=>`<option value="${d}" ${dept===d?'selected':''}>${d}</option>`).join('')}</select>
         ${active?`<span style="font-size:11px;color:var(--green);font-weight:600">${umT('active')}</span>`:''}
         ${u.mustChange?`<span style="font-size:11px;color:var(--orange,#ea580c);font-weight:600">${umT('mustchg')}</span>`:''}
@@ -2221,7 +2229,8 @@ function renderUsers(){
         <div style="margin-bottom:10px"><button class="btn-sm" onclick="umRequirePw('${id}')" ${(u.mustChange?'disabled style="opacity:.5"':'')}>${umT('reqpw')}${u.mustChange?' ✓':''}</button></div>
         <table style="width:100%;font-size:12px;border-collapse:collapse">
           <tr style="color:var(--text3)"><td style="padding:4px 6px">${umT('funcs')}</td><td style="text-align:center;width:56px">${umT('view')}</td><td style="text-align:center;width:56px">${umT('edit')}</td></tr>
-          ${ALL_FEATURES.filter(f=>f.id!=='auditlog').map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
+          <tr style="border-top:1px solid var(--bg3);background:var(--purple-l)"><td style="padding:6px;font-weight:800;color:var(--purple)">🛡️ ${umT('grantAdmin')}</td><td style="text-align:center"><input type="checkbox" ${u.admin?'checked':''} onchange="umToggleAdmin('${id}',this.checked)" style="width:16px;height:16px;accent-color:var(--purple)"/></td><td style="text-align:center;color:var(--text3)">—</td></tr>
+          ${ALL_FEATURES.filter(f=>f.id!=='auditlog'&&f.id!=='roles'&&!ADMIN_FEAT_IDS.includes(f.id)).map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
           ${OT_APPROVE_FEATURES.filter(f=>!String(f.id).startsWith('proj_')).map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3);background:var(--bg2)"><td style="padding:6px;font-weight:700;color:var(--blue)">${approveLabel(f.id)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center;color:var(--text3)">—</td></tr>`;}).join('')}
         </table>
         <div style="margin-top:12px;padding:10px;background:var(--purple-l);border:1px solid var(--purple);border-radius:10px">
@@ -2238,6 +2247,62 @@ function renderUsers(){
   }).join('');
 }
 function umToggle(id){ umOpen[id]=!umOpen[id]; renderUsers(); }
+function umRefreshPanels(){ if(typeof renderUsers==='function') renderUsers(); if(typeof renderAdminMgmt==='function') renderAdminMgmt(); }
+async function umToggleAdmin(id,on){
+  if(!USERS[id]) USERS[id]={perms:{},name:(STAFF&&STAFF[id])||id};
+  USERS[id].admin=on;
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/admin.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(on)}); if(typeof logAudit==='function') logAudit('user_admin', id+(on?' 開通管理者':' 取消管理者')); }catch(e){ alert('✗ '+e.message); }
+  umOpen[id]=true; umRefreshPanels();
+}
+let umAdminSel=null;
+function umAdminPick(id){ umAdminSel=id; renderAdminMgmt(); }
+function umAdminToggle(id){ umAdminOpen[id]=!umAdminOpen[id]; renderAdminMgmt(); }
+function renderAdminMgmt(){
+  const el=document.getElementById('um-admin-panel'); if(!el) return;
+  const admins=Object.entries(STAFF).filter(([id])=>USERS[id]&&USERS[id].admin).sort((a,b)=>a[0].localeCompare(b[0]));
+  if(!admins.length){ el.innerHTML=`<div style="color:var(--text3);font-size:13px;text-align:center;padding:26px 10px">${umT('noAdmins')}</div>`; return; }
+  el.innerHTML=admins.map(([id,name])=>{
+    const u=USERS[id]||{}; const open=umAdminOpen[id];
+    return `<div style="border:1px solid var(--purple);border-radius:8px;margin-bottom:8px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--purple-l);cursor:pointer" onclick="umAdminToggle('${id}')">
+        <span style="width:14px;color:var(--purple)">${open?'▼':'▸'}</span>
+        <span style="font-weight:700;min-width:64px">${id}</span><span style="flex:1">${name||''}</span>
+        <span style="font-size:10px;background:var(--purple);color:#fff;font-weight:700;padding:1px 7px;border-radius:9px">管理者</span>
+      </div>
+      ${open?`<div style="padding:10px">
+        <table style="width:100%;font-size:12px;border-collapse:collapse">
+          <tr style="color:var(--text3)"><td style="padding:4px 6px">${umT('funcs')}</td><td style="text-align:center;width:64px">${umT('enable')}</td></tr>
+          ${ADMIN_FEAT_IDS.map(fid=>{const f=ALL_FEATURES.find(x=>x.id===fid); if(!f) return ''; const p=(u.perms&&u.perms[fid])||{}; const on=!!(p.v||p.e);return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${on?'checked':''} onchange="umFeatEnable('${id}','${fid}',this.checked)" style="width:16px;height:16px;accent-color:var(--purple)"/></td></tr>`;}).join('')}
+        </table>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+function umDetailHtml(id){
+  const u=USERS[id]||{}; const name=(STAFF&&STAFF[id])||id;
+  return `<div style="border:1px solid var(--blue-l,#dbeafe);border-radius:10px;padding:13px;background:#f8fbff">
+    <div style="font-weight:800;font-size:14px;margin-bottom:10px">${id} · ${name}</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="um-pw-${id}" type="password" placeholder="${umT('setpw')}" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)"/>
+      <button class="mt-perm" onclick="umSetPass('${id}')">${umT('resetpw')}</button>
+    </div>
+    <div style="margin-bottom:10px"><button class="btn-sm" onclick="umRequirePw('${id}')" ${(u.mustChange?'disabled style="opacity:.5"':'')}>${umT('reqpw')}${u.mustChange?' ✓':''}</button></div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <tr style="color:var(--text3)"><td style="padding:4px 6px">${umT('funcs')}</td><td style="text-align:center;width:56px">${umT('view')}</td><td style="text-align:center;width:56px">${umT('edit')}</td></tr>
+      ${ALL_FEATURES.filter(f=>f.id!=='auditlog'&&f.id!=='allEq'&&f.id!=='password').map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3)"><td style="padding:6px">${featLabel(f)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center"><input type="checkbox" ${p.e?'checked':''} onchange="umPerm('${id}','${f.id}','e',this.checked)" style="width:16px;height:16px"/></td></tr>`;}).join('')}
+      ${OT_APPROVE_FEATURES.filter(f=>!String(f.id).startsWith('proj_')).map(f=>{const p=(u.perms&&u.perms[f.id])||{};return `<tr style="border-top:1px solid var(--bg3);background:var(--bg2)"><td style="padding:6px;font-weight:700;color:var(--blue)">${approveLabel(f.id)}</td><td style="text-align:center"><input type="checkbox" ${p.v?'checked':''} onchange="umPerm('${id}','${f.id}','v',this.checked)" style="width:16px;height:16px"/></td><td style="text-align:center;color:var(--text3)">—</td></tr>`;}).join('')}
+    </table>
+    <div style="margin-top:12px;padding:10px;background:var(--purple-l);border:1px solid var(--purple);border-radius:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <div style="font-weight:800;color:var(--purple);font-size:13px">${umT('navHideTitle')}</div>
+        <button class="btn-sm" style="margin-left:auto;padding:3px 10px;font-size:11px" onclick="umNavShowAll('${id}',true)">${umT('navShowAll')}</button>
+        <button class="btn-sm" style="padding:3px 10px;font-size:11px" onclick="umNavShowAll('${id}',false)">${umT('navHideAll')}</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${umT('navHideHint')}</div>
+      ${NAV_PAGES.map(pg=>{const hid=!!(u.perms&&u.perms['navhide_'+pg]&&u.perms['navhide_'+pg].v);return `<label style="display:flex;align-items:center;gap:8px;padding:3px 2px;font-size:13px;cursor:pointer"><input type="checkbox" ${hid?'':'checked'} onchange="umPerm('${id}','navhide_${pg}','v',!this.checked)" style="width:15px;height:15px;accent-color:var(--purple)"/>${navLabel(pg)}</label>`;}).join('')}
+    </div>
+  </div>`;
+}
 async function umSetEmail(id,val){ val=(val||'').trim(); if(!USERS[id]) USERS[id]={perms:{},name:(STAFF&&STAFF[id])||id}; USERS[id].email=val; try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/email.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); if(typeof logAudit==='function') logAudit('user_email', id+' → '+(val||'(清空)')); }catch(e){ alert('✗ '+e.message); } }
 async function umAdd(){
   const id=(document.getElementById('um-add-id').value||'').trim();
@@ -2287,7 +2352,7 @@ async function umDel(id){
   if(!confirm(umTn('delQ',{id}))) return;
   delete USERS[id]; delete umOpen[id];
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'DELETE'}); }catch(e){}
-  renderUsers();
+  umRefreshPanels();
 }
 async function umSetPass(id){
   const inp=document.getElementById('um-pw-'+id); const val=inp&&inp.value.trim();
@@ -2296,14 +2361,14 @@ async function umSetPass(id){
   USERS[id].pass=val; USERS[id].mustChange=true; USERS[id].name=(STAFF&&STAFF[id])||USERS[id].name||id;
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:val,mustChange:true,name:USERS[id].name})}); }catch(e){ alert('✗ '+e.message); return; }
   if(typeof logAudit==='function') logAudit('pw', id);
-  inp.value=''; renderUsers();
+  inp.value=''; umRefreshPanels();
 }
 async function umRequirePw(id){
   if(!USERS[id]||!USERS[id].pass){ alert(umT('setpw')); return; }
   USERS[id].mustChange=true;
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/mustChange.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:'true'}); }catch(e){ alert('✗ '+e.message); return; }
   if(typeof logAudit==='function') logAudit('pw', id+' 要求改密碼');
-  alert(umT('reqpwOk')); renderUsers();
+  alert(umT('reqpwOk')); umRefreshPanels();
 }
 async function umPerm(id,fid,which,on){
   if(!USERS[id]) USERS[id]={perms:{},name:(STAFF&&STAFF[id])||id};
@@ -2312,6 +2377,14 @@ async function umPerm(id,fid,which,on){
   USERS[id].perms[fid][which]=on;
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/perms/${fid}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(USERS[id].perms[fid])}); }catch(e){}
   if(typeof logAudit==='function'){ if(String(fid).indexOf('navhide_')===0) logAudit('navshow', id+' '+fid.replace('navhide_','')+(on?' 隱藏':' 顯示')); else logAudit('perm', id+' '+fid+'/'+(which||'v')+'='+(on?'✓':'✗')); }
+}
+// 管理者功能：單一「啟用」= 同時開觀看+操作；取消=兩者關閉
+async function umFeatEnable(id,fid,on){
+  if(!USERS[id]) USERS[id]={perms:{},name:(STAFF&&STAFF[id])||id};
+  if(!USERS[id].perms) USERS[id].perms={};
+  USERS[id].perms[fid]={v:on,e:on};
+  try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/perms/${fid}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({v:on,e:on})}); }catch(e){}
+  if(typeof logAudit==='function') logAudit('perm', id+' '+fid+(on?' 啟用':' 停用'));
 }
 // 一鍵：全部顯示 (show=true) / 全部隱藏 (show=false) 左側功能
 async function umNavShowAll(id,show){
@@ -2322,12 +2395,15 @@ async function umNavShowAll(id,show){
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}/perms.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); }catch(e){}
   if(typeof umCurrentUser!=='undefined'&&umCurrentUser&&String(umCurrentUser.id)===String(id)){ if(!umCurrentUser.perms)umCurrentUser.perms={}; NAV_PAGES.forEach(pg=>{ umCurrentUser.perms['navhide_'+pg]={v:!show}; }); if(typeof applyNavPerms==='function') applyNavPerms(); }
   if(typeof logAudit==='function') logAudit('navshow', id+(show?' 全部顯示':' 全部隱藏'));
-  renderUsers();
+  umRefreshPanels();
 }
 // ── 使用者登入（點功能跳出、遮碼、首次強制改密碼）──
 Object.assign(UM_I18N.zh,{ulogin:'👤 使用者登入',ulogout:'登出',uidph:'編號',upassph:'密碼',ucancel:'取消',uok:'登入',
   uwrong:'編號或密碼錯誤',uchgtitle:'設定新密碼',usetnew:'首次登入，請先設定新密碼',unew1:'新密碼',unew2:'再輸入一次',
-  ushort:'密碼至少 4 碼',umis:'兩次密碼不一致',uconfirm:'確定',uloginTitle:'使用者登入',noperm:'你沒有此功能的權限',readonly:'唯讀（無細節調整權限）',guestName:'訪客',guestTitle:'👁 訪客可見畫面',guestHint:'勾選訪客（未登入）可以看到的頁面。'});
+  ushort:'密碼至少 4 碼',umis:'兩次密碼不一致',uconfirm:'確定',uloginTitle:'使用者登入',noperm:'你沒有此功能的權限',readonly:'唯讀（無細節調整權限）',guestName:'訪客',guestTitle:'👁 訪客可見畫面',guestHint:'勾選訪客（未登入）可以看到的頁面。',
+  grantAdmin:'開通管理者',admMgmt:'🛡️ 管理者管理',noAdmins:'尚未開通任何管理者（左邊勾選即可）',admHint:'左邊勾「開通管理者」的人會出現在這；點 ▸ 展開設定他能用哪些管理者功能。',enable:'啟用'});
+Object.assign(UM_I18N.es,{grantAdmin:'Habilitar admin',admMgmt:'🛡️ Gestión de administradores',noAdmins:'Sin administradores (marque a la izquierda)',admHint:'Los marcados como admin aparecen aquí; expanda ▸ para configurar.',enable:'Activar'});
+Object.assign(UM_I18N.en,{grantAdmin:'Grant admin',admMgmt:'🛡️ Admin management',noAdmins:'No admins yet (check on the left)',admHint:'Admins appear here; expand ▸ to configure.',enable:'Enable'});
 Object.assign(UM_I18N.es,{ulogin:'👤 Iniciar sesión',ulogout:'Salir',uidph:'N.º',upassph:'Contraseña',ucancel:'Cancelar',uok:'Entrar',
   uwrong:'N.º o contraseña incorrectos',uchgtitle:'Definir nueva contraseña',usetnew:'Primer inicio: defina una nueva contraseña',unew1:'Nueva contraseña',unew2:'Repita la contraseña',
   ushort:'Mínimo 4 caracteres',umis:'Las contraseñas no coinciden',uconfirm:'Confirmar',uloginTitle:'Iniciar sesión',noperm:'No tiene permiso para esta función',readonly:'Solo lectura (sin permiso de edición)',guestName:'Visitante',guestTitle:'👁 Pantallas para visitantes',guestHint:'Marque las páginas que puede ver un visitante (sin sesión).'});
@@ -2489,7 +2565,7 @@ async function gateDoChange(){
 }
 function gateFinish(id,u){
   guestMode=false; try{ localStorage.removeItem('tesm_guest'); }catch(e){}
-  umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{}};
+  umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{},admin:!!(u&&u.admin)};
   if(typeof umSaveSession==='function') umSaveSession();
   if(typeof logAudit==='function') logAudit('login', umCurrentUser.id+'·'+umCurrentUser.name);
   if(typeof umUpdateBar==='function') umUpdateBar();
@@ -2544,11 +2620,11 @@ async function umRefreshPerms(){
   const u=USERS[umCurrentUser.id];
   if(u && u.perms){ umCurrentUser.perms=u.perms; if(typeof umSaveSession==='function') umSaveSession(); if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); }
 }
-function umSaveSession(){ try{ if(umCurrentUser) localStorage.setItem('tesm_um', JSON.stringify({id:umCurrentUser.id,name:umCurrentUser.name,perms:umCurrentUser.perms,exp:Date.now()+2*3600*1000})); }catch(e){} }
+function umSaveSession(){ try{ if(umCurrentUser) localStorage.setItem('tesm_um', JSON.stringify({id:umCurrentUser.id,name:umCurrentUser.name,perms:umCurrentUser.perms,admin:!!umCurrentUser.admin,exp:Date.now()+2*3600*1000})); }catch(e){} }
 function umRestoreSession(){
   try{ const raw=localStorage.getItem('tesm_um'); if(!raw) return false; const s=JSON.parse(raw);
     if(!s||!s.exp||Date.now()>s.exp){ localStorage.removeItem('tesm_um'); return false; }
-    umCurrentUser={id:s.id,name:s.name,perms:s.perms||{}};
+    umCurrentUser={id:s.id,name:s.name,perms:s.perms||{},admin:!!s.admin};
     if(typeof umUpdateBar==='function') umUpdateBar();
     if(typeof applyNavPerms==='function') applyNavPerms();
     umRefreshPerms();
@@ -2559,7 +2635,7 @@ function umRestoreSession(){
 function umRefreshPerms(){
   if(!umCurrentUser||!umCurrentUser.id) return;
   fetch(`${FB}/users/${umCurrentUser.id}.json`).then(r=>r.json()).then(u=>{
-    if(u&&u.perms&&umCurrentUser){ umCurrentUser.perms=u.perms; if(u.name) umCurrentUser.name=u.name;
+    if(u&&u.perms&&umCurrentUser){ umCurrentUser.perms=u.perms; umCurrentUser.admin=!!u.admin; if(u.name) umCurrentUser.name=u.name;
       try{ umSaveSession(); }catch(e){}
       if(typeof umUpdateBar==='function') umUpdateBar();
       if(typeof applyNavPerms==='function') applyNavPerms();
@@ -2567,7 +2643,7 @@ function umRefreshPerms(){
   }).catch(()=>{});
 }
 function umFinish(id,u){
-  umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{}};
+  umCurrentUser={id,name:(u&&u.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id,perms:(u&&u.perms)||{},admin:!!(u&&u.admin)};
   umSaveSession();
   if(typeof logAudit==='function') logAudit('login', umCurrentUser.id+'·'+umCurrentUser.name);
   umModalClose(); umUpdateBar();
@@ -2581,8 +2657,10 @@ function umLogout(){ umCurrentUser=null; guestMode=false; try{ localStorage.remo
 const SUPER_ADMIN_IDS=['H00929','14'];
 function umIsSuper(){ if(typeof umCurrentUser==='undefined'||!umCurrentUser) return false; const id=String(umCurrentUser.id||'').toUpperCase(); const nm=String(umCurrentUser.name||'').toUpperCase(); return SUPER_ADMIN_IDS.indexOf(id)>=0 || nm==='FOURTEEN'; }
 function umCan(featId,level){
-  if(typeof ROLES!=='undefined' && ROLES[currentRole] && ROLES[currentRole].features && ROLES[currentRole].features.indexOf('*')>=0) return true;
   if(umIsSuper()) return String(featId).indexOf('navhide_')!==0; // 超級管理員：全功能有權，且不隱藏任何選單
+  var indiv=(typeof umCurrentUser!=='undefined' && umCurrentUser);
+  // 純角色管理員（沒有用個人帳號登入時，角色帶 '*' 才算管理員）；有個人帳號登入就以個人權限為準，避免殘留角色污染
+  if(!indiv && typeof ROLES!=='undefined' && ROLES[currentRole] && ROLES[currentRole].features && ROLES[currentRole].features.indexOf('*')>=0) return true;
   return !!(umCurrentUser&&umCurrentUser.perms&&umCurrentUser.perms[featId]&&umCurrentUser.perms[featId][level||'v']);
 }
 const PW_I18N={
@@ -2597,26 +2675,8 @@ async function renderPasswordPanel(deptKey) {
   await loadUsers();
   if(typeof fldLoadConfig==='function'){ try{ await fldLoadConfig(); }catch(e){} }
   panel.innerHTML = `
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:480px;margin-bottom:16px">
-      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${pwT('title')} — ${pwT('dept')}</div>
-      <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-        ${allRoles.map(([key,cfg])=>`
-          <div style="display:flex;gap:8px;align-items:center">
-            <span style="font-size:12px;font-weight:600;width:110px;color:var(--text2)">${cfg.label||key}</span>
-            <input id="pw-input-${key}" type="password" placeholder="${pwT('newpw')}" class="eq-input" style="flex:1"/>
-            <button class="btn-sm" onclick="changeRolePw('${key}')">${pwT('change')}</button>
-          </div>`).join('')}
-        <div style="border-top:1px solid var(--border);margin-top:2px;padding-top:12px;display:flex;gap:8px;align-items:center">
-          <span style="font-size:12px;font-weight:600;width:110px;color:var(--text2)">${pwT('field')}</span>
-          <input id="pw-misc-field" type="password" placeholder="${pwT('newpw')}" class="eq-input" style="flex:1"/>
-          <button class="btn-sm" onclick="changeMiscPw('field')">${pwT('change')}</button>
-        </div>
-        <div id="pw-misc-msg" style="font-size:12px;color:var(--green);display:none">${pwT('updated')}</div>
-        <div id="pw-msg" style="font-size:12px;color:var(--green);display:none">${pwT('updated')}</div>
-      </div>
-    </div>
-
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:560px;margin-top:16px">
+    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;flex:1.05;min-width:340px">
       <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${umT('title')}</div>
       <div style="padding:16px">
         <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${umT('hint2')}</div>
@@ -2634,8 +2694,16 @@ async function renderPasswordPanel(deptKey) {
           <input id="um-search" placeholder="${umT('search')}" oninput="renderUsers()" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"/>
           <select id="um-dept-filter" onchange="renderUsers()" style="min-width:110px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)"><option value="">${umT('allDepts')}</option>${STAFF_DEPTS.map(d=>`<option value="${d}">${d}</option>`).join('')}<option value="__none">${umT('unassigned')}</option></select>
         </div>
-        <div id="um-list" style="max-height:440px;overflow:auto"></div>
+        <div id="um-list" style="max-height:520px;overflow:auto"></div>
       </div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;flex:1;min-width:320px">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${umT('admMgmt')}</div>
+      <div style="padding:16px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${umT('admHint')}</div>
+        <div id="um-admin-panel"></div>
+      </div>
+    </div>
     </div>
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:560px;margin-top:16px">
       <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600">${umT('guestTitle')}</div>
@@ -2644,7 +2712,7 @@ async function renderPasswordPanel(deptKey) {
         <div id="guest-access-list" style="display:flex;flex-direction:column;gap:9px"></div>
       </div>
     </div>`;
-  renderUsers(); if(typeof renderGuestAccess==='function') renderGuestAccess();
+  renderUsers(); if(typeof renderAdminMgmt==='function') renderAdminMgmt(); if(typeof renderGuestAccess==='function') renderGuestAccess();
 }
 async function renderGuestAccess(){
   const el=document.getElementById('guest-access-list'); if(!el) return;
@@ -3215,7 +3283,7 @@ try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }ca
 // ── 管理介面三語字典 ──
 const ADMIN_I18N={
   zh:{
-    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_projset:'📁 專案追蹤系統',feat_projadmin:'📁 專案系統管理',feat_auditlog:'📜 系統日誌',feat_password:'密碼管理',feat_roles:'部門管理',
+    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_projset:'📁 專案追蹤系統',feat_projadmin:'📁 專案系統管理',feat_auditlog:'📜 系統日誌',feat_password:'👤 帳號管理系統',feat_roles:'部門管理',
     st_kinds:'車機種類',st_statuses:'狀態選項',st_hours:'時數種類',st_staff:'人員清單',st_pass:'密碼',
     desc_kinds:'車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）',
     desc_statuses:'車機狀態選項（現場「狀態更改」的下拉）',
@@ -3239,7 +3307,7 @@ const ADMIN_I18N={
     m_built:'補建 {n} 台 ✓',m_skipped:'（略過已存在 {n} 台）',m_bad:'（{n} 筆格式不符）'
   },
   es:{
-    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_projset:'📁 Proyectos',feat_projadmin:'📁 Admin proyectos',feat_auditlog:'📜 Registro',feat_password:'Contraseñas',feat_roles:'Departamentos',
+    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_projset:'📁 Proyectos',feat_projadmin:'📁 Admin proyectos',feat_auditlog:'📜 Registro',feat_password:'👤 Gestión de cuentas',feat_roles:'Departamentos',
     st_kinds:'Tipos',st_statuses:'Estados',st_hours:'Cat. horas',st_staff:'Personal',st_pass:'Contraseña',
     desc_kinds:'Tipos de equipo (para «Estado» y «Horas» en campo. AR se asigna a ARMGC).',
     desc_statuses:'Opciones de estado (menú de «Cambiar estado» en campo).',
@@ -3263,7 +3331,7 @@ const ADMIN_I18N={
     m_built:'{n} creados ✓',m_skipped:'({n} existentes omitidos)',m_bad:'({n} con formato inválido)'
   },
   en:{
-    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_projset:'📁 Projects',feat_projadmin:'📁 Project admin',feat_auditlog:'📜 Audit log',feat_password:'Passwords',feat_roles:'Departments',
+    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_projset:'📁 Projects',feat_projadmin:'📁 Project admin',feat_auditlog:'📜 Audit log',feat_password:'👤 Account management',feat_roles:'Departments',
     st_kinds:'Types',st_statuses:'Statuses',st_hours:'Hour cats',st_staff:'Staff',st_pass:'Password',
     desc_kinds:'Equipment types (used by field Status & Hours. AR maps to ARMGC).',
     desc_statuses:'Status options (the field «Change status» dropdown).',
@@ -3855,7 +3923,7 @@ function mtDayHoverOut(){ clearTimeout(mtTipTimer); if(mtTipEl) mtTipEl.style.di
 
 function toggleMaintShowDone(){ maintShowDone=!maintShowDone; renderMaintenance(); }
 
-function mtIs14(){ return currentRole==='14' || (typeof umIsSuper==='function' && umIsSuper()) || (typeof umCurrentUser!=='undefined' && umCurrentUser && String(umCurrentUser.id)==='14') || (typeof maintIsAdmin==='function' && maintIsAdmin()); }
+function mtIs14(){ if(typeof umIsSuper==='function' && umIsSuper()) return true; if(typeof umCurrentUser!=='undefined' && umCurrentUser) return String(umCurrentUser.id)==='14'; return currentRole==='14' || (typeof maintIsAdmin==='function' && maintIsAdmin()); }
 async function mtDeleteTaskAdmin(type,team,id){
   if(!mtIs14()){ alert(mtL().del14Only||'只有 14 可以刪除工程。'); return; }
   const g=mtGet(type,team); const t=g&&g.tasks&&g.tasks[id]; if(!t) return;
@@ -5949,10 +6017,20 @@ function navTo(page, el){
   if(page==='projtrack') renderProjTrack();
   if(page==='changelog') loadChangelogPage();
   if(page==='admin') {
-    // 每次進入管理者頁面都要重新登入
-    if (!currentRole) {
-      document.getElementById('admin-lock').style.display='flex';
-      document.getElementById('admin-content').style.display='none';
+    // 免密碼:超級管理員或被開通「管理者」的個人帳號可直接進入
+    const sup=(typeof umIsSuper==='function'&&umIsSuper());
+    const isAdmin = sup || (typeof umCurrentUser!=='undefined'&&umCurrentUser&&umCurrentUser.admin===true) || (currentRole && ROLES[currentRole] && ROLES[currentRole].features && ROLES[currentRole].features.indexOf('*')>=0);
+    const lock=document.getElementById('admin-lock'), content=document.getElementById('admin-content');
+    if(isAdmin){
+      if(sup) currentRole='14';
+      else if(!(currentRole && ROLES[currentRole])) currentRole=(umCurrentUser&&umCurrentUser.id)||'__admin__';
+      if(lock) lock.style.display='none';
+      if(content) content.style.display='block';
+      const badge=document.getElementById('admin-role-badge'); if(badge) badge.textContent='('+((umCurrentUser&&umCurrentUser.name)||(ROLES[currentRole]&&ROLES[currentRole].label)||'')+')';
+      if(typeof renderAdminShell==='function') renderAdminShell();
+    } else {
+      if(content) content.style.display='none';
+      if(lock){ lock.style.display='flex'; lock.innerHTML='<div style="font-size:40px">🔒</div><div style="font-size:16px;font-weight:600;color:var(--text)">管理者介面</div><div style="font-size:13px;color:var(--text3)">你沒有管理者權限，請洽管理者開通。</div>'; }
     }
   }
   if(page==='history'){
@@ -6298,14 +6376,19 @@ const PROJ_DEPTS=['MT1','MT2','MT3','MTD'];
 const PROJ_VENDOR_SEED=['MASTER TECH','ROBDEK','AMCO SERVICIOS','GEMCO','GRUPO VARGAS MATAMOROS','MINDI PORT','SETIMSA','GRUPO ASM','MASTER TRUCK','SELLOS HIDRAULICOS DE PANAMA','M & C','MULTISERVICIOS GUERRA (COVRA)','CUMMINS PANAMA','DIESEL & TURBO','HYDRAULIC PARTS PANAMA','GMP','PECSCO','IPS','GLOBAL PORT EQUIPMENT','TEISCA','SANY','CIMC','RENFRIO','YOSHIYA'];
 let projShowForm=false, projEditKey=null, projFDept='', projFYear='', projSearch='', projDetailKey=null;
 const PROJ_I18N={
-  es:{title:'Control de proyectos de reparación',newProj:'Nuevo proyecto',no:'N.º',subject:'Asunto',approvedDate:'Fecha aprob.',cost:'Costo',vendor:'Proveedor',attr:'Equipo',attrNum:'Número',finishDate:'Fecha est. entrega',remark:'Nota',pay1:'1.er pago',pay2:'2.º pago',pay3:'3.er pago',payDate:'Fecha',payAmt:'Monto',paid:'Pagado',balance:'Saldo',status:'Estado',stUnpaid:'Sin pago',stPartial:'Parcial',stPaid:'Pagado',stDone:'Finalizado',dept:'Depto.',lead:'Responsable',sup:'Supervisor',creator:'Creado por',save:'Guardar',cancel:'Cancelar',edit:'Editar',sel:'Seleccione…',none:'—',needDept:'Seleccione depto.',needSubject:'Ingrese el asunto',noPerm:'Solo el responsable/supervisor/creador puede editar.',empty:'Aún no hay proyectos',allDepts:'Todos deptos.',allYears:'Todos años',searchPh:'🔍 N.º o asunto',totCount:'Proyectos',totCost:'Costo total',totPaid:'Pagado',totBal:'Saldo',saved:'Guardado',payments:'Pagos',vendors:'Proveedores',addVendor:'Añadir proveedor',backList:'← Volver a la lista',secItems:'Detalle de cotización',itName:'Ítem',itDesc:'Descripción',itQty:'Cant.',itPrice:'P. unit.',itAmt:'Importe',quoteTotal:'Total cotizado',vsCost:'Dif. vs costo',addItem:'Añadir ítem',secTimeline:'Progreso',tlStage:'Etapa',tlNote:'Nota',addStage:'Añadir etapa',stgEstablish:'Crear proyecto',stgApproval:'Requisición aprobada',stgInquiry:'Cotización',stgVendor:'Selección proveedor',stgRepairing:'En reparación/compra',stgComplete:'Completado/Almacén',payTotalField:'Total a pagar',terms:'N.º de cuotas',termCol:'Cuota',payDone:'Pago completo',sumTotal:'Total',secPayplan:'Términos de pago acordados',ppName:'Concepto',ppPct:'%',ppAmt:'Importe',pctTotal:'Total %',amtTotal:'Total',addPayItem:'Añadir término',secPays:'Detalle de pagos',pInv:'N.º factura',pNote:'Nota',addPay:'Añadir pago',payTotal:'Total pagado',saveDetail:'Guardar detalle',detailSaved:'Detalle guardado',viewOnlyNote:'Solo lectura',noItems:'Sin ítems',del:'Eliminar',delConfirm:'¿Eliminar el proyecto {no}? No se puede deshacer.',deleted:'Eliminado',noCfgTitle:'Formato de N.º de proyecto',noCfgTemplate:'Formato',noCfgHint:'Variables: {prefix} {dept} {year} {seq}',noCfgSeqDigits:'Dígitos de secuencia',noCfgPrefix:'Prefijo por defecto',noCfgDeptPrefix:'Prefijo por depto. (vacío=por defecto)',noCfgPreview:'Vista previa',noCfgSaved:'Formato guardado',paTitle:'Gestión del sistema de proyectos',paPeople:'Permisos y correo',paView:'Ver',paCreate:'Crear',paDelete:'Eliminar',paLead:'Responsable',paSearch:'🔍 N.º o nombre',paDeptAll:'Todos deptos.',paEmailPh:'Correo (para informe diario)',paEmpty:'Sin personal'},
-  zh:{title:'維修外修專案控制清單',newProj:'開專案',no:'編號',subject:'主旨',approvedDate:'核准日期',cost:'專案金額',vendor:'廠商',attr:'車機類型',attrNum:'編號',finishDate:'預計完工/出貨日期',remark:'備註',pay1:'第1期付款',pay2:'第2期付款',pay3:'第3期付款',payDate:'日期',payAmt:'金額',paid:'已付',balance:'差額',status:'狀態',stUnpaid:'未付',stPartial:'部分付款',stPaid:'已付清',stDone:'已完成',dept:'部門',lead:'主辦人',sup:'監督人',creator:'開案者',save:'儲存',cancel:'取消',edit:'編輯',sel:'請選擇…',none:'—',needDept:'請選擇部門',needSubject:'請輸入主旨',noPerm:'只有主辦/監督/開案者能編輯。',empty:'尚無專案',allDepts:'全部部門',allYears:'全部年份',searchPh:'🔍 編號或主旨',totCount:'專案數',totCost:'總金額',totPaid:'已付',totBal:'差額',saved:'已儲存',payments:'分期付款',vendors:'廠商名單',addVendor:'新增廠商',backList:'← 返回清單',secItems:'工項/報價明細',itName:'品項',itDesc:'說明',itQty:'數量',itPrice:'單價',itAmt:'金額',quoteTotal:'報價總額',vsCost:'與專案金額差異',addItem:'新增工項',secTimeline:'進度時間軸',tlStage:'階段',tlNote:'備註',addStage:'新增階段',stgEstablish:'成立專案',stgApproval:'申議書核決',stgInquiry:'詢價',stgVendor:'廠商決議',stgRepairing:'維修中/採購中',stgComplete:'完成/入庫',payTotalField:'付款總額',terms:'分幾期',termCol:'期別',payDone:'付款完成',sumTotal:'總額',secPayplan:'約定付款細項',ppName:'付款項目',ppPct:'百分比(%)',ppAmt:'金額',pctTotal:'百分比合計',amtTotal:'金額合計',addPayItem:'新增付款項目',secPays:'付款明細',pInv:'發票號碼',pNote:'備註',addPay:'新增付款',payTotal:'付款合計',saveDetail:'儲存明細',detailSaved:'明細已儲存',viewOnlyNote:'唯讀檢視',noItems:'尚無工項',del:'刪除',delConfirm:'確定刪除專案 {no}?此動作無法復原。',deleted:'已刪除',noCfgTitle:'專案編號設置',noCfgTemplate:'編號格式',noCfgHint:'可用變數:{prefix} {dept} {year} {seq}',noCfgSeqDigits:'序號位數',noCfgPrefix:'預設前綴',noCfgDeptPrefix:'各部門前綴(留空=用預設)',noCfgPreview:'預覽',noCfgSaved:'編號設定已儲存',paTitle:'專案系統管理',paPeople:'人員權限與信箱',paView:'檢視',paCreate:'開案',paDelete:'刪除',paLead:'可負責',paSearch:'🔍 編號或姓名',paDeptAll:'全部部門',paEmailPh:'信箱(每日進度報告用)',paEmpty:'查無人員'},
-  en:{title:'Repair Project Control List',newProj:'New Project',no:'No.',subject:'Subject',approvedDate:'Approved',cost:'Cost',vendor:'Vendor',attr:'Equipment',attrNum:'Number',finishDate:'Est. completion/delivery',remark:'Remark',pay1:'1st payment',pay2:'2nd payment',pay3:'3rd payment',payDate:'Date',payAmt:'Amount',paid:'Paid',balance:'Balance',status:'Status',stUnpaid:'Unpaid',stPartial:'Partial',stPaid:'Paid',stDone:'Finished',dept:'Dept.',lead:'Lead',sup:'Supervisor',creator:'Created by',save:'Save',cancel:'Cancel',edit:'Edit',sel:'Select…',none:'—',needDept:'Select a dept.',needSubject:'Enter the subject',noPerm:'Only lead/supervisor/creator can edit.',empty:'No projects yet',allDepts:'All depts.',allYears:'All years',searchPh:'🔍 No. or subject',totCount:'Projects',totCost:'Total cost',totPaid:'Paid',totBal:'Balance',saved:'Saved',payments:'Payments',vendors:'Vendors',addVendor:'Add vendor',backList:'← Back to list',secItems:'Quotation detail',itName:'Item',itDesc:'Description',itQty:'Qty',itPrice:'Unit price',itAmt:'Amount',quoteTotal:'Quoted total',vsCost:'Diff. vs cost',addItem:'Add item',secTimeline:'Progress',tlStage:'Stage',tlNote:'Note',addStage:'Add stage',stgEstablish:'Create project',stgApproval:'Requisition approved',stgInquiry:'Inquiry',stgVendor:'Vendor selection',stgRepairing:'In repair/purchase',stgComplete:'Completed/Stock-in',payTotalField:'Payment total',terms:'Installments',termCol:'Installment',payDone:'Payment complete',sumTotal:'Total',secPayplan:'Agreed payment terms',ppName:'Item',ppPct:'%',ppAmt:'Amount',pctTotal:'Total %',amtTotal:'Total',addPayItem:'Add term',secPays:'Payment detail',pInv:'Invoice no.',pNote:'Note',addPay:'Add payment',payTotal:'Total paid',saveDetail:'Save detail',detailSaved:'Detail saved',viewOnlyNote:'View only',noItems:'No items',del:'Delete',delConfirm:'Delete project {no}? This cannot be undone.',deleted:'Deleted',noCfgTitle:'Project number format',noCfgTemplate:'Format',noCfgHint:'Variables: {prefix} {dept} {year} {seq}',noCfgSeqDigits:'Sequence digits',noCfgPrefix:'Default prefix',noCfgDeptPrefix:'Per-dept prefix (blank=default)',noCfgPreview:'Preview',noCfgSaved:'Format saved',paTitle:'Project system admin',paPeople:'Permissions & email',paView:'View',paCreate:'Create',paDelete:'Delete',paLead:'Lead',paSearch:'🔍 ID or name',paDeptAll:'All depts.',paEmailPh:'Email (for daily report)',paEmpty:'No staff'}
+  es:{title:'Control de proyectos de reparación',newProj:'Nuevo proyecto',no:'N.º',subject:'Asunto',approvedDate:'Fecha aprob.',cost:'Costo',vendor:'Proveedor',attr:'Equipo',attrNum:'Número',finishDate:'Fecha est. entrega',remark:'Nota',pay1:'1.er pago',pay2:'2.º pago',pay3:'3.er pago',payDate:'Fecha',payAmt:'Monto',paid:'Pagado',balance:'Saldo',status:'Estado',stUnpaid:'Sin pago',stPartial:'Parcial',stPaid:'Pagado',stDone:'Finalizado',dept:'Depto.',lead:'Responsable',sup:'Supervisor',creator:'Creado por',save:'Guardar',cancel:'Cancelar',edit:'Editar',sel:'Seleccione…',none:'—',needDept:'Seleccione depto.',needSubject:'Ingrese el asunto',noPerm:'Solo el responsable/supervisor/creador puede editar.',empty:'Aún no hay proyectos',allDepts:'Todos deptos.',allYears:'Todos años',searchPh:'🔍 N.º o asunto',totCount:'Proyectos',totCost:'Costo total',totPaid:'Pagado',totBal:'Saldo',saved:'Guardado',payments:'Pagos',vendors:'Proveedores',addVendor:'Añadir proveedor',backList:'← Volver a la lista',secItems:'Detalle de cotización',itName:'Ítem',itDesc:'Descripción',itQty:'Cant.',itPrice:'P. unit.',itAmt:'Importe',quoteTotal:'Total cotizado',vsCost:'Dif. vs costo',addItem:'Añadir ítem',secTimeline:'Progreso',tlStage:'Etapa',tlNote:'Nota',addStage:'Añadir etapa',stgEstablish:'Crear proyecto',stgApproval:'Requisición aprobada',stgInquiry:'Cotización',stgVendor:'Selección proveedor',stgRepairing:'En reparación/compra',stgComplete:'Completado/Almacén',payTotalField:'Total a pagar',terms:'N.º de cuotas',termCol:'Cuota',payDone:'Pago completo',sumTotal:'Total',secPayplan:'Términos de pago acordados',ppName:'Concepto',ppPct:'%',ppAmt:'Importe',pctTotal:'Total %',amtTotal:'Total',addPayItem:'Añadir término',secPays:'Detalle de pagos',pInv:'N.º factura',pNote:'Nota',addPay:'Añadir pago',payTotal:'Total pagado',saveDetail:'Guardar detalle',detailSaved:'Detalle guardado',viewOnlyNote:'Solo lectura',noItems:'Sin ítems',del:'Eliminar',delConfirm:'¿Eliminar el proyecto {no}? No se puede deshacer.',deleted:'Eliminado',noCfgTitle:'Formato de N.º de proyecto',noCfgTemplate:'Formato',noCfgHint:'Variables: {prefix} {dept} {year} {seq}',noCfgSeqDigits:'Dígitos de secuencia',noCfgPrefix:'Prefijo por defecto',noCfgDeptPrefix:'Prefijo por depto. (vacío=por defecto)',noCfgPreview:'Vista previa',noCfgSaved:'Formato guardado',paTitle:'Gestión del sistema de proyectos',paPeople:'Permisos y correo',paView:'Ver',paCreate:'Crear',paDelete:'Eliminar',paLead:'Responsable',paSearch:'🔍 N.º o nombre',paDeptAll:'Todos deptos.',paEmailPh:'Correo (para informe diario)',paEmpty:'Sin personal',stgName:'Etapa',stgPct:'% peso',stgTotals:'Total',progress:'Avance',stageSec:'Progreso',addonSec:'Adicionales',addonBtn:'Añadir',addonTotal:'Total adicional',totalCost:'Monto total',itemName:'Concepto',needAll:'Complete todos los campos antes de crear el proyecto.',pctOver:'El total de % no puede superar 100%.',amtOver:'El total de montos de etapas no puede superar el costo del proyecto.'},
+  zh:{title:'維修外修專案控制清單',newProj:'開專案',no:'編號',subject:'主旨',approvedDate:'核准日期',cost:'專案金額',vendor:'廠商',attr:'車機類型',attrNum:'編號',finishDate:'預計完工/出貨日期',remark:'備註',pay1:'第1期付款',pay2:'第2期付款',pay3:'第3期付款',payDate:'日期',payAmt:'金額',paid:'已付',balance:'差額',status:'狀態',stUnpaid:'未付',stPartial:'部分付款',stPaid:'已付清',stDone:'已完成',dept:'部門',lead:'主辦人',sup:'監督人',creator:'開案者',save:'儲存',cancel:'取消',edit:'編輯',sel:'請選擇…',none:'—',needDept:'請選擇部門',needSubject:'請輸入主旨',noPerm:'只有主辦/監督/開案者能編輯。',empty:'尚無專案',allDepts:'全部部門',allYears:'全部年份',searchPh:'🔍 編號或主旨',totCount:'專案數',totCost:'總金額',totPaid:'已付',totBal:'差額',saved:'已儲存',payments:'分期付款',vendors:'廠商名單',addVendor:'新增廠商',backList:'← 返回清單',secItems:'工項/報價明細',itName:'品項',itDesc:'說明',itQty:'數量',itPrice:'單價',itAmt:'金額',quoteTotal:'報價總額',vsCost:'與專案金額差異',addItem:'新增工項',secTimeline:'進度時間軸',tlStage:'階段',tlNote:'備註',addStage:'新增階段',stgEstablish:'成立專案',stgApproval:'申議書核決',stgInquiry:'詢價',stgVendor:'廠商決議',stgRepairing:'維修中/採購中',stgComplete:'完成/入庫',payTotalField:'付款總額',terms:'分幾期',termCol:'期別',payDone:'付款完成',sumTotal:'總額',secPayplan:'約定付款細項',ppName:'付款項目',ppPct:'百分比(%)',ppAmt:'金額',pctTotal:'百分比合計',amtTotal:'金額合計',addPayItem:'新增付款項目',secPays:'付款明細',pInv:'發票號碼',pNote:'備註',addPay:'新增付款',payTotal:'付款合計',saveDetail:'儲存明細',detailSaved:'明細已儲存',viewOnlyNote:'唯讀檢視',noItems:'尚無工項',del:'刪除',delConfirm:'確定刪除專案 {no}?此動作無法復原。',deleted:'已刪除',noCfgTitle:'專案編號設置',noCfgTemplate:'編號格式',noCfgHint:'可用變數:{prefix} {dept} {year} {seq}',noCfgSeqDigits:'序號位數',noCfgPrefix:'預設前綴',noCfgDeptPrefix:'各部門前綴(留空=用預設)',noCfgPreview:'預覽',noCfgSaved:'編號設定已儲存',paTitle:'專案系統管理',paPeople:'人員權限與信箱',paView:'檢視',paCreate:'開案',paDelete:'刪除',paLead:'可負責',paSearch:'🔍 編號或姓名',paDeptAll:'全部部門',paEmailPh:'信箱(每日進度報告用)',paEmpty:'查無人員',stgName:'階段',stgPct:'占比%',stgTotals:'合計',progress:'完成度',stageSec:'進度設定',addonSec:'追加項目',addonBtn:'追加',addonTotal:'追加合計',totalCost:'總金額',itemName:'項目',needAll:'請填完所有欄位才能立案(核准日期／金額／廠商／編號／主辦人／預計完工日)。',pctOver:'占比合計不可超過 100%。',amtOver:'進度階段金額合計不可超過專案金額。'},
+  en:{title:'Repair Project Control List',newProj:'New Project',no:'No.',subject:'Subject',approvedDate:'Approved',cost:'Cost',vendor:'Vendor',attr:'Equipment',attrNum:'Number',finishDate:'Est. completion/delivery',remark:'Remark',pay1:'1st payment',pay2:'2nd payment',pay3:'3rd payment',payDate:'Date',payAmt:'Amount',paid:'Paid',balance:'Balance',status:'Status',stUnpaid:'Unpaid',stPartial:'Partial',stPaid:'Paid',stDone:'Finished',dept:'Dept.',lead:'Lead',sup:'Supervisor',creator:'Created by',save:'Save',cancel:'Cancel',edit:'Edit',sel:'Select…',none:'—',needDept:'Select a dept.',needSubject:'Enter the subject',noPerm:'Only lead/supervisor/creator can edit.',empty:'No projects yet',allDepts:'All depts.',allYears:'All years',searchPh:'🔍 No. or subject',totCount:'Projects',totCost:'Total cost',totPaid:'Paid',totBal:'Balance',saved:'Saved',payments:'Payments',vendors:'Vendors',addVendor:'Add vendor',backList:'← Back to list',secItems:'Quotation detail',itName:'Item',itDesc:'Description',itQty:'Qty',itPrice:'Unit price',itAmt:'Amount',quoteTotal:'Quoted total',vsCost:'Diff. vs cost',addItem:'Add item',secTimeline:'Progress',tlStage:'Stage',tlNote:'Note',addStage:'Add stage',stgEstablish:'Create project',stgApproval:'Requisition approved',stgInquiry:'Inquiry',stgVendor:'Vendor selection',stgRepairing:'In repair/purchase',stgComplete:'Completed/Stock-in',payTotalField:'Payment total',terms:'Installments',termCol:'Installment',payDone:'Payment complete',sumTotal:'Total',secPayplan:'Agreed payment terms',ppName:'Item',ppPct:'%',ppAmt:'Amount',pctTotal:'Total %',amtTotal:'Total',addPayItem:'Add term',secPays:'Payment detail',pInv:'Invoice no.',pNote:'Note',addPay:'Add payment',payTotal:'Total paid',saveDetail:'Save detail',detailSaved:'Detail saved',viewOnlyNote:'View only',noItems:'No items',del:'Delete',delConfirm:'Delete project {no}? This cannot be undone.',deleted:'Deleted',noCfgTitle:'Project number format',noCfgTemplate:'Format',noCfgHint:'Variables: {prefix} {dept} {year} {seq}',noCfgSeqDigits:'Sequence digits',noCfgPrefix:'Default prefix',noCfgDeptPrefix:'Per-dept prefix (blank=default)',noCfgPreview:'Preview',noCfgSaved:'Format saved',paTitle:'Project system admin',paPeople:'Permissions & email',paView:'View',paCreate:'Create',paDelete:'Delete',paLead:'Lead',paSearch:'🔍 ID or name',paDeptAll:'All depts.',paEmailPh:'Email (for daily report)',paEmpty:'No staff',stgName:'Stage',stgPct:'Weight %',stgTotals:'Total',progress:'Progress',stageSec:'Progress',addonSec:'Add-ons',addonBtn:'Add on',addonTotal:'Add-on total',totalCost:'Total amount',itemName:'Item',needAll:'Fill in all fields before creating the project.',pctOver:'Total % cannot exceed 100%.',amtOver:'Stage amounts total cannot exceed the project cost.'}
 };
+;(function(){ var ext={
+  es:{workProg:'Avance obra',payProg:'Avance pago',workPctCol:'Obra%',payPctCol:'Pago%',done2:'Obra',paid2:'Pagado',advance:'Anticipo',addonTitle:'Trabajo adicional',addonHint:'Bloque independiente · con sus propios ítems y avance',dashboard:'Panel',dashWork:'Avance de obra actual',dashPaid:'Pagado / Costo',dashAddon:'Adicional (pagado / total)',wpctOver:'El % de obra no puede superar 100%.'},
+  zh:{workProg:'工程進度',payProg:'付款進度',workPctCol:'工程%',payPctCol:'付款%',done2:'完成',paid2:'已付',advance:'預付款',addonTitle:'追加工程',addonHint:'自成區塊 · 有自己的細項與進度',dashboard:'儀表板',dashWork:'目前工程進度',dashPaid:'已付金額 / 專案金額',dashAddon:'追加金額(已付 / 合計)',wpctOver:'工程%合計不可超過 100%。'},
+  en:{workProg:'Work progress',payProg:'Payment progress',workPctCol:'Work%',payPctCol:'Pay%',done2:'Done',paid2:'Paid',advance:'Advance',addonTitle:'Additional work',addonHint:'Standalone block · own items & progress',dashboard:'Dashboard',dashWork:'Current work progress',dashPaid:'Paid / Cost',dashAddon:'Add-on (paid / total)',wpctOver:'Work % total cannot exceed 100%.'}
+}; for(var k in ext){ Object.assign(PROJ_I18N[k],ext[k]); } })();
 function pT(k){ const L=PROJ_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||PROJ_I18N.es; return (k in L)?L[k]:(PROJ_I18N.zh[k]||k); }
 async function loadProjects(){ try{ const r=await fetch(`${FB}/projects.json`); PROJECTS=(await r.json())||{}; }catch(e){ PROJECTS={}; } try{ const r=await fetch(`${FB}/proj_vendors.json`); const v=await r.json(); PROJ_VENDORS=Array.isArray(v)?v:(v?Object.values(v):[]); }catch(e){ PROJ_VENDORS=[]; } try{ const r=await fetch(`${FB}/proj_config.json`); const c=await r.json(); if(c&&typeof c==='object'){ PROJ_CFG=Object.assign({template:'{prefix}-{dept}-R{year}-{seq}',seqDigits:3,prefix:'CCTMTD',deptPrefix:{}},c); if(!PROJ_CFG.deptPrefix||typeof PROJ_CFG.deptPrefix!=='object') PROJ_CFG.deptPrefix={}; } }catch(e){} }
 function projNoBuild(dept,year,seq){ const dp=(PROJ_CFG.deptPrefix&&PROJ_CFG.deptPrefix[dept])||''; const pfx=dp||PROJ_CFG.prefix||'CCTMTD'; const digits=parseInt(PROJ_CFG.seqDigits,10)||3; const t=PROJ_CFG.template||'{prefix}-{dept}-R{year}-{seq}'; return t.replace(/\{prefix\}/g,pfx).replace(/\{dept\}/g,dept).replace(/\{year\}/g,year).replace(/\{seq\}/g,String(seq).padStart(digits,'0')); }
-function projVendorOptions(sel){ const list=PROJ_VENDORS.slice(); if(sel&&list.indexOf(sel)<0) list.unshift(sel); return `<option value="">${pT('none')}</option>`+list.map(x=>`<option value="${String(x).replace(/"/g,'&quot;')}" ${sel===x?'selected':''}>${x}</option>`).join(''); }
+function projVendorOptions(sel){ const list=((PROJ_VENDORS&&PROJ_VENDORS.length)?PROJ_VENDORS:(typeof PROJ_VENDOR_SEED!=='undefined'?PROJ_VENDOR_SEED:[])).slice(); if(sel&&list.indexOf(sel)<0) list.unshift(sel); return `<option value="">${pT('none')}</option>`+list.map(x=>`<option value="${String(x).replace(/"/g,'&quot;')}" ${sel===x?'selected':''}>${x}</option>`).join(''); }
 function projCanView(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_view','v')); }
 function projCanCreate(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_create','v')); }
 function projCanDelete(){ return (typeof mtIs14==='function'&&mtIs14()) || ((typeof umCan==='function')&&umCan('proj_delete','v')); }
@@ -6321,20 +6404,145 @@ function projPersonName(id){ if(!id) return ''; if(typeof STAFF!=='undefined'&&S
 function projDeptPeopleOptions(dept,sel){ let list=projPeopleByDept(dept); if(sel&&!list.some(p=>String(p.id)===String(sel))) list=[{id:sel,name:(projPersonName(sel)||sel)}].concat(list); return `<option value="">${pT('sel')}</option>`+list.map(p=>`<option value="${p.id}" ${String(sel)===String(p.id)?'selected':''}>${p.id}·${p.name}</option>`).join(''); }
 function projAttrKinds(){ let ks=(typeof FIELD_KINDS!=='undefined'&&FIELD_KINDS&&FIELD_KINDS.length)?FIELD_KINDS.slice():['GC','RTG','AR','SL','TR','CH','SP']; ['YT','OTHER'].forEach(x=>{ if(ks.indexOf(x)<0) ks.push(x); }); return ks; }
 function projAttrLabel(p){ const t=p&&p.attrType||''; const n=p&&p.attrNum||''; return t+(n?('-'+n):''); }
-function projPaid(p){ return (parseFloat(p&&p.pay1&&p.pay1.amt)||0)+(parseFloat(p&&p.pay2&&p.pay2.amt)||0)+(parseFloat(p&&p.pay3&&p.pay3.amt)||0); }
+function projNum(x){ const n=parseFloat(x); return isNaN(n)?0:n; }
+function projStageList(p){ const st=p&&p.stages; return Array.isArray(st)?st:[]; }
+function projWorkPct(p){ let d=0; projStageList(p).forEach(s=>{ if(s&&s.done&&!s.advance) d+=projNum(s.wpct); }); return Math.round(d*10)/10; }
+function projPayPct(p){ let d=0; projStageList(p).forEach(s=>{ if(s&&s.paid) d+=projNum(s.ppct); }); return Math.round(d*10)/10; }
+function projMainPaid(p){ return projPayPct(p)/100*projNum(p&&p.cost); }
+function projAddonList(p){ if(p&&Array.isArray(p.addons)) return p.addons; const its=p&&p.detail&&p.detail.items; if(Array.isArray(its)) return its.map(it=>({name:it.name,desc:it.desc,amt:projItemAmt(it),done:false,paid:false})); return []; }
+function projAddonTotal(p){ return projAddonList(p).reduce((s,a)=>s+projNum(a&&a.amt),0); }
+function projAddonPaid(p){ return projAddonList(p).reduce((s,a)=>s+((a&&a.paid)?projNum(a.amt):0),0); }
+function projAddonDone(p){ return projAddonList(p).reduce((s,a)=>s+((a&&a.done)?projNum(a.amt):0),0); }
+function projAddonWorkPct(p){ const t=projAddonTotal(p); return t>0?Math.round(projAddonDone(p)/t*1000)/10:0; }
+function projPaid(p){ if(projStageList(p).length||projAddonList(p).length) return projMainPaid(p)+projAddonPaid(p); return (parseFloat(p&&p.pay1&&p.pay1.amt)||0)+(parseFloat(p&&p.pay2&&p.pay2.amt)||0)+(parseFloat(p&&p.pay3&&p.pay3.amt)||0); }
+function projCompletion(p){ if(!projStageList(p).length && !projAddonList(p).length) return null; return projWorkPct(p); }
+function projTodayStr(){ try{ return new Date().toLocaleDateString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}); }catch(e){ const pp=panParts(); return pp.y+'-'+String(pp.m).padStart(2,'0')+'-'+String(pp.d).padStart(2,'0'); } }
+function projDefaultStages(){ const t=projTodayStr(); return [ {name:'預付款',advance:true,done:false,paid:false,date:t,wpct:'',ppct:30}, {name:'施工/發貨',done:false,paid:false,date:'',wpct:'',ppct:''}, {name:'尾款',done:false,paid:false,date:'',wpct:'',ppct:''} ]; }
+function projStageRowHtml(s){ s=s||{}; const v=projDEsc; const adv=!!s.advance;
+  const nameCell = adv
+    ? `<input class="eq-input pj-s-name" disabled style="width:100%;min-width:90px;font-weight:700;color:var(--text);background:var(--bg2)" value="${v(s.name||pT('advance'))}"/>`
+    : `<input class="eq-input pj-s-name" style="width:100%;min-width:90px" value="${v(s.name)}"/>`;
+  const doneCell = adv
+    ? `<span style="color:var(--text3)">—</span><input type="checkbox" class="pj-s-done" style="display:none">`
+    : `<input type="checkbox" class="pj-s-done" ${s.done?'checked':''} onchange="projStageDone(this)" style="width:16px;height:16px;accent-color:#16a34a"/>`;
+  const wpctCell = adv
+    ? `<span style="color:var(--text3)">—</span>`
+    : `<input type="number" class="eq-input pj-s-wpct" style="width:60px;text-align:right" value="${v(s.wpct)}" oninput="projStageRecalc()"/>`;
+  return `<tr class="pj-stage-row" data-adv="${adv?1:0}">
+  <td style="text-align:center;padding:2px 4px">${doneCell}</td>
+  <td style="padding:2px 4px">${nameCell}</td>
+  <td style="padding:2px 4px"><input type="date" class="eq-input pj-s-date" style="width:138px" value="${v(s.date)}"/></td>
+  <td style="padding:2px 4px;text-align:right">${wpctCell}</td>
+  <td style="padding:2px 4px"><input type="number" class="eq-input pj-s-ppct" style="width:60px;text-align:right" value="${v(s.ppct)}" oninput="projStageRecalc()"/></td>
+  <td style="text-align:center;padding:2px 4px"><input type="checkbox" class="pj-s-paid" ${s.paid?'checked':''} onchange="projStageRecalc()" style="width:16px;height:16px;accent-color:#2563eb"/></td>
+  <td style="padding:2px 4px;white-space:nowrap;text-align:center">${adv?'':`<button type="button" class="btn-sm" onclick="projStageDel(this)" title="刪除">✕</button>`}</td>
+</tr>`; }
+function projStageInsRowHtml(){ return `<tr class="pj-ins-row"><td colspan="7" style="padding:1px 6px"><button type="button" onclick="projStageInsertAt(this)" style="width:100%;border:1px dashed var(--border);background:none;color:var(--text3);border-radius:6px;padding:2px;font-size:11px;cursor:pointer">＋ 插入階段</button></td></tr>`; }
+function projStageInsertAt(btn){ const insTr=btn.closest('tr'); if(!insTr) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projStageRowHtml({})+projStageInsRowHtml(); const rows=[...tmp.children]; const ref=insTr.nextSibling; rows.forEach(r=>insTr.parentNode.insertBefore(r,ref)); projStageRecalc(); }
+function projStageAddEnd(){ const b=document.getElementById('pj-stages'); if(!b) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projStageInsRowHtml()+projStageRowHtml({}); [...tmp.children].forEach(r=>b.appendChild(r)); projStageRecalc(); }
+function projStageDel(btn){ const tr=btn.closest('tr'); if(tr) tr.remove(); projStageRecalc(); }
+function projStageDone(cb){ const tr=cb.closest('tr'); const d=tr&&tr.querySelector('.pj-s-date'); if(cb.checked && d && !d.value) d.value=projTodayStr(); projStageRecalc(); }
+function projStageCollect(){ const num=x=>{ const n=parseFloat(x); return isNaN(n)?'':n; };
+  const g=(tr,c)=>{ const e=tr.querySelector(c); return e?e.value:''; };
+  const gc=(tr,c)=>{ const e=tr.querySelector(c); return e?!!e.checked:false; };
+  return [...document.querySelectorAll('#pj-stages .pj-stage-row')].map(tr=>{ const adv=tr.getAttribute('data-adv')==='1'; return {
+    name:(g(tr,'.pj-s-name')||'').trim(),
+    advance:adv,
+    done:gc(tr,'.pj-s-done'),
+    paid:gc(tr,'.pj-s-paid'),
+    date:g(tr,'.pj-s-date')||'',
+    wpct:adv?'':num(g(tr,'.pj-s-wpct')),
+    ppct:num(g(tr,'.pj-s-ppct'))
+  }; }).filter(s=>s.name||s.date||s.wpct!==''||s.ppct!==''||s.advance); }
+function projCurCost(){ const el=document.getElementById('proj-f-cost'); if(el) return parseFloat(el.value)||0; const p=PROJECTS[projDetailKey]; return parseFloat(p&&p.cost)||0; }
+function projBarsHtml(){ return `<div style="margin-bottom:14px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:12px;font-weight:700;width:92px;flex-shrink:0">🔧 ${pT('workProg')}</span><div style="flex:1;height:15px;background:var(--bg3);border-radius:8px;overflow:hidden"><div id="pj-work-fill" style="height:100%;width:0;background:#16a34a;border-radius:8px;transition:width .3s"></div></div><span id="pj-work-val" style="font-size:13px;font-weight:800;min-width:52px;text-align:right;color:#16a34a">0%</span></div>
+  <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;width:92px;flex-shrink:0">💰 ${pT('payProg')}</span><div style="flex:1;height:15px;background:var(--bg3);border-radius:8px;overflow:hidden"><div id="pj-pay-fill" style="height:100%;width:0;background:#2563eb;border-radius:8px;transition:width .3s"></div></div><span id="pj-pay-val" style="font-size:13px;font-weight:800;min-width:118px;text-align:right;color:#2563eb">0%</span></div>
+</div>`; }
+function projStageRecalc(){
+  const rows=[...document.querySelectorAll('#pj-stages .pj-stage-row')];
+  let wTot=0,pTot=0,wDone=0,pDone=0;
+  rows.forEach(tr=>{ const adv=tr.getAttribute('data-adv')==='1';
+    const done=(tr.querySelector('.pj-s-done')||{}).checked||false;
+    const paid=(tr.querySelector('.pj-s-paid')||{}).checked||false;
+    const we=tr.querySelector('.pj-s-wpct'); const wp=we?(parseFloat(we.value)||0):0;
+    const pe=tr.querySelector('.pj-s-ppct'); const pp=pe?(parseFloat(pe.value)||0):0;
+    if(!adv){ wTot+=wp; if(done) wDone+=wp; }
+    pTot+=pp; if(paid) pDone+=pp; });
+  const cost=projCurCost(); const paidAmt=pDone/100*cost; const r1=x=>Math.round(x*10)/10;
+  const set=(id,val,color)=>{ const e=document.getElementById(id); if(e){ e.textContent=val; if(color!==undefined) e.style.color=color; } };
+  set('pj-wpct-total',r1(wTot)+'%', Math.abs(wTot-100)<0.05?'#16a34a':'#b45309');
+  set('pj-ppct-total',r1(pTot)+'%', Math.abs(pTot-100)<0.05?'#16a34a':'#b45309');
+  const wf=document.getElementById('pj-work-fill'); if(wf) wf.style.width=Math.min(100,wDone)+'%';
+  const pf=document.getElementById('pj-pay-fill'); if(pf) pf.style.width=Math.min(100,pDone)+'%';
+  set('pj-work-val',r1(wDone)+'%');
+  set('pj-pay-val',r1(pDone)+'% · '+projMoney(paidAmt));
+  if(typeof projDashRecalc==='function') projDashRecalc();
+}
+function projDashRecalc(){
+  const p=PROJECTS[projDetailKey]; if(!p) return; const cost=parseFloat(p.cost)||0; const r1=x=>Math.round(x*10)/10;
+  let wDone=0,pDone=0; document.querySelectorAll('#pj-stages .pj-stage-row').forEach(tr=>{ const adv=tr.getAttribute('data-adv')==='1'; const we=tr.querySelector('.pj-s-wpct'); const wp=we?(parseFloat(we.value)||0):0; const pe=tr.querySelector('.pj-s-ppct'); const pp=pe?(parseFloat(pe.value)||0):0; if(!adv && (tr.querySelector('.pj-s-done')||{}).checked) wDone+=wp; if((tr.querySelector('.pj-s-paid')||{}).checked) pDone+=pp; });
+  let adTot=0,adPaid=0,adDone=0; document.querySelectorAll('#pd-items-body .pd-addon-row').forEach(tr=>{ const amt=parseFloat(tr.querySelector('.pd-a-amt').value)||0; adTot+=amt; if(tr.querySelector('.pd-a-paid').checked) adPaid+=amt; if(tr.querySelector('.pd-a-done').checked) adDone+=amt; });
+  const paidAmt=pDone/100*cost;
+  const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  const setw=(id,w)=>{ const e=document.getElementById(id); if(e) e.style.width=Math.min(100,w)+'%'; };
+  set('pj-dash-work',r1(wDone)+'%'); setw('pj-dash-work-bar',wDone);
+  set('pj-dash-paid',projMoney(paidAmt)); set('pj-dash-paid-sub','/ '+projMoney(cost)+'　'+pT('payProg')+' '+r1(pDone)+'%'); setw('pj-dash-paid-bar',cost>0?paidAmt/cost*100:0);
+  const awp=adTot>0?r1(adDone/adTot*100):0;
+  set('pj-dash-addon',projMoney(adPaid)+' / '+projMoney(adTot)); set('pj-dash-addon-sub',pT('workProg')+' '+awp+'%'); setw('pj-dash-addon-bar',awp);
+}
+function projStepperHtml(stages){
+  stages=(stages||[]).filter(s=>s&&(String(s.name||'').trim())); const v=projDEsc;
+  if(!stages.length) return '<div style="color:var(--text3);font-size:12px;padding:8px">—</div>';
+  const cells=stages.map((s,i)=>{ const done=!!s.done; const dot=done?'#eab308':'#cbd5e1'; const nc=done?'var(--text)':'var(--text3)';
+    const lineL=i>0?(stages[i-1].done?'#eab308':'#e2e8f0'):'transparent';
+    const lineR=i<stages.length-1?(done?'#eab308':'#e2e8f0'):'transparent';
+    return `<div style="flex:1;min-width:64px;text-align:center">
+      <div style="position:relative;height:16px">
+        <div style="position:absolute;left:0;width:50%;top:7px;height:3px;background:${lineL}"></div>
+        <div style="position:absolute;right:0;width:50%;top:7px;height:3px;background:${lineR}"></div>
+        <div style="position:absolute;left:50%;top:1px;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;background:${dot};box-shadow:0 0 0 2px var(--bg)"></div>
+      </div>
+      <div style="font-weight:700;font-size:12px;margin-top:8px;color:${nc}">${v(s.name)}</div>
+      <div style="font-size:10px;color:var(--text3)">${v(s.date||'')}</div>
+    </div>`; }).join('');
+  return `<div style="display:flex;align-items:flex-start;padding:14px 6px;overflow-x:auto;background:var(--bg2);border-radius:8px">${cells}</div>`;
+}
+function projRenderStepper(){ const el=document.getElementById('pj-stepper'); if(!el) return; const rows=[...document.querySelectorAll('#pj-stages .pj-stage-row')]; const stages=rows.map(tr=>({name:tr.querySelector('.pj-s-name').value,done:tr.querySelector('.pj-s-done').checked,date:tr.querySelector('.pj-s-date').value})); el.innerHTML=projStepperHtml(stages); }
+function projStageTableHtml(stages){ const list=(stages&&stages.length)?stages:[];
+  let body=''; list.forEach((s,i)=>{ body+=projStageRowHtml(s); if(i<list.length-1) body+=projStageInsRowHtml(); });
+  const th=t=>`<th style="padding:5px 6px;text-align:left;font-size:11px;color:var(--text3);white-space:nowrap">${t}</th>`;
+  const thr=t=>`<th style="padding:5px 6px;text-align:right;font-size:11px;color:var(--text3);white-space:nowrap">${t}</th>`;
+  const thc=t=>`<th style="padding:5px 6px;text-align:center;font-size:11px;color:var(--text3);white-space:nowrap">${t}</th>`;
+  return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="border-bottom:2px solid var(--border)">${thc(pT('done2'))}${th(pT('stgName'))}${th(pT('payDate'))}${thr(pT('workPctCol'))}${thr(pT('payPctCol'))}${thc(pT('paid2'))}${th('')}</tr></thead>
+    <tbody id="pj-stages">${body}</tbody>
+    <tfoot><tr style="border-top:2px solid var(--border);font-weight:800"><td></td><td colspan="2" style="padding:6px;text-align:right">${pT('stgTotals')}</td><td id="pj-wpct-total" style="padding:6px;text-align:right">0%</td><td id="pj-ppct-total" style="padding:6px;text-align:right">0%</td><td colspan="2"></td></tr></tfoot>
+  </table></div>
+  <div style="margin-top:8px"><button type="button" class="btn-sm" onclick="projStageAddEnd()">➕ ${pT('addStage')}</button></div>`;
+}
 function projMoney(n){ n=parseFloat(n)||0; return n.toLocaleString('en-US',{maximumFractionDigits:2}); }
-function projStatus(p){ const cost=parseFloat(p&&p.cost)||0, paid=projPaid(p); if(p&&p.finishDate&&paid>=cost&&cost>0) return {k:'stDone',c:'#16a34a',bg:'#dcfce7'}; if(cost>0&&paid>=cost) return {k:'stPaid',c:'#16a34a',bg:'#dcfce7'}; if(paid>0) return {k:'stPartial',c:'#b45309',bg:'#ffedd5'}; return {k:'stUnpaid',c:'#64748b',bg:'#e2e8f0'}; }
+function projStatus(p){
+  const stg=projStageList(p), adn=projAddonList(p);
+  if(stg.length||adn.length){
+    const w=projWorkPct(p), pay=projPayPct(p);
+    const adAllDone=adn.every(a=>a&&a.done), adAllPaid=adn.every(a=>a&&a.paid);
+    if(w>=100 && pay>=100 && (!adn.length||(adAllDone&&adAllPaid))) return {k:'stDone',c:'#16a34a',bg:'#dcfce7'};
+    if(w>0||pay>0||adn.some(a=>a&&(a.done||a.paid))) return {k:'stPartial',c:'#b45309',bg:'#ffedd5'};
+    return {k:'stUnpaid',c:'#64748b',bg:'#e2e8f0'};
+  }
+  const cost=parseFloat(p&&p.cost)||0, paid=projPaid(p); if(cost>0&&paid>=cost) return {k:'stPaid',c:'#16a34a',bg:'#dcfce7'}; if(paid>0) return {k:'stPartial',c:'#b45309',bg:'#ffedd5'}; return {k:'stUnpaid',c:'#64748b',bg:'#e2e8f0'}; }
 // 每日專案進度報告 HTML（預覽與 GAS 郵件共用同一套呈現邏輯，中／西雙語）
-function projReportStage(p){ const d=p&&p.detail; let tl=(d&&Array.isArray(d.timeline)&&d.timeline.length)?d.timeline:null; if(!tl){ const est=(p&&(p.estDate||p.approvedDate))||''; return est?{stage:'成立專案 / Creación',date:est}:{stage:'',date:''}; } let last=null; tl.forEach(t=>{ if(t&&t.date) last=t; }); return last||{stage:'',date:''}; }
+function projReportStage(p){ const st=p&&p.stages; if(Array.isArray(st)&&st.length){ let last=null; st.forEach(s=>{ if(s&&s.done&&!s.advance) last=s; }); if(last) return {stage:last.name||'',date:last.date||''}; return {stage:(st[0]&&st[0].name)||'',date:(st[0]&&st[0].date)||''}; } const d=p&&p.detail; let tl=(d&&Array.isArray(d.timeline)&&d.timeline.length)?d.timeline:null; if(!tl){ const est=(p&&(p.estDate||p.approvedDate))||''; return est?{stage:'成立專案 / Creación',date:est}:{stage:'',date:''}; } let last=null; tl.forEach(t=>{ if(t&&t.date) last=t; }); return last||{stage:'',date:''}; }
 function projReportHtml(projects, staff, todayStr){
   const arr=Object.values(projects||{}); const year=String(todayStr||'').slice(0,4);
   const active=arr.filter(p=>projStatus(p).k!=='stDone').sort((a,b)=>String((a.dept||'')+(a.no||'')).localeCompare(String((b.dept||'')+(b.no||''))));
   let unpaidTotal=0, yearTotal=0;
-  arr.forEach(p=>{ const bal=(parseFloat(p.cost)||0)-projPaid(p); if(bal>0) unpaidTotal+=bal; if(String(p.year)===year) yearTotal+=(parseFloat(p.cost)||0); });
+  arr.forEach(p=>{ const bal=projTotalCost(p)-projPaid(p); if(bal>0) unpaidTotal+=bal; if(String(p.year)===year) yearTotal+=projTotalCost(p); });
   const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const td='padding:6px 8px;border:1px solid #e2e8f0;font-size:12px';
   const th=t=>`<th style="padding:7px 8px;border:1px solid #cbd5e1;background:#1e3a5f;color:#fff;font-size:11px;text-align:left;white-space:nowrap">${t}</th>`;
-  const rows=active.map(p=>{ const cost=parseFloat(p.cost)||0, paid=projPaid(p), bal=cost-paid; const stg=projReportStage(p); const fin=p.finishDate||''; const overdue=!!(fin && fin<todayStr); const leadName=(staff&&(staff[p.lead]||staff[String(p.lead||'').toUpperCase()]))||p.lead||'';
+  const rows=active.map(p=>{ const cost=projTotalCost(p), paid=projPaid(p), bal=cost-paid; const stg=projReportStage(p); const comp=projCompletion(p); const fin=p.finishDate||''; const overdue=!!(fin && fin<todayStr); const leadName=(staff&&(staff[p.lead]||staff[String(p.lead||'').toUpperCase()]))||p.lead||'';
     return `<tr style="${overdue?'background:#fef2f2':''}">
       <td style="${td};white-space:nowrap;font-weight:700">${esc(p.no)}</td>
       <td style="${td}">${esc(p.subject)}</td>
@@ -6343,7 +6551,7 @@ function projReportHtml(projects, staff, todayStr){
       <td style="${td};text-align:right">${cost?projMoney(cost):''}</td>
       <td style="${td};text-align:right;color:#16a34a">${projMoney(paid)}</td>
       <td style="${td};text-align:right;color:${bal>0?'#b45309':'#16a34a'}">${projMoney(bal)}</td>
-      <td style="${td}">${esc(stg.stage)}${stg.date?(' <span style="color:#94a3b8">('+stg.date+')</span>'):''}</td>
+      <td style="${td}">${esc(stg.stage)}${comp!=null?(' <b style="color:#16a34a">'+comp+'%</b>'):''}${stg.date?(' <span style="color:#94a3b8">('+stg.date+')</span>'):''}</td>
       <td style="${td};white-space:nowrap;${overdue?'color:#dc2626;font-weight:700':''}">${esc(fin)}${overdue?' ⚠':''}</td>
       <td style="${td}">${esc(leadName)}</td></tr>`;
   }).join('');
@@ -6384,14 +6592,15 @@ function projFormHtml(){
       <div><label class="lbl2">${pT('attr')}</label><select class="eq-input" id="proj-f-attrtype" style="width:100%">${kinds.map(k=>`<option value="${k}" ${p.attrType===k?'selected':''}>${k}</option>`).join('')}</select></div>
       <div><label class="lbl2">${pT('attrNum')}</label><input class="eq-input" id="proj-f-attrnum" style="width:100%;text-transform:uppercase" value="${v(p.attrNum)}"/></div>
       <div><label class="lbl2">${pT('cost')}</label><input type="number" class="eq-input" id="proj-f-cost" style="width:100%" value="${v(p.cost)}"/></div>
-      <div><label class="lbl2">${pT('vendor')}</label><input class="eq-input" id="proj-f-vendor" style="width:100%" value="${v(p.vendor)}" placeholder="${pT('vendor')}"/></div>
+      <div><label class="lbl2">${pT('vendor')}</label><select class="eq-input" id="proj-f-vendor" style="width:100%">${projVendorOptions(p.vendor)}</select></div>
       <div><label class="lbl2">${pT('lead')}</label><select class="eq-input" id="proj-f-lead" style="width:100%">${projDeptPeopleOptions(d0,p.lead)}</select></div>
       <div><label class="lbl2">${pT('sup')}</label><select class="eq-input" id="proj-f-sup" style="width:100%">${projDeptPeopleOptions(d0,p.sup)}</select></div>
       <div><label class="lbl2">${pT('finishDate')}</label><input type="date" class="eq-input" id="proj-f-finish" style="width:100%" value="${v(p.finishDate)}"/></div>
       <div style="grid-column:1/-1"><label class="lbl2">${pT('remark')}</label><input class="eq-input" id="proj-f-remark" style="width:100%" value="${v(p.remark)}"/></div>
     </div>
-    <div class="fp-sec-title" style="margin-top:14px">💵 ${pT('payments')}</div>
-    <div style="display:flex;flex-direction:column;gap:8px">${pay(1,p.pay1)}${pay(2,p.pay2)}${pay(3,p.pay3)}</div>
+    <div class="fp-sec-title" style="margin-top:14px">📅 ${pT('stageSec')}</div>
+    ${projBarsHtml()}
+    ${projStageTableHtml(editing?((Array.isArray(p.stages)&&p.stages.length)?p.stages:projDefaultStages()):projDefaultStages())}
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
       <button class="btn-sm" onclick="projToggleForm()">${pT('cancel')}</button>
       <button class="btn-sm btn-primary" id="proj-f-save" onclick="projSave()">💾 ${pT('save')}</button>
@@ -6405,8 +6614,20 @@ async function projSave(){
   if(!dept){ alert(pT('needDept')); return; }
   if(!subject){ alert(pT('needSubject')); return; }
   const num=v=>{ const n=parseFloat(v); return isNaN(n)?0:n; };
-  const pay=n=>({date:(document.getElementById('proj-f-p'+n+'d').value||''), amt:num(document.getElementById('proj-f-p'+n+'a').value)});
-  const fields={ subject, approvedDate:document.getElementById('proj-f-approved').value||'', cost:num(document.getElementById('proj-f-cost').value), vendor:(document.getElementById('proj-f-vendor').value||'').trim(), attrType:document.getElementById('proj-f-attrtype').value, attrNum:(document.getElementById('proj-f-attrnum').value||'').trim().toUpperCase(), finishDate:document.getElementById('proj-f-finish').value||'', remark:(document.getElementById('proj-f-remark').value||'').trim(), lead:document.getElementById('proj-f-lead').value, sup:document.getElementById('proj-f-sup').value, pay1:pay(1), pay2:pay(2), pay3:pay(3) };
+  const stages=projStageCollect();
+  // 必填檢查(立案前所有條件都要填)
+  const _apr=document.getElementById('proj-f-approved').value||'';
+  const _cost=num(document.getElementById('proj-f-cost').value);
+  const _vendor=(document.getElementById('proj-f-vendor').value||'').trim();
+  const _attrnum=(document.getElementById('proj-f-attrnum').value||'').trim();
+  const _lead=document.getElementById('proj-f-lead').value||'';
+  const _finish=document.getElementById('proj-f-finish').value||'';
+  if(!_apr||!_cost||!_vendor||!_attrnum||!_lead||!_finish){ alert(pT('needAll')); return; }
+  const _wp=stages.reduce((s,x)=>s+(x.advance?0:(parseFloat(x.wpct)||0)),0);
+  if(_wp>100){ alert(pT('wpctOver')); return; }
+  const _pp=stages.reduce((s,x)=>s+(parseFloat(x.ppct)||0),0);
+  if(_pp>100){ alert(pT('pctOver')); return; }
+  const fields={ subject, approvedDate:document.getElementById('proj-f-approved').value||'', cost:num(document.getElementById('proj-f-cost').value), vendor:(document.getElementById('proj-f-vendor').value||'').trim(), attrType:document.getElementById('proj-f-attrtype').value, attrNum:(document.getElementById('proj-f-attrnum').value||'').trim().toUpperCase(), finishDate:document.getElementById('proj-f-finish').value||'', remark:(document.getElementById('proj-f-remark').value||'').trim(), lead:document.getElementById('proj-f-lead').value, sup:document.getElementById('proj-f-sup').value, stages };
   const btn=document.getElementById('proj-f-save'); if(btn){ btn.disabled=true; btn.textContent='…'; }
   try{
     if(editing){
@@ -6431,7 +6652,7 @@ async function renderProjTrack(){
   const root=document.getElementById('projtrack-root'); if(!root) return;
   if(!projCanView()){ root.innerHTML=`<div style="padding:40px;text-align:center;color:var(--text3)">🔒</div>`; return; }
   if((typeof STAFF==='undefined'||!STAFF||!Object.keys(STAFF).length) && typeof fldLoadConfig==='function'){ try{ await fldLoadConfig(); }catch(e){} }
-  if(projDetailKey){ if(PROJECTS[projDetailKey]){ root.innerHTML=projDetailHtml(projDetailKey); return; } projDetailKey=null; }
+  if(projDetailKey){ if(PROJECTS[projDetailKey]){ root.innerHTML=projDetailHtml(projDetailKey); if(typeof projStageRecalc==='function') setTimeout(projStageRecalc,0); return; } projDetailKey=null; }
   const canCreate=projCanCreate();
   let all=Object.entries(PROJECTS||{}).map(([k,p])=>({k,...p})).sort((a,b)=>(b.ts||0)-(a.ts||0)||String(b.no||'').localeCompare(String(a.no||'')));
   const years=[...new Set(all.map(p=>String(p.year||'')).filter(Boolean))].sort().reverse();
@@ -6439,24 +6660,24 @@ async function renderProjTrack(){
   const rows=all.filter(p=>{ if(projFDept && p.dept!==projFDept) return false; if(projFYear && String(p.year)!==projFYear) return false; if(q && !((p.no||'').toLowerCase().includes(q)||(p.subject||'').toLowerCase().includes(q))) return false; return true; });
   const form=(projShowForm&&(canCreate||projEditKey))?projFormHtml():'';
   const th=(t,ex)=>`<th style="padding:7px 8px;text-align:left;white-space:nowrap;${ex||''}">${t}</th>`;
-  const totCost=rows.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
+  const totCost=rows.reduce((s,p)=>s+projTotalCost(p),0);
   const totPaid=rows.reduce((s,p)=>s+projPaid(p),0);
   const table = rows.length? `<div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px">
     <table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead><tr style="background:var(--bg2);color:var(--text3);border-bottom:2px solid var(--border)">
       ${th(pT('no'))}${th(pT('subject'))}${th(pT('approvedDate'))}${th(pT('attr'))}${th(pT('vendor'))}${th(pT('cost'),'text-align:right')}${th(pT('paid'),'text-align:right')}${th(pT('balance'),'text-align:right')}${th(pT('finishDate'))}${th(pT('status'))}${th('')}</tr></thead>
-    <tbody>${rows.map(p=>{ const paid=projPaid(p); const bal=(parseFloat(p.cost)||0)-paid; const st=projStatus(p); const canE=projCanEditRec(p);
+    <tbody>${rows.map(p=>{ const paid=projPaid(p); const tcost=projTotalCost(p); const bal=tcost-paid; const st=projStatus(p); const canE=projCanEditRec(p); const comp=projCompletion(p);
       return `<tr style="border-bottom:1px solid var(--bg3)">
       <td style="padding:7px 8px;font-weight:700;white-space:nowrap"><a onclick="projOpenDetail('${p.k}')" style="color:var(--blue);cursor:pointer;text-decoration:underline">${p.no||''}</a></td>
       <td style="padding:7px 8px;min-width:180px">${(p.subject||'').replace(/</g,'&lt;')}${p.remark?`<div style="color:var(--text3);font-size:11px">${(p.remark||'').replace(/</g,'&lt;')}</div>`:''}</td>
       <td style="padding:7px 8px;white-space:nowrap">${(p.approvedDate||'').slice(0,10)}</td>
       <td style="padding:7px 8px;white-space:nowrap">${projAttrLabel(p)}</td>
       <td style="padding:7px 8px">${(p.vendor||'').replace(/</g,'&lt;')}</td>
-      <td style="padding:7px 8px;text-align:right;white-space:nowrap">${p.cost?projMoney(p.cost):''}</td>
+      <td style="padding:7px 8px;text-align:right;white-space:nowrap">${tcost?projMoney(tcost):''}</td>
       <td style="padding:7px 8px;text-align:right;white-space:nowrap;color:var(--green)">${paid?projMoney(paid):''}</td>
-      <td style="padding:7px 8px;text-align:right;white-space:nowrap;${bal>0?'color:#b45309':''}">${p.cost?projMoney(bal):''}</td>
+      <td style="padding:7px 8px;text-align:right;white-space:nowrap;${bal>0?'color:#b45309':''}">${tcost?projMoney(bal):''}</td>
       <td style="padding:7px 8px;white-space:nowrap">${(p.finishDate||'').slice(0,10)}</td>
-      <td style="padding:7px 8px;white-space:nowrap"><span style="background:${st.bg};color:${st.c};padding:1px 8px;border-radius:10px;font-weight:700;font-size:11px">${pT(st.k)}</span></td>
+      <td style="padding:7px 8px;white-space:nowrap"><span style="background:${st.bg};color:${st.c};padding:1px 8px;border-radius:10px;font-weight:700;font-size:11px">${pT(st.k)}</span>${comp!=null?` <span style="font-size:10px;color:var(--text3)">${comp}%</span>`:''}</td>
       <td style="padding:7px 8px;white-space:nowrap">${canE?`<button class="btn-sm" onclick="projOpenEdit('${p.k}')">${pT('edit')}</button>`:''}${projCanDelete()?` <button class="btn-sm" style="color:var(--red)" onclick="projDelete('${p.k}')">${pT('del')}</button>`:''}</td></tr>`; }).join('')}</tbody>
     <tfoot><tr style="background:var(--bg2);font-weight:800;border-top:2px solid var(--border)">
       <td style="padding:8px" colspan="5">${pT('totCount')}: ${rows.length}</td>
@@ -6475,6 +6696,7 @@ async function renderProjTrack(){
       <h2 style="margin:0;font-size:20px">📁 ${pT('title')}</h2>
       ${canCreate?`<button class="btn-sm btn-primary" onclick="projToggleForm()">➕ ${pT('newProj')}</button>`:''}
     </div>${form}${filterBar}<div id="proj-table-wrap">${table}</div>`;
+  if(document.getElementById('pj-stages') && typeof projStageRecalc==='function') setTimeout(projStageRecalc,0);
 }
 function projRenderTableOnly(){ /* 搜尋時重繪並保留輸入焦點 */ renderProjTrack(); const inp=document.querySelector('#projtrack-root input[placeholder^="🔍"]'); if(inp){ inp.focus(); const v=inp.value; try{ inp.setSelectionRange(v.length,v.length); }catch(e){} } }
 /* ---------- 專案明細頁 (Phase 2) ---------- */
@@ -6483,19 +6705,18 @@ function projTermLabel(i){ const n=i+1; const lang=(typeof maintLang!=='undefine
 function projOpenDetail(key){ if(!PROJECTS[key]) return; projDetailKey=key; projShowForm=false; projEditKey=null; renderProjTrack(); try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); } }
 function projCloseDetail(){ projDetailKey=null; renderProjTrack(); }
 function projDEsc(x){ return String(x==null?'':x).replace(/"/g,'&quot;'); }
-function projDItemRowHtml(it,canE){ it=it||{}; const v=projDEsc; const amt=(parseFloat(it.qty)||0)*(parseFloat(it.price)||0);
+function projItemAmt(it){ if(it&&it.amt!=null&&it.amt!=='') return parseFloat(it.amt)||0; return (parseFloat(it&&it.qty)||0)*(parseFloat(it&&it.price)||0); }
+function projDItemRowHtml(it,canE){ it=it||{}; const v=projDEsc; const amt=projItemAmt(it);
   if(canE){ return `<tr class="pd-item-row">
     <td style="padding:2px 4px"><input class="eq-input pd-i-name" style="width:100%" value="${v(it.name)}"/></td>
     <td style="padding:2px 4px"><input class="eq-input pd-i-desc" style="width:100%" value="${v(it.desc)}"/></td>
-    <td style="padding:2px 4px"><input type="number" class="eq-input pd-i-qty" style="width:70px;text-align:right" value="${v(it.qty)}" oninput="projDRecalc()"/></td>
-    <td style="padding:2px 4px"><input type="number" class="eq-input pd-i-price" style="width:100px;text-align:right" value="${v(it.price)}" oninput="projDRecalc()"/></td>
-    <td class="pd-i-amt" style="text-align:right;white-space:nowrap;padding:2px 8px">${projMoney(amt)}</td>
+    <td style="padding:2px 4px"><input type="number" class="eq-input pd-i-amt" style="width:120px;text-align:right" value="${v(amt||'')}" oninput="projDRecalc()"/></td>
     <td style="padding:2px 4px"><button class="btn-sm" onclick="this.closest('tr').remove();projDRecalc()">✕</button></td></tr>`; }
   return `<tr style="border-bottom:1px solid var(--bg3)">
     <td style="padding:5px 8px">${v(it.name)}</td><td style="padding:5px 8px">${v(it.desc)}</td>
-    <td style="padding:5px 8px;text-align:right">${v(it.qty)}</td>
-    <td style="padding:5px 8px;text-align:right">${(it.price!=null&&it.price!=='')?projMoney(it.price):''}</td>
     <td style="padding:5px 8px;text-align:right;white-space:nowrap">${projMoney(amt)}</td><td></td></tr>`; }
+function projTotalItems(p){ const its=p&&p.detail&&p.detail.items; if(!Array.isArray(its)) return 0; return its.reduce((s,it)=>s+projItemAmt(it),0); }
+function projTotalCost(p){ return (parseFloat(p&&p.cost)||0)+projAddonTotal(p); }
 function projDTlRowHtml(t,canE){ t=t||{}; const v=projDEsc; const hasDate=!!(t.date);
   if(canE){ return `<tr class="pd-tl-row">
     <td style="padding:2px 4px"><input class="eq-input pd-t-stage" style="width:100%" value="${v(t.stage)}"/></td>
@@ -6518,31 +6739,51 @@ function projDPlanRowHtml(pp,canE){ pp=pp||{}; const v=projDEsc; const cost=pars
     <td style="padding:5px 8px;text-align:right">${(pp.pct!=null&&pp.pct!=='')?(pp.pct+'%'):''}</td>
     <td style="padding:5px 8px;text-align:right;white-space:nowrap">${projMoney(amt)}</td>
     <td style="padding:5px 8px">${v(pp.note)}</td><td></td></tr>`; }
-function projDAddItem(){ const b=document.getElementById('pd-items-body'); if(!b) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projDItemRowHtml({},true); b.appendChild(tmp.firstElementChild); projDRecalc(); }
+function projAddonRowHtml(a,canE){ a=a||{}; const v=projDEsc;
+  if(canE){ return `<tr class="pd-addon-row">
+    <td style="text-align:center;padding:2px 4px"><input type="checkbox" class="pd-a-done" ${a.done?'checked':''} onchange="projAddonRecalc()" style="width:16px;height:16px;accent-color:#7c3aed"/></td>
+    <td style="padding:2px 4px"><input class="eq-input pd-a-name" style="width:100%" value="${v(a.name)}"/></td>
+    <td style="padding:2px 4px"><input class="eq-input pd-a-desc" style="width:100%" value="${v(a.desc)}"/></td>
+    <td style="padding:2px 4px"><input type="number" class="eq-input pd-a-amt" style="width:110px;text-align:right" value="${v(a.amt)}" oninput="projAddonRecalc()"/></td>
+    <td style="text-align:center;padding:2px 4px"><input type="checkbox" class="pd-a-paid" ${a.paid?'checked':''} onchange="projAddonRecalc()" style="width:16px;height:16px;accent-color:#2563eb"/></td>
+    <td style="padding:2px 4px"><button class="btn-sm" onclick="this.closest('tr').remove();projAddonRecalc()">✕</button></td></tr>`; }
+  return `<tr style="border-bottom:1px solid var(--bg3)">
+    <td style="text-align:center">${a.done?'✅':'⬜'}</td>
+    <td style="padding:5px 8px">${v(a.name)}</td><td style="padding:5px 8px">${v(a.desc)}</td>
+    <td style="padding:5px 8px;text-align:right;white-space:nowrap">${projMoney(projNum(a.amt))}</td>
+    <td style="text-align:center">${a.paid?'✅':'⬜'}</td><td></td></tr>`; }
+function projAddonCollect(){ const num=x=>{ const n=parseFloat(x); return isNaN(n)?0:n; }; return [...document.querySelectorAll('#pd-items-body .pd-addon-row')].map(tr=>({ done:tr.querySelector('.pd-a-done').checked, name:(tr.querySelector('.pd-a-name').value||'').trim(), desc:(tr.querySelector('.pd-a-desc').value||'').trim(), amt:num(tr.querySelector('.pd-a-amt').value), paid:tr.querySelector('.pd-a-paid').checked })).filter(a=>a.name||a.desc||a.amt); }
+function projAddonRecalc(){ const rows=[...document.querySelectorAll('#pd-items-body .pd-addon-row')]; let tot=0,paid=0,done=0; rows.forEach(tr=>{ const amt=parseFloat(tr.querySelector('.pd-a-amt').value)||0; tot+=amt; if(tr.querySelector('.pd-a-paid').checked) paid+=amt; if(tr.querySelector('.pd-a-done').checked) done+=amt; });
+  const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('pd-addon-total',projMoney(tot));
+  const wp=tot>0?Math.round(done/tot*1000)/10:0;
+  const af=document.getElementById('pd-addon-work-fill'); if(af) af.style.width=Math.min(100,wp)+'%';
+  set('pd-addon-work-val',wp+'%');
+  const pf=document.getElementById('pd-addon-pay-fill'); if(pf) pf.style.width=(tot>0?Math.min(100,paid/tot*100):0)+'%';
+  set('pd-addon-pay-val',projMoney(paid)+' / '+projMoney(tot));
+  if(typeof projDashRecalc==='function') projDashRecalc();
+}
+function projDAddItem(){ const b=document.getElementById('pd-items-body'); if(!b) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projAddonRowHtml({},true); b.appendChild(tmp.firstElementChild); projAddonRecalc(); }
 function projDAddStage(){ const b=document.getElementById('pd-tl-body'); if(!b) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projDTlRowHtml({},true); b.appendChild(tmp.firstElementChild); }
 function projDAddPlan(){ const b=document.getElementById('pd-plan-body'); if(!b) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projDPlanRowHtml({},true); b.appendChild(tmp.firstElementChild); projDRecalc(); }
 function projDRecalc(){
-  let tot=0; document.querySelectorAll('#pd-items-body .pd-item-row').forEach(tr=>{ const q=parseFloat(tr.querySelector('.pd-i-qty').value)||0; const pr=parseFloat(tr.querySelector('.pd-i-price').value)||0; const amt=q*pr; tot+=amt; const c=tr.querySelector('.pd-i-amt'); if(c) c.textContent=projMoney(amt); });
-  const qt=document.getElementById('pd-quote-total'); if(qt) qt.textContent=projMoney(tot);
-  const p=PROJECTS[projDetailKey]; const cost=parseFloat(p&&p.cost)||0; const diff=cost-tot;
-  const dc=document.getElementById('pd-quote-diff'); if(dc){ dc.textContent=projMoney(diff); dc.style.color=diff<0?'#dc2626':(diff>0?'#b45309':'#16a34a'); }
-  let pct=0, amtsum=0;
-  document.querySelectorAll('#pd-plan-body .pd-plan-row').forEach(tr=>{ const pc=parseFloat(tr.querySelector('.pd-pp-pct').value)||0; pct+=pc; const amt=pc/100*cost; amtsum+=amt; const c=tr.querySelector('.pd-pp-amt'); if(c) c.textContent=projMoney(amt); });
-  const pctEl=document.getElementById('pd-pct-total'); if(pctEl){ pctEl.textContent=(Math.round(pct*10)/10)+'%'; pctEl.style.color=Math.abs(pct-100)<0.05?'#16a34a':'#b45309'; }
-  const amtEl=document.getElementById('pd-plan-amt-total'); if(amtEl) amtEl.textContent=projMoney(amtsum);
+  let tot=0; document.querySelectorAll('#pd-items-body .pd-item-row').forEach(tr=>{ const a=parseFloat(tr.querySelector('.pd-i-amt').value)||0; tot+=a; });
+  const p=PROJECTS[projDetailKey]; const cost=parseFloat(p&&p.cost)||0;
+  const at=document.getElementById('pd-additems-total'); if(at) at.textContent=projMoney(tot);
+  const tc=document.getElementById('pd-total-cost'); if(tc) tc.textContent=projMoney(cost+tot);
 }
 async function projSaveDetail(){
   const key=projDetailKey; const p=PROJECTS[key]; if(!p) return;
   if(!projCanEditRec(p)){ alert(pT('noPerm')); return; }
-  const num=x=>{ const n=parseFloat(x); return isNaN(n)?0:n; };
-  const items=[...document.querySelectorAll('#pd-items-body .pd-item-row')].map(tr=>({ name:(tr.querySelector('.pd-i-name').value||'').trim(), desc:(tr.querySelector('.pd-i-desc').value||'').trim(), qty:num(tr.querySelector('.pd-i-qty').value), price:num(tr.querySelector('.pd-i-price').value) })).filter(it=>it.name||it.desc||it.qty||it.price);
-  const timeline=[...document.querySelectorAll('#pd-tl-body .pd-tl-row')].map(tr=>({ stage:(tr.querySelector('.pd-t-stage').value||'').trim(), date:tr.querySelector('.pd-t-date').value||'', note:(tr.querySelector('.pd-t-note').value||'').trim() })).filter(t=>t.stage||t.date||t.note);
-  const payplan=[...document.querySelectorAll('#pd-plan-body .pd-plan-row')].map(tr=>({ name:(tr.querySelector('.pd-pp-name').value||'').trim(), pct:num(tr.querySelector('.pd-pp-pct').value), note:(tr.querySelector('.pd-pp-note').value||'').trim() })).filter(x=>x.name||x.pct||x.note);
-  const detail={items,timeline,payplan};
+  const addons=projAddonCollect();
+  const stages=projStageCollect();
+  const _w=stages.reduce((s,x)=>s+(x.advance?0:(parseFloat(x.wpct)||0)),0); if(_w>100){ alert(pT('wpctOver')); return; }
+  const _p=stages.reduce((s,x)=>s+(parseFloat(x.ppct)||0),0); if(_p>100){ alert(pT('pctOver')); return; }
   const btn=document.getElementById('pd-save'); if(btn){ btn.disabled=true; btn.textContent='…'; }
   try{
-    await fetch(`${FB}/projects/${key}/detail.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(detail)});
-    p.detail=detail;
+    await fetch(`${FB}/projects/${key}/addons.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(addons)});
+    await fetch(`${FB}/projects/${key}/stages.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(stages)});
+    p.addons=addons; p.stages=stages;
     if(typeof logAudit==='function') logAudit('proj_edit',(p.no||'')+' — '+pT('saveDetail'));
     alert(pT('detailSaved')); renderProjTrack();
   }catch(e){ alert('Error: '+e.message); if(btn){ btn.disabled=false; btn.textContent='💾 '+pT('saveDetail'); } }
@@ -6554,13 +6795,15 @@ function projDetailHtml(key){
   const estD=p.estDate||p.approvedDate||'';
   const timeline=(Array.isArray(d.timeline)&&d.timeline.length)?d.timeline:projStages().map((s,i)=>({stage:pT(s.k),date:(i===0?estD:''),note:''}));
   const st=projStatus(p); const cost=parseFloat(p.cost)||0;
-  const quoteTot=items.reduce((s,it)=>s+((parseFloat(it.qty)||0)*(parseFloat(it.price)||0)),0);
+  const quoteTot=items.reduce((s,it)=>s+projItemAmt(it),0);
   const diff=cost-quoteTot;
   const payplan=Array.isArray(d.payplan)?d.payplan:[];
   const pctSum=payplan.reduce((s,x)=>s+(parseFloat(x.pct)||0),0);
   const planAmtSum=payplan.reduce((s,x)=>s+((parseFloat(x.pct)||0)/100*cost),0);
   const th=(t,ex)=>`<th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text3);white-space:nowrap;${ex||''}">${t}</th>`;
-  const itemsBody=items.map(it=>projDItemRowHtml(it,canE)).join('')||(canE?'':`<tr><td colspan="6" style="padding:14px;text-align:center;color:var(--text3)">${pT('noItems')}</td></tr>`);
+  const addons=projAddonList(p); const adTot=projAddonTotal(p), adPaid=projAddonPaid(p), adWork=projAddonWorkPct(p);
+  const addonBody=addons.map(a=>projAddonRowHtml(a,canE)).join('')||(canE?'':`<tr><td colspan="6" style="padding:14px;text-align:center;color:var(--text3)">${pT('noItems')}</td></tr>`);
+  const workPct=projWorkPct(p), payPct=projPayPct(p), paidAmt=projMainPaid(p);
   const tlBody=timeline.map(t=>projDTlRowHtml(t,canE)).join('');
   const planBody=payplan.map(x=>projDPlanRowHtml(x,canE)).join('')||(canE?'':`<tr><td colspan="5" style="padding:14px;text-align:center;color:var(--text3)">${pT('noItems')}</td></tr>`);
   return `
@@ -6579,36 +6822,48 @@ function projDetailHtml(key){
     ${!canE?`<div style="font-size:12px;color:var(--text3);margin-top:8px">🔒 ${pT('viewOnlyNote')}</div>`:''}
   </div>
   <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
-    <div class="fp-sec-title">🧾 ${pT('secItems')}</div>
-    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr style="border-bottom:2px solid var(--border)">${th(pT('itName'))}${th(pT('itDesc'))}${th(pT('itQty'),'text-align:right')}${th(pT('itPrice'),'text-align:right')}${th(pT('itAmt'),'text-align:right')}${th('')}</tr></thead>
-      <tbody id="pd-items-body">${itemsBody}</tbody>
-      <tfoot><tr style="border-top:2px solid var(--border);font-weight:800"><td colspan="4" style="padding:6px 8px;text-align:right">${pT('quoteTotal')}</td><td id="pd-quote-total" style="padding:6px 8px;text-align:right;white-space:nowrap">${projMoney(quoteTot)}</td><td></td></tr>
-      <tr><td colspan="4" style="padding:2px 8px;text-align:right;color:var(--text3);font-weight:600">${pT('vsCost')}</td><td id="pd-quote-diff" style="padding:2px 8px;text-align:right;white-space:nowrap;font-weight:700;color:${diff<0?'#dc2626':(diff>0?'#b45309':'#16a34a')}">${projMoney(diff)}</td><td></td></tr></tfoot>
-    </table></div>
-    ${canE?`<button class="btn-sm" style="margin-top:10px" onclick="projDAddItem()">➕ ${pT('addItem')}</button>`:''}
+    <div class="fp-sec-title">📅 ${pT('stageSec')}</div>
+    ${projBarsHtml()}
+    ${projStageTableHtml((Array.isArray(p.stages)&&p.stages.length)?p.stages:projDefaultStages())}
+    ${canE?`<div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn-sm btn-primary" onclick="projSaveDetail()">💾 ${pT('saveDetail')}</button></div>`:''}
   </div>
   <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
-    <div class="fp-sec-title">📅 ${pT('secTimeline')}</div>
+    <div class="fp-sec-title" style="border-left-color:var(--purple)">🧾 ${pT('addonTitle')}</div>
+    <div style="font-size:11px;color:var(--text3);margin:2px 0 10px">📌 ${pT('addonHint')}</div>
+    <div style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:12px;font-weight:700;width:92px;flex-shrink:0">🔧 ${pT('workProg')}</span><div style="flex:1;height:15px;background:var(--bg3);border-radius:8px;overflow:hidden"><div id="pd-addon-work-fill" style="height:100%;width:${Math.min(100,adWork)}%;background:#7c3aed;border-radius:8px;transition:width .3s"></div></div><span id="pd-addon-work-val" style="font-size:13px;font-weight:800;min-width:52px;text-align:right;color:#7c3aed">${adWork}%</span></div>
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;width:92px;flex-shrink:0">💰 ${pT('payProg')}</span><div style="flex:1;height:15px;background:var(--bg3);border-radius:8px;overflow:hidden"><div id="pd-addon-pay-fill" style="height:100%;width:${adTot>0?Math.min(100,adPaid/adTot*100):0}%;background:#7c3aed;border-radius:8px;transition:width .3s"></div></div><span id="pd-addon-pay-val" style="font-size:13px;font-weight:800;min-width:118px;text-align:right;color:#7c3aed">${projMoney(adPaid)} / ${projMoney(adTot)}</span></div>
+    </div>
     <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr style="border-bottom:2px solid var(--border)">${th(pT('tlStage'))}${th(pT('payDate'))}${th(pT('tlNote'))}${th('')}</tr></thead>
-      <tbody id="pd-tl-body">${tlBody}</tbody></table></div>
-    ${canE?`<button class="btn-sm" style="margin-top:10px" onclick="projDAddStage()">➕ ${pT('addStage')}</button>`:''}
-  </div>
-  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
-    <div class="fp-sec-title">💵 ${pT('secPayplan')}</div>
-    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr style="border-bottom:2px solid var(--border)">${th(pT('ppName'))}${th(pT('ppPct'),'text-align:right')}${th(pT('ppAmt'),'text-align:right')}${th(pT('pNote'))}${th('')}</tr></thead>
-      <tbody id="pd-plan-body">${planBody}</tbody>
-      <tfoot><tr style="border-top:2px solid var(--border);font-weight:800">
-        <td style="padding:6px 8px;text-align:right">${pT('pctTotal')}</td>
-        <td id="pd-pct-total" style="padding:6px 8px;text-align:right;white-space:nowrap;color:${Math.abs(pctSum-100)<0.05?'#16a34a':'#b45309'}">${(Math.round(pctSum*10)/10)}%</td>
-        <td id="pd-plan-amt-total" style="padding:6px 8px;text-align:right;white-space:nowrap">${projMoney(planAmtSum)}</td>
-        <td colspan="2"></td></tr></tfoot>
+      <thead><tr style="border-bottom:2px solid var(--border)"><th style="width:38px;text-align:center;font-size:11px;color:var(--text3)">${pT('done2')}</th>${th(pT('itemName'))}${th(pT('itDesc'))}${th(pT('itAmt'),'text-align:right')}<th style="width:36px;text-align:center;font-size:11px;color:var(--text3)">${pT('paid2')}</th>${th('')}</tr></thead>
+      <tbody id="pd-items-body">${addonBody}</tbody>
+      <tfoot><tr style="border-top:2px solid var(--border);font-weight:800"><td colspan="3" style="padding:6px 8px;text-align:right;color:var(--purple)">${pT('addonTotal')}</td><td id="pd-addon-total" style="padding:6px 8px;text-align:right;white-space:nowrap;color:var(--purple)">${projMoney(adTot)}</td><td colspan="2"></td></tr></tfoot>
     </table></div>
-    ${canE?`<button class="btn-sm" style="margin-top:10px" onclick="projDAddPlan()">➕ ${pT('addPayItem')}</button>`:''}
+    ${canE?`<div style="display:flex;gap:8px;margin-top:10px"><button class="btn-sm" onclick="projDAddItem()">➕ ${pT('addonBtn')}</button><button class="btn-sm btn-primary" onclick="projSaveDetail()">💾 ${pT('saveDetail')}</button></div>`:''}
   </div>
-  ${canE?`<div style="display:flex;justify-content:flex-end;margin-bottom:30px"><button class="btn-sm btn-primary" id="pd-save" onclick="projSaveDetail()">💾 ${pT('saveDetail')}</button></div>`:''}`;
+  <div style="background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border-radius:12px;padding:18px;margin-bottom:16px">
+    <div style="font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:12px">📊 ${pT('dashboard')}</div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:150px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px;font-weight:600">🔧 ${pT('dashWork')}</div>
+        <div id="pj-dash-work" style="font-size:22px;font-weight:800;color:#4ade80">${workPct}%</div>
+        <div style="height:8px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden;margin-top:8px"><div id="pj-dash-work-bar" style="height:100%;width:${Math.min(100,workPct)}%;background:#4ade80;border-radius:5px"></div></div>
+      </div>
+      <div style="flex:1;min-width:150px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px;font-weight:600">💰 ${pT('dashPaid')}</div>
+        <div id="pj-dash-paid" style="font-size:22px;font-weight:800">${projMoney(paidAmt)}</div>
+        <div id="pj-dash-paid-sub" style="font-size:11px;color:#94a3b8;margin-top:3px">/ ${projMoney(cost)}　${pT('payProg')} ${payPct}%</div>
+        <div style="height:8px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden;margin-top:8px"><div id="pj-dash-paid-bar" style="height:100%;width:${cost>0?Math.min(100,paidAmt/cost*100):0}%;background:#60a5fa;border-radius:5px"></div></div>
+      </div>
+      <div style="flex:1;min-width:150px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px">
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px;font-weight:600">🧾 ${pT('dashAddon')}</div>
+        <div id="pj-dash-addon" style="font-size:22px;font-weight:800;color:#c4b5fd">${projMoney(adPaid)} / ${projMoney(adTot)}</div>
+        <div id="pj-dash-addon-sub" style="font-size:11px;color:#94a3b8;margin-top:3px">${pT('workProg')} ${adWork}%</div>
+        <div style="height:8px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden;margin-top:8px"><div id="pj-dash-addon-bar" style="height:100%;width:${Math.min(100,adWork)}%;background:#c4b5fd;border-radius:5px"></div></div>
+      </div>
+    </div>
+  </div>
+  ${canE?`<div style="position:sticky;bottom:0;background:var(--bg);padding:10px 4px;display:flex;justify-content:flex-end;border-top:1px solid var(--border);margin-bottom:10px;z-index:5"><button class="btn-sm btn-primary" id="pd-save" onclick="projSaveDetail()">💾 ${pT('saveDetail')}</button></div>`:''}`;
 }
 let paSearch='', paDept='';
 function renderProjAdmin(){
@@ -6809,7 +7064,7 @@ restoreRole();
 if(typeof umUpdateBar==='function') umUpdateBar();
 loadGuestAccess(); loadUsers().then(()=>{ if(typeof umRestoreSession==='function' && umRestoreSession()){ hideGate();
   // 用 Firebase 上的最新權限覆蓋本機快取，避免管理者改了權限但已登入的使用者端沒更新
-  try{ const u=USERS[umCurrentUser.id]; if(u){ umCurrentUser.perms=u.perms||{}; if(u.name) umCurrentUser.name=u.name; if(typeof umSaveSession==='function') umSaveSession(); if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); } }catch(e){}
+  try{ const u=USERS[umCurrentUser.id]; if(u){ umCurrentUser.perms=u.perms||{}; umCurrentUser.admin=!!u.admin; if(u.name) umCurrentUser.name=u.name; if(typeof umSaveSession==='function') umSaveSession(); if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof applyNavPerms==='function') applyNavPerms(); } }catch(e){}
 } else { if(typeof umUpdateBar==='function') umUpdateBar(); if(typeof showGate==='function') showGate(); } });
 initPresence();
 initEqTip();
