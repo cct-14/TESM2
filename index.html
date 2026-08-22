@@ -6381,9 +6381,9 @@ const PROJ_I18N={
   en:{title:'Repair Project Control List',newProj:'New Project',no:'No.',subject:'Subject',approvedDate:'Approved',cost:'Cost',vendor:'Vendor',attr:'Equipment',attrNum:'Number',finishDate:'Est. completion/delivery',remark:'Remark',pay1:'1st payment',pay2:'2nd payment',pay3:'3rd payment',payDate:'Date',payAmt:'Amount',paid:'Paid',balance:'Balance',status:'Status',stUnpaid:'Unpaid',stPartial:'Partial',stPaid:'Paid',stDone:'Finished',dept:'Dept.',lead:'Lead',sup:'Supervisor',creator:'Created by',save:'Save',cancel:'Cancel',edit:'Edit',sel:'Select…',none:'—',needDept:'Select a dept.',needSubject:'Enter the subject',noPerm:'Only lead/supervisor/creator can edit.',empty:'No projects yet',allDepts:'All depts.',allYears:'All years',searchPh:'🔍 No. or subject',totCount:'Projects',totCost:'Total cost',totPaid:'Paid',totBal:'Balance',saved:'Saved',payments:'Payments',vendors:'Vendors',addVendor:'Add vendor',backList:'← Back to list',secItems:'Quotation detail',itName:'Item',itDesc:'Description',itQty:'Qty',itPrice:'Unit price',itAmt:'Amount',quoteTotal:'Quoted total',vsCost:'Diff. vs cost',addItem:'Add item',secTimeline:'Progress',tlStage:'Stage',tlNote:'Note',addStage:'Add stage',stgEstablish:'Create project',stgApproval:'Requisition approved',stgInquiry:'Inquiry',stgVendor:'Vendor selection',stgRepairing:'In repair/purchase',stgComplete:'Completed/Stock-in',payTotalField:'Payment total',terms:'Installments',termCol:'Installment',payDone:'Payment complete',sumTotal:'Total',secPayplan:'Agreed payment terms',ppName:'Item',ppPct:'%',ppAmt:'Amount',pctTotal:'Total %',amtTotal:'Total',addPayItem:'Add term',secPays:'Payment detail',pInv:'Invoice no.',pNote:'Note',addPay:'Add payment',payTotal:'Total paid',saveDetail:'Save detail',detailSaved:'Detail saved',viewOnlyNote:'View only',noItems:'No items',del:'Delete',delConfirm:'Delete project {no}? This cannot be undone.',deleted:'Deleted',noCfgTitle:'Project number format',noCfgTemplate:'Format',noCfgHint:'Variables: {prefix} {dept} {year} {seq}',noCfgSeqDigits:'Sequence digits',noCfgPrefix:'Default prefix',noCfgDeptPrefix:'Per-dept prefix (blank=default)',noCfgPreview:'Preview',noCfgSaved:'Format saved',paTitle:'Project system admin',paPeople:'Permissions & email',paView:'View',paCreate:'Create',paDelete:'Delete',paLead:'Lead',paSearch:'🔍 ID or name',paDeptAll:'All depts.',paEmailPh:'Email (for daily report)',paEmpty:'No staff',stgName:'Stage',stgPct:'Weight %',stgTotals:'Total',progress:'Progress',stageSec:'Progress',addonSec:'Add-ons',addonBtn:'Add on',addonTotal:'Add-on total',totalCost:'Total amount',itemName:'Item',needAll:'Fill in all fields before creating the project.',pctOver:'Total % cannot exceed 100%.',amtOver:'Stage amounts total cannot exceed the project cost.'}
 };
 ;(function(){ var ext={
-  es:{workProg:'Avance obra',payProg:'Avance pago',workPctCol:'Obra%',payPctCol:'Pago%',done2:'Obra',paid2:'Pagado',advance:'Anticipo',addonTitle:'Trabajo adicional',addonHint:'Bloque independiente · con sus propios ítems y avance',dashboard:'Panel',dashWork:'Avance de obra actual',dashPaid:'Pagado / Costo',dashAddon:'Adicional (pagado / total)',wpctOver:'El % de obra no puede superar 100%.'},
-  zh:{workProg:'工程進度',payProg:'付款進度',workPctCol:'工程%',payPctCol:'付款%',done2:'完成',paid2:'已付',advance:'預付款',addonTitle:'追加工程',addonHint:'自成區塊 · 有自己的細項與進度',dashboard:'儀表板',dashWork:'目前工程進度',dashPaid:'已付金額 / 專案金額',dashAddon:'追加金額(已付 / 合計)',wpctOver:'工程%合計不可超過 100%。'},
-  en:{workProg:'Work progress',payProg:'Payment progress',workPctCol:'Work%',payPctCol:'Pay%',done2:'Done',paid2:'Paid',advance:'Advance',addonTitle:'Additional work',addonHint:'Standalone block · own items & progress',dashboard:'Dashboard',dashWork:'Current work progress',dashPaid:'Paid / Cost',dashAddon:'Add-on (paid / total)',wpctOver:'Work % total cannot exceed 100%.'}
+  es:{workProg:'Avance obra',payProg:'Avance pago',workPctCol:'Obra%',payPctCol:'Pago%',payAmtCol:'Monto pago',done2:'Obra',paid2:'Pagado',advance:'Anticipo',addonTitle:'Trabajo adicional',addonHint:'Bloque independiente · con sus propios ítems y avance',dashboard:'Panel',dashWork:'Avance de obra actual',dashPaid:'Pagado / Costo',dashAddon:'Adicional (pagado / total)',wpctOver:'El % de obra no puede superar 100%.',subItem:'Sub-ítem',subPct:'% en la etapa',subTotal:'Total (=100%)',addSub:'Añadir sub-ítem',subHint:'Los % de los sub-ítems suman 100% = el Obra% de esta etapa'},
+  zh:{workProg:'工程進度',payProg:'付款進度',workPctCol:'工程%',payPctCol:'付款%',payAmtCol:'付款金額',done2:'完成',paid2:'已付',advance:'預付款',addonTitle:'追加工程',addonHint:'自成區塊 · 有自己的細項與進度',dashboard:'儀表板',dashWork:'目前工程進度',dashPaid:'已付金額 / 專案金額',dashAddon:'追加金額(已付 / 合計)',wpctOver:'工程%合計不可超過 100%。',subItem:'子項目',subPct:'占比%',subTotal:'合計(需=100%)',addSub:'新增子項目',subHint:'子項目占比加總=100% ＝ 這階段的工程%'},
+  en:{workProg:'Work progress',payProg:'Payment progress',workPctCol:'Work%',payPctCol:'Pay%',payAmtCol:'Payment',done2:'Done',paid2:'Paid',advance:'Advance',addonTitle:'Additional work',addonHint:'Standalone block · own items & progress',dashboard:'Dashboard',dashWork:'Current work progress',dashPaid:'Paid / Cost',dashAddon:'Add-on (paid / total)',wpctOver:'Work % total cannot exceed 100%.',subItem:'Sub-item',subPct:'% in stage',subTotal:'Total (=100%)',addSub:'Add sub-item',subHint:'Sub-item %s add up to 100% = the stage Work%'}
 }; for(var k in ext){ Object.assign(PROJ_I18N[k],ext[k]); } })();
 function pT(k){ const L=PROJ_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||PROJ_I18N.es; return (k in L)?L[k]:(PROJ_I18N.zh[k]||k); }
 async function loadProjects(){ try{ const r=await fetch(`${FB}/projects.json`); PROJECTS=(await r.json())||{}; }catch(e){ PROJECTS={}; } try{ const r=await fetch(`${FB}/proj_vendors.json`); const v=await r.json(); PROJ_VENDORS=Array.isArray(v)?v:(v?Object.values(v):[]); }catch(e){ PROJ_VENDORS=[]; } try{ const r=await fetch(`${FB}/proj_config.json`); const c=await r.json(); if(c&&typeof c==='object'){ PROJ_CFG=Object.assign({template:'{prefix}-{dept}-R{year}-{seq}',seqDigits:3,prefix:'CCTMTD',deptPrefix:{}},c); if(!PROJ_CFG.deptPrefix||typeof PROJ_CFG.deptPrefix!=='object') PROJ_CFG.deptPrefix={}; } }catch(e){} }
@@ -6406,9 +6406,10 @@ function projAttrKinds(){ let ks=(typeof FIELD_KINDS!=='undefined'&&FIELD_KINDS&
 function projAttrLabel(p){ const t=p&&p.attrType||''; const n=p&&p.attrNum||''; return t+(n?('-'+n):''); }
 function projNum(x){ const n=parseFloat(x); return isNaN(n)?0:n; }
 function projStageList(p){ const st=p&&p.stages; return Array.isArray(st)?st:[]; }
-function projWorkPct(p){ let d=0; projStageList(p).forEach(s=>{ if(s&&s.done&&!s.advance) d+=projNum(s.wpct); }); return Math.round(d*10)/10; }
-function projPayPct(p){ let d=0; projStageList(p).forEach(s=>{ if(s&&s.paid) d+=projNum(s.ppct); }); return Math.round(d*10)/10; }
-function projMainPaid(p){ return projPayPct(p)/100*projNum(p&&p.cost); }
+function projStageFrac(s){ if(!s||s.advance) return 0; if(Array.isArray(s.subs)&&s.subs.length){ let t=0,d=0; s.subs.forEach(x=>{ const pct=projNum(x&&x.pct); t+=pct; if(x&&x.done) d+=pct; }); return t>0?d/t:0; } return s&&s.done?1:0; }
+function projWorkPct(p){ let d=0; projStageList(p).forEach(s=>{ if(s&&!s.advance) d+=projNum(s.wpct)*projStageFrac(s); }); return Math.round(d*10)/10; }
+function projMainPaid(p){ let d=0; projStageList(p).forEach(s=>{ if(s&&s.paid) d+=projNum(s.pamt); }); return d; }
+function projPayPct(p){ const c=projNum(p&&p.cost); return c>0?Math.round(projMainPaid(p)/c*1000)/10:0; }
 function projAddonList(p){ if(p&&Array.isArray(p.addons)) return p.addons; const its=p&&p.detail&&p.detail.items; if(Array.isArray(its)) return its.map(it=>({name:it.name,desc:it.desc,amt:projItemAmt(it),done:false,paid:false})); return []; }
 function projAddonTotal(p){ return projAddonList(p).reduce((s,a)=>s+projNum(a&&a.amt),0); }
 function projAddonPaid(p){ return projAddonList(p).reduce((s,a)=>s+((a&&a.paid)?projNum(a.amt):0),0); }
@@ -6417,77 +6418,122 @@ function projAddonWorkPct(p){ const t=projAddonTotal(p); return t>0?Math.round(p
 function projPaid(p){ if(projStageList(p).length||projAddonList(p).length) return projMainPaid(p)+projAddonPaid(p); return (parseFloat(p&&p.pay1&&p.pay1.amt)||0)+(parseFloat(p&&p.pay2&&p.pay2.amt)||0)+(parseFloat(p&&p.pay3&&p.pay3.amt)||0); }
 function projCompletion(p){ if(!projStageList(p).length && !projAddonList(p).length) return null; return projWorkPct(p); }
 function projTodayStr(){ try{ return new Date().toLocaleDateString('en-CA',{timeZone:(typeof PA_TZ!=='undefined'?PA_TZ:'America/Panama')}); }catch(e){ const pp=panParts(); return pp.y+'-'+String(pp.m).padStart(2,'0')+'-'+String(pp.d).padStart(2,'0'); } }
-function projDefaultStages(){ const t=projTodayStr(); return [ {name:'預付款',advance:true,done:false,paid:false,date:t,wpct:'',ppct:30}, {name:'施工/發貨',done:false,paid:false,date:'',wpct:'',ppct:''}, {name:'尾款',done:false,paid:false,date:'',wpct:'',ppct:''} ]; }
+function projDefaultStages(){ const t=projTodayStr(); return [ {name:'預付款',advance:true,done:false,paid:false,date:t,wpct:'',pamt:'',subs:[]}, {name:'施工/發貨',done:false,paid:false,date:'',wpct:'',pamt:'',subs:[]}, {name:'尾款',done:false,paid:false,date:'',wpct:'',pamt:'',subs:[]} ]; }
+function projSubRowHtml(x){ x=x||{}; const v=projDEsc; return `<tr class="pj-sub-item">
+  <td style="text-align:center;padding:3px 4px"><input type="checkbox" class="pj-sub-done" ${x.done?'checked':''} onchange="projStageRecalc()" style="width:15px;height:15px;accent-color:#16a34a"/></td>
+  <td style="padding:3px 4px"><input class="eq-input pj-sub-name" style="width:100%;min-width:80px" value="${v(x.name)}"/></td>
+  <td style="padding:3px 4px"><input class="eq-input pj-sub-desc" style="width:100%" value="${v(x.desc)}"/></td>
+  <td style="padding:3px 4px;text-align:right"><input type="number" class="eq-input pj-sub-pct" style="width:54px;text-align:right" value="${v(x.pct)}" oninput="projStageRecalc()"/></td>
+  <td style="padding:3px 4px;text-align:center"><button type="button" class="btn-sm" onclick="projSubDel(this)">✕</button></td>
+</tr>`; }
+function projSubTableHtml(subs){ const list=Array.isArray(subs)?subs:[]; const body=list.map(projSubRowHtml).join('');
+  const th=t=>`<th style="padding:4px 6px;text-align:left;font-size:10px;color:var(--text3);white-space:nowrap">${t}</th>`;
+  return `<div style="margin:2px 0 2px 22px;background:var(--bg2);border-left:3px solid var(--blue);border-radius:6px;padding:8px">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${pT('subHint')}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr><th style="width:28px;text-align:center;font-size:10px;color:var(--text3)">✔</th>${th(pT('subItem'))}${th(pT('itDesc'))}<th style="text-align:right;font-size:10px;color:var(--text3);padding:4px 6px">${pT('subPct')}</th><th style="width:28px"></th></tr></thead>
+      <tbody class="pj-sub-body">${body}</tbody>
+      <tfoot><tr style="border-top:1px solid var(--border);font-weight:700"><td></td><td colspan="2" style="text-align:right;padding:4px 6px">${pT('subTotal')}</td><td class="pj-sub-total" style="text-align:right;padding:4px 6px">0%</td><td></td></tr></tfoot>
+    </table>
+    <div style="margin-top:6px"><button type="button" class="btn-sm" onclick="projSubAdd(this)">➕ ${pT('addSub')}</button></div>
+  </div>`; }
+function projSubAdd(btn){ const body=btn.closest('td').querySelector('.pj-sub-body'); if(!body) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projSubRowHtml({}); body.appendChild(tmp.firstElementChild); projStageRecalc(); }
+function projSubDel(btn){ const tr=btn.closest('tr'); if(tr) tr.remove(); projStageRecalc(); }
+function projStageToggleSub(el){ const tr=el.closest('tr'); const sub=tr&&tr.nextElementSibling; if(sub&&sub.classList.contains('pj-sub-row')){ const open=sub.style.display!=='none'; sub.style.display=open?'none':''; el.textContent=open?'▸':'▾'; } }
 function projStageRowHtml(s){ s=s||{}; const v=projDEsc; const adv=!!s.advance;
+  const toggleCell = adv?'':`<span class="pj-tri" onclick="projStageToggleSub(this)" style="color:var(--blue);cursor:pointer;font-weight:700;user-select:none">▸</span>`;
   const nameCell = adv
     ? `<input class="eq-input pj-s-name" disabled style="width:100%;min-width:90px;font-weight:700;color:var(--text);background:var(--bg2)" value="${v(s.name||pT('advance'))}"/>`
     : `<input class="eq-input pj-s-name" style="width:100%;min-width:90px" value="${v(s.name)}"/>`;
   const doneCell = adv
-    ? `<span style="color:var(--text3)">—</span><input type="checkbox" class="pj-s-done" style="display:none">`
-    : `<input type="checkbox" class="pj-s-done" ${s.done?'checked':''} onchange="projStageDone(this)" style="width:16px;height:16px;accent-color:#16a34a"/>`;
+    ? `<span style="color:var(--text3)">—</span>`
+    : `<span class="pj-s-compdisp" style="display:none;font-weight:700;color:#16a34a"></span><input type="checkbox" class="pj-s-done" ${s.done?'checked':''} onchange="projStageDone(this)" style="width:16px;height:16px;accent-color:#16a34a"/>`;
   const wpctCell = adv
     ? `<span style="color:var(--text3)">—</span>`
-    : `<input type="number" class="eq-input pj-s-wpct" style="width:60px;text-align:right" value="${v(s.wpct)}" oninput="projStageRecalc()"/>`;
+    : `<input type="number" class="eq-input pj-s-wpct" style="width:56px;text-align:right" value="${v(s.wpct)}" oninput="projStageRecalc()"/>`;
+  const subRow = adv ? '' : `<tr class="pj-sub-row" style="display:none"><td colspan="8" style="padding:0 6px 8px">${projSubTableHtml(s.subs)}</td></tr>`;
   return `<tr class="pj-stage-row" data-adv="${adv?1:0}">
+  <td style="text-align:center;padding:2px 2px">${toggleCell}</td>
   <td style="text-align:center;padding:2px 4px">${doneCell}</td>
   <td style="padding:2px 4px">${nameCell}</td>
-  <td style="padding:2px 4px"><input type="date" class="eq-input pj-s-date" style="width:138px" value="${v(s.date)}"/></td>
+  <td style="padding:2px 4px"><input type="date" class="eq-input pj-s-date" style="width:132px" value="${v(s.date)}"/></td>
   <td style="padding:2px 4px;text-align:right">${wpctCell}</td>
-  <td style="padding:2px 4px"><input type="number" class="eq-input pj-s-ppct" style="width:60px;text-align:right" value="${v(s.ppct)}" oninput="projStageRecalc()"/></td>
+  <td style="padding:2px 4px;text-align:right"><input type="number" class="eq-input pj-s-pamt" style="width:88px;text-align:right" value="${v(s.pamt)}" oninput="projStageRecalc()"/></td>
   <td style="text-align:center;padding:2px 4px"><input type="checkbox" class="pj-s-paid" ${s.paid?'checked':''} onchange="projStageRecalc()" style="width:16px;height:16px;accent-color:#2563eb"/></td>
   <td style="padding:2px 4px;white-space:nowrap;text-align:center">${adv?'':`<button type="button" class="btn-sm" onclick="projStageDel(this)" title="刪除">✕</button>`}</td>
-</tr>`; }
-function projStageInsRowHtml(){ return `<tr class="pj-ins-row"><td colspan="7" style="padding:1px 6px"><button type="button" onclick="projStageInsertAt(this)" style="width:100%;border:1px dashed var(--border);background:none;color:var(--text3);border-radius:6px;padding:2px;font-size:11px;cursor:pointer">＋ 插入階段</button></td></tr>`; }
+</tr>${subRow}`; }
+function projStageInsRowHtml(){ return `<tr class="pj-ins-row"><td colspan="8" style="padding:1px 6px"><button type="button" onclick="projStageInsertAt(this)" style="width:100%;border:1px dashed var(--border);background:none;color:var(--text3);border-radius:6px;padding:2px;font-size:11px;cursor:pointer">＋ 插入階段</button></td></tr>`; }
 function projStageInsertAt(btn){ const insTr=btn.closest('tr'); if(!insTr) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projStageRowHtml({})+projStageInsRowHtml(); const rows=[...tmp.children]; const ref=insTr.nextSibling; rows.forEach(r=>insTr.parentNode.insertBefore(r,ref)); projStageRecalc(); }
 function projStageAddEnd(){ const b=document.getElementById('pj-stages'); if(!b) return; const tmp=document.createElement('tbody'); tmp.innerHTML=projStageInsRowHtml()+projStageRowHtml({}); [...tmp.children].forEach(r=>b.appendChild(r)); projStageRecalc(); }
-function projStageDel(btn){ const tr=btn.closest('tr'); if(tr) tr.remove(); projStageRecalc(); }
+function projStageDel(btn){ const tr=btn.closest('tr'); const sub=tr&&tr.nextElementSibling; if(sub&&sub.classList.contains('pj-sub-row')) sub.remove(); if(tr) tr.remove(); projStageRecalc(); }
 function projStageDone(cb){ const tr=cb.closest('tr'); const d=tr&&tr.querySelector('.pj-s-date'); if(cb.checked && d && !d.value) d.value=projTodayStr(); projStageRecalc(); }
 function projStageCollect(){ const num=x=>{ const n=parseFloat(x); return isNaN(n)?'':n; };
   const g=(tr,c)=>{ const e=tr.querySelector(c); return e?e.value:''; };
   const gc=(tr,c)=>{ const e=tr.querySelector(c); return e?!!e.checked:false; };
-  return [...document.querySelectorAll('#pj-stages .pj-stage-row')].map(tr=>{ const adv=tr.getAttribute('data-adv')==='1'; return {
-    name:(g(tr,'.pj-s-name')||'').trim(),
-    advance:adv,
-    done:gc(tr,'.pj-s-done'),
-    paid:gc(tr,'.pj-s-paid'),
-    date:g(tr,'.pj-s-date')||'',
-    wpct:adv?'':num(g(tr,'.pj-s-wpct')),
-    ppct:num(g(tr,'.pj-s-ppct'))
-  }; }).filter(s=>s.name||s.date||s.wpct!==''||s.ppct!==''||s.advance); }
+  const out=[];
+  document.querySelectorAll('#pj-stages .pj-stage-row').forEach(tr=>{ const adv=tr.getAttribute('data-adv')==='1';
+    let subs=[]; const sub=tr.nextElementSibling;
+    if(sub&&sub.classList.contains('pj-sub-row')){ subs=[...sub.querySelectorAll('.pj-sub-item')].map(sr=>({
+      name:(sr.querySelector('.pj-sub-name').value||'').trim(),
+      desc:(sr.querySelector('.pj-sub-desc').value||'').trim(),
+      pct:num(sr.querySelector('.pj-sub-pct').value),
+      done:sr.querySelector('.pj-sub-done').checked
+    })).filter(x=>x.name||x.desc||x.pct!==''); }
+    out.push({
+      name:(g(tr,'.pj-s-name')||'').trim(),
+      advance:adv,
+      done:gc(tr,'.pj-s-done'),
+      paid:gc(tr,'.pj-s-paid'),
+      date:g(tr,'.pj-s-date')||'',
+      wpct:adv?'':num(g(tr,'.pj-s-wpct')),
+      pamt:num(g(tr,'.pj-s-pamt')),
+      subs:subs
+    });
+  });
+  return out.filter(s=>s.name||s.date||s.wpct!==''||s.pamt!==''||s.advance||(s.subs&&s.subs.length)); }
 function projCurCost(){ const el=document.getElementById('proj-f-cost'); if(el) return parseFloat(el.value)||0; const p=PROJECTS[projDetailKey]; return parseFloat(p&&p.cost)||0; }
 function projBarsHtml(){ return `<div style="margin-bottom:14px">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:12px;font-weight:700;width:92px;flex-shrink:0">🔧 ${pT('workProg')}</span><div style="flex:1;height:15px;background:var(--bg3);border-radius:8px;overflow:hidden"><div id="pj-work-fill" style="height:100%;width:0;background:#16a34a;border-radius:8px;transition:width .3s"></div></div><span id="pj-work-val" style="font-size:13px;font-weight:800;min-width:52px;text-align:right;color:#16a34a">0%</span></div>
   <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;width:92px;flex-shrink:0">💰 ${pT('payProg')}</span><div style="flex:1;height:15px;background:var(--bg3);border-radius:8px;overflow:hidden"><div id="pj-pay-fill" style="height:100%;width:0;background:#2563eb;border-radius:8px;transition:width .3s"></div></div><span id="pj-pay-val" style="font-size:13px;font-weight:800;min-width:118px;text-align:right;color:#2563eb">0%</span></div>
 </div>`; }
-function projStageRecalc(){
-  const rows=[...document.querySelectorAll('#pj-stages .pj-stage-row')];
-  let wTot=0,pTot=0,wDone=0,pDone=0;
-  rows.forEach(tr=>{ const adv=tr.getAttribute('data-adv')==='1';
-    const done=(tr.querySelector('.pj-s-done')||{}).checked||false;
-    const paid=(tr.querySelector('.pj-s-paid')||{}).checked||false;
+function projStageDomWork(){ // returns {wDone,wTot,pamtTot,paidAmt} from live stage rows, and updates per-row completion display
+  let wDone=0,wTot=0,pamtTot=0,paidAmt=0;
+  document.querySelectorAll('#pj-stages .pj-stage-row').forEach(tr=>{ const adv=tr.getAttribute('data-adv')==='1';
     const we=tr.querySelector('.pj-s-wpct'); const wp=we?(parseFloat(we.value)||0):0;
-    const pe=tr.querySelector('.pj-s-ppct'); const pp=pe?(parseFloat(pe.value)||0):0;
-    if(!adv){ wTot+=wp; if(done) wDone+=wp; }
-    pTot+=pp; if(paid) pDone+=pp; });
-  const cost=projCurCost(); const paidAmt=pDone/100*cost; const r1=x=>Math.round(x*10)/10;
+    const pe=tr.querySelector('.pj-s-pamt'); const pa=pe?(parseFloat(pe.value)||0):0;
+    pamtTot+=pa; if((tr.querySelector('.pj-s-paid')||{}).checked) paidAmt+=pa;
+    if(!adv){ wTot+=wp;
+      const sub=tr.nextElementSibling; let hasSubs=false,frac=0,subTot=0;
+      if(sub&&sub.classList.contains('pj-sub-row')){ const items=[...sub.querySelectorAll('.pj-sub-item')]; if(items.length){ hasSubs=true; let t=0,d=0; items.forEach(sr=>{ const pct=parseFloat(sr.querySelector('.pj-sub-pct').value)||0; t+=pct; if(sr.querySelector('.pj-sub-done').checked) d+=pct; }); subTot=t; frac=t>0?d/t:0; const stEl=sub.querySelector('.pj-sub-total'); if(stEl){ stEl.textContent=(Math.round(t*10)/10)+'%'; stEl.style.color=Math.abs(t-100)<0.05?'#16a34a':'#b45309'; } } }
+      const disp=tr.querySelector('.pj-s-compdisp'); const cb=tr.querySelector('.pj-s-done');
+      if(hasSubs){ if(disp){ disp.style.display=''; disp.textContent=Math.round(frac*100)+'%'; } if(cb) cb.style.display='none'; }
+      else { if(disp) disp.style.display='none'; if(cb){ cb.style.display=''; frac=cb.checked?1:0; } }
+      wDone+=wp*frac;
+    }
+  });
+  return {wDone:wDone,wTot:wTot,pamtTot:pamtTot,paidAmt:paidAmt};
+}
+function projStageRecalc(){
+  const m=projStageDomWork(); const cost=projCurCost();
+  const payPct=cost>0?m.paidAmt/cost*100:0; const r1=x=>Math.round(x*10)/10;
   const set=(id,val,color)=>{ const e=document.getElementById(id); if(e){ e.textContent=val; if(color!==undefined) e.style.color=color; } };
-  set('pj-wpct-total',r1(wTot)+'%', Math.abs(wTot-100)<0.05?'#16a34a':'#b45309');
-  set('pj-ppct-total',r1(pTot)+'%', Math.abs(pTot-100)<0.05?'#16a34a':'#b45309');
-  const wf=document.getElementById('pj-work-fill'); if(wf) wf.style.width=Math.min(100,wDone)+'%';
-  const pf=document.getElementById('pj-pay-fill'); if(pf) pf.style.width=Math.min(100,pDone)+'%';
-  set('pj-work-val',r1(wDone)+'%');
-  set('pj-pay-val',r1(pDone)+'% · '+projMoney(paidAmt));
+  set('pj-wpct-total',r1(m.wTot)+'%', Math.abs(m.wTot-100)<0.05?'#16a34a':'#b45309');
+  set('pj-pamt-total',projMoney(m.pamtTot), (cost>0&&Math.abs(m.pamtTot-cost)<0.5)?'#16a34a':(m.pamtTot>cost?'#dc2626':'#334155'));
+  const wf=document.getElementById('pj-work-fill'); if(wf) wf.style.width=Math.min(100,m.wDone)+'%';
+  const pf=document.getElementById('pj-pay-fill'); if(pf) pf.style.width=Math.min(100,payPct)+'%';
+  set('pj-work-val',r1(m.wDone)+'%');
+  set('pj-pay-val',r1(payPct)+'% · '+projMoney(m.paidAmt));
   if(typeof projDashRecalc==='function') projDashRecalc();
 }
 function projDashRecalc(){
   const p=PROJECTS[projDetailKey]; if(!p) return; const cost=parseFloat(p.cost)||0; const r1=x=>Math.round(x*10)/10;
-  let wDone=0,pDone=0; document.querySelectorAll('#pj-stages .pj-stage-row').forEach(tr=>{ const adv=tr.getAttribute('data-adv')==='1'; const we=tr.querySelector('.pj-s-wpct'); const wp=we?(parseFloat(we.value)||0):0; const pe=tr.querySelector('.pj-s-ppct'); const pp=pe?(parseFloat(pe.value)||0):0; if(!adv && (tr.querySelector('.pj-s-done')||{}).checked) wDone+=wp; if((tr.querySelector('.pj-s-paid')||{}).checked) pDone+=pp; });
+  const m=projStageDomWork();
   let adTot=0,adPaid=0,adDone=0; document.querySelectorAll('#pd-items-body .pd-addon-row').forEach(tr=>{ const amt=parseFloat(tr.querySelector('.pd-a-amt').value)||0; adTot+=amt; if(tr.querySelector('.pd-a-paid').checked) adPaid+=amt; if(tr.querySelector('.pd-a-done').checked) adDone+=amt; });
-  const paidAmt=pDone/100*cost;
+  const payPct=cost>0?m.paidAmt/cost*100:0;
   const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
   const setw=(id,w)=>{ const e=document.getElementById(id); if(e) e.style.width=Math.min(100,w)+'%'; };
-  set('pj-dash-work',r1(wDone)+'%'); setw('pj-dash-work-bar',wDone);
-  set('pj-dash-paid',projMoney(paidAmt)); set('pj-dash-paid-sub','/ '+projMoney(cost)+'　'+pT('payProg')+' '+r1(pDone)+'%'); setw('pj-dash-paid-bar',cost>0?paidAmt/cost*100:0);
+  set('pj-dash-work',r1(m.wDone)+'%'); setw('pj-dash-work-bar',m.wDone);
+  set('pj-dash-paid',projMoney(m.paidAmt)); set('pj-dash-paid-sub','/ '+projMoney(cost)+'　'+pT('payProg')+' '+r1(payPct)+'%'); setw('pj-dash-paid-bar',cost>0?m.paidAmt/cost*100:0);
   const awp=adTot>0?r1(adDone/adTot*100):0;
   set('pj-dash-addon',projMoney(adPaid)+' / '+projMoney(adTot)); set('pj-dash-addon-sub',pT('workProg')+' '+awp+'%'); setw('pj-dash-addon-bar',awp);
 }
@@ -6515,9 +6561,9 @@ function projStageTableHtml(stages){ const list=(stages&&stages.length)?stages:[
   const thr=t=>`<th style="padding:5px 6px;text-align:right;font-size:11px;color:var(--text3);white-space:nowrap">${t}</th>`;
   const thc=t=>`<th style="padding:5px 6px;text-align:center;font-size:11px;color:var(--text3);white-space:nowrap">${t}</th>`;
   return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
-    <thead><tr style="border-bottom:2px solid var(--border)">${thc(pT('done2'))}${th(pT('stgName'))}${th(pT('payDate'))}${thr(pT('workPctCol'))}${thr(pT('payPctCol'))}${thc(pT('paid2'))}${th('')}</tr></thead>
+    <thead><tr style="border-bottom:2px solid var(--border)"><th style="width:20px"></th>${thc(pT('done2'))}${th(pT('stgName'))}${th(pT('payDate'))}${thr(pT('workPctCol'))}${thr(pT('payAmtCol'))}${thc(pT('paid2'))}${th('')}</tr></thead>
     <tbody id="pj-stages">${body}</tbody>
-    <tfoot><tr style="border-top:2px solid var(--border);font-weight:800"><td></td><td colspan="2" style="padding:6px;text-align:right">${pT('stgTotals')}</td><td id="pj-wpct-total" style="padding:6px;text-align:right">0%</td><td id="pj-ppct-total" style="padding:6px;text-align:right">0%</td><td colspan="2"></td></tr></tfoot>
+    <tfoot><tr style="border-top:2px solid var(--border);font-weight:800"><td colspan="2"></td><td colspan="2" style="padding:6px;text-align:right">${pT('stgTotals')}</td><td id="pj-wpct-total" style="padding:6px;text-align:right">0%</td><td id="pj-pamt-total" style="padding:6px;text-align:right">0</td><td colspan="2"></td></tr></tfoot>
   </table></div>
   <div style="margin-top:8px"><button type="button" class="btn-sm" onclick="projStageAddEnd()">➕ ${pT('addStage')}</button></div>`;
 }
@@ -6625,8 +6671,8 @@ async function projSave(){
   if(!_apr||!_cost||!_vendor||!_attrnum||!_lead||!_finish){ alert(pT('needAll')); return; }
   const _wp=stages.reduce((s,x)=>s+(x.advance?0:(parseFloat(x.wpct)||0)),0);
   if(_wp>100){ alert(pT('wpctOver')); return; }
-  const _pp=stages.reduce((s,x)=>s+(parseFloat(x.ppct)||0),0);
-  if(_pp>100){ alert(pT('pctOver')); return; }
+  const _pa=stages.reduce((s,x)=>s+(parseFloat(x.pamt)||0),0);
+  if(_pa>_cost){ alert(pT('amtOver')); return; }
   const fields={ subject, approvedDate:document.getElementById('proj-f-approved').value||'', cost:num(document.getElementById('proj-f-cost').value), vendor:(document.getElementById('proj-f-vendor').value||'').trim(), attrType:document.getElementById('proj-f-attrtype').value, attrNum:(document.getElementById('proj-f-attrnum').value||'').trim().toUpperCase(), finishDate:document.getElementById('proj-f-finish').value||'', remark:(document.getElementById('proj-f-remark').value||'').trim(), lead:document.getElementById('proj-f-lead').value, sup:document.getElementById('proj-f-sup').value, stages };
   const btn=document.getElementById('proj-f-save'); if(btn){ btn.disabled=true; btn.textContent='…'; }
   try{
@@ -6778,7 +6824,7 @@ async function projSaveDetail(){
   const addons=projAddonCollect();
   const stages=projStageCollect();
   const _w=stages.reduce((s,x)=>s+(x.advance?0:(parseFloat(x.wpct)||0)),0); if(_w>100){ alert(pT('wpctOver')); return; }
-  const _p=stages.reduce((s,x)=>s+(parseFloat(x.ppct)||0),0); if(_p>100){ alert(pT('pctOver')); return; }
+  const _cost=parseFloat(p.cost)||0; const _pa=stages.reduce((s,x)=>s+(parseFloat(x.pamt)||0),0); if(_cost>0&&_pa>_cost){ alert(pT('amtOver')); return; }
   const btn=document.getElementById('pd-save'); if(btn){ btn.disabled=true; btn.textContent='…'; }
   try{
     await fetch(`${FB}/projects/${key}/addons.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(addons)});
