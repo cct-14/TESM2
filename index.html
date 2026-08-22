@@ -1299,7 +1299,7 @@ select.fld-input.big{height:56px}
     </div>
     <div class="page" id="page-projtrack">
       <div class="page-scroll">
-        <div id="projtrack-root" style="max-width:1100px;margin:0 auto"></div>
+        <div id="projtrack-root" style="max-width:100%;margin:0;padding:0 8px"></div>
       </div>
     </div>
     <div class="page" id="page-admin">
@@ -6381,9 +6381,9 @@ const PROJ_I18N={
   en:{title:'Repair Project Control List',newProj:'New Project',no:'No.',subject:'Subject',approvedDate:'Approved',cost:'Cost',vendor:'Vendor',attr:'Equipment',attrNum:'Number',finishDate:'Est. completion/delivery',remark:'Remark',pay1:'1st payment',pay2:'2nd payment',pay3:'3rd payment',payDate:'Date',payAmt:'Amount',paid:'Paid',balance:'Balance',status:'Status',stUnpaid:'Unpaid',stPartial:'Partial',stPaid:'Paid',stDone:'Finished',dept:'Dept.',lead:'Lead',sup:'Supervisor',creator:'Created by',save:'Save',cancel:'Cancel',edit:'Edit',sel:'Select…',none:'—',needDept:'Select a dept.',needSubject:'Enter the subject',noPerm:'Only lead/supervisor/creator can edit.',empty:'No projects yet',allDepts:'All depts.',allYears:'All years',searchPh:'🔍 No. or subject',totCount:'Projects',totCost:'Total cost',totPaid:'Paid',totBal:'Balance',saved:'Saved',payments:'Payments',vendors:'Vendors',addVendor:'Add vendor',backList:'← Back to list',secItems:'Quotation detail',itName:'Item',itDesc:'Description',itQty:'Qty',itPrice:'Unit price',itAmt:'Amount',quoteTotal:'Quoted total',vsCost:'Diff. vs cost',addItem:'Add item',secTimeline:'Progress',tlStage:'Stage',tlNote:'Note',addStage:'Add stage',stgEstablish:'Create project',stgApproval:'Requisition approved',stgInquiry:'Inquiry',stgVendor:'Vendor selection',stgRepairing:'In repair/purchase',stgComplete:'Completed/Stock-in',payTotalField:'Payment total',terms:'Installments',termCol:'Installment',payDone:'Payment complete',sumTotal:'Total',secPayplan:'Agreed payment terms',ppName:'Item',ppPct:'%',ppAmt:'Amount',pctTotal:'Total %',amtTotal:'Total',addPayItem:'Add term',secPays:'Payment detail',pInv:'Invoice no.',pNote:'Note',addPay:'Add payment',payTotal:'Total paid',saveDetail:'Save detail',detailSaved:'Detail saved',viewOnlyNote:'View only',noItems:'No items',del:'Delete',delConfirm:'Delete project {no}? This cannot be undone.',deleted:'Deleted',noCfgTitle:'Project number format',noCfgTemplate:'Format',noCfgHint:'Variables: {prefix} {dept} {year} {seq}',noCfgSeqDigits:'Sequence digits',noCfgPrefix:'Default prefix',noCfgDeptPrefix:'Per-dept prefix (blank=default)',noCfgPreview:'Preview',noCfgSaved:'Format saved',paTitle:'Project system admin',paPeople:'Permissions & email',paView:'View',paCreate:'Create',paDelete:'Delete',paLead:'Lead',paSearch:'🔍 ID or name',paDeptAll:'All depts.',paEmailPh:'Email (for daily report)',paEmpty:'No staff',stgName:'Stage',stgPct:'Weight %',stgTotals:'Total',progress:'Progress',stageSec:'Progress',addonSec:'Add-ons',addonBtn:'Add on',addonTotal:'Add-on total',totalCost:'Total amount',itemName:'Item',needAll:'Fill in all fields before creating the project.',pctOver:'Total % cannot exceed 100%.',amtOver:'Stage amounts total cannot exceed the project cost.'}
 };
 ;(function(){ var ext={
-  es:{workProg:'Avance obra',payProg:'Avance pago',workPctCol:'Obra%',payPctCol:'Pago%',payAmtCol:'Monto pago',done2:'Obra',paid2:'Pagado',advance:'Anticipo',addonTitle:'Trabajo adicional',addonHint:'Bloque independiente · con sus propios ítems y avance',dashboard:'Panel',dashWork:'Avance de obra actual',dashPaid:'Pagado / Costo',dashAddon:'Adicional (pagado / total)',wpctOver:'El % de obra no puede superar 100%.',subItem:'Sub-ítem',subPct:'% en la etapa',subTotal:'Total (=100%)',addSub:'Añadir sub-ítem',subHint:'Los % de los sub-ítems suman 100% = el Obra% de esta etapa'},
-  zh:{workProg:'工程進度',payProg:'付款進度',workPctCol:'工程%',payPctCol:'付款%',payAmtCol:'付款金額',done2:'完成',paid2:'已付',advance:'預付款',addonTitle:'追加工程',addonHint:'自成區塊 · 有自己的細項與進度',dashboard:'儀表板',dashWork:'目前工程進度',dashPaid:'已付金額 / 專案金額',dashAddon:'追加金額(已付 / 合計)',wpctOver:'工程%合計不可超過 100%。',subItem:'子項目',subPct:'占比%',subTotal:'合計(需=100%)',addSub:'新增子項目',subHint:'子項目占比加總=100% ＝ 這階段的工程%'},
-  en:{workProg:'Work progress',payProg:'Payment progress',workPctCol:'Work%',payPctCol:'Pay%',payAmtCol:'Payment',done2:'Done',paid2:'Paid',advance:'Advance',addonTitle:'Additional work',addonHint:'Standalone block · own items & progress',dashboard:'Dashboard',dashWork:'Current work progress',dashPaid:'Paid / Cost',dashAddon:'Add-on (paid / total)',wpctOver:'Work % total cannot exceed 100%.',subItem:'Sub-item',subPct:'% in stage',subTotal:'Total (=100%)',addSub:'Add sub-item',subHint:'Sub-item %s add up to 100% = the stage Work%'}
+  es:{workProg:'Avance obra',payProg:'Avance pago',workPctCol:'Obra%',payPctCol:'Pago%',payAmtCol:'Monto pago',done2:'Obra',paid2:'Pagado',advance:'Anticipo',addonTitle:'Trabajo adicional',addonHint:'Bloque independiente · con sus propios ítems y avance',dashboard:'Panel',dashWork:'Avance de obra actual',dashPaid:'Pagado / Costo',dashAddon:'Adicional (pagado / total)',wpctOver:'El % de obra no puede superar 100%.',subItem:'Sub-ítem',subPct:'% en la etapa',subTotal:'Total (=100%)',addSub:'Añadir sub-ítem',subHint:'Los % de los sub-ítems suman 100% = el Obra% de esta etapa',unpaid:'Por pagar',expandTip:'Ver avance'},
+  zh:{workProg:'工程進度',payProg:'付款進度',workPctCol:'工程%',payPctCol:'付款%',payAmtCol:'付款金額',done2:'完成',paid2:'已付',advance:'預付款',addonTitle:'追加工程',addonHint:'自成區塊 · 有自己的細項與進度',dashboard:'儀表板',dashWork:'目前工程進度',dashPaid:'已付金額 / 專案金額',dashAddon:'追加金額(已付 / 合計)',wpctOver:'工程%合計不可超過 100%。',subItem:'子項目',subPct:'占比%',subTotal:'合計(需=100%)',addSub:'新增子項目',subHint:'子項目占比加總=100% ＝ 這階段的工程%',unpaid:'未付',expandTip:'展開進度'},
+  en:{workProg:'Work progress',payProg:'Payment progress',workPctCol:'Work%',payPctCol:'Pay%',payAmtCol:'Payment',done2:'Done',paid2:'Paid',advance:'Advance',addonTitle:'Additional work',addonHint:'Standalone block · own items & progress',dashboard:'Dashboard',dashWork:'Current work progress',dashPaid:'Paid / Cost',dashAddon:'Add-on (paid / total)',wpctOver:'Work % total cannot exceed 100%.',subItem:'Sub-item',subPct:'% in stage',subTotal:'Total (=100%)',addSub:'Add sub-item',subHint:'Sub-item %s add up to 100% = the stage Work%',unpaid:'Unpaid',expandTip:'Show progress'}
 }; for(var k in ext){ Object.assign(PROJ_I18N[k],ext[k]); } })();
 function pT(k){ const L=PROJ_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||PROJ_I18N.es; return (k in L)?L[k]:(PROJ_I18N.zh[k]||k); }
 async function loadProjects(){ try{ const r=await fetch(`${FB}/projects.json`); PROJECTS=(await r.json())||{}; }catch(e){ PROJECTS={}; } try{ const r=await fetch(`${FB}/proj_vendors.json`); const v=await r.json(); PROJ_VENDORS=Array.isArray(v)?v:(v?Object.values(v):[]); }catch(e){ PROJ_VENDORS=[]; } try{ const r=await fetch(`${FB}/proj_config.json`); const c=await r.json(); if(c&&typeof c==='object'){ PROJ_CFG=Object.assign({template:'{prefix}-{dept}-R{year}-{seq}',seqDigits:3,prefix:'CCTMTD',deptPrefix:{}},c); if(!PROJ_CFG.deptPrefix||typeof PROJ_CFG.deptPrefix!=='object') PROJ_CFG.deptPrefix={}; } }catch(e){} }
@@ -6694,6 +6694,68 @@ async function projSave(){
     projShowForm=false; projEditKey=null; renderProjTrack();
   }catch(e){ alert('Error: '+e.message); if(btn){ btn.disabled=false; btn.textContent='💾 '+pT('save'); } }
 }
+let projListOpen={};
+function projListToggle(k){ projListOpen[k]=!projListOpen[k]; const exp=document.getElementById('plexp-'+k); if(exp) exp.style.display=projListOpen[k]?'':'none'; const tri=document.getElementById('pjltri-'+k); if(tri) tri.textContent=projListOpen[k]?'▾':'▸'; }
+function projListExpandHtml(p,canE){ const key=p.k; const money=projMoney; const dis=canE?'':'disabled';
+  const stages=projStageList(p); const addons=projAddonList(p);
+  let rowsHtml='';
+  stages.forEach((s,si)=>{ const adv=!!s.advance; const hasSubs=Array.isArray(s.subs)&&s.subs.length; const frac=projStageFrac(s);
+    const doneCell = adv? '<span style="color:var(--text3)">—</span>' : (hasSubs? `<b style="color:#16a34a">${Math.round(frac*100)}%</b>` : `<input type="checkbox" class="pjl-done" data-si="${si}" ${s.done?'checked':''} ${dis} style="width:16px;height:16px;accent-color:#16a34a">`);
+    rowsHtml+=`<tr style="border-bottom:1px dashed var(--border)">
+      <td style="padding:5px 8px;text-align:center">${doneCell}</td>
+      <td style="padding:5px 8px;font-weight:600">${(s.name||'').replace(/</g,'&lt;')}</td>
+      <td style="padding:5px 8px;text-align:right;color:var(--text3)">${adv?'—':((s.wpct!==''&&s.wpct!=null)?(s.wpct+'%'):'')}</td>
+      <td style="padding:5px 8px;text-align:right">${(s.pamt!==''&&s.pamt!=null)?money(s.pamt):''}</td>
+      <td style="padding:5px 8px;text-align:center"><input type="checkbox" class="pjl-paid" data-si="${si}" ${s.paid?'checked':''} ${dis} style="width:16px;height:16px;accent-color:#2563eb"></td>
+    </tr>`;
+    if(hasSubs){ s.subs.forEach((x,xi)=>{ rowsHtml+=`<tr style="background:#fbfdff">
+      <td style="padding:3px 8px;text-align:center"><input type="checkbox" class="pjl-subdone" data-si="${si}" data-xi="${xi}" ${x.done?'checked':''} ${dis} style="width:14px;height:14px;accent-color:#16a34a"></td>
+      <td style="padding:3px 8px 3px 26px;color:var(--text2)">${(x.name||'').replace(/</g,'&lt;')}${x.desc?` <span style="color:var(--text3)">· ${(x.desc||'').replace(/</g,'&lt;')}</span>`:''}</td>
+      <td style="padding:3px 8px;text-align:right;color:var(--text3)">${(x.pct!==''&&x.pct!=null)?(x.pct+'%'):''}</td>
+      <td></td><td></td></tr>`; }); }
+  });
+  let addonHtml='';
+  if(addons.length){ addonHtml=`<tr style="background:var(--bg2)"><td colspan="5" style="padding:5px 8px;font-weight:700;color:var(--purple)">🧾 ${pT('addonTitle')}</td></tr>`;
+    addons.forEach((a,ai)=>{ addonHtml+=`<tr style="border-bottom:1px dashed var(--border)">
+      <td style="padding:5px 8px;text-align:center"><input type="checkbox" class="pjl-adone" data-ai="${ai}" ${a.done?'checked':''} ${dis} style="width:15px;height:15px;accent-color:#7c3aed"></td>
+      <td style="padding:5px 8px">${(a.name||'').replace(/</g,'&lt;')}${a.desc?` <span style="color:var(--text3)">· ${(a.desc||'').replace(/</g,'&lt;')}</span>`:''}</td>
+      <td style="padding:5px 8px;text-align:right;color:var(--text3)">—</td>
+      <td style="padding:5px 8px;text-align:right">${money(projNum(a.amt))}</td>
+      <td style="padding:5px 8px;text-align:center"><input type="checkbox" class="pjl-apaid" data-ai="${ai}" ${a.paid?'checked':''} ${dis} style="width:15px;height:15px;accent-color:#2563eb"></td></tr>`; }); }
+  const wpp=projWorkPct(p), ppp=projPayPct(p), paid=projPaid(p), bal=projTotalCost(p)-paid;
+  const th2=t=>`<th style="text-align:left;padding:4px 8px;font-size:11px;color:var(--text3)">${t}</th>`;
+  return `<div style="padding:8px 10px" id="plbody-${key}">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr><th style="width:56px;text-align:center;padding:4px 8px;font-size:11px;color:var(--text3)">${pT('done2')}</th>${th2(pT('stgName')+' / '+pT('subItem'))}<th style="text-align:right;padding:4px 8px;font-size:11px;color:var(--text3)">${pT('workPctCol')}</th><th style="text-align:right;padding:4px 8px;font-size:11px;color:var(--text3)">${pT('payAmtCol')}</th><th style="width:50px;text-align:center;padding:4px 8px;font-size:11px;color:var(--text3)">${pT('paid2')}</th></tr></thead>
+      <tbody>${rowsHtml||`<tr><td colspan="5" style="padding:10px;text-align:center;color:var(--text3)">—</td></tr>`}${addonHtml}</tbody>
+    </table>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;font-weight:700;padding:8px 4px 4px;align-items:center">
+      <span>🔧 ${pT('workProg')} <b style="color:#16a34a">${wpp}%</b></span>
+      <span>💰 ${pT('payProg')} <b style="color:#2563eb">${ppp}%</b></span>
+      <span>${pT('paid')} <b style="color:#16a34a">${money(paid)}</b></span>
+      <span>${pT('unpaid')} <b style="color:#b45309">${money(bal)}</b></span>
+      ${canE?`<span style="margin-left:auto"><button class="btn-sm btn-primary" id="plsave-${key}" onclick="projListSave('${key}')">💾 ${pT('saveDetail')}</button></span>`:`<span style="margin-left:auto;color:var(--text3)">🔒 ${pT('viewOnlyNote')}</span>`}
+    </div>
+  </div>`;
+}
+async function projListSave(k){ const p=PROJECTS[k]; if(!p) return; if(!projCanEditRec(p)){ alert(pT('noPerm')); return; }
+  const body=document.getElementById('plbody-'+k); if(!body) return;
+  const stages=(Array.isArray(p.stages)?p.stages:[]).map(s=>Object.assign({},s, (s&&Array.isArray(s.subs))?{subs:s.subs.map(x=>Object.assign({},x))}:{}));
+  body.querySelectorAll('.pjl-done').forEach(cb=>{ const si=+cb.getAttribute('data-si'); if(stages[si]) stages[si].done=cb.checked; });
+  body.querySelectorAll('.pjl-paid').forEach(cb=>{ const si=+cb.getAttribute('data-si'); if(stages[si]) stages[si].paid=cb.checked; });
+  body.querySelectorAll('.pjl-subdone').forEach(cb=>{ const si=+cb.getAttribute('data-si'), xi=+cb.getAttribute('data-xi'); if(stages[si]&&stages[si].subs&&stages[si].subs[xi]) stages[si].subs[xi].done=cb.checked; });
+  const addons=(Array.isArray(p.addons)?p.addons:projAddonList(p)).map(a=>Object.assign({},a));
+  body.querySelectorAll('.pjl-adone').forEach(cb=>{ const ai=+cb.getAttribute('data-ai'); if(addons[ai]) addons[ai].done=cb.checked; });
+  body.querySelectorAll('.pjl-apaid').forEach(cb=>{ const ai=+cb.getAttribute('data-ai'); if(addons[ai]) addons[ai].paid=cb.checked; });
+  const btn=document.getElementById('plsave-'+k); if(btn){ btn.disabled=true; btn.textContent='…'; }
+  try{
+    await fetch(`${FB}/projects/${k}/stages.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(stages)});
+    if(addons.length) await fetch(`${FB}/projects/${k}/addons.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(addons)});
+    p.stages=stages; p.addons=addons;
+    if(typeof logAudit==='function') logAudit('proj_edit',(p.no||'')+' — '+pT('saveDetail'));
+    renderProjTrack();
+  }catch(e){ alert('Error: '+e.message); if(btn){ btn.disabled=false; btn.textContent='💾 '+pT('saveDetail'); } }
+}
 async function renderProjTrack(){
   const root=document.getElementById('projtrack-root'); if(!root) return;
   if(!projCanView()){ root.innerHTML=`<div style="padding:40px;text-align:center;color:var(--text3)">🔒</div>`; return; }
@@ -6708,26 +6770,37 @@ async function renderProjTrack(){
   const th=(t,ex)=>`<th style="padding:7px 8px;text-align:left;white-space:nowrap;${ex||''}">${t}</th>`;
   const totCost=rows.reduce((s,p)=>s+projTotalCost(p),0);
   const totPaid=rows.reduce((s,p)=>s+projPaid(p),0);
+  const NCOL=11;
+  const miniBar=(pct,color)=>`<div style="height:8px;background:var(--bg3);border-radius:5px;overflow:hidden;min-width:64px"><span style="display:block;height:100%;width:${Math.max(0,Math.min(100,pct))}%;background:${color};border-radius:5px"></span></div><div style="font-size:10px;color:var(--text3);margin-top:2px">${Math.round(pct*10)/10}%</div>`;
   const table = rows.length? `<div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px">
     <table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead><tr style="background:var(--bg2);color:var(--text3);border-bottom:2px solid var(--border)">
-      ${th(pT('no'))}${th(pT('subject'))}${th(pT('approvedDate'))}${th(pT('attr'))}${th(pT('vendor'))}${th(pT('cost'),'text-align:right')}${th(pT('paid'),'text-align:right')}${th(pT('balance'),'text-align:right')}${th(pT('finishDate'))}${th(pT('status'))}${th('')}</tr></thead>
-    <tbody>${rows.map(p=>{ const paid=projPaid(p); const tcost=projTotalCost(p); const bal=tcost-paid; const st=projStatus(p); const canE=projCanEditRec(p); const comp=projCompletion(p);
-      return `<tr style="border-bottom:1px solid var(--bg3)">
-      <td style="padding:7px 8px;font-weight:700;white-space:nowrap"><a onclick="projOpenDetail('${p.k}')" style="color:var(--blue);cursor:pointer;text-decoration:underline">${p.no||''}</a></td>
-      <td style="padding:7px 8px;min-width:180px">${(p.subject||'').replace(/</g,'&lt;')}${p.remark?`<div style="color:var(--text3);font-size:11px">${(p.remark||'').replace(/</g,'&lt;')}</div>`:''}</td>
-      <td style="padding:7px 8px;white-space:nowrap">${(p.approvedDate||'').slice(0,10)}</td>
-      <td style="padding:7px 8px;white-space:nowrap">${projAttrLabel(p)}</td>
-      <td style="padding:7px 8px">${(p.vendor||'').replace(/</g,'&lt;')}</td>
-      <td style="padding:7px 8px;text-align:right;white-space:nowrap">${tcost?projMoney(tcost):''}</td>
-      <td style="padding:7px 8px;text-align:right;white-space:nowrap;color:var(--green)">${paid?projMoney(paid):''}</td>
-      <td style="padding:7px 8px;text-align:right;white-space:nowrap;${bal>0?'color:#b45309':''}">${tcost?projMoney(bal):''}</td>
-      <td style="padding:7px 8px;white-space:nowrap">${(p.finishDate||'').slice(0,10)}</td>
-      <td style="padding:7px 8px;white-space:nowrap"><span style="background:${st.bg};color:${st.c};padding:1px 8px;border-radius:10px;font-weight:700;font-size:11px">${pT(st.k)}</span>${comp!=null?` <span style="font-size:10px;color:var(--text3)">${comp}%</span>`:''}</td>
-      <td style="padding:7px 8px;white-space:nowrap">${canE?`<button class="btn-sm" onclick="projOpenEdit('${p.k}')">${pT('edit')}</button>`:''}${projCanDelete()?` <button class="btn-sm" style="color:var(--red)" onclick="projDelete('${p.k}')">${pT('del')}</button>`:''}</td></tr>`; }).join('')}</tbody>
+      ${th(pT('attr'))}${th(pT('approvedDate'))}${th(pT('vendor'))}${th(pT('cost'),'text-align:right')}${th('🔧 '+pT('workProg'))}${th('💰 '+pT('payProg'))}${th(pT('paid'),'text-align:right')}${th(pT('unpaid'),'text-align:right')}${th(pT('finishDate'))}${th(pT('status'))}${th('')}</tr></thead>
+    <tbody>${rows.map(p=>{ const paid=projPaid(p); const tcost=projTotalCost(p); const bal=tcost-paid; const st=projStatus(p); const canE=projCanEditRec(p); const wpp=projWorkPct(p); const ppp=projPayPct(p); const open=!!projListOpen[p.k];
+      return `<tr style="border-top:2px solid var(--bg3);background:var(--bg2)">
+        <td colspan="${NCOL}" style="padding:8px 10px 3px">
+          <span id="pjltri-${p.k}" onclick="projListToggle('${p.k}')" style="color:var(--blue);cursor:pointer;font-weight:700;user-select:none;margin-right:6px" title="${pT('expandTip')}">${open?'▾':'▸'}</span>
+          <a onclick="projOpenDetail('${p.k}')" style="color:var(--blue);cursor:pointer;text-decoration:underline;font-weight:700;white-space:nowrap">${p.no||''}</a>
+          <span style="font-weight:700;font-size:13px;margin-left:10px">${(p.subject||'').replace(/</g,'&lt;')}</span>
+          ${p.remark?`<span style="color:var(--text3);font-size:11px;margin-left:8px">${(p.remark||'').replace(/</g,'&lt;')}</span>`:''}
+        </td></tr>
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:4px 8px 8px;white-space:nowrap;font-weight:600">${projAttrLabel(p)||'—'}</td>
+        <td style="padding:4px 8px 8px;white-space:nowrap">${(p.approvedDate||'').slice(0,10)||'—'}</td>
+        <td style="padding:4px 8px 8px;color:${p.vendor?'inherit':'var(--text3)'}">${(p.vendor||'—').replace(/</g,'&lt;')}</td>
+        <td style="padding:4px 8px 8px;text-align:right;white-space:nowrap">${tcost?projMoney(tcost):''}</td>
+        <td style="padding:4px 8px 8px;min-width:80px">${miniBar(wpp,'#16a34a')}</td>
+        <td style="padding:4px 8px 8px;min-width:80px">${miniBar(ppp,'#2563eb')}</td>
+        <td style="padding:4px 8px 8px;text-align:right;white-space:nowrap;color:var(--green)">${paid?projMoney(paid):'0'}</td>
+        <td style="padding:4px 8px 8px;text-align:right;white-space:nowrap;${bal>0?'color:#b45309':''}">${tcost?projMoney(bal):''}</td>
+        <td style="padding:4px 8px 8px;white-space:nowrap">${(p.finishDate||'').slice(0,10)}</td>
+        <td style="padding:4px 8px 8px;white-space:nowrap"><span style="background:${st.bg};color:${st.c};padding:1px 8px;border-radius:10px;font-weight:700;font-size:11px">${pT(st.k)}</span></td>
+        <td style="padding:4px 8px 8px;white-space:nowrap">${canE?`<button class="btn-sm" onclick="projOpenEdit('${p.k}')">${pT('edit')}</button>`:''}${projCanDelete()?` <button class="btn-sm" style="color:var(--red)" onclick="projDelete('${p.k}')">${pT('del')}</button>`:''}</td></tr>
+      <tr class="pjl-exp" id="plexp-${p.k}" style="${open?'':'display:none'}"><td colspan="${NCOL}" style="padding:0;background:#f9fbff;border-left:3px solid var(--blue)">${projListExpandHtml(p,canE)}</td></tr>`; }).join('')}</tbody>
     <tfoot><tr style="background:var(--bg2);font-weight:800;border-top:2px solid var(--border)">
-      <td style="padding:8px" colspan="5">${pT('totCount')}: ${rows.length}</td>
+      <td style="padding:8px" colspan="3">${pT('totCount')}: ${rows.length}</td>
       <td style="padding:8px;text-align:right;white-space:nowrap">${projMoney(totCost)}</td>
+      <td colspan="2"></td>
       <td style="padding:8px;text-align:right;white-space:nowrap;color:var(--green)">${projMoney(totPaid)}</td>
       <td style="padding:8px;text-align:right;white-space:nowrap">${projMoney(totCost-totPaid)}</td>
       <td colspan="3"></td></tr></tfoot>
