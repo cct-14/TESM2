@@ -5114,10 +5114,14 @@ async function pollOt(){ // 加班自動更新（只在看加班頁、且沒在�
   const ae=document.activeElement;
   if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) && pg.contains(ae)) return; // 正在輸入
   try{
-    const r=await fetch(`${FB}/ot_requests.json`); const d=(await r.json())||{};
+    // 只抓最新 250 筆(依 push key 排序,無需索引);併回既有資料而非整包覆蓋,歷史不受影響
+    const r=await fetch(`${FB}/ot_requests.json?orderBy=%22%24key%22&limitToLast=250`); const d=(await r.json())||{};
     const hash=JSON.stringify(d);
     if(hash===_otPollHash) return;                        // 沒變就不重繪
-    _otPollHash=hash; OT_REQUESTS=d; otRefresh();
+    _otPollHash=hash;
+    if(!OT_REQUESTS||typeof OT_REQUESTS!=='object') OT_REQUESTS={};
+    Object.assign(OT_REQUESTS, d);                         // 合併:更新有變的、加入新的,不刪已載入的
+    otRefresh();
   }catch(e){}
 }
 function otStatusBadge(r){
