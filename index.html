@@ -6695,6 +6695,8 @@ async function projSave(){
       const obj=Object.assign({ no, dept, year, seq, estDate, creator:projCurId(), creatorName:projCurName(), ts:Date.now() }, fields);
       const r=await fetch(`${FB}/projects.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
       const j=await r.json(); const key=(j&&j.name)?j.name:('local_'+obj.ts); PROJECTS[key]=obj;
+      // 若該部門有設「下一個序號」計數器,開完一筆就 +1 存回,讓它從設定值繼續往下跑
+      if(PROJ_CFG&&PROJ_CFG.deptSeq&&PROJ_CFG.deptSeq[dept]!=null&&String(PROJ_CFG.deptSeq[dept])!==''){ PROJ_CFG.deptSeq[dept]=seq+1; try{ await fetch(`${FB}/proj_config.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(PROJ_CFG)}); }catch(e){} }
       if(typeof logAudit==='function') logAudit('proj_create', no+' — '+subject);
     }
     projShowForm=false; projEditKey=null; renderProjTrack();
