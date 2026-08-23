@@ -6731,17 +6731,17 @@ function projListExpandHtml(p,canE){ const key=p.k; const money=projMoney; const
   const wpp=projWorkPct(p), ppp=projPayPct(p), paid=projPaid(p), bal=projTotalCost(p)-paid;
   const th2=t=>`<th style="text-align:left;padding:4px 8px;font-size:11px;color:var(--text3)">${t}</th>`;
   return `<div style="padding:8px 10px" id="plbody-${key}">
-    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end;align-items:center;font-size:11px;font-weight:700;padding:0 2px 8px;color:var(--text2)">
-      <span>🔧 ${pT('workProg')} <b style="color:#16a34a">${wpp}%</b></span>
-      <span>💰 ${pT('payProg')} <b style="color:#2563eb">${ppp}%</b></span>
-      <span>${pT('paid')} <b style="color:#16a34a">${money(paid)}</b></span>
-      <span>${pT('unpaid')} <b style="color:#b45309">${money(bal)}</b></span>
-    </div>
     <table style="width:100%;border-collapse:collapse;font-size:12px">
       <thead><tr><th style="width:56px;text-align:center;padding:4px 8px;font-size:11px;color:var(--text3)">${pT('done2')}</th>${th2(pT('stgName')+' / '+pT('subItem'))}<th style="text-align:right;padding:4px 8px;font-size:11px;color:var(--text3)">${pT('workPctCol')}</th><th style="text-align:right;padding:4px 8px;font-size:11px;color:var(--text3)">${pT('payAmtCol')}</th><th style="width:50px;text-align:center;padding:4px 8px;font-size:11px;color:var(--text3)">${pT('paid2')}</th></tr></thead>
       <tbody>${rowsHtml||`<tr><td colspan="5" style="padding:10px;text-align:center;color:var(--text3)">—</td></tr>`}${addonHtml}</tbody>
     </table>
-    ${canE?`<div style="display:flex;justify-content:flex-end;padding:8px 2px 2px"><button class="btn-sm btn-primary" id="plsave-${key}" onclick="projListSave('${key}')">💾 ${pT('saveDetail')}</button></div>`:`<div style="padding:6px 2px;text-align:right;color:var(--text3);font-size:11px">🔒 ${pT('viewOnlyNote')}</div>`}
+    <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;font-weight:700;padding:8px 4px 4px;align-items:center">
+      <span>🔧 ${pT('workProg')} <b style="color:#16a34a">${wpp}%</b></span>
+      <span>💰 ${pT('payProg')} <b style="color:#2563eb">${ppp}%</b></span>
+      <span>${pT('paid')} <b style="color:#16a34a">${money(paid)}</b></span>
+      <span>${pT('unpaid')} <b style="color:#b45309">${money(bal)}</b></span>
+      ${canE?`<span style="margin-left:auto"><button class="btn-sm btn-primary" id="plsave-${key}" onclick="projListSave('${key}')">💾 ${pT('saveDetail')}</button></span>`:`<span style="margin-left:auto;color:var(--text3)">🔒 ${pT('viewOnlyNote')}</span>`}
+    </div>
   </div>`;
 }
 async function projListSave(k){ const p=PROJECTS[k]; if(!p) return; if(!projCanEditRec(p)){ alert(pT('noPerm')); return; }
@@ -6957,18 +6957,39 @@ function projDetailHtml(key){
   const planBody=payplan.map(x=>projDPlanRowHtml(x,canE)).join('')||(canE?'':`<tr><td colspan="5" style="padding:14px;text-align:center;color:var(--text3)">${pT('noItems')}</td></tr>`);
   return `
   <div style="margin-bottom:14px;display:flex;gap:8px;align-items:center"><button class="btn-sm" onclick="projCloseDetail()">${pT('backList')}</button>${projCanDelete()?`<button class="btn-sm" style="color:var(--red);margin-left:auto" onclick="projDelete('${key}')">🗑 ${pT('del')}</button>`:''}</div>
-  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span style="font-weight:800;font-size:16px">${p.no||''}</span>
-      <span style="background:${st.bg};color:${st.c};padding:1px 8px;border-radius:10px;font-weight:700;font-size:11px">${pT(st.k)}</span></div>
-    <div style="font-size:15px;margin-top:6px">${(p.subject||'').replace(/</g,'&lt;')}</div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-top:8px">
-      <span><b>${pT('dept')}</b>: ${p.dept||''}</span>
-      <span><b>${pT('attr')}</b>: ${projAttrLabel(p)||'—'}</span>
-      <span><b>${pT('vendor')}</b>: ${(p.vendor||'—').replace(/</g,'&lt;')}</span>
-      <span><b>${pT('cost')}</b>: ${cost?projMoney(cost):'—'}</span>
-      <span><b>${pT('paid')}</b>: ${projMoney(projPaid(p))}</span></div>
-    ${!canE?`<div style="font-size:12px;color:var(--text3);margin-top:8px">🔒 ${pT('viewOnlyNote')}</div>`:''}
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+    <div style="flex:1;min-width:240px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-weight:800;font-size:16px">${p.no||''}</span>
+        <span style="background:${st.bg};color:${st.c};padding:1px 8px;border-radius:10px;font-weight:700;font-size:11px">${pT(st.k)}</span></div>
+      <div style="font-size:15px;margin-top:6px">${(p.subject||'').replace(/</g,'&lt;')}</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-top:8px">
+        <span><b>${pT('dept')}</b>: ${p.dept||''}</span>
+        <span><b>${pT('kindLabel')}</b>: ${p.kind==='repair'?pT('kindRepair'):(p.kind==='buy'?pT('kindBuy'):'—')}</span>
+        <span><b>${pT('attr')}</b>: ${projAttrLabel(p)||'—'}</span>
+        <span><b>${pT('vendor')}</b>: ${(p.vendor||'—').replace(/</g,'&lt;')}</span>
+        <span><b>${pT('cost')}</b>: ${cost?projMoney(cost):'—'}</span></div>
+      ${!canE?`<div style="font-size:12px;color:var(--text3);margin-top:8px">🔒 ${pT('viewOnlyNote')}</div>`:''}
+    </div>
+    <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-width:118px">
+        <div style="font-size:10px;color:var(--text3);font-weight:600">🔧 ${pT('dashWork')}</div>
+        <div id="pj-dash-work" style="font-size:18px;font-weight:800;color:#16a34a">${workPct}%</div>
+        <div style="height:6px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-top:5px"><div id="pj-dash-work-bar" style="height:100%;width:${Math.min(100,workPct)}%;background:#16a34a;border-radius:4px"></div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-width:140px">
+        <div style="font-size:10px;color:var(--text3);font-weight:600">💰 ${pT('dashPaid')}</div>
+        <div id="pj-dash-paid" style="font-size:18px;font-weight:800;color:#2563eb">${projMoney(paidAmt)}</div>
+        <div id="pj-dash-paid-sub" style="font-size:10px;color:var(--text3)">/ ${projMoney(cost)}　${pT('payProg')} ${payPct}%</div>
+        <div style="height:6px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-top:5px"><div id="pj-dash-paid-bar" style="height:100%;width:${cost>0?Math.min(100,paidAmt/cost*100):0}%;background:#2563eb;border-radius:4px"></div></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-width:130px">
+        <div style="font-size:10px;color:var(--text3);font-weight:600">🧾 ${pT('dashAddon')}</div>
+        <div id="pj-dash-addon" style="font-size:18px;font-weight:800;color:#7c3aed">${projMoney(adPaid)} / ${projMoney(adTot)}</div>
+        <div id="pj-dash-addon-sub" style="font-size:10px;color:var(--text3)">${pT('workProg')} ${adWork}%</div>
+        <div style="height:6px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-top:5px"><div id="pj-dash-addon-bar" style="height:100%;width:${Math.min(100,adWork)}%;background:#7c3aed;border-radius:4px"></div></div>
+      </div>
+    </div>
   </div>
   <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
     <div class="fp-sec-title">📅 ${pT('stageSec')}</div>
@@ -6989,28 +7010,6 @@ function projDetailHtml(key){
       <tfoot><tr style="border-top:2px solid var(--border);font-weight:800"><td colspan="3" style="padding:6px 8px;text-align:right;color:var(--purple)">${pT('addonTotal')}</td><td id="pd-addon-total" style="padding:6px 8px;text-align:right;white-space:nowrap;color:var(--purple)">${projMoney(adTot)}</td><td colspan="2"></td></tr></tfoot>
     </table></div>
     ${canE?`<div style="display:flex;gap:8px;margin-top:10px"><button class="btn-sm" onclick="projDAddItem()">➕ ${pT('addonBtn')}</button><button class="btn-sm btn-primary" onclick="projSaveDetail()">💾 ${pT('saveDetail')}</button></div>`:''}
-  </div>
-  <div style="background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border-radius:12px;padding:18px;margin-bottom:16px">
-    <div style="font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:12px">📊 ${pT('dashboard')}</div>
-    <div style="display:flex;gap:14px;flex-wrap:wrap">
-      <div style="flex:1;min-width:150px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px;font-weight:600">🔧 ${pT('dashWork')}</div>
-        <div id="pj-dash-work" style="font-size:22px;font-weight:800;color:#4ade80">${workPct}%</div>
-        <div style="height:8px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden;margin-top:8px"><div id="pj-dash-work-bar" style="height:100%;width:${Math.min(100,workPct)}%;background:#4ade80;border-radius:5px"></div></div>
-      </div>
-      <div style="flex:1;min-width:150px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px;font-weight:600">💰 ${pT('dashPaid')}</div>
-        <div id="pj-dash-paid" style="font-size:22px;font-weight:800">${projMoney(paidAmt)}</div>
-        <div id="pj-dash-paid-sub" style="font-size:11px;color:#94a3b8;margin-top:3px">/ ${projMoney(cost)}　${pT('payProg')} ${payPct}%</div>
-        <div style="height:8px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden;margin-top:8px"><div id="pj-dash-paid-bar" style="height:100%;width:${cost>0?Math.min(100,paidAmt/cost*100):0}%;background:#60a5fa;border-radius:5px"></div></div>
-      </div>
-      <div style="flex:1;min-width:150px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px">
-        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px;font-weight:600">🧾 ${pT('dashAddon')}</div>
-        <div id="pj-dash-addon" style="font-size:22px;font-weight:800;color:#c4b5fd">${projMoney(adPaid)} / ${projMoney(adTot)}</div>
-        <div id="pj-dash-addon-sub" style="font-size:11px;color:#94a3b8;margin-top:3px">${pT('workProg')} ${adWork}%</div>
-        <div style="height:8px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden;margin-top:8px"><div id="pj-dash-addon-bar" style="height:100%;width:${Math.min(100,adWork)}%;background:#c4b5fd;border-radius:5px"></div></div>
-      </div>
-    </div>
   </div>
   ${canE?`<div style="position:sticky;bottom:0;background:var(--bg);padding:10px 4px;display:flex;justify-content:flex-end;border-top:1px solid var(--border);margin-bottom:10px;z-index:5"><button class="btn-sm btn-primary" id="pd-save" onclick="projSaveDetail()">💾 ${pT('saveDetail')}</button></div>`:''}`;
 }
