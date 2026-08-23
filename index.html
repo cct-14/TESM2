@@ -6776,10 +6776,10 @@ async function renderProjTrack(){
   const totPaid=rows.reduce((s,p)=>s+projPaid(p),0);
   const NCOL=11;
   const miniBar=(pct,color)=>`<div style="height:8px;background:var(--bg3);border-radius:5px;overflow:hidden;min-width:64px"><span style="display:block;height:100%;width:${Math.max(0,Math.min(100,pct))}%;background:${color};border-radius:5px"></span></div><div style="font-size:10px;color:var(--text3);margin-top:2px">${Math.round(pct*10)/10}%</div>`;
+  const H=(t,al)=>`<td style="padding:5px 8px 2px;font-size:11px;color:var(--text3);font-weight:600;white-space:nowrap;${al||''}">${t}</td>`;
+  const hdrRow=`<tr>${H(pT('attr'))}${H(pT('approvedDate'))}${H(pT('vendor'))}${H(pT('cost'),'text-align:right')}${H('🔧 '+pT('workProg'))}${H('💰 '+pT('payProg'))}${H(pT('paid'),'text-align:right')}${H(pT('unpaid'),'text-align:right')}${H(pT('finishDate'))}${H(pT('status'))}${H('')}</tr>`;
   const table = rows.length? `<div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px">
     <table style="width:100%;border-collapse:collapse;font-size:12px">
-    <thead><tr style="background:var(--bg2);color:var(--text3);border-bottom:2px solid var(--border)">
-      ${th(pT('attr'))}${th(pT('approvedDate'))}${th(pT('vendor'))}${th(pT('cost'),'text-align:right')}${th('🔧 '+pT('workProg'))}${th('💰 '+pT('payProg'))}${th(pT('paid'),'text-align:right')}${th(pT('unpaid'),'text-align:right')}${th(pT('finishDate'))}${th(pT('status'))}${th('')}</tr></thead>
     <tbody>${rows.map(p=>{ const paid=projPaid(p); const tcost=projTotalCost(p); const bal=tcost-paid; const st=projStatus(p); const canE=projCanEditRec(p); const wpp=projWorkPct(p); const ppp=projPayPct(p); const open=!!projListOpen[p.k];
       return `<tr style="border-top:2px solid var(--bg3);background:var(--bg2)">
         <td colspan="${NCOL}" style="padding:9px 12px 4px;position:relative;text-align:center">
@@ -6790,6 +6790,7 @@ async function renderProjTrack(){
           <span style="font-weight:800;font-size:15px">${(p.subject||'').replace(/</g,'&lt;')}</span>
           ${p.remark?`<div style="color:var(--text3);font-size:11px;margin-top:2px">${(p.remark||'').replace(/</g,'&lt;')}</div>`:''}
         </td></tr>
+      ${hdrRow}
       <tr style="border-bottom:1px solid var(--border)">
         <td style="padding:4px 8px 8px;white-space:nowrap;font-weight:600">${projAttrLabel(p)||'—'}</td>
         <td style="padding:4px 8px 8px;white-space:nowrap">${(p.approvedDate||'').slice(0,10)||'—'}</td>
