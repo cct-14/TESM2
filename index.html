@@ -1830,7 +1830,7 @@ const ALL_FEATURES = [
   {id:'announce', label:'📢 公告'},
   {id:'maintain', label:'🔧 保養計畫'},
   {id:'app',      label:'📱 手機APP管理'},
-  {id:'addeq',    label:'➕ 新增車機'},
+  {id:'addeq',    label:'🖥 車機監控系統'},
   {id:'overtime', label:'⏰ 加班申請設定'},
   {id:'changelog',label:'📝 更新日誌'},
   {id:'email',    label:'📧 Email 設定'},
@@ -3283,7 +3283,7 @@ try{ const s=localStorage.getItem('mt_lang'); if(s&&MT_I18N[s]) maintLang=s; }ca
 // ── 管理介面三語字典 ──
 const ADMIN_I18N={
   zh:{
-    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'新增車機',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_projset:'📁 專案追蹤系統',feat_projadmin:'📁 專案系統管理',feat_auditlog:'📜 系統日誌',feat_password:'👤 帳號管理系統',feat_roles:'部門管理',
+    feat_movelog:'車機調動紀錄',feat_teu:'TEU 管理',feat_announce:'公告',feat_maintain:'保養計畫',feat_app:'手機APP管理',feat_addeq:'車機監控系統',feat_changelog:'更新日誌',feat_email:'Email 設定',feat_projset:'📁 專案追蹤系統',feat_projadmin:'📁 專案系統管理',feat_auditlog:'📜 系統日誌',feat_password:'👤 帳號管理系統',feat_roles:'部門管理',
     st_kinds:'車機種類',st_statuses:'狀態選項',st_hours:'時數種類',st_staff:'人員清單',st_pass:'密碼',
     desc_kinds:'車機種類（現場「狀態」與「時數」用。AR 會自動對應 ARMGC）',
     desc_statuses:'車機狀態選項（現場「狀態更改」的下拉）',
@@ -3294,7 +3294,12 @@ const ADMIN_I18N={
     staff_import:'整批匯入：從 Excel 複製兩欄（編號、名字）貼下面，一行一筆（用逗號或 Tab 分隔），按匯入：',
     ph_search:'🔍 搜尋編號/名字',staff_none:'尚無人員',btn_delsel:'🗑 刪除選取',
     pass_desc:'現場「時數」需要這組密碼才能進入（狀態不需要）。',ph_setpass:'設定密碼',
-    ae_title:'新增車機到全車機監控',
+    ae_title:'車機監控系統',
+    ae_rf_title:'⏱ 資料更新速度',
+    ae_rf_desc:'車機監控畫面每隔多久自動更新一次;設越短越即時、但越耗流量。維修監控建議 30 秒。',
+    ae_rf_sec:'秒', ae_rf_save:'💾 儲存', ae_rf_saved:'✓ 已套用',
+    ae_idle_lbl:'⏸ 閒置自動暫停', ae_idle_unit:'分鐘沒操作就斷線',
+    ae_idle_desc:'超過設定時間沒有動到系統(滑鼠/鍵盤/觸控),就自動暫停更新並斷線,移動滑鼠或點一下就恢復。設 0 = 不自動暫停。',
     ae_desc:'選機型後，編號可用三種寫法：單台 <b>01</b>、多台 <b>01,02,03</b>、整排範圍 <b>01-38</b>（會自動補零對齊）。',
     ae_kind:'機型',ae_num:'編號（單台 / 多台逗號 / 範圍 01-38）',ae_numph:'例 01　或　01,02,03　或　01-38',ae_status:'初始狀態',ae_addbtn:'➕ 新增',
     ae_bulktitle:'批次貼上匯入（跨機型）',
@@ -3307,7 +3312,7 @@ const ADMIN_I18N={
     m_built:'補建 {n} 台 ✓',m_skipped:'（略過已存在 {n} 台）',m_bad:'（{n} 筆格式不符）'
   },
   es:{
-    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Añadir equipo',feat_changelog:'Cambios',feat_email:'Email',feat_projset:'📁 Proyectos',feat_projadmin:'📁 Admin proyectos',feat_auditlog:'📜 Registro',feat_password:'👤 Gestión de cuentas',feat_roles:'Departamentos',
+    feat_movelog:'Movimientos',feat_teu:'Gestión TEU',feat_announce:'Anuncios',feat_maintain:'Mantenimiento',feat_app:'App móvil',feat_addeq:'Monitor de equipos',feat_changelog:'Cambios',feat_email:'Email',feat_projset:'📁 Proyectos',feat_projadmin:'📁 Admin proyectos',feat_auditlog:'📜 Registro',feat_password:'👤 Gestión de cuentas',feat_roles:'Departamentos',
     st_kinds:'Tipos',st_statuses:'Estados',st_hours:'Cat. horas',st_staff:'Personal',st_pass:'Contraseña',
     desc_kinds:'Tipos de equipo (para «Estado» y «Horas» en campo. AR se asigna a ARMGC).',
     desc_statuses:'Opciones de estado (menú de «Cambiar estado» en campo).',
@@ -3318,7 +3323,12 @@ const ADMIN_I18N={
     staff_import:'Importar en lote: copie dos columnas (número, nombre) de Excel y pegue abajo, una por línea (coma o Tab):',
     ph_search:'🔍 Buscar número/nombre',staff_none:'Sin personal',btn_delsel:'🗑 Eliminar selección',
     pass_desc:'La sección «Horas» en campo requiere esta contraseña (Estado no la requiere).',ph_setpass:'Definir contraseña',
-    ae_title:'Añadir equipo al monitor',
+    ae_title:'Sistema de monitoreo de equipos',
+    ae_rf_title:'⏱ Velocidad de actualización',
+    ae_rf_desc:'Cada cuánto se actualiza el monitor de equipos; menor = más en tiempo real pero más datos. Recomendado 30 s.',
+    ae_rf_sec:'s', ae_rf_save:'💾 Guardar', ae_rf_saved:'✓ Aplicado',
+    ae_idle_lbl:'⏸ Pausa por inactividad', ae_idle_unit:'min sin actividad',
+    ae_idle_desc:'Si no se usa el sistema (ratón/teclado/toque) durante ese tiempo, las actualizaciones se pausan y se desconecta; vuelve al mover el ratón o tocar. 0 = nunca.',
     ae_desc:'Tras elegir el tipo, el número admite: uno <b>01</b>, varios <b>01,02,03</b>, o rango <b>01-38</b> (con ceros automáticos).',
     ae_kind:'Tipo',ae_num:'Número (uno / varios con coma / rango 01-38)',ae_numph:'ej. 01  o  01,02,03  o  01-38',ae_status:'Estado inicial',ae_addbtn:'➕ Añadir',
     ae_bulktitle:'Importar pegando (varios tipos)',
@@ -3331,7 +3341,7 @@ const ADMIN_I18N={
     m_built:'{n} creados ✓',m_skipped:'({n} existentes omitidos)',m_bad:'({n} con formato inválido)'
   },
   en:{
-    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Add equipment',feat_changelog:'Changelog',feat_email:'Email',feat_projset:'📁 Projects',feat_projadmin:'📁 Project admin',feat_auditlog:'📜 Audit log',feat_password:'👤 Account management',feat_roles:'Departments',
+    feat_movelog:'Move log',feat_teu:'TEU',feat_announce:'Announcements',feat_maintain:'Maintenance',feat_app:'Mobile app',feat_addeq:'Equipment monitor',feat_changelog:'Changelog',feat_email:'Email',feat_projset:'📁 Projects',feat_projadmin:'📁 Project admin',feat_auditlog:'📜 Audit log',feat_password:'👤 Account management',feat_roles:'Departments',
     st_kinds:'Types',st_statuses:'Statuses',st_hours:'Hour cats',st_staff:'Staff',st_pass:'Password',
     desc_kinds:'Equipment types (used by field Status & Hours. AR maps to ARMGC).',
     desc_statuses:'Status options (the field «Change status» dropdown).',
@@ -3342,7 +3352,12 @@ const ADMIN_I18N={
     staff_import:'Bulk import: copy two columns (ID, name) from Excel and paste below, one per line (comma or Tab):',
     ph_search:'🔍 Search ID/name',staff_none:'No staff',btn_delsel:'🗑 Delete selected',
     pass_desc:'The field «Hours» section needs this password (Status does not).',ph_setpass:'Set password',
-    ae_title:'Add equipment to the monitor',
+    ae_title:'Equipment monitoring system',
+    ae_rf_title:'⏱ Data refresh speed',
+    ae_rf_desc:'How often the equipment monitor auto-refreshes; lower = more real-time but more data. 30 s recommended.',
+    ae_rf_sec:'s', ae_rf_save:'💾 Save', ae_rf_saved:'✓ Applied',
+    ae_idle_lbl:'⏸ Idle auto-pause', ae_idle_unit:'min idle',
+    ae_idle_desc:'If the system isn’t used (mouse/keyboard/touch) for this long, updates pause and disconnect; resume on mouse move or tap. 0 = never.',
     ae_desc:'After picking a type, the number accepts: single <b>01</b>, multiple <b>01,02,03</b>, or range <b>01-38</b> (auto zero-padded).',
     ae_kind:'Type',ae_num:'Number (single / comma / range 01-38)',ae_numph:'e.g. 01  or  01,02,03  or  01-38',ae_status:'Initial status',ae_addbtn:'➕ Add',
     ae_bulktitle:'Paste to import (any type)',
@@ -4716,14 +4731,88 @@ async function exportEquipmentCsv(){
   const dupKeys=keys.filter(k=>cnt[norm(k)]>1);
   if(msg) msg.textContent='已匯出 '+keys.length+' 台'+(dupKeys.length?('，疑似重複 '+dupKeys.length+' 筆'):'')+' ✓';
 }
+async function addEqCleanup(){
+  const host=document.getElementById('ae-clean'); if(!host) return;
+  host.innerHTML='<div style="font-size:12px;color:var(--text3)">讀取中…</div>';
+  let d={}; try{ const r=await fetch(`${FB}/equipment.json`); d=(await r.json())||{}; }catch(e){ host.innerHTML='<div style="color:var(--red)">✗ '+e.message+'</div>'; return; }
+  const keys=Object.keys(d).sort();
+  const norm=k=>String(k).toUpperCase().replace(/[\s_]+/g,'-').replace(/-0*(\d+)$/,'-$1');
+  const groups={}; keys.forEach(k=>{ const n=norm(k); (groups[n]=groups[n]||[]).push(k); });
+  const dupKeys=[]; Object.values(groups).forEach(g=>{ if(g.length>1) g.forEach(k=>dupKeys.push(k)); });
+  const weird=keys.filter(k=>!/^[A-Z]+-\d+$/.test(k));
+  const flagged=[...new Set([...dupKeys,...weird])].sort();
+  const widthCnt={}; keys.forEach(k=>{ const m=/^([A-Z]+)-(\d+)$/.exec(k); if(m){ widthCnt[m[1]]=widthCnt[m[1]]||{}; widthCnt[m[1]][m[2].length]=(widthCnt[m[1]][m[2].length]||0)+1; } });
+  const suggest=k=>{ let s=String(k).toUpperCase().replace(/_/g,'-'); const m=/^([A-Z]+)-(\d+)$/.exec(s); if(m){ const wm=widthCnt[m[1]]||{}; let bw=m[2].length,bc=-1; for(const w in wm){ if(wm[w]>bc){bc=wm[w];bw=+w;} } return m[1]+'-'+m[2].padStart(bw,'0'); } return s; };
+  const esc=s=>String(s==null?'':s).replace(/</g,'&lt;');
+  if(!flagged.length){ host.innerHTML='<div style="color:var(--green);font-size:13px;padding:8px 0">✅ 沒有發現重複或異常,共 '+keys.length+' 台。</div>'; return; }
+  host.innerHTML='<div style="font-size:12px;color:var(--text3);margin:6px 0">共 <b>'+keys.length+'</b> 台;以下 <b>'+flagged.length+'</b> 筆疑似重複/異常。刪除或改名前請確認要保留哪一筆。</div>'+
+    flagged.map(k=>{ const e=d[k]||{}; const n=norm(k); const sib=(groups[n]||[]).filter(x=>x!==k); const sug=suggest(k); const sugExists=(!!d[sug])&&sug!==k;
+      const ek=encodeURIComponent(k), es=encodeURIComponent(sug);
+      return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px">'+
+        '<b style="min-width:120px">'+esc(k)+'</b>'+
+        '<span style="font-size:11px;color:var(--text3);min-width:160px">'+esc(e.machine_type||'')+' · '+esc(e.status||'—')+(e.last_updated?(' · '+esc(e.last_updated)):'')+'</span>'+
+        (sib.length?'<span style="font-size:11px;color:#b45309">↔ 疑似同一台: '+esc(sib.join(', '))+'</span>':'')+
+        '<span style="flex:1;min-width:10px"></span>'+
+        ((sug!==k&&!sugExists)?('<button class="btn-sm" onclick="eqCleanRename(\''+ek+'\',\''+es+'\')">✏️ 改為 '+esc(sug)+'</button>'):'')+
+        '<button class="btn-sm" style="color:var(--red)" onclick="eqCleanDelete(\''+ek+'\')">🗑 刪除</button>'+
+      '</div>';
+    }).join('');
+}
+async function eqCleanDelete(k){ k=decodeURIComponent(k); if(!confirm('刪除車機 '+k+'?此動作無法復原。')) return; try{ await fetch(`${FB}/equipment/`+encodeURIComponent(k)+'.json',{method:'DELETE'}); if(typeof logAudit==='function') logAudit('eq_delete',k); }catch(e){ alert('✗ '+e.message); return; } addEqCleanup(); }
+async function eqCleanRename(oldK,newK){ oldK=decodeURIComponent(oldK); newK=decodeURIComponent(newK); if(!confirm('把 '+oldK+' 改名為 '+newK+'?(原本的會刪掉,資料搬到新編號)')) return;
+  try{ const r=await fetch(`${FB}/equipment/`+encodeURIComponent(oldK)+'.json'); const rec=(await r.json())||{}; rec.machine_id=newK; if(rec.machine_type==null){ const mm=/^([A-Z]+)-/.exec(newK); if(mm) rec.machine_type=mm[1]; }
+    await fetch(`${FB}/equipment/`+encodeURIComponent(newK)+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)});
+    await fetch(`${FB}/equipment/`+encodeURIComponent(oldK)+'.json',{method:'DELETE'});
+    if(typeof logAudit==='function') logAudit('eq_rename',oldK+' → '+newK);
+  }catch(e){ alert('✗ '+e.message); return; } addEqCleanup(); }
+let EQ_LIST={};
+function eqmSearchVal(){ const el=document.getElementById('eqm-search'); return el?el.value:''; }
+async function eqListLoad(){ const el=document.getElementById('eqm-list'); if(el) el.innerHTML='<div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">讀取中…</div>'; try{ const r=await fetch(`${FB}/equipment.json`); EQ_LIST=(await r.json())||{}; }catch(e){ EQ_LIST={}; } eqListFilter(eqmSearchVal()); }
+function eqListCount(){ const el=document.getElementById('eqm-selcount'); if(el) el.textContent=document.querySelectorAll('#eqm-list .eqm-chk:checked').length; }
+function eqListToggleAll(on){ document.querySelectorAll('#eqm-list .eqm-chk').forEach(c=>c.checked=on); eqListCount(); }
+function eqListFilter(q){ q=(q||'').toLowerCase(); const el=document.getElementById('eqm-list'); if(!el) return;
+  const keys=Object.keys(EQ_LIST).filter(k=>{ if(!q) return true; const e=EQ_LIST[k]||{}; return k.toLowerCase().includes(q)||String(e.machine_type||'').toLowerCase().includes(q)||String(e.status||'').toLowerCase().includes(q); }).sort();
+  const hidden=Object.values(EQ_LIST).filter(e=>e&&e.noMon===true).length;
+  const cnt=document.getElementById('eqm-count'); if(cnt) cnt.textContent='共 '+Object.keys(EQ_LIST).length+' 台'+(hidden?('，隱藏 '+hidden):'')+(q?('，符合 '+keys.length):'');
+  const esc=s=>String(s==null?'':s).replace(/</g,'&lt;');
+  el.innerHTML=keys.length?keys.map(k=>{ const e=EQ_LIST[k]||{}; const kk=k.replace(/"/g,'&quot;'); const kj=k.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); const mon=!(e.noMon===true);
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bg3);font-size:13px"><input type="checkbox" class="eqm-chk" value="'+kk+'" onchange="eqListCount()" style="width:16px;height:16px;flex-shrink:0"/><span style="font-weight:700;min-width:120px'+(mon?'':';color:var(--text3)')+'">'+esc(k)+'</span><span style="flex:1;color:var(--text3);font-size:12px">'+esc(e.machine_type||'')+(e.status?(' · '+esc(e.status)):'')+(e.last_updated?(' · '+esc(e.last_updated)):'')+'</span><label style="display:flex;align-items:center;gap:4px;font-size:11px;color:'+(mon?'var(--green)':'var(--text3)')+';cursor:pointer;white-space:nowrap"><input type="checkbox" class="eqm-mon" '+(mon?'checked':'')+' onchange="eqmSetMon(\''+kj+'\',this.checked)" style="width:15px;height:15px"/>監控</label><button class="mt-perm" onclick="eqListDel(\''+kj+'\')" title="刪除">✕</button></div>';
+  }).join(''):'<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">查無車機</div>';
+  const all=document.getElementById('eqm-all'); if(all) all.checked=false; eqListCount();
+}
+async function eqmSetMon(k,on){ try{ await fetch(`${FB}/equipment/`+encodeURIComponent(k)+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({noMon:on?null:true})}); if(EQ_LIST[k]){ if(on) delete EQ_LIST[k].noMon; else EQ_LIST[k].noMon=true; } if(typeof data!=='undefined'&&data&&data[k]){ if(on) delete data[k].noMon; else data[k].noMon=true; } if(typeof logAudit==='function') logAudit('eq_monitor',k+(on?' 顯示':' 隱藏')); if(typeof renderAllEq==='function' && document.getElementById('page-allEq') && document.getElementById('page-allEq').classList.contains('active')) renderAllEq(); eqListFilter(eqmSearchVal()); }catch(e){ alert('✗ '+e.message); } }
+async function eqListDel(k){ if(!confirm('刪除車機 '+k+'?此動作無法復原。')) return; try{ await fetch(`${FB}/equipment/`+encodeURIComponent(k)+'.json',{method:'DELETE'}); delete EQ_LIST[k]; if(typeof data!=='undefined'&&data) delete data[k]; if(typeof logAudit==='function') logAudit('eq_delete',k); }catch(e){ alert('✗ '+e.message); return; } eqListFilter(eqmSearchVal()); }
+async function eqListDelSelected(){ const ks=[...document.querySelectorAll('#eqm-list .eqm-chk:checked')].map(c=>c.value); if(!ks.length){ alert('請先勾選要刪除的車機'); return; } if(!confirm('確定刪除選取的 '+ks.length+' 台?此動作無法復原。')) return; const patch={}; ks.forEach(k=>{ delete EQ_LIST[k]; if(typeof data!=='undefined'&&data) delete data[k]; patch[k]=null; }); try{ await fetch(`${FB}/equipment.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}); if(typeof logAudit==='function') logAudit('eq_delete',ks.length+' 台(批次)'); }catch(e){ alert('✗ '+e.message); return; } eqListFilter(eqmSearchVal()); }
 async function renderAddEq(){
   const el=document.getElementById('fp-addeq'); if(!el) return;
   await fldLoadConfig();
   el.innerHTML=`<div class="fp-sec-title">${aT('ae_title')}</div>
+    <div class="fp-sec-title" style="margin-top:2px">${aT('ae_rf_title')}</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${aT('ae_rf_desc')}</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+      <select id="mon-refresh" style="padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)">
+        ${[10,15,30,45,60,120].map(s=>`<option value="${s}">${s} ${aT('ae_rf_sec')}</option>`).join('')}
+      </select>
+      <span style="font-size:13px;font-weight:600;color:var(--text2);margin-left:6px">${aT('ae_idle_lbl')}</span>
+      <input id="mon-idle" type="number" min="0" style="width:64px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/>
+      <span style="font-size:13px;color:var(--text3)">${aT('ae_idle_unit')}</span>
+      <button class="mt-perm on" onclick="saveMonRefresh()">${aT('ae_rf_save')}</button>
+      <span id="mon-refresh-msg" style="font-size:12px;color:var(--green);font-weight:600"></span>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px">${aT('ae_idle_desc')}</div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:12px">${aT('ae_desc')}</div>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
-      <button class="mt-perm on" onclick="exportEquipmentCsv()">⬇️ 匯出車機清單 CSV / Exportar</button>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+      <button class="mt-perm on" onclick="exportEquipmentCsv()">⬇️ 匯出車機清單 CSV</button>
+      <button class="mt-perm on" onclick="eqListLoad()">🔄 重新整理清單</button>
       <span id="ae-expmsg" style="font-size:12px;color:var(--text3)"></span>
+    </div>
+    <div class="fp-sec-title" style="margin-top:6px">🚜 車機清單 <span id="eqm-count" style="font-size:12px;color:var(--text3);font-weight:400"></span></div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:6px">「監控」勾＝顯示在全車機監控;取消勾＝從監控隱藏(記錄仍保留,加班/時數不受影響)。</div>
+    <input id="eqm-search" placeholder="🔍 搜尋編號 / 機型" oninput="eqListFilter(this.value)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg);margin-bottom:6px"/>
+    <div id="eqm-list" style="max-height:340px;overflow:auto;border:1px solid var(--border);border-radius:8px"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin:8px 0 16px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="eqm-all" onclick="eqListToggleAll(this.checked)" style="width:16px;height:16px"/>全選</label>
+      <button class="mt-perm" onclick="eqListDelSelected()" style="color:var(--red);border-color:var(--red)">🗑 刪除選取 (<span id="eqm-selcount">0</span>)</button>
     </div>
     <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">${aT('ae_kind')}</label>
     <select id="ae-kind" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px">${FIELD_KINDS.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
@@ -4741,6 +4830,22 @@ async function renderAddEq(){
     <div id="ae-bmsg" style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600"></div>
     <div class="fp-sec-title" style="margin-top:26px;padding-top:18px;border-top:1px solid var(--border)">${aT('st_kinds')}</div>
     ${amListEditor(aT('desc_kinds'), FIELD_KINDS, 'saveKinds')}`;
+  const mr=document.getElementById('mon-refresh'); if(mr) mr.value=String(Math.round((typeof MON_REFRESH_MS!=='undefined'?MON_REFRESH_MS:30000)/1000));
+  const mi=document.getElementById('mon-idle'); if(mi) mi.value=(typeof IDLE_MS!=='undefined' && isFinite(IDLE_MS))?String(Math.round(IDLE_MS/60000)):'0';
+  eqListLoad();
+}
+async function saveMonRefresh(){
+  const v=parseInt((document.getElementById('mon-refresh')||{}).value,10)||30;
+  const idleEl=document.getElementById('mon-idle');
+  let im=idleEl?parseInt(idleEl.value,10):30; if(isNaN(im)||im<0) im=0;
+  const msg=document.getElementById('mon-refresh-msg');
+  try{
+    await fetch(`${FB}/monitor_config.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({refresh_sec:v, idle_min:im})});
+    if(typeof applyPollInterval==='function') applyPollInterval(v*1000);
+    if(typeof applyIdleMinutes==='function') applyIdleMinutes(im);
+    if(msg){ msg.style.color='var(--green)'; msg.textContent=aT('ae_rf_saved'); }
+    if(typeof logAudit==='function') logAudit('mon_refresh','更新速度 '+v+'秒 / 閒置暫停 '+(im>0?im+'分':'關'));
+  }catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
 }
 function aeExpandNums(raw){
   const out=[];
@@ -5130,6 +5235,7 @@ function otRenderPend2(){ otCourseCards(otSortedEntries().filter(([id,r])=>r.sta
 function otRefresh(){ if(otSysTabCur==='history') otHistRenderGroups(); else if(otSysTabCur==='pend1') otRenderPend1(); else if(otSysTabCur==='pend2') otRenderPend2(); else otRenderReview(); }
 let _otPollHash='';
 async function pollOt(){ // 加班自動更新（只在看加班頁、且沒在操作時）
+  if(document.hidden || _isIdle()) return;                // 背景分頁 / 閒置超時 → 不抓
   const pg=document.getElementById('page-otsys');
   if(!pg || !pg.classList.contains('active')) return;
   if(otSysTabCur==='apply') return;                      // 別蓋掉填寫中的申請表
@@ -5507,6 +5613,7 @@ async function sendMsg(){
 }
 const shownPings=new Set();
 async function pollMessages(){
+  if(document.hidden || _isIdle()) return;                // 背景分頁 / 閒置超時 → 不抓
   if(!maintUser) return;
   const me=msgKey(maintUser.name);
   // 收到別人傳來的 ping
@@ -5789,6 +5896,7 @@ async function presenceHeartbeat(){
   try{ await fetch(`${FB}/presence/${PRES_SID}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:(typeof umCurrentUser!=='undefined'&&umCurrentUser&&umCurrentUser.name)||null,t:Date.now()})}); }catch(e){}
 }
 async function presencePoll(){
+  if(document.hidden || _isIdle()) return;                // 背景分頁 / 閒置超時 → 不抓
   try{
     const r=await fetch(`${FB}/presence.json`); const d=await r.json();
     const now=Date.now(); const names=[]; let guests=0; const stale=[];
@@ -6114,15 +6222,20 @@ async function resetRTGPos() {
 
 // ── Firebase poll ─────────────────────────────────────────
 let pollErrCount = 0;
-async function poll(){
+let _pollTick=0;
+async function poll(force){
+  if(!force && (document.hidden || _isIdle())) return;   // 背景/縮小分頁、或閒置超時 → 不抓,省 Firebase 下載量
   try{
     const r = await fetch(`${FB}/equipment.json`);
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d2 = await r.json();
     if(!d2) return;
     data = d2;
-    try{ const rh=await fetch(`${FB}/eq_hours.json`); EQ_HOURS=(await rh.json())||{}; }catch(e){}
-    try{ const rd=await fetch(`${FB}/hours_defs.json`); HOURS_DEFS=(await rd.json())||{}; }catch(e){}
+    _pollTick++;
+    // 工時資料變動少：第一次抓、之後約每 45 秒(每 3 週期)才抓一次
+    if(_pollTick===1 || _pollTick%3===0){ try{ const rh=await fetch(`${FB}/eq_hours.json`); EQ_HOURS=(await rh.json())||{}; }catch(e){} }
+    // 工時定義幾乎不變：開機時已載入,只每約 5 分鐘(每 20 週期)補抓一次以防後台改動
+    if(_pollTick%20===0){ try{ const rd=await fetch(`${FB}/hours_defs.json`); HOURS_DEFS=(await rd.json())||HOURS_DEFS; }catch(e){} }
     if(APP_TYPES===null){ try{ const ra=await fetch(`${FB}/app_types.json`); APP_TYPES=(await ra.json())||{status:{},hours:{}}; }catch(e){ APP_TYPES={status:{},hours:{}}; } }
     pollErrCount = 0;
     lastSuccessTime = Date.now();
@@ -6262,7 +6375,7 @@ async function submitEq(){
   document.getElementById('eq-crew').value='';
   document.getElementById('eq-note').value='';
   pendSt=null;
-  await poll();
+  await poll(true);
   selEq(selId,selType);
 }
 
@@ -6297,7 +6410,7 @@ function renderAllEq(){
     if(!(id in _byId)) _byId[id]={k,e};
     else if(k===_ck(id)) _byId[id]={k,e};   // 同一台重複時，優先保留正規 key（對齊 OSIMA）那筆
   });
-  const vals=Object.values(_byId).map(x=>x.e);
+  const vals=Object.values(_byId).map(x=>x.e).filter(e=>e && e.noMon!==true);   // 被設「不顯示於監控」的車機略過
   const types=['All',...new Set(vals.map(e=>e.machine_type).filter(Boolean)).values()].sort();
   const tf=document.getElementById('type-filters');
   if(tf&&tf.children.length!==types.length){
@@ -7255,10 +7368,34 @@ initEqTip();
     navTo('field', fi||document.createElement('div'));
   }
 })();
-poll();
-setInterval(poll,3000);
-setInterval(pollOt,4000);
+// 車機監控更新速度：預設 30 秒,可在後台「車機監控系統 → 資料更新速度」調整(存在 Firebase,全系統共用)
+let MON_REFRESH_MS=30000, _pollTimer=null;
+function applyPollInterval(ms){ ms=Math.max(5000, ms||30000); MON_REFRESH_MS=ms; if(_pollTimer) clearInterval(_pollTimer); _pollTimer=setInterval(poll, MON_REFRESH_MS);
+  const mr=document.getElementById('mon-refresh'); if(mr) mr.value=String(Math.round(ms/1000)); }
+poll(true);
+applyPollInterval(MON_REFRESH_MS);
+setInterval(pollOt,3000);
 setInterval(pollMessages,3000);
+// 切回分頁時立刻補一次,不用等下一個週期
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ poll(true); pollMessages(); } });
+// ── 閒置自動暫停：太久沒操作 → 斷線、停止更新,省流量 ──（用 var 避免載入順序 TDZ）
+var _lastActivity=Date.now();          // 最後一次操作時間
+var IDLE_MS=30*60*1000;                // 預設 30 分鐘;Infinity = 不自動暫停
+var _idleActive=false;
+function _isIdle(){ return isFinite(IDLE_MS) && (Date.now()-_lastActivity) > IDLE_MS; }
+function applyIdleMinutes(min){ IDLE_MS=(min&&min>0)?min*60000:Infinity; if(!isFinite(IDLE_MS)&&_idleActive)_exitIdle(); const mi=document.getElementById('mon-idle'); if(mi) mi.value=isFinite(IDLE_MS)?String(Math.round(IDLE_MS/60000)):'0'; }
+function _idleText(){ const t={es:'⏸ Inactivo: actualización en pausa para ahorrar datos. Mueve el ratón o toca para reconectar.',zh:'⏸ 已閒置,已暫停更新以節省流量。移動滑鼠或點一下即可恢復連線。',en:'⏸ Idle: updates paused to save data. Move the mouse or tap to reconnect.'}; return t[(typeof maintLang!=='undefined'?maintLang:'es')]||t.es; }
+function _showIdleOverlay(on){ let o=document.getElementById('idle-overlay'); if(on){ if(!o){ o=document.createElement('div'); o.id='idle-overlay'; o.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#0f172a;color:#fff;padding:12px 16px;text-align:center;font-size:14px;box-shadow:0 -2px 12px rgba(0,0,0,.35);cursor:pointer'; o.onclick=function(){ _lastActivity=Date.now(); _exitIdle(); }; document.body.appendChild(o); } o.textContent=_idleText(); o.style.display='block'; } else if(o){ o.style.display='none'; } }
+function _enterIdle(){ if(_idleActive) return; _idleActive=true; try{ if(typeof presenceLeave==='function') presenceLeave(); }catch(e){} _showIdleOverlay(true); }
+function _exitIdle(){ if(!_idleActive) return; _idleActive=false; _showIdleOverlay(false); try{ if(typeof presenceHeartbeat==='function') presenceHeartbeat(); }catch(e){} poll(true); if(typeof pollMessages==='function') pollMessages(); }
+function _idleCheck(){ const idle=_isIdle(); if(idle&&!_idleActive)_enterIdle(); else if(!idle&&_idleActive)_exitIdle(); }
+setInterval(_idleCheck, 20000);
+['mousemove','mousedown','keydown','touchstart','click','scroll','wheel'].forEach(function(ev){ window.addEventListener(ev, function(){ _lastActivity=Date.now(); if(_idleActive) _exitIdle(); }, {passive:true}); });
+// 從後台載入車機監控更新速度 + 閒置暫停設定
+(async()=>{ try{ const r=await fetch(`${FB}/monitor_config.json`); const c=await r.json();
+  const s=c&&parseInt(c.refresh_sec,10); if(s&&s>=5) applyPollInterval(s*1000);
+  if(c&&c.idle_min!=null){ const im=parseInt(c.idle_min,10); if(!isNaN(im)) applyIdleMinutes(im); }
+}catch(e){} })();
 </script>
 </body>
 </html>
