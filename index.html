@@ -4693,15 +4693,38 @@ async function staffBulk(){
   document.getElementById('st-bulk').value=''; staffFilter('');
 }
 function amRenderPass(body){
-  body.innerHTML=`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">${aT('pass_desc')}</div>
-    <div style="display:flex;gap:8px"><input id="fp-field-pass" placeholder="${aT('ph_setpass')}" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/><button class="mt-perm on" onclick="saveFieldPass()">${aT('btn_save')}</button></div>`;
-  fetch(`${FB}/field_pass.json`).then(r=>r.json()).then(v=>{ const e=document.getElementById('fp-field-pass'); if(e&&v) e.value=v; }).catch(()=>{});
+  // 現場時數已改為「個人帳號登入」,不再需要共用密碼
+  body.innerHTML=`<div style="font-size:13px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;line-height:1.7">
+    ✅ 現場「時數」已改為<b>個人帳號登入</b>:網頁版一登入即可直接填,手機版用員工編號＋個人密碼登入後即可填。<br>
+    不再需要這組共用密碼。
+  </div>`;
+}
+async function exportEquipmentCsv(){
+  const msg=document.getElementById('ae-expmsg'); if(msg) msg.textContent='…';
+  let d={}; try{ const r=await fetch(`${FB}/equipment.json`); d=(await r.json())||{}; }catch(e){ if(msg) msg.textContent='✗ '+e.message; return; }
+  const keys=Object.keys(d).sort();
+  const norm=k=>String(k).toUpperCase().replace(/[\s_]+/g,'-').replace(/-0*(\d)/g,'-$1');
+  const cnt={}; keys.forEach(k=>{ const n=norm(k); cnt[n]=(cnt[n]||0)+1; });
+  const esc=s=>{ s=String(s==null?'':s); return /[",\n\r]/.test(s)?('"'+s.replace(/"/g,'""')+'"'):s; };
+  const rows=[['編號 / ID','機型 / Tipo','狀態 / Estado','人員 / Crew','最後更新 / Actualizado','正規化鍵 / Norm','疑似重複 / Dup']];
+  keys.forEach(k=>{ const e=d[k]||{}; const n=norm(k); rows.push([k, e.machine_type||'', e.status||'', e.crew||'', e.last_updated||'', n, cnt[n]>1?'⚠':'']); });
+  const csv='﻿'+rows.map(r=>r.map(esc).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  const today=(typeof projTodayStr==='function')?projTodayStr():'';
+  a.href=url; a.download='車機清單_'+keys.length+'台_'+today+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const dupKeys=keys.filter(k=>cnt[norm(k)]>1);
+  if(msg) msg.textContent='已匯出 '+keys.length+' 台'+(dupKeys.length?('，疑似重複 '+dupKeys.length+' 筆'):'')+' ✓';
 }
 async function renderAddEq(){
   const el=document.getElementById('fp-addeq'); if(!el) return;
   await fldLoadConfig();
   el.innerHTML=`<div class="fp-sec-title">${aT('ae_title')}</div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:12px">${aT('ae_desc')}</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <button class="mt-perm on" onclick="exportEquipmentCsv()">⬇️ 匯出車機清單 CSV / Exportar</button>
+      <span id="ae-expmsg" style="font-size:12px;color:var(--text3)"></span>
+    </div>
     <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">${aT('ae_kind')}</label>
     <select id="ae-kind" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);margin-bottom:10px">${FIELD_KINDS.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
     <label class="lbl" style="font-size:13px;font-weight:700;color:var(--text2)">${aT('ae_num')}</label>
@@ -5820,19 +5843,19 @@ const FIELD_I18N={
     submit:'Enviar',again:'Otro registro',end:'Finalizar',done:'¡Enviado!',pass:'Contraseña',enter:'Entrar',
     hgateSub:'Ingrese la contraseña',wrongPass:'Contraseña incorrecta',noPass:'Contraseña no configurada',
     errStatus:'Complete tipo, número, estado y personal',errHours:'Ingrese número y al menos una hora',
-    noCats:'Este tipo no tiene categorías',last:'Anterior:',cur:'Actual:',notFound:'No en la lista — se usará el texto'},
+    noCats:'Este tipo no tiene categorías',last:'Anterior:',cur:'Actual:',notFound:'No en la lista — se usará el texto',noMachine:'Equipo no encontrado: {m}. Verifique tipo y número.'},
   zh:{home:'首頁',status:'狀態',hours:'時數',back:'‹ 返回',kind:'車機種類',num:'編號',
     statusL:'狀態',person:'人員（員工編號）',personPh:'輸入編號',numPh:'例 01',
     submit:'送出',again:'再填一筆',end:'結束',done:'已送出',pass:'密碼',enter:'進入',
     hgateSub:'請輸入密碼',wrongPass:'密碼錯誤',noPass:'尚未設定密碼',
     errStatus:'請填種類、編號、狀態、人員',errHours:'請填編號、至少一個時數',
-    noCats:'此機型未設定時數種類',last:'上次：',cur:'目前：',notFound:'不在名單 — 將直接使用此文字'},
+    noCats:'此機型未設定時數種類',last:'上次：',cur:'目前：',notFound:'不在名單 — 將直接使用此文字',noMachine:'查無此車機：{m}，請確認種類與編號。'},
   en:{home:'Home',status:'Status',hours:'Hours',back:'‹ Back',kind:'Equipment type',num:'Number',
     statusL:'Status',person:'Staff (employee no.)',personPh:'Enter number',numPh:'e.g. 01',
     submit:'Submit',again:'New entry',end:'Finish',done:'Submitted!',pass:'Password',enter:'Enter',
     hgateSub:'Enter password',wrongPass:'Wrong password',noPass:'Password not set',
     errStatus:'Fill type, number, status and staff',errHours:'Enter number and at least one hour',
-    noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used'}
+    noCats:'No hour categories for this type',last:'Last:',cur:'Current:',notFound:'Not in list — text will be used',noMachine:'Equipment not found: {m}. Check type and number.'}
 };
 function fldL(){ return FIELD_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||FIELD_I18N.es; }
 function fldKey(canonKind,num){ return (canonKind+'-'+num).replace(/[\/\.\#\$\[\]]/g,'_'); }
@@ -5880,9 +5903,8 @@ function fldGoStatus(){
   fldShow('status');
 }
 function fldGoHours(){
-  fldFlow='hours';
-  if(fldHoursUnlocked){ fldEnterHours(); }
-  else { const e=document.getElementById('fld-hgate-err'); if(e) e.style.display='none'; document.getElementById('fld-hpass').value=''; fldShow('hgate'); }
+  // 網頁版已是個人帳號登入,直接進時數,不再需要共用密碼
+  fldFlow='hours'; fldHoursUnlocked=true; fldEnterHours();
 }
 async function fldHoursUnlock(){
   const L=fldL(), err=document.getElementById('fld-hgate-err');
@@ -5961,13 +5983,17 @@ async function fldSubmitHours(){
   const filled={}; inputs.forEach(i=>{ const v=i.value.trim(); if(v!=='') filled[i.getAttribute('data-cat')]=Number(v); });
   if(!num||!Object.keys(filled).length){ alert(L.errHours); return; }
   const id=canon+'-'+num, key=fldKey(canon,num), now=fldPanNow();
+  // 比對車機名單:查無此車機就擋(名單未載入時不擋,避免誤判)
+  if(typeof data!=='undefined' && data && Object.keys(data).length && !data[key]){ alert(L.noMachine.replace('{m}',id)); return; }
+  const who=(typeof umCurrentUser!=='undefined'&&umCurrentUser)?(String(umCurrentUser.id)+'·'+(umCurrentUser.name||'')):'';
+  const whoId=(typeof umCurrentUser!=='undefined'&&umCurrentUser)?String(umCurrentUser.id):'';
   const btn=document.getElementById('fld-h-submit'); btn.disabled=true;
   try{
     let vals={};
     try{ const r=await fetch(`${FB}/eq_hours/${key}.json`); const d=await r.json(); if(d&&d.vals) vals=d.vals; }catch(e){}
     Object.assign(vals, filled);
-    await fetch(`${FB}/eq_hours/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({vals,time:now})});
-    Object.entries(filled).forEach(([k2,hv])=>{ fetch(`${FB}/eq_hours_log.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,kind:k2,hours:hv,time:now})}).catch(()=>{}); });
+    await fetch(`${FB}/eq_hours/${key}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({vals,time:now,by:who,byId:whoId})});
+    Object.entries(filled).forEach(([k2,hv])=>{ fetch(`${FB}/eq_hours_log.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,kind:k2,hours:hv,time:now,by:who,byId:whoId})}).catch(()=>{}); });
   }catch(e){ alert('送出失敗：'+e.message); btn.disabled=false; return; }
   btn.disabled=false;
   document.getElementById('fld-done-detail').textContent=`${id} — ${Object.entries(filled).map(([k,v])=>k+':'+v).join('  ')}`;
