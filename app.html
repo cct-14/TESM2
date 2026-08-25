@@ -104,14 +104,15 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       <div class="err" id="s-err"></div>
       <button class="btn primary" id="s-submit" onclick="submitStatus()">Enviar</button>
     </div>
-    <!-- 時數密碼 -->
+    <!-- 時數登入(個人帳號) -->
     <div class="view" id="v-hgate">
       <button class="back" onclick="home()" id="b-back-hg">‹</button>
       <div class="card">
         <div class="ic">🔒</div>
         <div class="t" id="hg-t">Horas</div>
-        <div class="s" id="hg-s">Ingrese la contraseña</div>
-        <input type="password" class="inp" id="h-pass" onkeydown="if(event.key==='Enter')hoursUnlock()"/>
+        <div class="s" id="hg-s">Inicie sesión</div>
+        <input class="inp up" id="h-uid" inputmode="text" autocomplete="off" placeholder="N.º de empleado"/>
+        <input type="password" class="inp" id="h-pass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')hoursUnlock()"/>
         <div class="err" id="hg-err"></div>
         <button class="btn primary" id="hg-btn" onclick="hoursUnlock()">Entrar</button>
       </div>
@@ -263,7 +264,7 @@ const I18N={
 };
 let LANG=localStorage.getItem('app_lang')||'es';
 let KINDS=DEFAULT_KINDS.slice(), STATUSES=DEFAULT_STATUSES.slice(), STAFF={}, STAFF_DEPT={}, HDEFS={};
-let flow='status', hoursOK=false, otOK=false;
+let flow='status', hoursOK=false, otOK=false, hoursUser=null;
 let OTC={allowed:{},reminder:{}}, otPeople=[], USERS_APP={}, otUser=null, otPendId=null, OT_MY=[], ALL_REQ={};
 function daysAgoStr(n){ return new Date(Date.now()-n*86400000).toLocaleString('en-CA',{timeZone:PA_TZ}).slice(0,10); }
 function panamaDate(){ return new Date().toLocaleString('en-CA',{timeZone:PA_TZ}).slice(0,10); }
@@ -302,8 +303,10 @@ async function load(){
   try{ const r=await fetch(FB+'/staff_dept.json'); STAFF_DEPT=(await r.json())||{}; }catch(e){ STAFF_DEPT={}; }
   try{ const r=await fetch(FB+'/ot_config.json'); OTC=(await r.json())||{}; }catch(e){ OTC={}; } if(!OTC.allowed)OTC.allowed={}; if(!OTC.reminder)OTC.reminder={};
   try{ const r=await fetch(FB+'/users.json'); USERS_APP=(await r.json())||{}; }catch(e){ USERS_APP={}; }
+  try{ if(typeof otLoadMachines==='function') otLoadMachines(); }catch(e){}   // 車機名單(時數/加班驗證用)
   buildSelects(); applyLang();
   if(typeof otRestoreSession==='function') otRestoreSession();
+  try{ const raw=localStorage.getItem('tesm_fld'); if(raw){ const s=JSON.parse(raw); if(s&&s.exp&&Date.now()<=s.exp){ hoursUser={id:s.id,name:s.name}; hoursOK=true; } else localStorage.removeItem('tesm_fld'); } }catch(e){}
   restoreView();
 }
 function buildSelects(){
@@ -327,7 +330,7 @@ function applyLang(){
   set('l-s-kind',t.kind); set('l-s-num',t.num); set('l-s-status',t.statusL); set('l-s-person',t.person);
   set('l-h-kind',t.kind); set('l-h-num',t.num);
   set('s-submit',t.submit); set('h-submit',t.submit);
-  set('hg-t',t.hours); set('hg-s',t.hgSub); set('hg-btn',t.enter);
+  set('hg-t',t.hours); set('hg-s',t.uid+' + '+t.upass); set('hg-btn',t.login); { const hu=$('h-uid'),hp=$('h-pass'); if(hu)hu.placeholder=t.uid; if(hp)hp.placeholder=t.upass; }
   set('d-t',t.done); set('d-again',t.again); set('d-end',t.end);
   set('t-ot',t.ot); set('otg-t',t.otLoginT); set('otg-btn',t.login);
   const uid=$('ot-uid'),op=$('ot-pass'); if(uid)uid.placeholder=t.uid; if(op)op.placeholder=t.upass;
@@ -342,15 +345,18 @@ function goStatus(){
 }
 function goHours(){
   flow='hours';
-  if(hoursOK){ enterHours(); } else { $('hg-err').textContent=''; $('h-pass').value=''; show('hgate'); }
+  if(hoursOK){ enterHours(); } else { $('hg-err').textContent=''; const hu=$('h-uid'); if(hu)hu.value=''; $('h-pass').value=''; show('hgate'); }
 }
 async function hoursUnlock(){
-  const t=L(); let pass=null;
-  try{ const r=await fetch(FB+'/field_pass.json'); pass=await r.json(); }catch(e){}
-  const val=($('h-pass').value||'').trim();
-  if(!pass){ $('hg-err').textContent=t.noPass; return; }
-  if(val!==String(pass)){ $('hg-err').textContent=t.wrong; return; }
-  hoursOK=true; enterHours();
+  const t=L();
+  if(!USERS_APP||!Object.keys(USERS_APP).length){ try{ const r=await fetch(FB+'/users.json'); USERS_APP=(await r.json())||{}; }catch(e){} }
+  const id=($('h-uid').value||'').trim();
+  const pass=($('h-pass').value||'').trim();
+  const u=USERS_APP[id];
+  if(!u||String(u.pass)!==pass){ $('hg-err').textContent=t.wrongLogin; return; }
+  hoursUser={id:id,name:(STAFF[id]||u.name||id)}; hoursOK=true;
+  try{ localStorage.setItem('tesm_fld', JSON.stringify({id:hoursUser.id,name:hoursUser.name,exp:Date.now()+3600*1000})); }catch(e){}
+  $('hg-err').textContent=''; enterHours();
 }
 function enterHours(){ $('h-num').value=''; $('h-err').textContent=''; show('hours'); hoursRender(); }
 
@@ -401,6 +407,9 @@ async function submitHours(){
   const ins=[...document.querySelectorAll('#h-fields .hcat')]; const filled={};
   ins.forEach(i=>{ const v=i.value.trim(); if(v!=='') filled[i.getAttribute('data-cat')]=Number(v); });
   if(!n||!Object.keys(filled).length){ $('h-err').textContent=t.errH; return; }
+  // 比對車機名單(跟加班一樣):查無此車機就擋
+  if(MACHINES===null && typeof otLoadMachines==='function'){ await otLoadMachines(); }
+  if(!machineExists(c,n)){ $('h-err').textContent=t.noMachine.replace('{m}',c+'-'+n); return; }
   $('h-err').textContent='';
   const id=c+'-'+n, kk=key(c,n), tnow=now();
   const btn=$('h-submit'); btn.disabled=true;
@@ -408,8 +417,9 @@ async function submitHours(){
     let vals={};
     try{ const r=await fetch(FB+'/eq_hours/'+kk+'.json'); const d=await r.json(); if(d&&d.vals) vals=d.vals; }catch(e){}
     Object.assign(vals,filled);
-    await fetch(FB+'/eq_hours/'+kk+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({vals,time:tnow})});
-    Object.entries(filled).forEach(([k2,hv])=>{ fetch(FB+'/eq_hours_log.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,kind:k2,hours:hv,time:tnow})}).catch(()=>{}); });
+    var who=hoursUser?(String(hoursUser.id)+'·'+(hoursUser.name||'')):''; var whoId=hoursUser?String(hoursUser.id):'';
+    await fetch(FB+'/eq_hours/'+kk+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({vals,time:tnow,by:who,byId:whoId})});
+    Object.entries(filled).forEach(([k2,hv])=>{ fetch(FB+'/eq_hours_log.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({machine_id:id,kind:k2,hours:hv,time:tnow,by:who,byId:whoId})}).catch(()=>{}); });
     // WI 鋼索：GC 的 MOVEMENT 動作數寫進當月月表（累計來源），同月覆蓋
     if(c==='GC'){
       const moveCat=Object.keys(filled).find(k2=>/move|movement|mov|次|動作/i.test(k2));
