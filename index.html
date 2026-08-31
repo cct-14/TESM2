@@ -5893,6 +5893,7 @@ async function atPruneOld(){
 // ── 線上人數（心跳偵測，只算登入者） ──
 const PRES_SID='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 async function presenceHeartbeat(){
+  if(document.hidden || _isIdle()) return;                // 背景/閒置 → 停止心跳,讓自己真正離線
   try{ await fetch(`${FB}/presence/${PRES_SID}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:(typeof umCurrentUser!=='undefined'&&umCurrentUser&&umCurrentUser.name)||null,t:Date.now()})}); }catch(e){}
 }
 async function presencePoll(){
