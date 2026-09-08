@@ -3300,6 +3300,8 @@ const ADMIN_I18N={
     ae_rf_sec:'秒', ae_rf_save:'💾 儲存', ae_rf_saved:'✓ 已套用',
     ae_idle_lbl:'⏸ 閒置自動暫停', ae_idle_unit:'分鐘沒操作就斷線',
     ae_idle_desc:'超過設定時間沒有動到系統(滑鼠/鍵盤/觸控),就自動暫停更新並斷線,移動滑鼠或點一下就恢復。設 0 = 不自動暫停。',
+    ae_pause_lbl:'⏸ 暫停車機即時更新(測試 / 省流量;其他功能不受影響)',
+    ae_pause_desc:'勾選後,全系統立刻停止讀取車機即時狀態(最省流量),專案/加班/時數等其他功能照常。想恢復把勾取消即可。',
     ae_desc:'選機型後，編號可用三種寫法：單台 <b>01</b>、多台 <b>01,02,03</b>、整排範圍 <b>01-38</b>（會自動補零對齊）。',
     ae_kind:'機型',ae_num:'編號（單台 / 多台逗號 / 範圍 01-38）',ae_numph:'例 01　或　01,02,03　或　01-38',ae_status:'初始狀態',ae_addbtn:'➕ 新增',
     ae_bulktitle:'批次貼上匯入（跨機型）',
@@ -3329,6 +3331,8 @@ const ADMIN_I18N={
     ae_rf_sec:'s', ae_rf_save:'💾 Guardar', ae_rf_saved:'✓ Aplicado',
     ae_idle_lbl:'⏸ Pausa por inactividad', ae_idle_unit:'min sin actividad',
     ae_idle_desc:'Si no se usa el sistema (ratón/teclado/toque) durante ese tiempo, las actualizaciones se pausan y se desconecta; vuelve al mover el ratón o tocar. 0 = nunca.',
+    ae_pause_lbl:'⏸ Pausar actualización en vivo de equipos (prueba / ahorro; otras funciones no se afectan)',
+    ae_pause_desc:'Al marcar, todo el sistema deja de leer el estado en vivo de los equipos (máximo ahorro); proyectos/horas extra/horas siguen normales. Desmarca para reanudar.',
     ae_desc:'Tras elegir el tipo, el número admite: uno <b>01</b>, varios <b>01,02,03</b>, o rango <b>01-38</b> (con ceros automáticos).',
     ae_kind:'Tipo',ae_num:'Número (uno / varios con coma / rango 01-38)',ae_numph:'ej. 01  o  01,02,03  o  01-38',ae_status:'Estado inicial',ae_addbtn:'➕ Añadir',
     ae_bulktitle:'Importar pegando (varios tipos)',
@@ -3358,6 +3362,8 @@ const ADMIN_I18N={
     ae_rf_sec:'s', ae_rf_save:'💾 Save', ae_rf_saved:'✓ Applied',
     ae_idle_lbl:'⏸ Idle auto-pause', ae_idle_unit:'min idle',
     ae_idle_desc:'If the system isn’t used (mouse/keyboard/touch) for this long, updates pause and disconnect; resume on mouse move or tap. 0 = never.',
+    ae_pause_lbl:'⏸ Pause live equipment updates (test / save data; other features unaffected)',
+    ae_pause_desc:'When checked, the whole system stops reading live equipment status (max saving); projects/overtime/hours keep working. Uncheck to resume.',
     ae_desc:'After picking a type, the number accepts: single <b>01</b>, multiple <b>01,02,03</b>, or range <b>01-38</b> (auto zero-padded).',
     ae_kind:'Type',ae_num:'Number (single / comma / range 01-38)',ae_numph:'e.g. 01  or  01,02,03  or  01-38',ae_status:'Initial status',ae_addbtn:'➕ Add',
     ae_bulktitle:'Paste to import (any type)',
@@ -4787,6 +4793,14 @@ async function renderAddEq(){
   const el=document.getElementById('fp-addeq'); if(!el) return;
   await fldLoadConfig();
   el.innerHTML=`<div class="fp-sec-title">${aT('ae_title')}</div>
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;margin:6px 0 18px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;cursor:pointer;color:#92400e">
+        <input type="checkbox" id="mon-paused" onchange="saveMonPaused(this.checked)" style="width:18px;height:18px">
+        ${aT('ae_pause_lbl')}
+      </label>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">${aT('ae_pause_desc')}</div>
+      <div id="mon-paused-msg" style="font-size:12px;color:var(--green);font-weight:600;margin-top:4px"></div>
+    </div>
     <div class="fp-sec-title" style="margin-top:2px">${aT('ae_rf_title')}</div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${aT('ae_rf_desc')}</div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
@@ -4832,7 +4846,19 @@ async function renderAddEq(){
     ${amListEditor(aT('desc_kinds'), FIELD_KINDS, 'saveKinds')}`;
   const mr=document.getElementById('mon-refresh'); if(mr) mr.value=String(Math.round((typeof MON_REFRESH_MS!=='undefined'?MON_REFRESH_MS:30000)/1000));
   const mi=document.getElementById('mon-idle'); if(mi) mi.value=(typeof IDLE_MS!=='undefined' && isFinite(IDLE_MS))?String(Math.round(IDLE_MS/60000)):'0';
+  const mp=document.getElementById('mon-paused'); if(mp) mp.checked=(typeof MON_PAUSED!=='undefined' && MON_PAUSED);
   eqListLoad();
+}
+async function saveMonPaused(on){
+  const msg=document.getElementById('mon-paused-msg');
+  try{
+    await fetch(`${FB}/monitor_config.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({paused:!!on})});
+    MON_PAUSED=!!on;
+    if(typeof _showPausedBanner==='function') _showPausedBanner(!!on);
+    if(!on && typeof poll==='function') poll(true);
+    if(msg) msg.textContent=aT('ae_rf_saved');
+    if(typeof logAudit==='function') logAudit('mon_pause', on?'暫停車機即時更新':'恢復車機即時更新');
+  }catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
 }
 async function saveMonRefresh(){
   const v=parseInt((document.getElementById('mon-refresh')||{}).value,10)||30;
@@ -4994,21 +5020,21 @@ async function otSavePass(){
 // ── 加班申請系統（網頁：申請 + 兩關審核）──
 Object.assign(OT_I18N.zh,{tabApply:'申請',tabReview:'審核',tabHistory:'歷史紀錄',histPerson:'單人',histCourse:'課別',histMachine:'車機',histSearch:'查詢',histAll:'全部',histPersonPh:'編號或名字',histNumPh:'編號（空=全部）',events:'件',noResult:'查無資料',histApplicant:'申請人',timeRange:'加班時間',hoursUnit:'小時',totalTime:'總時數',needTime:'請填開始與結束時間',pickPerson:'請選擇人員…',notInStaff:'此編號不在員工名單，不能加入。',noMachine:'查無此車機：{m}，請確認種類與編號。',dupPerson:'人員重複：此員工已在加班名單內。',fillFirst:'請先填加班日期與時間，再加入人員。',conflict:'時間衝突：{name} 在該時段已有加班。',overrideRole:'最大駁回',overrideBtn:'最大駁回',tabToday:'今日審核',tabPend1:'第一段待審',tabPend2:'第二段待審',histDate:'日期',hFrom:'起',hTo:'迄',datePh:'選擇日期',noToday:'今天沒有申請',exportBtn:'⬇ 匯出 Excel',exportPdf:'🧾 產生 PDF',colDate:'日期',colStart:'開始',colEnd:'結束',colHours:'時數',colGroup:'課別',colMachine:'車機',colNum:'編號',colPeople:'人員',colPersonId:'人事代號',colPersonName:'姓名',colApplicant:'申請人',colReason:'原因',colStatus:'狀態',colConfirmHrs:'確認時數',colReview:'審核',histStatus:'審核狀況',stAll:'全部',stApproved:'已核准',stRejected:'已駁回',stCancelled:'已撤回',stW1:'待一段審核',stW2:'待二段審核',
   group:'課別',people:'人員（編號，可多位）',addp:'加入',date:'加班日期',machine:'車機種類',num:'編號',multi:'多台',multiAdd:'➕ 多一台',multiNeed:'請至少加入一台車機並填編號',reason:'原因',applicant:'申請人（組長編號）',submit:'送出申請',
-  errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',confirmTitle:'確認申請內容',confirmSend:'確定送出',backEdit:'返回修改',withdraw:'撤回',withdrawQ:'確定撤回這筆申請？',withdrawNoperm:'只有申請人本人可以撤回。',cancelled:'已撤回',
+  errForm:'請填組別、至少一位人員、編號、原因、申請人',notAllowed:'此申請人沒有加班申請權限',sent:'申請已送出 ✓',dateWarnApply:'⚠️ 你申請的加班日期是 {d},不是今天({t})。\n確定要送出嗎?',dateWarnAppr:'⚠️ 這筆加班日期是 {d},不是今天({t})。\n確定要核准嗎?',confirmTitle:'確認申請內容',confirmSend:'確定送出',backEdit:'返回修改',withdraw:'撤回',withdrawQ:'確定撤回這筆申請？',withdrawNoperm:'只有申請人本人可以撤回。',cancelled:'已撤回',
   secLogin:'課長登入',mgrLogin:'經理登入',pwPh:'密碼',wrong:'密碼錯誤',locked:'（先登入才能審核）',
   waitSec:'待一段審核',waitMgr:'待二段審核',approved:'已核准',rejected:'已駁回',
   approve:'核准',reject:'駁回',rejectTitle:'駁回理由',pickReason:'選擇理由…',note:'補充說明（可留空）',confirm:'確定駁回',cancel:'取消',
   noReq:'目前沒有申請',by:'審核',at:'',secRole:'一段審核（課長）',mgrRole:'二段審核（經理）',loginFirst:'請先用個人帳號登入才能審核',needApply:'請登入有加班申請權限的帳號',fromL:'開始',toL:'結束',del:'刪除',delQ:'確定刪除這筆記錄？此動作無法復原。',delNoperm:'你沒有刪除記錄的權限。',delAdminTitle:'🗑 可刪除記錄的人事代號',delAdminDesc:'在此填入的人事代號（登入後）才能刪除加班記錄，可多個，用逗號或換行分隔。',needAppr1:'（需一段審核權限）',needAppr2:'（需二段審核權限）',people1:'人員',reasonL:'原因',applicantL:'申請人'});
 Object.assign(OT_I18N.es,{tabApply:'Solicitar',tabReview:'Revisar',tabHistory:'Historial',histPerson:'Persona',histCourse:'Sección',histMachine:'Equipo',histSearch:'Buscar',histAll:'Todos',histPersonPh:'N.º o nombre',histNumPh:'Número (vacío=todos)',events:'reg.',noResult:'Sin resultados',histApplicant:'Solicitante',timeRange:'Horario',hoursUnit:'h',totalTime:'Tiempo total',needTime:'Ingrese hora de inicio y fin',pickPerson:'Seleccione personal…',notInStaff:'Este N.º no está en la lista de personal, no se puede agregar.',noMachine:'Equipo no encontrado: {m}. Verifique tipo y número.',dupPerson:'Personal duplicado: ya está en la lista.',fillFirst:'Complete primero la fecha y la hora antes de agregar personal.',conflict:'Conflicto de horario: {name} ya tiene horas extra en ese período.',overrideRole:'Rechazo final',overrideBtn:'Rechazo final',tabToday:'Hoy',tabPend1:'Pend. aprob. 1',tabPend2:'Pend. aprob. 2',histDate:'Fecha',hFrom:'Desde',hTo:'Hasta',datePh:'Elija fecha',noToday:'No hay solicitudes hoy',exportBtn:'⬇ Exportar Excel',exportPdf:'🧾 Generar PDF',colDate:'Fecha',colStart:'Inicio',colEnd:'Fin',colHours:'Horas',colGroup:'Sección',colMachine:'Equipo',colNum:'Número',colPeople:'Personal',colPersonId:'N.º empleado',colPersonName:'Nombre',colApplicant:'Solicitante',colReason:'Motivo',colStatus:'Estado',colConfirmHrs:'Confirmar horas',colReview:'Revisión',histStatus:'Estado',stAll:'Todos',stApproved:'Aprobado',stRejected:'Rechazado',stCancelled:'Retirado',stW1:'Pend. aprob. 1',stW2:'Pend. aprob. 2',
   group:'Sección',people:'Personal (N.º, varios)',addp:'Añadir',date:'Fecha',machine:'Tipo de equipo',num:'Número',multi:'Varios',multiAdd:'➕ Otro equipo',multiNeed:'Agregue al menos un equipo con número',reason:'Motivo',applicant:'Solicitante (N.º jefe)',submit:'Enviar solicitud',
-  errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',withdrawNoperm:'Solo el solicitante puede retirar.',cancelled:'Retirado',
+  errForm:'Complete grupo, al menos un personal, número, motivo y solicitante',notAllowed:'Este solicitante no tiene permiso',sent:'Solicitud enviada ✓',dateWarnApply:'⚠️ La fecha de horas extra es {d}, no es hoy ({t}).\n¿Enviar de todos modos?',dateWarnAppr:'⚠️ Esta solicitud es para {d}, no es hoy ({t}).\n¿Aprobar de todos modos?',confirmTitle:'Confirmar solicitud',confirmSend:'Confirmar y enviar',backEdit:'Volver',withdraw:'Retirar',withdrawQ:'¿Retirar esta solicitud?',withdrawNoperm:'Solo el solicitante puede retirar.',cancelled:'Retirado',
   secLogin:'Entrar jefe de sección',mgrLogin:'Entrar gerente',pwPh:'Contraseña',wrong:'Contraseña incorrecta',locked:'(inicie sesión para revisar)',
   waitSec:'Pend. aprobación 1',waitMgr:'Pend. aprobación 2',approved:'Aprobado',rejected:'Rechazado',
   approve:'Aprobar',reject:'Rechazar',rejectTitle:'Motivo de rechazo',pickReason:'Elija un motivo…',note:'Nota (opcional)',confirm:'Confirmar rechazo',cancel:'Cancelar',
   noReq:'No hay solicitudes',by:'Revisó',at:'',secRole:'Aprobación 1 (jefe)',mgrRole:'Aprobación 2 (gerente)',loginFirst:'Inicie sesión con su cuenta para revisar',needApply:'Inicie sesión con una cuenta con permiso de solicitud',fromL:'Desde',toL:'Hasta',del:'Eliminar',delQ:'¿Eliminar este registro? No se puede deshacer.',delNoperm:'No tiene permiso para eliminar registros.',delAdminTitle:'🗑 N.º de empleado con permiso de eliminación',delAdminDesc:'Solo los N.º aquí ingresados (tras iniciar sesión) pueden eliminar registros. Varios separados por coma o salto de línea.',needAppr1:'(requiere aprobación 1)',needAppr2:'(requiere aprobación 2)',people1:'Personal',reasonL:'Motivo',applicantL:'Solicitante'});
 Object.assign(OT_I18N.en,{tabApply:'Apply',tabReview:'Review',tabHistory:'History',histPerson:'Person',histCourse:'Section',histMachine:'Equipment',histSearch:'Search',histAll:'All',histPersonPh:'ID or name',histNumPh:'Number (empty=all)',events:'events',noResult:'No results',histApplicant:'Applicant',timeRange:'Time',hoursUnit:'h',totalTime:'Total Time',needTime:'Enter start and end time',pickPerson:'Select personnel…',notInStaff:'This ID is not in the staff list; cannot add.',noMachine:'Equipment not found: {m}. Check type and number.',dupPerson:'Duplicate: this person is already on the list.',fillFirst:'Fill date and time first before adding personnel.',conflict:'Time conflict: {name} already has overtime in that period.',overrideRole:'Override reject',overrideBtn:'Override reject',tabToday:'Today',tabPend1:'Pending 1',tabPend2:'Pending 2',histDate:'Date',hFrom:'From',hTo:'To',datePh:'Pick a date',noToday:'No requests today',exportBtn:'⬇ Export Excel',exportPdf:'🧾 Generate PDF',colDate:'Date',colStart:'Start',colEnd:'End',colHours:'Hours',colGroup:'Section',colMachine:'Equipment',colNum:'Number',colPeople:'Personnel',colPersonId:'Employee ID',colPersonName:'Name',colApplicant:'Applicant',colReason:'Reason',colStatus:'Status',colConfirmHrs:'Confirm hours',colReview:'Review',histStatus:'Status',stAll:'All',stApproved:'Approved',stRejected:'Rejected',stCancelled:'Withdrawn',stW1:'Awaiting 1',stW2:'Awaiting 2',
   group:'Section',people:'Personnel (ID, multiple)',addp:'Add',date:'Date',machine:'Equipment type',num:'Number',multi:'Multiple',multiAdd:'➕ Add machine',multiNeed:'Add at least one machine with a number',reason:'Reason',applicant:'Applicant (leader ID)',submit:'Submit request',
-  errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',withdrawNoperm:'Only the applicant can withdraw.',cancelled:'Withdrawn',
+  errForm:'Fill group, at least one person, number, reason and applicant',notAllowed:'This applicant has no permission',sent:'Request submitted ✓',dateWarnApply:'⚠️ The overtime date is {d}, not today ({t}).\nSubmit anyway?',dateWarnAppr:'⚠️ This request is for {d}, not today ({t}).\nApprove anyway?',confirmTitle:'Confirm request',confirmSend:'Confirm & send',backEdit:'Back',withdraw:'Withdraw',withdrawQ:'Withdraw this request?',withdrawNoperm:'Only the applicant can withdraw.',cancelled:'Withdrawn',
   secLogin:'Section chief login',mgrLogin:'Manager login',pwPh:'Password',wrong:'Wrong password',locked:'(log in to review)',
   waitSec:'Awaiting approval 1',waitMgr:'Awaiting approval 2',approved:'Approved',rejected:'Rejected',
   approve:'Approve',reject:'Reject',rejectTitle:'Reject reason',pickReason:'Select a reason…',note:'Note (optional)',confirm:'Confirm reject',cancel:'Cancel',
@@ -5190,6 +5216,7 @@ async function otaSubmit(){
   if(multi && !machines.length){ err.textContent=otT('multiNeed'); return; }
   if(!group||!otAppPeople.length||(!multi&&!noNum&&!num)||!reason){ err.textContent=otT('errForm'); return; }
   err.textContent='';
+  if(date && date!==otTodayStr()){ if(!confirm(otT('dateWarnApply').replace('{d}',date).replace('{t}',otTodayStr()))) return; }
   const start=document.getElementById('ota-start').value, end=document.getElementById('ota-end').value; const dateEnd=document.getElementById('ota-date-end').value||date; const hours=otCalcHoursDT(date,start,dateEnd,end);
   const rec={group,people:otAppPeople.slice(),date,end_date:dateEnd,start_time:start,end_time:end,hours,machine_type:type,machine_num:num,reason,applicant:{id:umCurrentUser.id,name:umCurrentUser.name},status:'pending',stage:'section',created:fldPanNow()};
   if(multi) rec.machines=machines;
@@ -5295,7 +5322,9 @@ async function otUnlock(role){
   otRefresh();
 }
 async function otApprove(id,role){
-  const r=OT_REQUESTS[id]; if(!r) return; const now=fldPanNow();
+  const r=OT_REQUESTS[id]; if(!r) return;
+  if(r.date && r.date!==otTodayStr()){ if(!confirm(otT('dateWarnAppr').replace('{d}',r.date).replace('{t}',otTodayStr()))) return; }
+  const now=fldPanNow();
   let patch;
   const who=(typeof umCurrentUser!=='undefined'&&umCurrentUser)?umCurrentUser.name:'';
   if(role==='sec'){ patch={stage:'manager',sec:{by:who,role:otT('secRole'),time:now,result:'approve'}}; }
@@ -6226,6 +6255,10 @@ let pollErrCount = 0;
 let _pollTick=0;
 async function poll(force){
   if(!force && (document.hidden || _isIdle())) return;   // 背景/縮小分頁、或閒置超時 → 不抓,省 Firebase 下載量
+  // 先讀極小的設定檔(幾十 bytes),判斷是否被「暫停即時更新」——全系統共用、即時生效
+  try{ const rc=await fetch(`${FB}/monitor_config.json`); const cfg=(await rc.json())||{}; MON_PAUSED=!!cfg.paused; }catch(e){}
+  if(MON_PAUSED){ _showPausedBanner(true); return; }     // 已暫停 → 不抓車機資料,省流量
+  _showPausedBanner(false);
   try{
     const r = await fetch(`${FB}/equipment.json`);
     if(!r.ok) throw new Error('HTTP '+r.status);
@@ -7379,6 +7412,10 @@ setInterval(pollOt,3000);
 setInterval(pollMessages,3000);
 // 切回分頁時立刻補一次,不用等下一個週期
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ poll(true); pollMessages(); } });
+// ── 車機即時更新「暫停開關」（全系統共用,存 Firebase monitor_config.paused）──
+var MON_PAUSED=false;
+function _pausedText(){ const t={es:'⏸ Actualización en vivo de equipos EN PAUSA (ahorro de datos) — reactívala en Sistema de monitoreo de equipos',zh:'⏸ 車機即時更新已暫停(省流量中)— 可到後台「車機監控系統」重新開啟',en:'⏸ Live equipment updates PAUSED (saving data) — re-enable in Equipment monitoring system'}; return t[(typeof maintLang!=='undefined'?maintLang:'es')]||t.es; }
+function _showPausedBanner(on){ let o=document.getElementById('paused-banner'); if(on){ if(!o){ o=document.createElement('div'); o.id='paused-banner'; o.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99998;background:#b45309;color:#fff;padding:10px 16px;text-align:center;font-size:13px;font-weight:700;box-shadow:0 2px 10px rgba(0,0,0,.25)'; document.body.appendChild(o); } o.textContent=_pausedText(); o.style.display='block'; } else if(o){ o.style.display='none'; } }
 // ── 閒置自動暫停：太久沒操作 → 斷線、停止更新,省流量 ──（用 var 避免載入順序 TDZ）
 var _lastActivity=Date.now();          // 最後一次操作時間
 var IDLE_MS=30*60*1000;                // 預設 30 分鐘;Infinity = 不自動暫停
@@ -7396,6 +7433,7 @@ setInterval(_idleCheck, 20000);
 (async()=>{ try{ const r=await fetch(`${FB}/monitor_config.json`); const c=await r.json();
   const s=c&&parseInt(c.refresh_sec,10); if(s&&s>=5) applyPollInterval(s*1000);
   if(c&&c.idle_min!=null){ const im=parseInt(c.idle_min,10); if(!isNaN(im)) applyIdleMinutes(im); }
+  if(c&&c.paused){ MON_PAUSED=true; _showPausedBanner(true); }
 }catch(e){} })();
 </script>
 </body>
