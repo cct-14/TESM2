@@ -6134,9 +6134,10 @@ async function abImport(kind,input){
   const msg=document.getElementById('ab-import-msg'); if(msg){ msg.style.color='var(--text3)'; msg.textContent='解析中…'; }
   try{
     const text=await file.text(); const parsed=abParseCSV(text);
-    if(kind==='att') await abImportAtt(parsed,file.name); else await abImportLeave(parsed,file.name);
+    const res=(kind==='att') ? await abImportAtt(parsed,file.name) : await abImportLeave(parsed,file.name);
+    if(res && res.mk){ abMonth=res.mk.slice(0,4)+'-'+res.mk.slice(4,6); const mi=document.getElementById('ab-month'); if(mi) mi.value=abMonth; await abLoadHoli(); }
     await abLoadMonth(); abDeptSel=null; abTab('dept');
-    if(msg){ msg.style.color='var(--green)'; msg.textContent='✓ 已匯入 '+file.name; }
+    if(msg){ if(res && res.count>0){ msg.style.color='var(--green)'; msg.textContent=`✓ 已匯入 ${res.count} 人（${kind==='att'?'出勤':'請假'}）→ 月份 ${abMonth}`; } else { msg.style.color='var(--red)'; msg.textContent='✗ 這份檔讀不到可用資料,請確認欄位與內容'; } }
   }catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
   input.value='';
 }
@@ -6155,7 +6156,9 @@ async function abImportAtt(parsed,fname){
   const iId=abFind(H,['employee id','employeeid','emp id','編號']), iNm=abFind(H,['nombre','name','姓名']),
         iDt=abFind(H,['date time','datetime','date','日期']), iIO=abFind(H,['in out','inout','in/out']), iTm=abFind(H,['time','時間']);
   if(iId<0||iDt<0||iIO<0||iTm<0) throw new Error('出勤報表欄位不符（需 Employee Id / Date Time / In Out / Time）');
-  const mk=abMonth.replace('-',''); const byPer={};
+  const mcount={}; D.forEach(c=>{ const dt=(c[iDt]||'').replace(/\D/g,''); if(dt.length>=6){ const ym=dt.slice(0,6); mcount[ym]=(mcount[ym]||0)+1; } });
+  const mk=Object.keys(mcount).sort((a,b)=>mcount[b]-mcount[a])[0]; if(!mk) throw new Error('出勤報表讀不到任何日期');
+  const byPer={};
   D.forEach(c=>{ const id=(c[iId]||'').trim(); if(!id) return; const dt=(c[iDt]||'').replace(/\D/g,''); if(dt.length<8||dt.slice(0,6)!==mk) return;
     const io=(c[iIO]||'').toUpperCase(); const tm=(c[iTm]||'').replace(/\D/g,''); let mins=0; if(tm.length>=3) mins=parseInt(tm.slice(0,tm.length-2),10)*60+parseInt(tm.slice(-2),10); else if(tm.length) mins=parseInt(tm,10)*60;
     const p=byPer[id]||(byPer[id]={name:(iNm>=0?c[iNm]:'')||'',days:{}}); const dd=dt.slice(6,8); const dy=p.days[dd]||(p.days[dd]={ins:[],outs:[]});
@@ -6167,6 +6170,7 @@ async function abImportAtt(parsed,fname){
   });
   doc.meta=doc.meta||{}; doc.meta.attFile=fname; doc.meta.attAt=new Date().toLocaleString('zh-TW',{timeZone:PA_TZ});
   await abSaveMonthDoc(mk,doc);
+  return {mk, count:Object.keys(byPer).length};
 }
 async function abImportLeave(parsed,fname){
   const H=parsed.headers, D=parsed.data;
@@ -6174,7 +6178,8 @@ async function abImportLeave(parsed,fname){
         iCls=abFind(H,['classification','class','假別']), iFrom=abFind(H,['date from','from','起']),
         iDay=abFind(H,['total day','days','天']), iHr=abFind(H,['total hour','hours','時']);
   if(iId<0||iCls<0) throw new Error('請假報表欄位不符（需 employee id / classification）');
-  const mk=abMonth.replace('-',''); const byPer={};
+  const mcount={}; D.forEach(c=>{ const f=(iFrom>=0?c[iFrom]:'').replace(/\D/g,''); if(f.length>=6){ const ym=f.slice(0,6); mcount[ym]=(mcount[ym]||0)+1; } });
+  const mk=Object.keys(mcount).sort((a,b)=>mcount[b]-mcount[a])[0]||abMonth.replace('-',''); const byPer={};
   D.forEach(c=>{ const id=(c[iId]||'').trim(); if(!id) return; const cls=(iCls>=0?c[iCls]:'').trim().toUpperCase(); if(!cls) return;
     const from=(iFrom>=0?c[iFrom]:'').replace(/\D/g,''); if(from.length>=6 && from.slice(0,6)!==mk) return;
     const days=iDay>=0?(parseFloat(c[iDay])||0):0; const hr=iHr>=0?abParseHM(c[iHr]):0; const total=hr>0?hr:days*480;
@@ -6184,6 +6189,7 @@ async function abImportLeave(parsed,fname){
   Object.entries(byPer).forEach(([id,p])=>{ const pd=doc.persons[id]||(doc.persons[id]={}); if(!pd.name) pd.name=p.name||id; pd.leaves=p.leaves; });
   doc.meta=doc.meta||{}; doc.meta.leaveFile=fname; doc.meta.leaveAt=new Date().toLocaleString('zh-TW',{timeZone:PA_TZ});
   await abSaveMonthDoc(mk,doc);
+  return {mk, count:Object.keys(byPer).length};
 }
 // ── 計算 ──
 function abIsHoliday(ymd){ const mmdd=ymd.slice(4,8); if(AB_HOLI&&AB_HOLI[mmdd]!=null) return !!AB_HOLI[mmdd]; const y=+ymd.slice(0,4),m=+ymd.slice(4,6),d=+ymd.slice(6,8); const dow=new Date(y,m-1,d).getDay(); return dow===0||dow===6; }
