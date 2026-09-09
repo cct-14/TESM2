@@ -6196,10 +6196,10 @@ function abIsHoliday(ymd){ const mmdd=ymd.slice(4,8); if(AB_HOLI&&AB_HOLI[mmdd]!
 function abMonthWorkdays(){ const [y,m]=abMonth.split('-').map(Number); const n=new Date(y,m,0).getDate(); let wd=0; for(let d=1;d<=n;d++){ const ymd=`${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}`; if(!abIsHoliday(ymd)) wd++; } return wd; }
 function abTypeByName(cls){ cls=String(cls||'').toUpperCase(); for(const k in AB_TYPES){ const t=AB_TYPES[k]; if((t.name||'').toUpperCase()===cls||(t.code||'').toUpperCase()===cls) return t; } return null; }
 function abPersonStats(id,pd){
-  const [y,m]=abMonth.split('-').map(Number); let normal=0,ot=0;
-  Object.entries(pd.days||{}).forEach(([dd,v])=>{ const ymd=`${y}${String(m).padStart(2,'0')}${dd}`; if(abIsHoliday(ymd)) ot+=v.w||0; else normal+=v.w||0; });
+  pd=pd||{}; const [y,m]=abMonth.split('-').map(Number); let normal=0,ot=0;
+  Object.entries(pd.days||{}).forEach(([dd,v])=>{ if(!v) return; const w=+v.w||0; const ymd=`${y}${String(m).padStart(2,'0')}${dd}`; if(abIsHoliday(ymd)) ot+=w; else normal+=w; });
   const expMin=abMonthWorkdays()*480; let excused=0,absentLeave=0;
-  Object.entries(pd.leaves||{}).forEach(([cls,mn])=>{ const t=abTypeByName(cls); if(t&&t.absent) absentLeave+=mn; else excused+=mn; });
+  Object.entries(pd.leaves||{}).forEach(([cls,mn])=>{ mn=+mn||0; const t=abTypeByName(cls); if(t&&t.absent) absentLeave+=mn; else excused+=mn; });
   const absent=Math.max(0, expMin-normal-excused); const rate=expMin>0?(normal/expMin*100):0;
   return {normalMin:normal,otMin:ot,expMin,excusedMin:excused,absentLeaveMin:absentLeave,absentMin:absent,rate,leaves:pd.leaves||{}};
 }
@@ -6213,7 +6213,7 @@ function abRenderDept(){
   if(!AB_DATA||!AB_DATA.persons||!Object.keys(AB_DATA.persons).length){ el.innerHTML=`<div class="ab-card">📥 ${abMonth} 這個月還沒有資料。請用上方「匯入出勤報表 / 請假報表」上傳 CSV。<br><span style="font-size:12px;color:var(--text3)">(請假報表若是 Excel,請先在 Excel「另存為 CSV」再上傳)</span></div>`; return; }
   if(abDeptSel){ return abRenderDeptDetail(el); }
   const depts={}, unmatched=[]; const tot={norm:0,exp:0,ot:0,absent:0,n:0};
-  Object.entries(AB_DATA.persons).forEach(([id,pd])=>{ const dept=abDeptOf(id); if(!dept){ unmatched.push(pd.name||id); return; } if(dept==='辦公室') return;
+  Object.entries(AB_DATA.persons).forEach(([id,pd])=>{ if(!pd) return; const dept=abDeptOf(id); if(!dept){ unmatched.push(pd.name||id); return; } if(dept==='辦公室') return;
     const s=abPersonStats(id,pd); const g=depts[dept]||(depts[dept]={norm:0,exp:0,ot:0,absent:0,n:0,leaveMin:0}); g.norm+=s.normalMin; g.exp+=s.expMin; g.ot+=s.otMin; g.absent+=s.absentMin; g.n++; Object.values(s.leaves).forEach(mn=>g.leaveMin+=mn);
     tot.norm+=s.normalMin; tot.exp+=s.expMin; tot.ot+=s.otMin; tot.absent+=s.absentMin; tot.n++;
   });
@@ -6238,7 +6238,7 @@ function abSetUnit(u){ abUnit=u; if(abTabCur==='dept') abRenderDept(); }
 function abOpenDept(dp){ abDeptSel=dp; abRenderDept(); }
 function abRenderDeptDetail(el){
   const dp=abDeptSel; const rows=[]; const tot={norm:0,exp:0,ot:0,absent:0}; const byType={};
-  Object.entries(AB_DATA.persons).forEach(([id,pd])=>{ if(abDeptOf(id)!==dp) return; const s=abPersonStats(id,pd); rows.push({id,name:pd.name||id,s}); tot.norm+=s.normalMin; tot.exp+=s.expMin; tot.ot+=s.otMin; tot.absent+=s.absentMin; Object.entries(s.leaves).forEach(([c,mn])=>byType[c]=(byType[c]||0)+mn); });
+  Object.entries(AB_DATA.persons).forEach(([id,pd])=>{ if(!pd||abDeptOf(id)!==dp) return; const s=abPersonStats(id,pd); rows.push({id,name:pd.name||id,s}); tot.norm+=s.normalMin; tot.exp+=s.expMin; tot.ot+=s.otMin; tot.absent+=s.absentMin; Object.entries(s.leaves).forEach(([c,mn])=>byType[c]=(byType[c]||0)+mn); });
   rows.sort((a,b)=>a.s.rate-b.s.rate);
   const rate=tot.exp>0?(tot.norm/tot.exp*100):0;
   let html=`<div class="ab-back" onclick="abBackDept()">← 返回各課</div>`;
