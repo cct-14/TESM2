@@ -6099,7 +6099,7 @@ const AB_SEED=[
  {code:'UM',name:'UNION_MEETING',absent:false},{code:'VA',name:'VACATION',absent:false},
  {code:'VL',name:'VALE_LEAVE',absent:false}
 ];
-let AB_TYPES=null, AB_DATA=null, AB_HOLI={}, abTabCur='dept', abMonth=null, abUnit='h', abDeptSel=null;
+let AB_TYPES=null, AB_DATA=null, AB_HOLI={}, abTabCur='dept', abMonth=null, abUnit='h', abDeptSel=null, abCalYear=null;
 
 async function initAtt(){
   if(!abMonth){ const p=panParts(); abMonth=p.y+'-'+String(p.m).padStart(2,'0'); }
@@ -6114,7 +6114,8 @@ async function abLoadTypes(){
   AB_TYPES={}; AB_SEED.forEach(t=>AB_TYPES[t.code]={code:t.code,name:t.name,absent:!!t.absent});
   try{ await fetch(`${FB}/att_leavetypes.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(AB_TYPES)}); }catch(e){}
 }
-async function abLoadHoli(){ const y=abMonth.slice(0,4); try{ const r=await fetch(`${FB}/att_holidays/${y}.json`); AB_HOLI=(await r.json())||{}; }catch(e){ AB_HOLI={}; } }
+async function abLoadHoli(){ await abLoadHoliYear(+abMonth.slice(0,4)); }
+async function abLoadHoliYear(y){ if(AB_HOLI[y]) return AB_HOLI[y]; try{ const r=await fetch(`${FB}/att_holidays/${y}.json`); AB_HOLI[y]=(await r.json())||{}; }catch(e){ AB_HOLI[y]={}; } return AB_HOLI[y]; }
 async function abFetchMonthDoc(mk){ try{ const r=await fetch(`${FB}/att_month/${mk}.json`); return (await r.json())||{}; }catch(e){ return {}; } }
 async function abSaveMonthDoc(mk,doc){ await fetch(`${FB}/att_month/${mk}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(doc)}); }
 async function abLoadMonth(){ AB_DATA=await abFetchMonthDoc(abMonth.replace('-','')); }
@@ -6125,7 +6126,7 @@ function abTab(t){ abTabCur=t;
   if(t==='dept') abRenderDept();
   else if(t==='types') abRenderTypes();
   else if(t==='person') document.getElementById('ab-pane-person').innerHTML='<div class="ab-card">🔍 個人查詢（第三階段開發中）</div>';
-  else if(t==='cal') document.getElementById('ab-pane-cal').innerHTML='<div class="ab-card">📅 年度月曆勾放假日（第二階段開發中）。目前預設週六、週日為放假日計算。</div>';
+  else if(t==='cal') abRenderCal();
 }
 // ── 匯入 ──
 function abTriggerImport(kind){ if(!abCanEdit()){ alert('請先登入'); return; } const i=document.getElementById('ab-file-'+kind); if(i){ i.value=''; i.click(); } }
@@ -6192,7 +6193,7 @@ async function abImportLeave(parsed,fname){
   return {mk, count:Object.keys(byPer).length};
 }
 // ── 計算 ──
-function abIsHoliday(ymd){ const mmdd=ymd.slice(4,8); if(AB_HOLI&&AB_HOLI[mmdd]!=null) return !!AB_HOLI[mmdd]; const y=+ymd.slice(0,4),m=+ymd.slice(4,6),d=+ymd.slice(6,8); const dow=new Date(y,m-1,d).getDay(); return dow===0||dow===6; }
+function abIsHoliday(ymd){ const yy=ymd.slice(0,4), mmdd=ymd.slice(4,8); const map=AB_HOLI[yy]||{}; if(map[mmdd]!=null) return !!map[mmdd]; const y=+yy,m=+ymd.slice(4,6),d=+ymd.slice(6,8); const dow=new Date(y,m-1,d).getDay(); return dow===0||dow===6; }
 function abMonthWorkdays(){ const [y,m]=abMonth.split('-').map(Number); const n=new Date(y,m,0).getDate(); let wd=0; for(let d=1;d<=n;d++){ const ymd=`${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}`; if(!abIsHoliday(ymd)) wd++; } return wd; }
 function abTypeByName(cls){ cls=String(cls||'').toUpperCase(); for(const k in AB_TYPES){ const t=AB_TYPES[k]; if((t.name||'').toUpperCase()===cls||(t.code||'').toUpperCase()===cls) return t; } return null; }
 function abPersonStats(id,pd){
@@ -6272,6 +6273,43 @@ async function abSaveTypes(){
   const msg=document.getElementById('ab-types-msg');
   try{ await fetch(`${FB}/att_leavetypes.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(AB_TYPES)}); if(msg){ msg.style.color='var(--green)'; msg.textContent='✓ 已儲存(出勤率/缺勤已依新設定重算)'; } if(typeof logAudit==='function') logAudit('att_types','更新假別算缺勤設定'); }
   catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
+}
+// ── 分頁3:年度月曆(勾放假日) ──
+async function abRenderCal(){
+  const el=document.getElementById('ab-pane-cal'); if(!el) return;
+  if(!abCalYear) abCalYear=+abMonth.slice(0,4);
+  await abLoadHoliYear(abCalYear);
+  el.innerHTML=abCalHtml();
+}
+function abCalHtml(){
+  const y=abCalYear; const dow=['日','一','二','三','四','五','六'];
+  const today=new Date(); const tYmd=`${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
+  let h=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
+    <span class="ab-toggle"><button onclick="abCalShiftYear(-1)">‹</button><button class="on" style="cursor:default;min-width:64px">${y}</button><button onclick="abCalShiftYear(1)">›</button></span>
+    <span style="font-size:12px;color:var(--text3)">點日期切換 <b style="color:var(--text2)">工作日</b> / <b style="color:var(--red)">放假日</b>。放假日有打卡 = 加班;工作日 × 8h = 應上班。預設週六日為放假(可點成工作日)。</span></div>`;
+  h+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">`;
+  for(let m=1;m<=12;m++){
+    h+=`<div class="ab-card" style="padding:10px 10px 8px"><div style="font-weight:800;margin-bottom:6px;font-size:13px">${y} / ${String(m).padStart(2,'0')}</div>`;
+    h+=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-size:11px">`;
+    dow.forEach((d,i)=>h+=`<div style="text-align:center;color:${(i===0||i===6)?'var(--red)':'var(--text3)'};font-weight:700">${d}</div>`);
+    const first=new Date(y,m-1,1).getDay(); const days=new Date(y,m,0).getDate();
+    for(let i=0;i<first;i++) h+=`<div></div>`;
+    for(let d=1;d<=days;d++){ const mmdd=String(m).padStart(2,'0')+String(d).padStart(2,'0'); const ymd=`${y}${mmdd}`; const hol=abIsHoliday(ymd); const isT=ymd===tYmd;
+      h+=`<div onclick="abToggleHoli('${mmdd}')" title="${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}" style="text-align:center;padding:5px 0;border-radius:6px;cursor:pointer;font-weight:700;background:${hol?'#fee2e2':'var(--bg2)'};color:${hol?'var(--red)':'var(--text2)'};${isT?'outline:2px solid var(--blue);outline-offset:-2px':''}">${d}</div>`;
+    }
+    h+=`</div></div>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+function abCalShiftYear(d){ abCalYear+=d; abRenderCal(); }
+async function abToggleHoli(mmdd){
+  if(!abCanEdit()){ alert('請先登入'); return; }
+  const y=abCalYear||+abMonth.slice(0,4); AB_HOLI[y]=AB_HOLI[y]||{};
+  const nv=!abIsHoliday(`${y}${mmdd}`);
+  AB_HOLI[y][mmdd]=nv;
+  try{ await fetch(`${FB}/att_holidays/${y}/${mmdd}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(nv)}); if(typeof logAudit==='function') logAudit('att_holiday',`${y}/${mmdd} → ${nv?'放假':'工作日'}`); }catch(e){ alert('✗ '+e.message); }
+  abRenderCal();
 }
 /* =================== 出勤統計系統 end =================== */
 let fldFlow='status', fldHoursUnlocked=false, fldStatus=null;
