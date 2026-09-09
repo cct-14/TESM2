@@ -4557,11 +4557,24 @@ function renderOverdueBanner(){
   const L=mtL();
   el.innerHTML=`${L.overdueBanner(maintType,n)}　<span style="font-weight:400;text-decoration:underline">${L.viewMore}</span>`;
 }
+async function mtOverdueToggle(type,team,id,checked){
+  if(!ensureMaintEdit()){ showOverdue(); return; }
+  const now=checked?new Date().toLocaleString('zh-TW',{timeZone:PA_TZ}):null;
+  try{
+    await fetch(`${FB}/maintenance/${type}/${team}/tasks/${id}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({done:checked,doneAt:now})});
+    const g=mtGet(type,team); const t=g&&g.tasks&&g.tasks[id]; if(t){ t.done=checked; t.doneAt=now; }
+    await maintLog(checked?'完成':'恢復', `${type} ${team} ${t?t.machine:''} ${t?t.code:id}`);
+    if(typeof logAudit==='function') logAudit('maint_done', `${type} ${team} ${t?t.machine:''} ${t?(t.name||t.code):id}${checked?'':' (恢復)'}`);
+    showOverdue();          // 完成的會自動移出逾期清單
+    renderMaintenance();    // 更新主畫面與逾期提示
+  }catch(e){ alert('✗ '+e.message); }
+}
 function showOverdue(){
   const rows=overdueTasks(maintType);
-  let html = rows.length ? rows.map(r=>
-    `<div class="mt-res"><span class="tag ${r.team}">${r.team}</span><span class="m">${r.machine}</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text3);font-size:12px;font-weight:700">${r.code||''}</span><span class="nm">${r.name||r.code}</span><span class="dt">期限 ${fmtYmd(r._due||taskDue(r))}</span></div>`
-  ).join('') : `<div class="mt-info-empty">沒有逾期工程 🎉</div>`;
+  let html = rows.length ? rows.map(r=>{
+    const ck=`<input type="checkbox" ${maintCanEdit()?'':'disabled'} onchange="mtOverdueToggle('${r.type}','${r.team}','${r.id}',this.checked)" style="width:16px;height:16px;flex-shrink:0"/>`;
+    return `<div class="mt-res">${ck}<span class="tag ${r.team}">${r.team}</span><span class="m">${r.machine}</span><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text3);font-size:12px;font-weight:700">${r.code||''}</span><span class="nm">${r.name||r.code}</span><span class="dt">期限 ${fmtYmd(r._due||taskDue(r))}</span></div>`;
+  }).join('') : `<div class="mt-info-empty">沒有逾期工程 🎉</div>`;
   openMtModal(`${maintType} 逾期未完成（${rows.length}）`, html);
 }
 
