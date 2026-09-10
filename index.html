@@ -1319,11 +1319,11 @@ select.fld-input.big{height:56px}
           <button class="ab-subtab" data-tab="types" onclick="abTab('types')">🏷 假別管理</button>
         </div>
         <div class="ab-toolbar">
-          <span style="font-weight:700;font-size:13px">月份</span>
+          <span id="ab-lbl-month" style="font-weight:700;font-size:13px">月份</span>
           <input type="month" id="ab-month" class="ab-sel" onchange="abSetMonth(this.value)"/>
-          <button class="ab-btn up" onclick="abTriggerImport('att')">⬆️ 匯入出勤報表</button>
+          <button class="ab-btn up" id="ab-btn-att" onclick="abTriggerImport('att')">⬆️ 匯入出勤報表</button>
           <input type="file" id="ab-file-att" accept=".csv,text/csv" style="display:none" onchange="abImport('att',this)"/>
-          <button class="ab-btn up" onclick="abTriggerImport('leave')">⬆️ 匯入請假報表</button>
+          <button class="ab-btn up" id="ab-btn-leave" onclick="abTriggerImport('leave')">⬆️ 匯入請假報表</button>
           <input type="file" id="ab-file-leave" accept=".csv,text/csv" style="display:none" onchange="abImport('leave',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
         </div>
@@ -3467,6 +3467,8 @@ function setMaintLang(l){
     if(document.getElementById('announce-list-'+r)&&typeof loadAnnounceList==='function') loadAnnounceList(r);
     if(document.getElementById('ann-list-'+r)&&typeof loadAnnounceListInPanel==='function') loadAnnounceListInPanel(r);
   });
+  // 出勤統計:語言切換時,若該頁開著就重繪
+  { const ap=document.getElementById('page-attendance'); if(ap&&ap.classList.contains('active')&&typeof abApplyLabels==='function'){ abApplyLabels(); if(typeof abTab==='function') abTab(abTabCur); } }
 }
 async function gasTranslate(text){
   const out={es:text,zh:text,en:text};
@@ -6099,6 +6101,21 @@ const AB_SEED=[
  {code:'UM',name:'UNION_MEETING',absent:false},{code:'VA',name:'VACATION',absent:false},
  {code:'VL',name:'VALE_LEAVE',absent:false}
 ];
+const AB_I18N={
+ es:{tDept:'Por sección',tPerson:'Buscar persona',tCal:'Calendario anual',tTypes:'Tipos de permiso',lblMonth:'Mes',impAtt:'⬆️ Importar asistencia',impLeave:'⬆️ Importar permisos',parsing:'Analizando…',imported:'Importado',people:'pers.',kindAtt:'asistencia',kindLeave:'permiso',toMonth:'→ mes',impNone:'✗ El archivo no tiene datos válidos, revise columnas/contenido',login:'Inicie sesión primero',errAtt:'Columnas de asistencia no válidas (Employee Id / Date Time / In Out / Time)',errAttDate:'No se leyó ninguna fecha',errLeave:'Columnas de permiso no válidas (employee id / classification)',noData:'📥 Sin datos de {m}. Use arriba «Importar asistencia / permisos» para subir el CSV.',csvNote:'(Si el permiso es Excel, guárdelo como CSV antes de subir)',kTotPeople:'Personas (división)',kTotRate:'Asistencia (división)',kTotAbsent:'Ausencia (división)',kTotOt:'H. extra (división)',deptStats:'Estadísticas por sección',clickRow:'Clic en una fila para ver el panel',hDept:'Sección',hPeople:'Pers.',hRate:'Asistencia',hAbsent:'Ausencia',hOt:'H. extra',hLeaveSum:'Permisos',hName:'Nombre',hId:'N.º',hNormal:'Normal',hDeptCol:'Depto.',unmatched:'⚠️ {n} en el reporte pero sin sección en la lista de personal (no cuentan): {list}. Agrégelos en el panel.',monitor:'Panel',backDept:'← Volver a secciones',leaveBreakdown:'Permisos por tipo',absentTag:'·ausencia',hour:'Horas',day:'Días',typesWarn:'Marque «cuenta como ausencia» para que baje la asistencia; los no marcados son permiso justificado. Guarde al terminar. Esta lista es común a todo el sistema.',tyCode:'Código',tyName:'Nombre',tyDisp:'Mostrar (editable)',tyAbsent:'¿Ausencia?',save:'💾 Guardar',savedTypes:'✓ Guardado (asistencia/ausencia recalculadas)',calHint:'Clic para cambiar laboral / feriado. Feriado con marcaje = h. extra; laboral × 8h = esperado. Sáb/Dom feriado por defecto.',workday:'Laboral',holiday:'Feriado',pSearch:'🔍 Buscar N.º / nombre',pAllDept:'Todos deptos. / grupos',peopleN:'{n} personas',noMatch:'Sin resultados',backSearch:'← Volver a la búsqueda',leaveTitle:'Permisos',kExp:'Esperado',cIn:'Entrada',cOut:'Salida',cWork:'Horas',cType:'Tipo',incomplete:'⚠marcaje incompleto',dcol:'Día',dweek:'Sem.',unassigned:'Sin asignar',unitD:'d',dow:['D','L','M','X','J','V','S']},
+ zh:{tDept:'各課統計',tPerson:'個人查詢',tCal:'年度月曆',tTypes:'假別管理',lblMonth:'月份',impAtt:'⬆️ 匯入出勤報表',impLeave:'⬆️ 匯入請假報表',parsing:'解析中…',imported:'已匯入',people:'人',kindAtt:'出勤',kindLeave:'請假',toMonth:'→ 月份',impNone:'✗ 這份檔讀不到可用資料,請確認欄位與內容',login:'請先登入',errAtt:'出勤報表欄位不符（需 Employee Id / Date Time / In Out / Time）',errAttDate:'出勤報表讀不到任何日期',errLeave:'請假報表欄位不符（需 employee id / classification）',noData:'📥 {m} 這個月還沒有資料。請用上方「匯入出勤報表 / 請假報表」上傳 CSV。',csvNote:'(請假報表若是 Excel,請先在 Excel「另存為 CSV」再上傳)',kTotPeople:'本部總人數',kTotRate:'本部出勤率',kTotAbsent:'本部缺勤',kTotOt:'本部加班',deptStats:'各課統計',clickRow:'點一列看該課監控表',hDept:'課別',hPeople:'人數',hRate:'出勤率',hAbsent:'缺勤',hOt:'加班',hLeaveSum:'請假合計',hName:'姓名',hId:'編號',hNormal:'正常出勤',hDeptCol:'部門',unmatched:'⚠️ 有 {n} 位在報表裡、但後台名單查不到部門(算不進課別):{list}。請到後台補上他們的編號與部門。',monitor:'監控表',backDept:'← 返回各課',leaveBreakdown:'各假別合計',absentTag:'·算缺勤',hour:'小時',day:'天',typesWarn:'勾「算缺勤」的假別才會被算進缺勤/拉低出勤率;沒勾的當作正當請假。改完按下面「儲存」。這份清單全站共用。',tyCode:'代碼',tyName:'假別名稱',tyDisp:'顯示名稱(可改)',tyAbsent:'算缺勤',save:'💾 儲存',savedTypes:'✓ 已儲存(出勤率/缺勤已重算)',calHint:'點日期切換 工作日 / 放假日。放假日有打卡 = 加班;工作日 × 8h = 應上班。預設週六日為放假(可點成工作日)。',workday:'工作日',holiday:'放假日',pSearch:'🔍 搜尋 編號 / 姓名',pAllDept:'全部部門 / 組別',peopleN:'共 {n} 人',noMatch:'查無符合',backSearch:'← 返回查詢',leaveTitle:'請假',kExp:'應上班',cIn:'上班',cOut:'下班',cWork:'工時',cType:'類型',incomplete:'⚠打卡不全',dcol:'日',dweek:'星期',unassigned:'未對應',unitD:'天',dow:['日','一','二','三','四','五','六']},
+ en:{tDept:'By section',tPerson:'Person search',tCal:'Year calendar',tTypes:'Leave types',lblMonth:'Month',impAtt:'⬆️ Import attendance',impLeave:'⬆️ Import leave',parsing:'Parsing…',imported:'Imported',people:'people',kindAtt:'attendance',kindLeave:'leave',toMonth:'→ month',impNone:'✗ No usable data in this file, check columns/content',login:'Please sign in first',errAtt:'Attendance columns invalid (need Employee Id / Date Time / In Out / Time)',errAttDate:'No dates found in the attendance file',errLeave:'Leave columns invalid (need employee id / classification)',noData:'📥 No data for {m} yet. Use “Import attendance / leave” above to upload the CSV.',csvNote:'(If the leave report is Excel, save it as CSV first)',kTotPeople:'Division people',kTotRate:'Division attendance',kTotAbsent:'Division absence',kTotOt:'Division overtime',deptStats:'By section',clickRow:'Click a row for its panel',hDept:'Section',hPeople:'People',hRate:'Attendance',hAbsent:'Absence',hOt:'Overtime',hLeaveSum:'Leave total',hName:'Name',hId:'ID',hNormal:'Normal',hDeptCol:'Dept.',unmatched:'⚠️ {n} people in the report have no section in the staff list (not counted): {list}. Add their ID and section in the backend.',monitor:'Monitor',backDept:'← Back to sections',leaveBreakdown:'Leave by type',absentTag:'·absence',hour:'Hours',day:'Days',typesWarn:'Only types checked as “counts as absence” lower attendance; unchecked ones are excused leave. Click Save when done. This list is shared system-wide.',tyCode:'Code',tyName:'Name',tyDisp:'Display name (editable)',tyAbsent:'Absence?',save:'💾 Save',savedTypes:'✓ Saved (attendance/absence recalculated)',calHint:'Click a day to toggle Workday / Holiday. Holiday with punch = overtime; workday × 8h = expected. Sat/Sun holiday by default.',workday:'Workday',holiday:'Holiday',pSearch:'🔍 Search ID / name',pAllDept:'All depts. / groups',peopleN:'{n} people',noMatch:'No results',backSearch:'← Back to search',leaveTitle:'Leave',kExp:'Expected',cIn:'In',cOut:'Out',cWork:'Hours',cType:'Type',incomplete:'⚠incomplete punch',dcol:'Day',dweek:'Wk',unassigned:'Unassigned',unitD:'d',dow:['Su','Mo','Tu','We','Th','Fr','Sa']}
+};
+function abL(k){ const L=AB_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||AB_I18N.es; return (k in L)?L[k]:(AB_I18N.zh[k]!=null?AB_I18N.zh[k]:k); }
+function abApplyLabels(){ const set=(sel,txt)=>{ const e=document.querySelector(sel); if(e) e.textContent=txt; };
+  set('#page-attendance .ab-subtab[data-tab="dept"]','📊 '+abL('tDept'));
+  set('#page-attendance .ab-subtab[data-tab="person"]','🔍 '+abL('tPerson'));
+  set('#page-attendance .ab-subtab[data-tab="cal"]','📅 '+abL('tCal'));
+  set('#page-attendance .ab-subtab[data-tab="types"]','🏷 '+abL('tTypes'));
+  set('#ab-lbl-month',abL('lblMonth'));
+  const ba=document.getElementById('ab-btn-att'); if(ba) ba.textContent=abL('impAtt');
+  const bl=document.getElementById('ab-btn-leave'); if(bl) bl.textContent=abL('impLeave');
+}
 let AB_TYPES=null, AB_DATA=null, AB_HOLI={}, abTabCur='dept', abMonth=null, abUnit='h', abDeptSel=null, abCalYear=null;
 
 async function initAtt(){
@@ -6119,26 +6136,26 @@ async function abLoadHoliYear(y){ if(AB_HOLI[y]) return AB_HOLI[y]; try{ const r
 async function abFetchMonthDoc(mk){ try{ const r=await fetch(`${FB}/att_month/${mk}.json`); return (await r.json())||{}; }catch(e){ return {}; } }
 async function abSaveMonthDoc(mk,doc){ await fetch(`${FB}/att_month/${mk}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(doc)}); }
 async function abLoadMonth(){ AB_DATA=await abFetchMonthDoc(abMonth.replace('-','')); }
-function abSetMonth(v){ if(!v) return; abMonth=v; (async()=>{ await abLoadHoli(); await abLoadMonth(); abDeptSel=null; abTab(abTabCur); })(); }
-function abTab(t){ abTabCur=t;
+function abSetMonth(v){ if(!v) return; abMonth=v; (async()=>{ await abLoadHoli(); await abLoadMonth(); abDeptSel=null; abPSel=null; abTab(abTabCur); })(); }
+function abTab(t){ abTabCur=t; abApplyLabels();
   document.querySelectorAll('#page-attendance .ab-subtab').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===t));
   ['dept','person','cal','types'].forEach(k=>{ const p=document.getElementById('ab-pane-'+k); if(p) p.style.display=(k===t)?'':'none'; });
   if(t==='dept') abRenderDept();
   else if(t==='types') abRenderTypes();
-  else if(t==='person') document.getElementById('ab-pane-person').innerHTML='<div class="ab-card">🔍 個人查詢（第三階段開發中）</div>';
+  else if(t==='person') abRenderPerson();
   else if(t==='cal') abRenderCal();
 }
 // ── 匯入 ──
-function abTriggerImport(kind){ if(!abCanEdit()){ alert('請先登入'); return; } const i=document.getElementById('ab-file-'+kind); if(i){ i.value=''; i.click(); } }
+function abTriggerImport(kind){ if(!abCanEdit()){ alert(abL('login')); return; } const i=document.getElementById('ab-file-'+kind); if(i){ i.value=''; i.click(); } }
 async function abImport(kind,input){
   const file=input.files&&input.files[0]; if(!file) return;
-  const msg=document.getElementById('ab-import-msg'); if(msg){ msg.style.color='var(--text3)'; msg.textContent='解析中…'; }
+  const msg=document.getElementById('ab-import-msg'); if(msg){ msg.style.color='var(--text3)'; msg.textContent=abL('parsing'); }
   try{
     const text=await file.text(); const parsed=abParseCSV(text);
     const res=(kind==='att') ? await abImportAtt(parsed,file.name) : await abImportLeave(parsed,file.name);
     if(res && res.mk){ abMonth=res.mk.slice(0,4)+'-'+res.mk.slice(4,6); const mi=document.getElementById('ab-month'); if(mi) mi.value=abMonth; await abLoadHoli(); }
-    await abLoadMonth(); abDeptSel=null; abTab('dept');
-    if(msg){ if(res && res.count>0){ msg.style.color='var(--green)'; msg.textContent=`✓ 已匯入 ${res.count} 人（${kind==='att'?'出勤':'請假'}）→ 月份 ${abMonth}`; } else { msg.style.color='var(--red)'; msg.textContent='✗ 這份檔讀不到可用資料,請確認欄位與內容'; } }
+    await abLoadMonth(); abDeptSel=null; abPSel=null; abTab('dept');
+    if(msg){ if(res && res.count>0){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${kind==='att'?abL('kindAtt'):abL('kindLeave')}）${abL('toMonth')} ${abMonth}`; } else { msg.style.color='var(--red)'; msg.textContent=abL('impNone'); } }
   }catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
   input.value='';
 }
@@ -6156,9 +6173,9 @@ async function abImportAtt(parsed,fname){
   const H=parsed.headers, D=parsed.data;
   const iId=abFind(H,['employee id','employeeid','emp id','編號']), iNm=abFind(H,['nombre','name','姓名']),
         iDt=abFind(H,['date time','datetime','date','日期']), iIO=abFind(H,['in out','inout','in/out']), iTm=abFind(H,['time','時間']);
-  if(iId<0||iDt<0||iIO<0||iTm<0) throw new Error('出勤報表欄位不符（需 Employee Id / Date Time / In Out / Time）');
+  if(iId<0||iDt<0||iIO<0||iTm<0) throw new Error(abL('errAtt'));
   const mcount={}; D.forEach(c=>{ const dt=(c[iDt]||'').replace(/\D/g,''); if(dt.length>=6){ const ym=dt.slice(0,6); mcount[ym]=(mcount[ym]||0)+1; } });
-  const mk=Object.keys(mcount).sort((a,b)=>mcount[b]-mcount[a])[0]; if(!mk) throw new Error('出勤報表讀不到任何日期');
+  const mk=Object.keys(mcount).sort((a,b)=>mcount[b]-mcount[a])[0]; if(!mk) throw new Error(abL('errAttDate'));
   const byPer={};
   D.forEach(c=>{ const id=(c[iId]||'').trim(); if(!id) return; const dt=(c[iDt]||'').replace(/\D/g,''); if(dt.length<8||dt.slice(0,6)!==mk) return;
     const io=(c[iIO]||'').toUpperCase(); const tm=(c[iTm]||'').replace(/\D/g,''); let mins=0; if(tm.length>=3) mins=parseInt(tm.slice(0,tm.length-2),10)*60+parseInt(tm.slice(-2),10); else if(tm.length) mins=parseInt(tm,10)*60;
@@ -6178,7 +6195,7 @@ async function abImportLeave(parsed,fname){
   const iId=abFind(H,['employee id','employeeid','編號']), iNm=abFind(H,['name','nombre','姓名']),
         iCls=abFind(H,['classification','class','假別']), iFrom=abFind(H,['date from','from','起']),
         iDay=abFind(H,['total day','days','天']), iHr=abFind(H,['total hour','hours','時']);
-  if(iId<0||iCls<0) throw new Error('請假報表欄位不符（需 employee id / classification）');
+  if(iId<0||iCls<0) throw new Error(abL('errLeave'));
   const mcount={}; D.forEach(c=>{ const f=(iFrom>=0?c[iFrom]:'').replace(/\D/g,''); if(f.length>=6){ const ym=f.slice(0,6); mcount[ym]=(mcount[ym]||0)+1; } });
   const mk=Object.keys(mcount).sort((a,b)=>mcount[b]-mcount[a])[0]||abMonth.replace('-',''); const byPer={};
   D.forEach(c=>{ const id=(c[iId]||'').trim(); if(!id) return; const cls=(iCls>=0?c[iCls]:'').trim().toUpperCase(); if(!cls) return;
@@ -6206,12 +6223,12 @@ function abPersonStats(id,pd){
 }
 function abDeptOf(id){ return STAFF_DEPT[id]||''; }
 function abVal(min){ return abUnit==='d'? (min/480) : (min/60); }
-function abFmt(min){ const v=abVal(min); return (Math.round(v*10)/10)+(abUnit==='d'?' 天':' h'); }
+function abFmt(min){ const v=abVal(min); return (Math.round(v*10)/10)+(abUnit==='d'?' '+abL('unitD'):' h'); }
 function abRateColor(r){ return r>=95?'var(--green)':r>=85?'var(--amber)':'var(--red)'; }
 // ── 分頁1:各課統計 ──
 function abRenderDept(){
   const el=document.getElementById('ab-pane-dept'); if(!el) return;
-  if(!AB_DATA||!AB_DATA.persons||!Object.keys(AB_DATA.persons).length){ el.innerHTML=`<div class="ab-card">📥 ${abMonth} 這個月還沒有資料。請用上方「匯入出勤報表 / 請假報表」上傳 CSV。<br><span style="font-size:12px;color:var(--text3)">(請假報表若是 Excel,請先在 Excel「另存為 CSV」再上傳)</span></div>`; return; }
+  if(!AB_DATA||!AB_DATA.persons||!Object.keys(AB_DATA.persons).length){ el.innerHTML=`<div class="ab-card">${abL('noData').replace('{m}',abMonth)}<br><span style="font-size:12px;color:var(--text3)">${abL('csvNote')}</span></div>`; return; }
   if(abDeptSel){ return abRenderDeptDetail(el); }
   const depts={}, unmatched=[]; const tot={norm:0,exp:0,ot:0,absent:0,n:0};
   Object.entries(AB_DATA.persons).forEach(([id,pd])=>{ if(!pd) return; const dept=abDeptOf(id); if(!dept){ unmatched.push(pd.name||id); return; } if(dept==='辦公室') return;
@@ -6220,21 +6237,21 @@ function abRenderDept(){
   });
   const totRate=tot.exp>0?(tot.norm/tot.exp*100):0;
   let html=`<div class="ab-kpis">
-    <div class="ab-kpi"><div class="v">${tot.n}</div><div class="l">本部總人數</div></div>
-    <div class="ab-kpi"><div class="v" style="color:${abRateColor(totRate)}">${totRate.toFixed(1)}%</div><div class="l">本部出勤率</div></div>
-    <div class="ab-kpi"><div class="v" style="color:var(--red)">${abFmt(tot.absent)}</div><div class="l">本部缺勤</div></div>
-    <div class="ab-kpi"><div class="v" style="color:var(--blue)">${abFmt(tot.ot)}</div><div class="l">本部加班</div></div>
+    <div class="ab-kpi"><div class="v">${tot.n}</div><div class="l">${abL('kTotPeople')}</div></div>
+    <div class="ab-kpi"><div class="v" style="color:${abRateColor(totRate)}">${totRate.toFixed(1)}%</div><div class="l">${abL('kTotRate')}</div></div>
+    <div class="ab-kpi"><div class="v" style="color:var(--red)">${abFmt(tot.absent)}</div><div class="l">${abL('kTotAbsent')}</div></div>
+    <div class="ab-kpi"><div class="v" style="color:var(--blue)">${abFmt(tot.ot)}</div><div class="l">${abL('kTotOt')}</div></div>
   </div>`;
-  html+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><b>各課統計</b>${abUnitToggle()}<span style="font-size:12px;color:var(--text3)">點一列看該課監控表</span></div>`;
-  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>課別</th><th>人數</th><th>出勤率</th><th style="text-align:right">缺勤</th><th style="text-align:right">加班</th><th style="text-align:right">請假合計</th></tr></thead><tbody>`;
+  html+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><b>${abL('deptStats')}</b>${abUnitToggle()}<span style="font-size:12px;color:var(--text3)">${abL('clickRow')}</span></div>`;
+  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>${abL('hDept')}</th><th>${abL('hPeople')}</th><th>${abL('hRate')}</th><th style="text-align:right">${abL('hAbsent')}</th><th style="text-align:right">${abL('hOt')}</th><th style="text-align:right">${abL('hLeaveSum')}</th></tr></thead><tbody>`;
   Object.keys(depts).sort().forEach(dp=>{ const g=depts[dp]; const rate=g.exp>0?(g.norm/g.exp*100):0;
     html+=`<tr class="click" onclick="abOpenDept('${dp}')"><td><b>${dp}</b></td><td>${g.n}</td><td class="ab-rate" style="color:${abRateColor(rate)}"><span class="ab-bar" style="width:80px"><span style="width:${Math.min(100,rate)}%;background:${abRateColor(rate)}"></span></span> ${rate.toFixed(1)}%</td><td style="text-align:right;color:var(--red)">${abFmt(g.absent)}</td><td style="text-align:right;color:var(--blue)">${abFmt(g.ot)}</td><td style="text-align:right">${abFmt(g.leaveMin)}</td></tr>`;
   });
   html+=`</tbody></table></div>`;
-  if(unmatched.length) html+=`<div class="ab-warn">⚠️ 有 ${unmatched.length} 位在報表裡、但後台人員名單查不到部門(算不進課別):${unmatched.slice(0,20).join('、')}${unmatched.length>20?'…':''}<br>請到後台「帳號管理/人員名單」補上他們的編號與部門。</div>`;
+  if(unmatched.length) html+=`<div class="ab-warn">${abL('unmatched').replace('{n}',unmatched.length).replace('{list}',unmatched.slice(0,20).join('、')+(unmatched.length>20?'…':''))}</div>`;
   el.innerHTML=html;
 }
-function abUnitToggle(){ return `<span class="ab-toggle" style="margin-left:6px"><button class="${abUnit==='h'?'on':''}" onclick="abSetUnit('h')">小時</button><button class="${abUnit==='d'?'on':''}" onclick="abSetUnit('d')">天</button></span>`; }
+function abUnitToggle(){ return `<span class="ab-toggle" style="margin-left:6px"><button class="${abUnit==='h'?'on':''}" onclick="abSetUnit('h')">${abL('hour')}</button><button class="${abUnit==='d'?'on':''}" onclick="abSetUnit('d')">${abL('day')}</button></span>`; }
 function abSetUnit(u){ abUnit=u; if(abTabCur==='dept') abRenderDept(); }
 function abOpenDept(dp){ abDeptSel=dp; abRenderDept(); }
 function abRenderDeptDetail(el){
@@ -6242,15 +6259,15 @@ function abRenderDeptDetail(el){
   Object.entries(AB_DATA.persons).forEach(([id,pd])=>{ if(!pd||abDeptOf(id)!==dp) return; const s=abPersonStats(id,pd); rows.push({id,name:pd.name||id,s}); tot.norm+=s.normalMin; tot.exp+=s.expMin; tot.ot+=s.otMin; tot.absent+=s.absentMin; Object.entries(s.leaves).forEach(([c,mn])=>byType[c]=(byType[c]||0)+mn); });
   rows.sort((a,b)=>a.s.rate-b.s.rate);
   const rate=tot.exp>0?(tot.norm/tot.exp*100):0;
-  let html=`<div class="ab-back" onclick="abBackDept()">← 返回各課</div>`;
-  html+=`<div style="display:flex;align-items:center;gap:10px;margin:6px 0 12px"><b style="font-size:16px">${dp} 監控表</b>${abUnitToggle()}</div>`;
+  let html=`<div class="ab-back" onclick="abBackDept()">${abL('backDept')}</div>`;
+  html+=`<div style="display:flex;align-items:center;gap:10px;margin:6px 0 12px"><b style="font-size:16px">${dp} ${abL('monitor')}</b>${abUnitToggle()}</div>`;
   html+=`<div class="ab-kpis">
-    <div class="ab-kpi"><div class="v">${rows.length}</div><div class="l">人數</div></div>
-    <div class="ab-kpi"><div class="v" style="color:${abRateColor(rate)}">${rate.toFixed(1)}%</div><div class="l">出勤率</div></div>
-    <div class="ab-kpi"><div class="v" style="color:var(--red)">${abFmt(tot.absent)}</div><div class="l">缺勤</div></div>
-    <div class="ab-kpi"><div class="v" style="color:var(--blue)">${abFmt(tot.ot)}</div><div class="l">加班</div></div></div>`;
-  const tks=Object.keys(byType); if(tks.length){ html+=`<div class="ab-card"><b>各假別合計</b><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">`+tks.sort().map(c=>{ const t=abTypeByName(c); const nm=t?(t.code+' '+t.name):c; const ab=t&&t.absent; return `<span style="font-size:12px;padding:3px 9px;border-radius:10px;background:${ab?'#fee2e2':'var(--bg2)'};color:${ab?'var(--red)':'var(--text2)'};font-weight:700" title="${nm}">${c} ${abFmt(byType[c])}${ab?' ·算缺勤':''}</span>`; }).join('')+`</div></div>`; }
-  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>姓名</th><th>編號</th><th>出勤率</th><th style="text-align:right">正常出勤</th><th style="text-align:right">加班</th><th style="text-align:right">缺勤</th></tr></thead><tbody>`;
+    <div class="ab-kpi"><div class="v">${rows.length}</div><div class="l">${abL('hPeople')}</div></div>
+    <div class="ab-kpi"><div class="v" style="color:${abRateColor(rate)}">${rate.toFixed(1)}%</div><div class="l">${abL('hRate')}</div></div>
+    <div class="ab-kpi"><div class="v" style="color:var(--red)">${abFmt(tot.absent)}</div><div class="l">${abL('hAbsent')}</div></div>
+    <div class="ab-kpi"><div class="v" style="color:var(--blue)">${abFmt(tot.ot)}</div><div class="l">${abL('hOt')}</div></div></div>`;
+  const tks=Object.keys(byType); if(tks.length){ html+=`<div class="ab-card"><b>${abL('leaveBreakdown')}</b><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">`+tks.sort().map(c=>{ const t=abTypeByName(c); const nm=t?(t.code+' '+t.name):c; const ab=t&&t.absent; return `<span style="font-size:12px;padding:3px 9px;border-radius:10px;background:${ab?'#fee2e2':'var(--bg2)'};color:${ab?'var(--red)':'var(--text2)'};font-weight:700" title="${nm}">${c} ${abFmt(byType[c])}${ab?abL('absentTag'):''}</span>`; }).join('')+`</div></div>`; }
+  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>${abL('hName')}</th><th>${abL('hId')}</th><th>${abL('hRate')}</th><th style="text-align:right">${abL('hNormal')}</th><th style="text-align:right">${abL('hOt')}</th><th style="text-align:right">${abL('hAbsent')}</th></tr></thead><tbody>`;
   rows.forEach(r=>{ html+=`<tr><td>${r.name}</td><td style="color:var(--text3)">${r.id}</td><td class="ab-rate" style="color:${abRateColor(r.s.rate)}"><span class="ab-bar" style="width:70px"><span style="width:${Math.min(100,r.s.rate)}%;background:${abRateColor(r.s.rate)}"></span></span> ${r.s.rate.toFixed(1)}%</td><td style="text-align:right">${abFmt(r.s.normalMin)}</td><td style="text-align:right;color:var(--blue)">${abFmt(r.s.otMin)}</td><td style="text-align:right;color:var(--red)">${abFmt(r.s.absentMin)}</td></tr>`; });
   html+=`</tbody></table></div>`;
   el.innerHTML=html;
@@ -6260,18 +6277,18 @@ function abBackDept(){ abDeptSel=null; abRenderDept(); }
 function abRenderTypes(){
   const el=document.getElementById('ab-pane-types'); if(!el) return;
   const codes=Object.keys(AB_TYPES).sort((a,b)=>(AB_TYPES[a].name||'').localeCompare(AB_TYPES[b].name||''));
-  let html=`<div class="ab-warn">勾選「算缺勤」的假別,才會被算進缺勤/拉低出勤率;沒勾的當作正當請假(不算缺勤)。改完按下面「💾 儲存」。這份清單全站共用。</div>`;
-  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><div class="ab-typerow h"><div>代碼</div><div>假別名稱</div><div>顯示名稱(可改)</div><div style="text-align:center">算缺勤</div></div>`;
+  let html=`<div class="ab-warn">${abL('typesWarn')}</div>`;
+  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><div class="ab-typerow h"><div>${abL('tyCode')}</div><div>${abL('tyName')}</div><div>${abL('tyDisp')}</div><div style="text-align:center">${abL('tyAbsent')}</div></div>`;
   codes.forEach(c=>{ const t=AB_TYPES[c]; html+=`<div class="ab-typerow"><div style="font-weight:700">${t.code}</div><div style="color:var(--text3);font-size:12px">${t.name}</div><div><input class="ab-tname" data-code="${c}" value="${(t.disp||t.name||'').replace(/"/g,'&quot;')}" style="width:100%;padding:5px 7px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg)"/></div><div style="text-align:center"><input type="checkbox" class="ab-tabs" data-code="${c}" ${t.absent?'checked':''} style="width:17px;height:17px"/></div></div>`; });
-  html+=`</div><div style="margin-top:12px;display:flex;gap:10px;align-items:center"><button class="ab-btn up" onclick="abSaveTypes()">💾 儲存</button><span id="ab-types-msg" class="ab-msg"></span></div>`;
+  html+=`</div><div style="margin-top:12px;display:flex;gap:10px;align-items:center"><button class="ab-btn up" onclick="abSaveTypes()">${abL('save')}</button><span id="ab-types-msg" class="ab-msg"></span></div>`;
   el.innerHTML=html;
 }
 async function abSaveTypes(){
-  if(!abCanEdit()){ alert('請先登入'); return; }
+  if(!abCanEdit()){ alert(abL('login')); return; }
   document.querySelectorAll('#ab-pane-types .ab-tabs').forEach(ch=>{ const c=ch.getAttribute('data-code'); if(AB_TYPES[c]) AB_TYPES[c].absent=ch.checked; });
   document.querySelectorAll('#ab-pane-types .ab-tname').forEach(inp=>{ const c=inp.getAttribute('data-code'); if(AB_TYPES[c]) AB_TYPES[c].disp=(inp.value||'').trim()||AB_TYPES[c].name; });
   const msg=document.getElementById('ab-types-msg');
-  try{ await fetch(`${FB}/att_leavetypes.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(AB_TYPES)}); if(msg){ msg.style.color='var(--green)'; msg.textContent='✓ 已儲存(出勤率/缺勤已依新設定重算)'; } if(typeof logAudit==='function') logAudit('att_types','更新假別算缺勤設定'); }
+  try{ await fetch(`${FB}/att_leavetypes.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(AB_TYPES)}); if(msg){ msg.style.color='var(--green)'; msg.textContent=abL('savedTypes'); } if(typeof logAudit==='function') logAudit('att_types','更新假別算缺勤設定'); }
   catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
 }
 // ── 分頁3:年度月曆(勾放假日) ──
@@ -6282,11 +6299,11 @@ async function abRenderCal(){
   el.innerHTML=abCalHtml();
 }
 function abCalHtml(){
-  const y=abCalYear; const dow=['日','一','二','三','四','五','六'];
+  const y=abCalYear; const dow=abL('dow');
   const today=new Date(); const tYmd=`${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
   let h=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
     <span class="ab-toggle"><button onclick="abCalShiftYear(-1)">‹</button><button class="on" style="cursor:default;min-width:64px">${y}</button><button onclick="abCalShiftYear(1)">›</button></span>
-    <span style="font-size:12px;color:var(--text3)">點日期切換 <b style="color:var(--text2)">工作日</b> / <b style="color:var(--red)">放假日</b>。放假日有打卡 = 加班;工作日 × 8h = 應上班。預設週六日為放假(可點成工作日)。</span></div>`;
+    <span style="font-size:12px;color:var(--text3)">${abL('calHint')}</span></div>`;
   h+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">`;
   for(let m=1;m<=12;m++){
     h+=`<div class="ab-card" style="padding:10px 10px 8px"><div style="font-weight:800;margin-bottom:6px;font-size:13px">${y} / ${String(m).padStart(2,'0')}</div>`;
@@ -6304,12 +6321,61 @@ function abCalHtml(){
 }
 function abCalShiftYear(d){ abCalYear+=d; abRenderCal(); }
 async function abToggleHoli(mmdd){
-  if(!abCanEdit()){ alert('請先登入'); return; }
+  if(!abCanEdit()){ alert(abL('login')); return; }
   const y=abCalYear||+abMonth.slice(0,4); AB_HOLI[y]=AB_HOLI[y]||{};
   const nv=!abIsHoliday(`${y}${mmdd}`);
   AB_HOLI[y][mmdd]=nv;
   try{ await fetch(`${FB}/att_holidays/${y}/${mmdd}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(nv)}); if(typeof logAudit==='function') logAudit('att_holiday',`${y}/${mmdd} → ${nv?'放假':'工作日'}`); }catch(e){ alert('✗ '+e.message); }
   abRenderCal();
+}
+// ── 分頁2:個人查詢 ──
+let abPQ='', abPDept='', abPSel=null;
+function abT(min){ min=Math.max(0,Math.round(min)); const h=Math.floor(min/60),m=min%60; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'); }
+function abPSetQ(v){ abPQ=v; abRenderPerson(); }
+function abPSetDept(v){ abPDept=v; abRenderPerson(); }
+function abOpenPerson(id){ abPSel=id; abRenderPerson(); }
+function abBackPerson(){ abPSel=null; abRenderPerson(); }
+function abRenderPerson(){
+  const el=document.getElementById('ab-pane-person'); if(!el) return;
+  if(!AB_DATA||!AB_DATA.persons||!Object.keys(AB_DATA.persons).length){ el.innerHTML=`<div class="ab-card">${abL('noData').replace('{m}',abMonth)}</div>`; return; }
+  if(abPSel && AB_DATA.persons[abPSel]) return abRenderPersonDetail(el);
+  const depts=STAFF_DEPTS.concat([abL('unassigned')]);
+  let rows=Object.entries(AB_DATA.persons).filter(([id,pd])=>!!pd).map(([id,pd])=>({id,name:pd.name||id,dept:abDeptOf(id)||abL('unassigned'),pd}));
+  const q=(abPQ||'').trim().toLowerCase();
+  if(q) rows=rows.filter(r=>r.id.toLowerCase().indexOf(q)>=0||(r.name||'').toLowerCase().indexOf(q)>=0);
+  if(abPDept) rows=rows.filter(r=>r.dept===abPDept);
+  rows.sort((a,b)=>String(a.dept).localeCompare(String(b.dept))||String(a.name).localeCompare(String(b.name)));
+  let html=`<div class="ab-card" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <input id="ab-pq" class="ab-sel" style="min-width:200px" placeholder="${abL('pSearch')}" value="${(abPQ||'').replace(/"/g,'&quot;')}" oninput="abPSetQ(this.value)"/>
+    <select class="ab-sel" onchange="abPSetDept(this.value)"><option value="">${abL('pAllDept')}</option>${depts.map(d=>`<option value="${d}" ${abPDept===d?'selected':''}>${d}</option>`).join('')}</select>
+    <span class="ab-msg">${abL('peopleN').replace('{n}',rows.length)}</span>${abUnitToggle()}</div>`;
+  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>${abL('hName')}</th><th>${abL('hId')}</th><th>${abL('hDeptCol')}</th><th>${abL('hRate')}</th><th style="text-align:right">${abL('hNormal')}</th><th style="text-align:right">${abL('hOt')}</th><th style="text-align:right">${abL('hAbsent')}</th></tr></thead><tbody>`;
+  rows.forEach(r=>{ const s=abPersonStats(r.id,r.pd); html+=`<tr class="click" onclick="abOpenPerson('${String(r.id).replace(/'/g,"\\'")}')"><td>${r.name}</td><td style="color:var(--text3)">${r.id}</td><td>${r.dept}</td><td class="ab-rate" style="color:${abRateColor(s.rate)}">${s.rate.toFixed(1)}%</td><td style="text-align:right">${abFmt(s.normalMin)}</td><td style="text-align:right;color:var(--blue)">${abFmt(s.otMin)}</td><td style="text-align:right;color:var(--red)">${abFmt(s.absentMin)}</td></tr>`; });
+  if(!rows.length) html+=`<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">${abL('noMatch')}</td></tr>`;
+  html+=`</tbody></table></div>`;
+  el.innerHTML=html;
+  const inp=document.getElementById('ab-pq'); if(inp && document.activeElement!==inp){ inp.focus(); try{ inp.setSelectionRange(inp.value.length,inp.value.length); }catch(e){} }
+}
+function abRenderPersonDetail(el){
+  const id=abPSel, pd=AB_DATA.persons[id]||{}; const s=abPersonStats(id,pd); const dept=abDeptOf(id)||abL('unassigned');
+  const [y,m]=abMonth.split('-').map(Number); const days=new Date(y,m,0).getDate(); const dowN=abL('dow');
+  let html=`<div class="ab-back" onclick="abBackPerson()">${abL('backSearch')}</div>`;
+  html+=`<div style="display:flex;align-items:center;gap:10px;margin:6px 0 12px;flex-wrap:wrap"><b style="font-size:16px">${pd.name||id}</b><span style="color:var(--text3)">${id}</span><span style="background:var(--bg2);padding:2px 8px;border-radius:8px;font-size:12px;font-weight:700">${dept}</span>${abUnitToggle()}</div>`;
+  html+=`<div class="ab-kpis">
+    <div class="ab-kpi"><div class="v" style="color:${abRateColor(s.rate)}">${s.rate.toFixed(1)}%</div><div class="l">${abL('hRate')}</div></div>
+    <div class="ab-kpi"><div class="v">${abFmt(s.expMin)}</div><div class="l">${abL('kExp')}</div></div>
+    <div class="ab-kpi"><div class="v">${abFmt(s.normalMin)}</div><div class="l">${abL('hNormal')}</div></div>
+    <div class="ab-kpi"><div class="v" style="color:var(--blue)">${abFmt(s.otMin)}</div><div class="l">${abL('hOt')}</div></div>
+    <div class="ab-kpi"><div class="v" style="color:var(--red)">${abFmt(s.absentMin)}</div><div class="l">${abL('hAbsent')}</div></div></div>`;
+  const lk=Object.keys(s.leaves||{}); if(lk.length){ html+=`<div class="ab-card"><b>${abL('leaveTitle')}</b><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">`+lk.sort().map(c=>{ const t=abTypeByName(c); const ab=t&&t.absent; return `<span style="font-size:12px;padding:3px 9px;border-radius:10px;background:${ab?'#fee2e2':'var(--bg2)'};color:${ab?'var(--red)':'var(--text2)'};font-weight:700">${c} ${abFmt(s.leaves[c])}${ab?' '+abL('absentTag'):''}</span>`; }).join('')+`</div></div>`; }
+  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>${abL('dcol')}</th><th>${abL('dweek')}</th><th>${abL('cIn')}</th><th>${abL('cOut')}</th><th style="text-align:right">${abL('cWork')}</th><th>${abL('cType')}</th></tr></thead><tbody>`;
+  for(let d=1;d<=days;d++){ const dd=String(d).padStart(2,'0'); const ymd=`${y}${String(m).padStart(2,'0')}${dd}`; const dv=(pd.days||{})[dd]; const hol=abIsHoliday(ymd); const dow=new Date(y,m-1,d).getDay();
+    const inT=(dv&&dv.i!=null)?abT(dv.i):'—', outT=(dv&&dv.o!=null)?abT(dv.o):'—'; const w=dv?(dv.w||0):0;
+    let typ = hol?`<span style="color:var(--red);font-weight:700">${abL('holiday')}</span>`:`<span style="color:var(--text3)">${abL('workday')}</span>`; if(hol&&w>0) typ=`<span style="color:var(--blue);font-weight:700">${abL('hOt')}</span>`; if(dv&&dv.inc) typ+=` <span style="color:var(--amber)">${abL('incomplete')}</span>`;
+    html+=`<tr style="${hol?'background:#fef2f2':''}"><td>${dd}</td><td style="color:${(dow===0||dow===6)?'var(--red)':'var(--text3)'}">${dowN[dow]}</td><td>${inT}</td><td>${outT}</td><td style="text-align:right">${w?((w/60).toFixed(1)+'h'):'—'}</td><td>${typ}</td></tr>`;
+  }
+  html+=`</tbody></table></div>`;
+  el.innerHTML=html;
 }
 /* =================== 出勤統計系統 end =================== */
 let fldFlow='status', fldHoursUnlocked=false, fldStatus=null;
