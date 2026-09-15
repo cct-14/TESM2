@@ -1326,6 +1326,7 @@ select.fld-input.big{height:56px}
           <button class="ab-subtab" data-tab="person" onclick="abTab('person')">🔍 個人查詢</button>
           <button class="ab-subtab" data-tab="cal" onclick="abTab('cal')">📅 年度月曆</button>
           <button class="ab-subtab" data-tab="types" onclick="abTab('types')">⚙ 設定</button>
+          <button class="ab-subtab" data-tab="fix" onclick="abTab('fix')">⚠ 異常打卡<span id="ab-fix-badge" style="display:none;background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:0 6px;border-radius:9px;margin-left:5px;vertical-align:middle"></span></button>
         </div>
         <div class="ab-toolbar">
           <span id="ab-lbl-month" style="font-weight:700;font-size:13px">月份</span>
@@ -1334,6 +1335,8 @@ select.fld-input.big{height:56px}
           <input type="file" id="ab-file-att" accept=".csv,text/csv" style="display:none" onchange="abImport('att',this)"/>
           <button class="ab-btn up" id="ab-btn-leave" onclick="abTriggerImport('leave')">⬆️ 匯入請假報表</button>
           <input type="file" id="ab-file-leave" accept=".csv,text/csv" style="display:none" onchange="abImport('leave',this)"/>
+          <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
+          <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
         </div>
         <div class="ab-body">
@@ -1342,6 +1345,7 @@ select.fld-input.big{height:56px}
           <div class="ab-pane" id="ab-pane-person" style="display:none"></div>
           <div class="ab-pane" id="ab-pane-cal" style="display:none"></div>
           <div class="ab-pane" id="ab-pane-types" style="display:none"></div>
+          <div class="ab-pane" id="ab-pane-fix" style="display:none"></div>
         </div>
       </div>
     </div>
@@ -6131,9 +6135,9 @@ const AB_I18N={
  zh:{tDept:'各課統計',tPerson:'個人查詢',tCal:'年度月曆',tTypes:'設定',lblMonth:'月份',impAtt:'⬆️ 匯入出勤報表',impLeave:'⬆️ 匯入請假報表',parsing:'解析中…',imported:'已匯入',people:'人',kindAtt:'出勤',kindLeave:'請假',toMonth:'→ 月份',impNone:'✗ 這份檔讀不到可用資料,請確認欄位與內容',login:'請先登入',errAtt:'出勤報表欄位不符（需 Employee Id / Date Time / In Out / Time）',errAttDate:'出勤報表讀不到任何日期',errLeave:'請假報表欄位不符（需 employee id / classification）',noData:'📥 {m} 這個月還沒有資料。請用上方「匯入出勤報表 / 請假報表」上傳 CSV。',csvNote:'(請假報表若是 Excel,請先在 Excel「另存為 CSV」再上傳)',kTotPeople:'本部總人數',kTotRate:'本部出勤率',kTotAbsent:'本部缺勤',kTotOt:'本部加班',deptStats:'各課統計',clickRow:'點一列看該課監控表',hDept:'課別',hPeople:'人數',hRate:'出勤率',hAbsent:'缺勤',hOt:'加班',hLeaveSum:'請假合計',hName:'姓名',hId:'編號',hNormal:'正常出勤',hDeptCol:'部門',unmatched:'⚠️ 有 {n} 位在報表裡、但後台名單查不到部門(算不進課別):{list}。請到後台補上他們的編號與部門。',monitor:'監控表',backDept:'← 返回各課',leaveBreakdown:'各假別合計',absentTag:'·算缺勤',hour:'小時',day:'天',typesWarn:'勾「算缺勤」的假別才會被算進缺勤/拉低出勤率;沒勾的當作正當請假。改完按下面「儲存」。這份清單全站共用。',tyCode:'代碼',tyName:'假別名稱',tyDisp:'顯示名稱(可改)',tyAbsent:'算缺勤',save:'💾 儲存',savedTypes:'✓ 已儲存(出勤率/缺勤已重算)',calHint:'點日期切換 工作日 / 放假日。放假日有打卡 = 加班;工作日 × 8h = 應上班。預設週六日為放假(可點成工作日)。',workday:'工作日',holiday:'放假日',pSearch:'🔍 搜尋 編號 / 姓名',pAllDept:'全部部門 / 組別',peopleN:'共 {n} 人',noMatch:'查無符合',backSearch:'← 返回查詢',leaveTitle:'請假',kExp:'應上班',cIn:'上班',cOut:'下班',cWork:'工時',cType:'類型',incomplete:'⚠打卡不全',dcol:'日',dweek:'星期',unassigned:'未對應',unitD:'天',dow:['日','一','二','三','四','五','六']},
  en:{tDept:'By section',tPerson:'Person search',tCal:'Year calendar',tTypes:'Settings',lblMonth:'Month',impAtt:'⬆️ Import attendance',impLeave:'⬆️ Import leave',parsing:'Parsing…',imported:'Imported',people:'people',kindAtt:'attendance',kindLeave:'leave',toMonth:'→ month',impNone:'✗ No usable data in this file, check columns/content',login:'Please sign in first',errAtt:'Attendance columns invalid (need Employee Id / Date Time / In Out / Time)',errAttDate:'No dates found in the attendance file',errLeave:'Leave columns invalid (need employee id / classification)',noData:'📥 No data for {m} yet. Use “Import attendance / leave” above to upload the CSV.',csvNote:'(If the leave report is Excel, save it as CSV first)',kTotPeople:'Division people',kTotRate:'Division attendance',kTotAbsent:'Division absence',kTotOt:'Division overtime',deptStats:'By section',clickRow:'Click a row for its panel',hDept:'Section',hPeople:'People',hRate:'Attendance',hAbsent:'Absence',hOt:'Overtime',hLeaveSum:'Leave total',hName:'Name',hId:'ID',hNormal:'Normal',hDeptCol:'Dept.',unmatched:'⚠️ {n} people in the report have no section in the staff list (not counted): {list}. Add their ID and section in the backend.',monitor:'Monitor',backDept:'← Back to sections',leaveBreakdown:'Leave by type',absentTag:'·absence',hour:'Hours',day:'Days',typesWarn:'Only types checked as “counts as absence” lower attendance; unchecked ones are excused leave. Click Save when done. This list is shared system-wide.',tyCode:'Code',tyName:'Name',tyDisp:'Display name (editable)',tyAbsent:'Absence?',save:'💾 Save',savedTypes:'✓ Saved (attendance/absence recalculated)',calHint:'Click a day to toggle Workday / Holiday. Holiday with punch = overtime; workday × 8h = expected. Sat/Sun holiday by default.',workday:'Workday',holiday:'Holiday',pSearch:'🔍 Search ID / name',pAllDept:'All depts. / groups',peopleN:'{n} people',noMatch:'No results',backSearch:'← Back to search',leaveTitle:'Leave',kExp:'Expected',cIn:'In',cOut:'Out',cWork:'Hours',cType:'Type',incomplete:'⚠incomplete punch',dcol:'Day',dweek:'Wk',unassigned:'Unassigned',unitD:'d',dow:['Su','Mo','Tu','We','Th','Fr','Sa']}
 };
-Object.assign(AB_I18N.es,{tGroup:'Por grupo',hGroup:'Grupo',noGroup:'Sin grupo',leaveStats:'Estadística por tipo de permiso',lsType:'Permiso',lsPpl:'Personas',lsTimes:'Veces',lsHours:'Total horas',times:'veces',chartsShow:'📊 Mostrar gráficos',chartsHide:'▲ Ocultar gráficos',chRate:'Ausencia por empleado',chDist:'Distribución de ausencia',absRateL:'Ausencia',clickGroup:'Clic en una fila para ver el panel del grupo',noPunch:'Sin datos de asistencia',backGroup:'← Volver a grupos',cLeave:'Permiso',hLate:'Tardanza',lateTag:'tarde',cfgTitle:'Reglas de cálculo',cfgOt:'Umbral de horas extra (h)',cfgShift:'Hora de entrada',cfgSaved:'✓ Ajustes guardados',leaveList:'Tipos de permiso'});
-Object.assign(AB_I18N.zh,{tGroup:'組別統計',hGroup:'組別',noGroup:'未分組',leaveStats:'各假別統計',lsType:'假別',lsPpl:'幾人請',lsTimes:'共幾次',lsHours:'總時數',times:'次',chartsShow:'📊 顯示圖表',chartsHide:'▲ 收合圖表',chRate:'員工缺勤率',chDist:'缺勤率分布',absRateL:'缺勤率',clickGroup:'點一列看該組別監控表',noPunch:'沒有出勤資料',backGroup:'← 返回組別',cLeave:'請假種類',hLate:'遲到',lateTag:'遲到',cfgTitle:'規則設定',cfgOt:'加班門檻(小時)',cfgShift:'上班時間',cfgSaved:'✓ 設定已儲存',leaveList:'假別清單'});
-Object.assign(AB_I18N.en,{tGroup:'By group',hGroup:'Group',noGroup:'No group',leaveStats:'Leave stats by type',lsType:'Leave',lsPpl:'People',lsTimes:'Times',lsHours:'Total hours',times:'times',chartsShow:'📊 Show charts',chartsHide:'▲ Hide charts',chRate:'Employee absence rate',chDist:'Absence rate distribution',absRateL:'Absence rate',clickGroup:'Click a row for the group panel',noPunch:'No attendance data',backGroup:'← Back to groups',cLeave:'Leave type',hLate:'Late',lateTag:'late',cfgTitle:'Calculation rules',cfgOt:'Overtime threshold (h)',cfgShift:'Shift start',cfgSaved:'✓ Settings saved',leaveList:'Leave types'});
+Object.assign(AB_I18N.es,{tGroup:'Por grupo',hGroup:'Grupo',noGroup:'Sin grupo',leaveStats:'Estadística por tipo de permiso',lsType:'Permiso',lsPpl:'Personas',lsTimes:'Veces',lsHours:'Total horas',times:'veces',chartsShow:'📊 Mostrar gráficos',chartsHide:'▲ Ocultar gráficos',chRate:'Ausencia por empleado',chDist:'Distribución de ausencia',absRateL:'Ausencia',clickGroup:'Clic en una fila para ver el panel del grupo',noPunch:'Sin datos de asistencia',backGroup:'← Volver a grupos',cLeave:'Permiso',cLeaveH:'Horas permiso',impShift:'⬆️ Importar turnos',kindShift:'turnos',errShift:'Formato de turnos no válido (falta la fila DAYS)',unmatchedShift:'sin asignar',crossDay:'nocturno',tFix:'Anomalías',fixHint:'Marcajes completos pero con tardanza ≥4h (turno mal asignado). Ingrese la hora de entrada correcta; se recalcula y se guarda.',fixNone:'Sin anomalías',fixInput:'Hora correcta',fixApply:'Aplicar',hLate:'Tardanza',lateTag:'tarde',cfgTitle:'Reglas de cálculo',cfgOt:'Umbral de horas extra (h)',cfgShift:'Hora de entrada',cfgSaved:'✓ Ajustes guardados',leaveList:'Tipos de permiso'});
+Object.assign(AB_I18N.zh,{tGroup:'組別統計',hGroup:'組別',noGroup:'未分組',leaveStats:'各假別統計',lsType:'假別',lsPpl:'幾人請',lsTimes:'共幾次',lsHours:'總時數',times:'次',chartsShow:'📊 顯示圖表',chartsHide:'▲ 收合圖表',chRate:'員工缺勤率',chDist:'缺勤率分布',absRateL:'缺勤率',clickGroup:'點一列看該組別監控表',noPunch:'沒有出勤資料',backGroup:'← 返回組別',cLeave:'請假種類',cLeaveH:'請假總時',impShift:'⬆️ 匯入班表',kindShift:'班表',errShift:'班表格式不符(找不到 DAYS 那列)',unmatchedShift:'未對到編號',crossDay:'跨夜',tFix:'異常打卡',fixHint:'打卡完整、但用目前班別算遲到 ≥4 小時(可能班別對不上或去頂替)。輸入他正確的上班時間,系統立即重算並存起來;若當天其實休息按 FREE。',fixNone:'目前沒有異常',fixInput:'正確上班時間',fixApply:'套用',hLate:'遲到',lateTag:'遲到',cfgTitle:'規則設定',cfgOt:'加班門檻(小時)',cfgShift:'上班時間',cfgSaved:'✓ 設定已儲存',leaveList:'假別清單'});
+Object.assign(AB_I18N.en,{tGroup:'By group',hGroup:'Group',noGroup:'No group',leaveStats:'Leave stats by type',lsType:'Leave',lsPpl:'People',lsTimes:'Times',lsHours:'Total hours',times:'times',chartsShow:'📊 Show charts',chartsHide:'▲ Hide charts',chRate:'Employee absence rate',chDist:'Absence rate distribution',absRateL:'Absence rate',clickGroup:'Click a row for the group panel',noPunch:'No attendance data',backGroup:'← Back to groups',cLeave:'Leave type',cLeaveH:'Leave hrs',impShift:'⬆️ Import roster',kindShift:'roster',errShift:'Invalid roster format (DAYS row not found)',unmatchedShift:'unmatched',crossDay:'overnight',tFix:'Anomalies',fixHint:'Complete punches but computed late ≥4h (wrong shift or substitute). Enter the correct shift start; it recalculates and saves.',fixNone:'No anomalies',fixInput:'Correct start',fixApply:'Apply',hLate:'Late',lateTag:'late',cfgTitle:'Calculation rules',cfgOt:'Overtime threshold (h)',cfgShift:'Shift start',cfgSaved:'✓ Settings saved',leaveList:'Leave types'});
 function abL(k){ const L=AB_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||AB_I18N.es; return (k in L)?L[k]:(AB_I18N.zh[k]!=null?AB_I18N.zh[k]:k); }
 function abApplyLabels(){ const set=(sel,txt)=>{ const e=document.querySelector(sel); if(e) e.textContent=txt; };
   set('#page-attendance .ab-subtab[data-tab="group"]','🏗 '+abL('tGroup'));
@@ -6141,22 +6145,91 @@ function abApplyLabels(){ const set=(sel,txt)=>{ const e=document.querySelector(
   set('#page-attendance .ab-subtab[data-tab="person"]','🔍 '+abL('tPerson'));
   set('#page-attendance .ab-subtab[data-tab="cal"]','📅 '+abL('tCal'));
   set('#page-attendance .ab-subtab[data-tab="types"]','⚙ '+abL('tTypes'));
+  { const fb=document.querySelector('#page-attendance .ab-subtab[data-tab="fix"]'); if(fb){ const bd=document.getElementById('ab-fix-badge'); fb.textContent='⚠ '+abL('tFix'); if(bd) fb.appendChild(bd); } }
   set('#ab-lbl-month',abL('lblMonth'));
   const ba=document.getElementById('ab-btn-att'); if(ba) ba.textContent=abL('impAtt');
   const bl=document.getElementById('ab-btn-leave'); if(bl) bl.textContent=abL('impLeave');
+  const bs=document.getElementById('ab-btn-shift'); if(bs) bs.textContent=abL('impShift');
 }
 let AB_TYPES=null, AB_DATA=null, AB_HOLI={}, abTabCur='group', abMonth=null, abUnit='h', abDeptSel=null, abCalYear=null, abGroupSel=null, abChartsOpen=false;
 let AB_CONFIG={otThresholdH:1, shiftStart:'07:00'};  // 加班門檻(小時)、上班時間(遲到起算);制度會改→存 Firebase
 function abOtThreshMin(){ return Math.max(0, Math.round((+AB_CONFIG.otThresholdH||0)*60)); }
 function abShiftStartMin(){ const s=String(AB_CONFIG.shiftStart||'07:00').split(':'); return (+s[0]||0)*60+(+s[1]||0); }
 async function abLoadConfig(){ try{ const r=await fetch(`${FB}/att_config.json`); const d=await r.json(); if(d&&typeof d==='object') AB_CONFIG=Object.assign({otThresholdH:1,shiftStart:'07:00'},d); }catch(e){} }
+// ── 班表(值班排班)──
+let AB_SHIFT=null;  // { 編號: { '01':'7-3', '02':'FREE', ... } }
+const AB_SHIFT_START={'7-3':420,'3-11':900,'11-7':1380,'7A-7P':420,'7P-7A':1140};  // 各班別上班時間(分)
+function abShiftStart(code){ code=String(code||'').toUpperCase().replace(/\s+/g,''); return AB_SHIFT_START[code]!=null?AB_SHIFT_START[code]:null; }
+function abIsFree(code){ code=String(code||'').toUpperCase().replace(/\s+/g,''); return code===''||code.indexOf('FREE')>=0; }
+async function abLoadShift(){ try{ const r=await fetch(`${FB}/att_shift/${abMonth.replace('-','')}.json`); AB_SHIFT=(await r.json())||{}; }catch(e){ AB_SHIFT={}; } }
+let AB_FIX=null;  // 複查修正:{ 編號:{ '01':'15:00' | 'FREE' } } — 人工指定正確上班時間
+async function abLoadFix(){ try{ const r=await fetch(`${FB}/att_fix/${abMonth.replace('-','')}.json`); AB_FIX=(await r.json())||{}; }catch(e){ AB_FIX={}; } }
+const AB_ANOM_LATE=240;  // 遲到 ≥ 4h 列入複查
+// 某人某天:回傳 {off(休息不算), shiftStart(上班分), code(班別), roster(有排到), fixed(人工修正過)}
+function abDayInfo(id,dd,ymd){
+  const fx=(typeof AB_FIX!=='undefined'&&AB_FIX&&AB_FIX[id])?AB_FIX[id][dd]:undefined;
+  if(fx!=null&&fx!==''){ if(String(fx).toUpperCase()==='FREE') return {off:true,shiftStart:null,code:'FREE',roster:true,fixed:true}; return {off:false,shiftStart:abParseHM(fx),code:String(fx),roster:true,fixed:true}; }
+  const rs=(typeof AB_SHIFT!=='undefined'&&AB_SHIFT&&AB_SHIFT[id])||null; const code=rs?rs[dd]:undefined;
+  if(code!==undefined){ if(abIsFree(code)) return {off:true,shiftStart:null,code:code,roster:true}; const ss=abShiftStart(code); return {off:false,shiftStart:(ss==null?abShiftStartMin():ss),code:code,roster:true}; }
+  return {off:abIsHoliday(ymd),shiftStart:abShiftStartMin(),code:undefined,roster:false}; }
+function abBuildAnomalies(){ if(!AB_DATA||!AB_DATA.persons) return []; const [y,m]=abMonth.split('-').map(Number); const mm=String(m).padStart(2,'0'); const out=[];
+  Object.entries(AB_DATA.persons).forEach(([id,pd])=>{ if(!pd||abDeptOf(id)==='辦公室') return;
+    Object.entries(pd.days||{}).forEach(([dd,v])=>{ if(!v||v.i==null||v.o==null||v.inc) return;
+      const di=abDayInfo(id,dd,`${y}${mm}${dd}`); if(di.fixed||di.off||di.shiftStart==null) return;
+      let lt=Math.max(0, v.i-di.shiftStart); const sp=(pd.leaveSpan||{})[dd]; if(lt>0&&sp){ if(sp.s<=di.shiftStart) lt=0; else if(sp.s<v.i) lt=sp.s-di.shiftStart; }
+      if(lt>=AB_ANOM_LATE) out.push({id,name:pd.name||id,dd,i:v.i,o:v.o,lateMin:lt,cur:di.shiftStart,roster:di.roster});
+    });
+  });
+  out.sort((a,b)=> a.dd!==b.dd?(a.dd<b.dd?-1:1):String(a.name).localeCompare(String(b.name))); return out; }
+function abUpdateBadge(){ const el=document.getElementById('ab-fix-badge'); if(!el) return; let n=0; try{ n=abBuildAnomalies().length; }catch(e){} el.textContent=n>0?String(n):''; el.style.display=n>0?'inline-block':'none'; }
+function abNorm(s){ s=String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,''); s=s.replace(/\(.*$/,''); s=s.toUpperCase().replace(/[^A-Z0-9 ]/g,' '); return s.split(/\s+/).filter(Boolean).join(' '); }
+async function abBuildNameIndex(){
+  if(typeof STAFF==='undefined'||!STAFF||!Object.keys(STAFF).length){ try{ const r=await fetch(`${FB}/staff.json`); if(typeof STAFF!=='undefined') STAFF=(await r.json())||{}; }catch(e){} }
+  const idx=[]; if(typeof STAFF!=='undefined'&&STAFF) for(const id in STAFF) idx.push({id,n:abNorm(STAFF[id])});
+  if(AB_DATA&&AB_DATA.persons) for(const id in AB_DATA.persons){ if(!(typeof STAFF!=='undefined'&&STAFF&&STAFF[id])) idx.push({id,n:abNorm(AB_DATA.persons[id].name||id)}); }
+  return idx;
+}
+function abMatchId(name,idx){ const n=abNorm(name); if(!n) return null;
+  for(const e of idx){ if(e.n===n) return e.id; }
+  const ws=n.split(' ').filter(w=>w.length>2); if(!ws.length) return null;
+  const hits=idx.filter(e=> ws.every(w=>e.n.indexOf(w)>=0));
+  if(hits.length===1) return hits[0].id;
+  if(hits.length>1){ hits.sort((a,b)=>a.n.length-b.n.length); return hits[0].id; }
+  return null;
+}
+async function abImportShift(parsed,fname){
+  const rows=[parsed.headers].concat(parsed.data); const up=s=>String(s||'').trim().toUpperCase();
+  const dayRowI=rows.findIndex(r=>up(r[0])==='DAYS'); if(dayRowI<0) throw new Error(abL('errShift'));
+  const dayCol={}; rows[dayRowI].forEach((v,i)=>{ const n=parseInt(v,10); if(i>=1&&n>=1&&n<=31) dayCol[i]=n; });
+  if(!Object.keys(dayCol).length) throw new Error(abL('errShift'));
+  const teamsI=rows.findIndex(r=>up(r[0])==='TEAMS'); const teams={};
+  if(teamsI>=0) for(let r=teamsI+1;r<teamsI+5&&r<rows.length;r++){ const t=up(rows[r][0]); if(!t) continue; const sh={}; for(const c in dayCol) sh[dayCol[c]]=String(rows[r][c]||'').trim(); teams[t]=sh; }
+  const person={};  // name -> {dd:code}
+  const memI=rows.findIndex(r=>up(r[0]).indexOf('TEAM MEMBERS')>=0);
+  if(memI>=0) for(let r=memI+1;r<memI+5&&r<rows.length;r++){ const t=up(rows[r][0]); const pat=teams[t]; if(!pat) continue;
+    for(const c in dayCol){ const nm=String(rows[r][c]||'').trim(); if(!nm) continue; const dn=+dayCol[c]; const lo=dn<=15?1:16, hi=dn<=15?15:31;
+      const p=person[nm]||(person[nm]={}); for(let d=lo;d<=hi;d++) p[String(d).padStart(2,'0')]=pat[d]||''; }
+  }
+  const invI=rows.findIndex(r=>up(r[0]).indexOf('INVENTORY')>=0);
+  const dayLeadI=rows.findIndex(r=>up(r[0]).indexOf('DAYTIME')>=0); const endInv=(dayLeadI>invI?dayLeadI:rows.length);
+  if(invI>=0) for(let r=invI+1;r<endInv;r++){ const nm=String(rows[r][0]||'').trim(); if(!nm) continue; const p={}; let any=false;
+    for(const c in dayCol){ const v=String(rows[r][c]||'').trim(); if(v){ p[String(dayCol[c]).padStart(2,'0')]=v; any=true; } } if(any) person[nm]=p; }
+  const idx=await abBuildNameIndex(); const mk=abMonth.replace('-',''); const unmatched=[];
+  let doc={}; try{ const r=await fetch(`${FB}/att_shift/${mk}.json`); doc=(await r.json())||{}; }catch(e){}
+  let matched=0;
+  Object.entries(person).forEach(([nm,sch])=>{ const id=abMatchId(nm,idx); if(id){ doc[id]=Object.assign(doc[id]||{},sch); matched++; } else unmatched.push(nm.replace(/\(.*$/,'').trim()); });
+  await fetch(`${FB}/att_shift/${mk}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(doc)});
+  AB_SHIFT=doc;
+  if(typeof logAudit==='function') logAudit('att_shift',`匯入班表 ${matched} 人`+(unmatched.length?`,${unmatched.length} 未對到`:''));
+  return {mk, count:matched, unmatched};
+}
 
 async function initAtt(){
   if(!abMonth){ const p=panParts(); abMonth=p.y+'-'+String(p.m).padStart(2,'0'); }
   const mi=document.getElementById('ab-month'); if(mi) mi.value=abMonth;
   if(!STAFF_DEPT || !Object.keys(STAFF_DEPT).length){ try{ const r=await fetch(`${FB}/staff_dept.json`); STAFF_DEPT=(await r.json())||{}; }catch(e){} }
   if(!STAFF_GROUP || !Object.keys(STAFF_GROUP).length){ try{ const r=await fetch(`${FB}/staff_group.json`); STAFF_GROUP=(await r.json())||{}; }catch(e){} }
-  await abLoadTypes(); await abLoadConfig(); await abLoadHoli(); await abLoadMonth();
+  await abLoadTypes(); await abLoadConfig(); await abLoadShift(); await abLoadFix(); await abLoadHoli(); await abLoadMonth();
   abTab(abTabCur);
 }
 function abCanEdit(){ return (typeof umCurrentUser!=='undefined' && umCurrentUser) ? true : false; }
@@ -6170,13 +6243,15 @@ async function abLoadHoliYear(y){ if(AB_HOLI[y]) return AB_HOLI[y]; try{ const r
 async function abFetchMonthDoc(mk){ try{ const r=await fetch(`${FB}/att_month/${mk}.json`); return (await r.json())||{}; }catch(e){ return {}; } }
 async function abSaveMonthDoc(mk,doc){ await fetch(`${FB}/att_month/${mk}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(doc)}); }
 async function abLoadMonth(){ AB_DATA=await abFetchMonthDoc(abMonth.replace('-','')); }
-function abSetMonth(v){ if(!v) return; abMonth=v; (async()=>{ await abLoadHoli(); await abLoadMonth(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab(abTabCur); })(); }
+function abSetMonth(v){ if(!v) return; abMonth=v; (async()=>{ await abLoadHoli(); await abLoadShift(); await abLoadFix(); await abLoadMonth(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab(abTabCur); abUpdateBadge(); })(); }
 function abTab(t){ abTabCur=t; abApplyLabels();
   document.querySelectorAll('#page-attendance .ab-subtab').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===t));
-  ['group','dept','person','cal','types'].forEach(k=>{ const p=document.getElementById('ab-pane-'+k); if(p) p.style.display=(k===t)?'':'none'; });
+  ['group','dept','person','cal','types','fix'].forEach(k=>{ const p=document.getElementById('ab-pane-'+k); if(p) p.style.display=(k===t)?'':'none'; });
+  abUpdateBadge();
   if(t==='group') abRenderGroup();
   else if(t==='dept') abRenderDept();
   else if(t==='types') abRenderTypes();
+  else if(t==='fix') abRenderFix();
   else if(t==='person') abRenderPerson();
   else if(t==='cal') abRenderCal();
 }
@@ -6187,10 +6262,11 @@ async function abImport(kind,input){
   const msg=document.getElementById('ab-import-msg'); if(msg){ msg.style.color='var(--text3)'; msg.textContent=abL('parsing'); }
   try{
     const text=await file.text(); const parsed=abParseCSV(text);
-    const res=(kind==='att') ? await abImportAtt(parsed,file.name) : await abImportLeave(parsed,file.name);
-    if(res && res.mk){ abMonth=res.mk.slice(0,4)+'-'+res.mk.slice(4,6); const mi=document.getElementById('ab-month'); if(mi) mi.value=abMonth; await abLoadHoli(); }
-    await abLoadMonth(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab('group');
-    if(msg){ if(res && res.count>0){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${kind==='att'?abL('kindAtt'):abL('kindLeave')}）${abL('toMonth')} ${abMonth}`; } else { msg.style.color='var(--red)'; msg.textContent=abL('impNone'); } }
+    const res=(kind==='att') ? await abImportAtt(parsed,file.name) : (kind==='leave' ? await abImportLeave(parsed,file.name) : await abImportShift(parsed,file.name));
+    if(res && res.mk && kind!=='shift'){ abMonth=res.mk.slice(0,4)+'-'+res.mk.slice(4,6); const mi=document.getElementById('ab-month'); if(mi) mi.value=abMonth; await abLoadHoli(); }
+    if(kind!=='shift') await abLoadMonth(); await abLoadShift(); await abLoadFix(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab('group'); abUpdateBadge();
+    if(msg){ if(kind==='shift'){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${abL('kindShift')}）`+(res.unmatched&&res.unmatched.length?`　⚠️ ${res.unmatched.length} ${abL('unmatchedShift')}: ${res.unmatched.slice(0,8).join('、')}`:''); }
+      else if(res && res.count>0){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${kind==='att'?abL('kindAtt'):abL('kindLeave')}）${abL('toMonth')} ${abMonth}`; } else { msg.style.color='var(--red)'; msg.textContent=abL('impNone'); } }
   }catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
   input.value='';
 }
@@ -6214,12 +6290,27 @@ async function abImportAtt(parsed,fname){
   const byPer={};
   D.forEach(c=>{ const id=(c[iId]||'').trim(); if(!id) return; const dt=(c[iDt]||'').replace(/\D/g,''); if(dt.length<8||dt.slice(0,6)!==mk) return;
     const io=(c[iIO]||'').toUpperCase(); const tm=(c[iTm]||'').replace(/\D/g,''); let mins=0; if(tm.length>=3) mins=parseInt(tm.slice(0,tm.length-2),10)*60+parseInt(tm.slice(-2),10); else if(tm.length) mins=parseInt(tm,10)*60;
-    const p=byPer[id]||(byPer[id]={name:(iNm>=0?c[iNm]:'')||'',days:{}}); const dd=dt.slice(6,8); const dy=p.days[dd]||(p.days[dd]={ins:[],outs:[]});
-    if(io.indexOf('I')===0) dy.ins.push(mins); else if(io.indexOf('O')===0) dy.outs.push(mins);
+    const p=byPer[id]||(byPer[id]={name:(iNm>=0?c[iNm]:'')||'',punches:[]});
+    p.punches.push({ymd:dt.slice(0,8), min:mins, io:(io.indexOf('I')===0?'I':(io.indexOf('O')===0?'O':''))});
   });
   const doc=await abFetchMonthDoc(mk); doc.persons=doc.persons||{};
   Object.entries(byPer).forEach(([id,p])=>{ const pd=doc.persons[id]||(doc.persons[id]={}); pd.name=p.name||pd.name||id; pd.days={};
-    Object.entries(p.days).forEach(([dd,v])=>{ const i=v.ins.length?Math.min.apply(null,v.ins):null, o=v.outs.length?Math.max.apply(null,v.outs):null; pd.days[dd]={i,o,w:(i!=null&&o!=null&&o>i)?(o-i):0,inc:(i==null||o==null)}; });
+    // 依時間順序把「上班」配「下一個下班」,跨夜(隔天早上下班)也接起來
+    const pu=(p.punches||[]).filter(e=>e.io).sort((a,b)=> a.ymd!==b.ymd?(a.ymd<b.ymd?-1:1):a.min-b.min);
+    const MAXSESS=16*60; const abs=(ymd,mn)=>{ const y=+ymd.slice(0,4),m=+ymd.slice(4,6),d=+ymd.slice(6,8); return Date.UTC(y,m-1,d)/60000+mn; };
+    const setDay=(dd,o)=>{ pd.days[dd]=Object.assign({i:null,o:null,w:0,inc:false,cross:false},pd.days[dd]||{},o); };
+    let openIn=null;
+    pu.forEach(ev=>{
+      if(ev.io==='I'){ if(openIn){ const dd=openIn.ymd.slice(6,8); if(!pd.days[dd]) setDay(dd,{i:openIn.min,inc:true}); } openIn=ev; }
+      else { // OUT
+        if(openIn){ const dur=abs(ev.ymd,ev.min)-abs(openIn.ymd,openIn.min); const dd=openIn.ymd.slice(6,8); const cross=ev.ymd!==openIn.ymd;
+          let w=dur,inc=false; if(dur<=0){w=0;inc=true;} else if(dur>MAXSESS){w=MAXSESS;inc=true;}
+          const cur=pd.days[dd]; if(!cur) setDay(dd,{i:openIn.min,o:ev.min,w:w,inc:inc,cross:cross}); else { cur.w=(cur.w||0)+w; cur.o=ev.min; if(cross)cur.cross=true; if(inc)cur.inc=true; }
+          openIn=null;
+        } else { const dd=ev.ymd.slice(6,8); if(!pd.days[dd]) setDay(dd,{o:ev.min,inc:true}); }
+      }
+    });
+    if(openIn){ const dd=openIn.ymd.slice(6,8); const cur=pd.days[dd]; if(!cur) setDay(dd,{i:openIn.min,inc:true}); else cur.inc=true; }
   });
   doc.meta=doc.meta||{}; doc.meta.attFile=fname; doc.meta.attAt=new Date().toLocaleString('zh-TW',{timeZone:PA_TZ});
   await abSaveMonthDoc(mk,doc);
@@ -6238,16 +6329,19 @@ async function abImportLeave(parsed,fname){
   D.forEach(c=>{ const id=(c[iId]||'').trim(); if(!id) return; const cls=(iCls>=0?c[iCls]:'').trim().toUpperCase(); if(!cls) return;
     const from=(iFrom>=0?c[iFrom]:'').replace(/\D/g,''); if(from.length>=6 && from.slice(0,6)!==mk) return;
     const days=iDay>=0?(parseFloat(c[iDay])||0):0; const hr=iHr>=0?abParseHM(c[iHr]):0;
-    const p=byPer[id]||(byPer[id]={name:(iNm>=0?c[iNm]:'')||'',leaves:{},lcnt:{},ldays:{},lspan:{}});
+    const p=byPer[id]||(byPer[id]={name:(iNm>=0?c[iNm]:'')||'',leaves:{},lcnt:{},ldays:{},lspan:{},lmin:{}});
     // 逐日標記請假種類 + 請假時段(給個人明細逐日核對、遲到扣除用)
     const toRaw=(iTo>=0?c[iTo]:'').replace(/\D/g,'');
     const hf=iHf>=0?abParseHM(c[iHf]):null, ht=iHt2>=0?abParseHM(c[iHt2]):null;
+    // 每日請假時數:有時段用時段長度(整天07:00-15:00=8h、半天30m等);沒時段則整天8h或用額外時數
+    const dayMin = (hf!=null && ht!=null && ht>hf) ? (ht-hf) : (days>=1 ? 480 : hr);
     let inMonthDays=0;
     if(from.length>=8){ const fy=+from.slice(0,4),fm=+from.slice(4,6),fd=+from.slice(6,8);
       let ty=fy,tm=fm,td=fd; if(toRaw.length>=8){ ty=+toRaw.slice(0,4); tm=+toRaw.slice(4,6); td=+toRaw.slice(6,8); }
       let cur=new Date(fy,fm-1,fd); const end=new Date(ty,tm-1,td); let guard=0;
       while(cur<=end && guard++<400){ const yy=cur.getFullYear(), mm=String(cur.getMonth()+1).padStart(2,'0'); if((''+yy+mm)===mk){ const dd=String(cur.getDate()).padStart(2,'0'); inMonthDays++;
           (p.ldays[dd]=p.ldays[dd]||[]); if(p.ldays[dd].indexOf(cls)<0) p.ldays[dd].push(cls);
+          p.lmin[dd]=(p.lmin[dd]||0)+dayMin;
           if(hf!=null && ht!=null && ht>hf){ const sp=p.lspan[dd]; if(!sp) p.lspan[dd]={s:hf,e:ht}; else { sp.s=Math.min(sp.s,hf); sp.e=Math.max(sp.e,ht); } }
         } cur.setDate(cur.getDate()+1); }
     }
@@ -6256,7 +6350,7 @@ async function abImportLeave(parsed,fname){
     p.leaves[cls]=(p.leaves[cls]||0)+total; p.lcnt[cls]=(p.lcnt[cls]||0)+1;
   });
   const doc=await abFetchMonthDoc(mk); doc.persons=doc.persons||{};
-  Object.entries(byPer).forEach(([id,p])=>{ const pd=doc.persons[id]||(doc.persons[id]={}); if(!pd.name) pd.name=p.name||id; pd.leaves=p.leaves; pd.leaveCnt=p.lcnt; pd.leaveDays=p.ldays; pd.leaveSpan=p.lspan; });
+  Object.entries(byPer).forEach(([id,p])=>{ const pd=doc.persons[id]||(doc.persons[id]={}); if(!pd.name) pd.name=p.name||id; pd.leaves=p.leaves; pd.leaveCnt=p.lcnt; pd.leaveDays=p.ldays; pd.leaveSpan=p.lspan; pd.leaveMinDay=p.lmin; });
   doc.meta=doc.meta||{}; doc.meta.leaveFile=fname; doc.meta.leaveAt=new Date().toLocaleString('zh-TW',{timeZone:PA_TZ});
   await abSaveMonthDoc(mk,doc);
   return {mk, count:Object.keys(byPer).length};
@@ -6266,20 +6360,22 @@ function abIsHoliday(ymd){ const yy=ymd.slice(0,4), mmdd=ymd.slice(4,8); const m
 function abMonthWorkdays(){ const [y,m]=abMonth.split('-').map(Number); const n=new Date(y,m,0).getDate(); let wd=0; for(let d=1;d<=n;d++){ const ymd=`${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}`; if(!abIsHoliday(ymd)) wd++; } return wd; }
 function abTypeByName(cls){ cls=String(cls||'').toUpperCase(); for(const k in AB_TYPES){ const t=AB_TYPES[k]; if((t.name||'').toUpperCase()===cls||(t.code||'').toUpperCase()===cls) return t; } return null; }
 function abPersonStats(id,pd){
-  pd=pd||{}; const [y,m]=abMonth.split('-').map(Number); let normal=0,ot=0,lateMin=0,lateDays=0;
-  const thr=abOtThreshMin(), sst=abShiftStartMin();
-  Object.entries(pd.days||{}).forEach(([dd,v])=>{ if(!v) return; const w=+v.w||0; const ymd=`${y}${String(m).padStart(2,'0')}${dd}`; const hol=abIsHoliday(ymd);
-    if(hol){ if(w>thr) ot+=w; }                        // 放假日打卡:整段算加班(需超過門檻)
-    else {                                              // 工作日:正常出勤最多 8h,超過 8h 且超過門檻才算加班
-      normal+=Math.min(w,480);
-      const ex=Math.max(0,w-480); if(ex>thr) ot+=ex;
-      if(v.i!=null){ let lt=Math.max(0, v.i-sst);       // 遲到:打卡晚於上班時間
-        if(lt>0){ const sp=(pd.leaveSpan||{})[dd]; if(sp){ if(sp.s<=sst) lt=0; else if(sp.s<v.i) lt=sp.s-sst; } } // 該遲到時段有請假涵蓋則不算
+  pd=pd||{}; const [y,m]=abMonth.split('-').map(Number); const nDays=new Date(y,m,0).getDate(); const mm=String(m).padStart(2,'0');
+  const thr=abOtThreshMin();
+  let normal=0,ot=0,lateMin=0,lateDays=0,expMin=0;
+  for(let d=1;d<=nDays;d++){ const dd=String(d).padStart(2,'0'); const ymd=`${y}${mm}${dd}`;
+    const di=abDayInfo(id,dd,ymd); const off=di.off, shiftStart=di.shiftStart;
+    if(!off) expMin+=480;
+    const v=(pd.days||{})[dd]; const w=v?(+v.w||0):0;
+    if(off){ if(w>thr) ot+=w; }                          // 休息日打卡 = 加班(需超門檻)
+    else { normal+=Math.min(w,480); const ex=Math.max(0,w-480); if(ex>thr) ot+=ex;
+      if(v&&v.i!=null&&shiftStart!=null){ let lt=Math.max(0, v.i-shiftStart);   // 遲到:對「該班別」起算
+        if(lt>0){ const sp=(pd.leaveSpan||{})[dd]; if(sp){ if(sp.s<=shiftStart) lt=0; else if(sp.s<v.i) lt=sp.s-shiftStart; } }
         if(lt>0){ lateMin+=lt; lateDays++; }
       }
     }
-  });
-  const expMin=abMonthWorkdays()*480; let excused=0,absentLeave=0;
+  }
+  let excused=0,absentLeave=0;
   Object.entries(pd.leaves||{}).forEach(([cls,mn])=>{ mn=+mn||0; const t=abTypeByName(cls); if(t&&t.absent) absentLeave+=mn; else excused+=mn; });
   // 模型A:缺勤 = 算缺勤的假 + 真正沒打卡也沒請假的時數(無故缺勤);休假/病假等未勾算缺勤者中性、不扣分。
   const unexplained=Math.max(0, expMin-normal-excused-absentLeave);
@@ -6485,6 +6581,28 @@ async function abSaveConfig(){
   try{ await fetch(`${FB}/att_config.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(AB_CONFIG)}); if(msg){ msg.style.color='var(--green)'; msg.textContent=abL('cfgSaved'); } if(typeof logAudit==='function') logAudit('att_config',`加班門檻 ${ot}h、上班 ${sh}`); }
   catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
 }
+// ── 異常打卡複查區 ──
+function abRenderFix(){ const el=document.getElementById('ab-pane-fix'); if(!el) return;
+  if(!AB_DATA||!AB_DATA.persons||!Object.keys(AB_DATA.persons).length){ el.innerHTML=`<div class="ab-card">${abL('noData').replace('{m}',abMonth)}</div>`; return; }
+  const an=abBuildAnomalies();
+  let html=`<div class="ab-warn">${abL('fixHint')}</div>`;
+  if(!an.length){ html+=`<div class="ab-card" style="text-align:center;color:var(--green);font-weight:700;padding:22px">✓ ${abL('fixNone')}</div>`; el.innerHTML=html; return; }
+  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>${abL('hName')}</th><th>${abL('hId')}</th><th>${abL('dcol')}</th><th>${abL('cIn')}</th><th>${abL('cOut')}</th><th style="text-align:right">${abL('hLate')}</th><th>${abL('fixInput')}</th></tr></thead><tbody>`;
+  an.forEach(a=>{ const lt=a.lateMin>=60?(a.lateMin/60).toFixed(1)+'h':a.lateMin+'m';
+    html+=`<tr><td>${a.name}</td><td style="color:var(--text3)">${a.id}</td><td>${a.dd}</td><td>${abT(a.i)}</td><td>${abT(a.o)}</td><td style="text-align:right;color:var(--amber);font-weight:700">${lt}</td>
+    <td style="white-space:nowrap"><input type="time" id="abfx-${a.id}-${a.dd}" class="ab-sel" style="width:108px;padding:4px 6px"/> <button class="ab-btn" style="padding:4px 9px" onclick="abApplyFix('${a.id}','${a.dd}')">${abL('fixApply')}</button> <button class="ab-btn" style="padding:4px 9px" onclick="abApplyFix('${a.id}','${a.dd}','FREE')">FREE</button></td></tr>`; });
+  html+=`</tbody></table></div>`;
+  el.innerHTML=html;
+}
+async function abApplyFix(id,dd,forceVal){
+  if(!abCanEdit()){ alert(abL('login')); return; }
+  let val=forceVal; if(val===undefined){ const inp=document.getElementById(`abfx-${id}-${dd}`); val=inp?inp.value:''; }
+  if(!val){ return; }
+  AB_FIX=AB_FIX||{}; AB_FIX[id]=AB_FIX[id]||{}; AB_FIX[id][dd]=val;
+  try{ await fetch(`${FB}/att_fix/${abMonth.replace('-','')}/${encodeURIComponent(id)}/${dd}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}); if(typeof logAudit==='function') logAudit('att_fix',`${id} ${dd} → ${val}`); }catch(e){ alert('✗ '+e.message); }
+  abRenderFix(); abUpdateBadge();
+}
+function abClearFix(id,dd){ if(AB_FIX&&AB_FIX[id]) delete AB_FIX[id][dd]; try{ fetch(`${FB}/att_fix/${abMonth.replace('-','')}/${encodeURIComponent(id)}/${dd}.json`,{method:'DELETE'}); }catch(e){} abRenderFix(); abUpdateBadge(); }
 // ── 分頁3:年度月曆(勾放假日) ──
 async function abRenderCal(){
   const el=document.getElementById('ab-pane-cal'); if(!el) return;
@@ -6563,14 +6681,21 @@ function abRenderPersonDetail(el){
     <div class="ab-kpi"><div class="v" style="color:var(--red)">${abFmt(s.absentMin)}</div><div class="l">${abL('hAbsent')}</div></div>
     <div class="ab-kpi"><div class="v" style="color:${s.lateMin?'var(--amber)':'var(--text2)'}">${abFmt(s.lateMin||0)}${s.lateDays?` <span style="font-size:12px;color:var(--text3)">(${s.lateDays})</span>`:''}</div><div class="l">${abL('hLate')}</div></div></div>`;
   const lk=Object.keys(s.leaves||{}); if(lk.length){ html+=`<div class="ab-card"><b>${abL('leaveTitle')}</b><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">`+lk.sort().map(c=>{ const t=abTypeByName(c); const ab=t&&t.absent; return `<span style="font-size:12px;padding:3px 9px;border-radius:10px;background:${ab?'#fee2e2':'var(--bg2)'};color:${ab?'var(--red)':'var(--text2)'};font-weight:700">${c} ${abFmt(s.leaves[c])}${ab?' '+abL('absentTag'):''}</span>`; }).join('')+`</div></div>`; }
-  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>${abL('dcol')}</th><th>${abL('dweek')}</th><th>${abL('cIn')}</th><th>${abL('cOut')}</th><th>${abL('cLeave')}</th><th style="text-align:right">${abL('cWork')}</th><th>${abL('cType')}</th></tr></thead><tbody>`;
-  for(let d=1;d<=days;d++){ const dd=String(d).padStart(2,'0'); const ymd=`${y}${String(m).padStart(2,'0')}${dd}`; const dv=(pd.days||{})[dd]; const hol=abIsHoliday(ymd); const dow=new Date(y,m-1,d).getDay();
+  html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>${abL('dcol')}</th><th>${abL('dweek')}</th><th>${abL('cIn')}</th><th>${abL('cOut')}</th><th>${abL('cLeave')}</th><th style="text-align:right">${abL('cLeaveH')}</th><th style="text-align:right">${abL('cWork')}</th><th>${abL('cType')}</th></tr></thead><tbody>`;
+  for(let d=1;d<=days;d++){ const dd=String(d).padStart(2,'0'); const ymd=`${y}${String(m).padStart(2,'0')}${dd}`; const dv=(pd.days||{})[dd]; const dow=new Date(y,m-1,d).getDay();
+    const di=abDayInfo(id,dd,ymd); const off=di.off;
     const inT=(dv&&dv.i!=null)?abT(dv.i):'—', outT=(dv&&dv.o!=null)?abT(dv.o):'—'; const w=dv?(dv.w||0):0;
-    let typ = hol?`<span style="color:var(--red);font-weight:700">${abL('holiday')}</span>`:`<span style="color:var(--text3)">${abL('workday')}</span>`; if(hol&&w>0) typ=`<span style="color:var(--blue);font-weight:700">${abL('hOt')}</span>`; if(dv&&dv.inc) typ+=` <span style="color:var(--amber)">${abL('incomplete')}</span>`;
-    if(!hol && dv && dv.i!=null){ const sst=abShiftStartMin(); let lt=Math.max(0,dv.i-sst); const sp=(pd.leaveSpan||{})[dd]; if(lt>0&&sp){ if(sp.s<=sst) lt=0; else if(sp.s<dv.i) lt=sp.s-sst; } if(lt>0) typ+=` <span style="color:var(--amber);font-weight:700">${abL('lateTag')} ${lt>=60?(lt/60).toFixed(1)+'h':lt+'m'}</span>`; }
+    let typ; if(di.roster){ typ = off?`<span style="color:var(--text3);font-weight:700">${di.code||'FREE'}</span>`:`<span style="color:var(--blue);font-weight:700">${di.code}</span>`; }
+    else { typ = off?`<span style="color:var(--red);font-weight:700">${abL('holiday')}</span>`:`<span style="color:var(--text3)">${abL('workday')}</span>`; }
+    if(off && w>0) typ=`<span style="color:var(--blue);font-weight:700">${abL('hOt')}</span>`;
+    if(dv&&dv.cross) typ+=` <span style="color:var(--purple,#7c3aed);font-weight:700">${abL('crossDay')}</span>`;
+    if(dv&&dv.inc) typ+=` <span style="color:var(--amber)">${abL('incomplete')}</span>`;
+    if(!off && dv && dv.i!=null && di.shiftStart!=null){ let lt=Math.max(0,dv.i-di.shiftStart); const sp=(pd.leaveSpan||{})[dd]; if(lt>0&&sp){ if(sp.s<=di.shiftStart) lt=0; else if(sp.s<dv.i) lt=sp.s-di.shiftStart; } if(lt>0) typ+=` <span style="color:var(--amber);font-weight:700">${abL('lateTag')} ${lt>=60?(lt/60).toFixed(1)+'h':lt+'m'}</span>`; }
     const ldarr=(pd.leaveDays||{})[dd]; let leaveCell='<span style="color:var(--text3)">—</span>';
     if(ldarr&&ldarr.length){ leaveCell=ldarr.map(cls=>{ const t=abTypeByName(cls); const code=t?t.code:cls; const ab=t&&t.absent; return `<span style="font-size:11px;padding:1px 6px;border-radius:8px;background:${ab?'#fee2e2':'var(--bg2)'};color:${ab?'var(--red)':'var(--text2)'};font-weight:700" title="${cls}">${code}</span>`; }).join(' '); }
-    html+=`<tr style="${hol?'background:#fef2f2':''}"><td>${dd}</td><td style="color:${(dow===0||dow===6)?'var(--red)':'var(--text3)'}">${dowN[dow]}</td><td>${inT}</td><td>${outT}</td><td>${leaveCell}</td><td style="text-align:right">${w?((w/60).toFixed(1)+'h'):'—'}</td><td>${typ}</td></tr>`;
+    const lmin=(pd.leaveMinDay||{})[dd]; let leaveHCell='<span style="color:var(--text3)">—</span>';
+    if(lmin>0){ const txt = lmin<60 ? (Math.round(lmin)+'m') : ((Number.isInteger(lmin/60)?(lmin/60):(lmin/60).toFixed(1))+'h'); leaveHCell=`<span style="font-weight:700">${txt}</span>`; }
+    html+=`<tr style="${off&&!di.roster?'background:#fef2f2':(off?'background:var(--bg2)':'')}"><td>${dd}</td><td style="color:${(dow===0||dow===6)?'var(--red)':'var(--text3)'}">${dowN[dow]}</td><td>${inT}</td><td>${outT}</td><td>${leaveCell}</td><td style="text-align:right">${leaveHCell}</td><td style="text-align:right">${w?((w/60).toFixed(1)+'h'):'—'}</td><td>${typ}</td></tr>`;
   }
   html+=`</tbody></table></div>`;
   el.innerHTML=html;
