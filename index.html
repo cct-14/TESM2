@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.17-班表MT2</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.17-假別明細</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -6139,9 +6139,9 @@ const AB_I18N={
 Object.assign(AB_I18N.es,{tGroup:'Por grupo',hGroup:'Grupo',noGroup:'Sin grupo',leaveStats:'Estadística por tipo de permiso',lsType:'Permiso',lsPpl:'Personas',lsTimes:'Veces',lsHours:'Total horas',times:'veces',chartsShow:'📊 Mostrar gráficos',chartsHide:'▲ Ocultar gráficos',chRate:'Ausencia por empleado',chDist:'Distribución de ausencia',absRateL:'Ausencia',clickGroup:'Clic en una fila para ver el panel del grupo',noPunch:'Sin datos de asistencia',backGroup:'← Volver a grupos',cLeave:'Permiso',cLeaveH:'Horas permiso',impShift:'⬆️ Importar turnos',kindShift:'turnos',errShift:'Formato de turnos no válido (falta la fila DAYS)',unmatchedShift:'sin asignar',crossDay:'nocturno',tFix:'Anomalías',fixHint:'Marcajes completos pero con tardanza ≥4h (turno mal asignado). Ingrese la hora de entrada correcta; se recalcula y se guarda.',fixNone:'Sin anomalías',fixInput:'Hora correcta',fixApply:'Aplicar',hLate:'Tardanza',lateTag:'tarde',cfgTitle:'Reglas de cálculo',cfgOt:'Umbral de horas extra (h)',cfgShift:'Hora de entrada',cfgSaved:'✓ Ajustes guardados',leaveList:'Tipos de permiso'});
 Object.assign(AB_I18N.zh,{tGroup:'組別統計',hGroup:'組別',noGroup:'未分組',leaveStats:'各假別統計',lsType:'假別',lsPpl:'幾人請',lsTimes:'共幾次',lsHours:'總時數',times:'次',chartsShow:'📊 顯示圖表',chartsHide:'▲ 收合圖表',chRate:'員工缺勤率',chDist:'缺勤率分布',absRateL:'缺勤率',clickGroup:'點一列看該組別監控表',noPunch:'沒有出勤資料',backGroup:'← 返回組別',cLeave:'請假種類',cLeaveH:'請假總時',impShift:'⬆️ 匯入班表',kindShift:'班表',errShift:'班表格式不符(找不到 DAYS 那列)',unmatchedShift:'未對到編號',crossDay:'跨夜',tFix:'異常打卡',fixHint:'打卡完整、但用目前班別算遲到 ≥4 小時(可能班別對不上或去頂替)。輸入他正確的上班時間,系統立即重算並存起來;若當天其實休息按 FREE。',fixNone:'目前沒有異常',fixInput:'正確上班時間',fixApply:'套用',hLate:'遲到',lateTag:'遲到',cfgTitle:'規則設定',cfgOt:'加班門檻(小時)',cfgShift:'上班時間',cfgSaved:'✓ 設定已儲存',leaveList:'假別清單'});
 Object.assign(AB_I18N.en,{tGroup:'By group',hGroup:'Group',noGroup:'No group',leaveStats:'Leave stats by type',lsType:'Leave',lsPpl:'People',lsTimes:'Times',lsHours:'Total hours',times:'times',chartsShow:'📊 Show charts',chartsHide:'▲ Hide charts',chRate:'Employee absence rate',chDist:'Absence rate distribution',absRateL:'Absence rate',clickGroup:'Click a row for the group panel',noPunch:'No attendance data',backGroup:'← Back to groups',cLeave:'Leave type',cLeaveH:'Leave hrs',impShift:'⬆️ Import roster',kindShift:'roster',errShift:'Invalid roster format (DAYS row not found)',unmatchedShift:'unmatched',crossDay:'overnight',tFix:'Anomalies',fixHint:'Complete punches but computed late ≥4h (wrong shift or substitute). Enter the correct shift start; it recalculates and saves.',fixNone:'No anomalies',fixInput:'Correct start',fixApply:'Apply',hLate:'Late',lateTag:'late',cfgTitle:'Calculation rules',cfgOt:'Overtime threshold (h)',cfgShift:'Shift start',cfgSaved:'✓ Settings saved',leaveList:'Leave types'});
-Object.assign(AB_I18N.es,{hKind:'Estado',kindInc:'Marcaje incompleto',kindLate:'Tardanza excesiva',absShort:'ausencia',fixHint2:'Marcaje incompleto (falta entrada o salida) o tardanza ≥4h. Ingrese la hora real de entrada y salida y pulse Aplicar; ese día se recalcula. Sin corregir cuenta como ausencia. Si ese día descansaba, pulse FREE.',fixClear:'Quitar',restWork:'trabajo en descanso',pendTitle:'Nombres del turno sin asignar',pendHint:'El turno usa nombres abreviados que no se pudieron asignar a un N.º de empleado. Elija la persona correcta y pulse Asignar; se recuerda y se aplicará automáticamente cada mes.',pendName:'Nombre en el turno',pendPick:'— elegir persona —',pendApply:'Asignar',pendSkip:'Omitir'});
-Object.assign(AB_I18N.zh,{hKind:'狀況',kindInc:'打卡不全',kindLate:'遲到過久',absShort:'缺勤',fixHint2:'打卡不全(缺上班或下班)或遲到 ≥4 小時。輸入他實際的上班、下班時間再按「套用」,當天就重新計算;沒補正之前算缺勤。若當天其實休息按 FREE。',fixClear:'清除',restWork:'假日上班',pendTitle:'班表未對應名字',pendHint:'班表用縮寫名、對不到員工編號。挑正確的人再按「對應」,系統會記住,以後每個月同一個名字自動套用。',pendName:'班表上的名字',pendPick:'— 選擇人員 —',pendApply:'對應',pendSkip:'略過'});
-Object.assign(AB_I18N.en,{hKind:'Status',kindInc:'Incomplete punch',kindLate:'Excess lateness',absShort:'absence',fixHint2:'Incomplete punch (missing in or out) or lateness ≥4h. Enter the real in/out times and click Apply to recompute that day; until corrected it counts as absence. If that day was a rest day, click FREE.',fixClear:'Clear',restWork:'rest-day work',pendTitle:'Unmatched roster names',pendHint:'The roster uses abbreviated names that could not be matched to an employee ID. Pick the right person and click Assign; it is remembered and auto-applied every month.',pendName:'Roster name',pendPick:'— pick person —',pendApply:'Assign',pendSkip:'Skip'});
+Object.assign(AB_I18N.es,{hKind:'Estado',kindInc:'Marcaje incompleto',kindLate:'Tardanza excesiva',absShort:'ausencia',fixHint2:'Marcaje incompleto (falta entrada o salida) o tardanza ≥4h. Ingrese la hora real de entrada y salida y pulse Aplicar; ese día se recalcula. Sin corregir cuenta como ausencia. Si ese día descansaba, pulse FREE.',fixClear:'Quitar',restWork:'trabajo en descanso',pendTitle:'Nombres del turno sin asignar',pendHint:'El turno usa nombres abreviados que no se pudieron asignar a un N.º de empleado. Elija la persona correcta y pulse Asignar; se recuerda y se aplicará automáticamente cada mes.',pendName:'Nombre en el turno',pendPick:'— elegir persona —',pendApply:'Asignar',pendSkip:'Omitir',shiftMonthWarn:'Este turno parece ser de {f}, pero el mes seleccionado es {s}. ¿Importar de todos modos a {s}?',shiftCancelled:'Importación cancelada (mes no coincide)',lsClick:'Clic en un tipo para ver quién lo tomó'});
+Object.assign(AB_I18N.zh,{hKind:'狀況',kindInc:'打卡不全',kindLate:'遲到過久',absShort:'缺勤',fixHint2:'打卡不全(缺上班或下班)或遲到 ≥4 小時。輸入他實際的上班、下班時間再按「套用」,當天就重新計算;沒補正之前算缺勤。若當天其實休息按 FREE。',fixClear:'清除',restWork:'假日上班',pendTitle:'班表未對應名字',pendHint:'班表用縮寫名、對不到員工編號。挑正確的人再按「對應」,系統會記住,以後每個月同一個名字自動套用。',pendName:'班表上的名字',pendPick:'— 選擇人員 —',pendApply:'對應',pendSkip:'略過',shiftMonthWarn:'這份班表看起來是 {f} 的,但你目前選的月份是 {s}。確定要匯入到 {s} 嗎?',shiftCancelled:'已取消匯入(月份不符)',lsClick:'點假別看是誰請的'});
+Object.assign(AB_I18N.en,{hKind:'Status',kindInc:'Incomplete punch',kindLate:'Excess lateness',absShort:'absence',fixHint2:'Incomplete punch (missing in or out) or lateness ≥4h. Enter the real in/out times and click Apply to recompute that day; until corrected it counts as absence. If that day was a rest day, click FREE.',fixClear:'Clear',restWork:'rest-day work',pendTitle:'Unmatched roster names',pendHint:'The roster uses abbreviated names that could not be matched to an employee ID. Pick the right person and click Assign; it is remembered and auto-applied every month.',pendName:'Roster name',pendPick:'— pick person —',pendApply:'Assign',pendSkip:'Skip',shiftMonthWarn:'This roster looks like {f}, but the selected month is {s}. Import into {s} anyway?',shiftCancelled:'Import cancelled (month mismatch)',lsClick:'Click a type to see who took it'});
 function abL(k){ const L=AB_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||AB_I18N.es; return (k in L)?L[k]:(AB_I18N.zh[k]!=null?AB_I18N.zh[k]:k); }
 function abApplyLabels(){ const set=(sel,txt)=>{ const e=document.querySelector(sel); if(e) e.textContent=txt; };
   set('#page-attendance .ab-subtab[data-tab="group"]','🏗 '+abL('tGroup'));
@@ -6259,8 +6259,20 @@ function abLev1(a,b){ if(a===b) return true; const la=a.length,lb=b.length; if(M
   let i=0,j=0,ed=0; while(i<la&&j<lb){ if(a[i]===b[j]){i++;j++;continue;} if(++ed>1) return false; if(la>lb)i++; else if(lb>la)j++; else {i++;j++;} }
   if(i<la||j<lb) ed++; return ed<=1; }
 const AB_TEAMSET={ALPHA:1,BRAVO:1,CHARLIE:1,DELTA:1,ECHO:1,FOXTROT:1};  // 隊伍名(MT1/MT2 共用)
+// 從班表標題抓月份(班表沒有年月欄,靠標題「…JUL , 2026」核對,避免匯錯月)
+function abRosterMonth(rows){
+  const MON={JANUARY:1,JAN:1,ENERO:1,ENE:1,FEBRUARY:2,FEB:2,FEBRERO:2,MARCH:3,MAR:3,MARZO:3,APRIL:4,APR:4,ABRIL:4,ABR:4,MAY:5,MAYO:5,JUNE:6,JUN:6,JUNIO:6,JULY:7,JUL:7,JULIO:7,AUGUST:8,AUG:8,AGOSTO:8,AGO:8,SEPTEMBER:9,SEPT:9,SEP:9,SEPTIEMBRE:9,OCTOBER:10,OCT:10,OCTUBRE:10,NOVEMBER:11,NOV:11,NOVIEMBRE:11,DECEMBER:12,DEC:12,DICIEMBRE:12,DIC:12};
+  const txt=' '+(rows.slice(0,4).map(r=>(r||[]).join(' ')).join(' ')).toUpperCase().replace(/[^A-Z0-9]/g,' ')+' ';
+  const ym=txt.match(/(20\d{2})/); if(!ym) return null;
+  const keys=Object.keys(MON).sort((a,b)=>b.length-a.length);
+  for(const k of keys){ if(txt.indexOf(' '+k+' ')>=0) return ym[1]+'-'+String(MON[k]).padStart(2,'0'); }
+  return null;
+}
 async function abImportShift(parsed,fname){
   const rows=[parsed.headers].concat(parsed.data); const up=s=>String(s||'').trim().toUpperCase();
+  // 月份核對:班表標題若寫某月、卻和目前選的月份不同 → 提醒(防止匯錯月覆蓋)
+  const rmon=abRosterMonth(rows);
+  if(rmon && rmon!==abMonth){ if(!confirm(abL('shiftMonthWarn').replace('{f}',rmon).replace('{s}',abMonth))) return {mk:abMonth.replace('-',''),count:0,unmatched:[],cancelled:true}; }
   // 日期列:DAY 或 DAYS(MT1=DAYS,MT2=DAY)
   const dayRowI=rows.findIndex(r=>/^DAYS?$/.test(up(r[0]))); if(dayRowI<0) throw new Error(abL('errShift'));
   const dayCol={}; rows[dayRowI].forEach((v,i)=>{ const n=parseInt(v,10); if(i>=1&&n>=1&&n<=31) dayCol[i]=n; });
@@ -6335,7 +6347,8 @@ async function abImport(kind,input){
     const res=(kind==='att') ? await abImportAtt(parsed,file.name) : (kind==='leave' ? await abImportLeave(parsed,file.name) : await abImportShift(parsed,file.name));
     if(res && res.mk && kind!=='shift'){ abMonth=res.mk.slice(0,4)+'-'+res.mk.slice(4,6); const mi=document.getElementById('ab-month'); if(mi) mi.value=abMonth; await abLoadHoli(); }
     if(kind!=='shift') await abLoadMonth(); await abLoadShift(); await abLoadFix(); await abLoadOt(); await abLoadNameMap(); await abLoadPending(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab('group'); abUpdateBadge();
-    if(msg){ if(kind==='shift'){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${abL('kindShift')}）`+(res.unmatched&&res.unmatched.length?`　⚠️ ${res.unmatched.length} ${abL('unmatchedShift')}: ${res.unmatched.slice(0,8).join('、')}`:''); }
+    if(msg){ if(res&&res.cancelled){ msg.style.color='var(--amber)'; msg.textContent='⚠️ '+abL('shiftCancelled'); }
+      else if(kind==='shift'){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${abL('kindShift')}）`+(res.unmatched&&res.unmatched.length?`　⚠️ ${res.unmatched.length} ${abL('unmatchedShift')}: ${res.unmatched.slice(0,8).join('、')}`:''); }
       else if(res && res.count>0){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${kind==='att'?abL('kindAtt'):abL('kindLeave')}）${abL('toMonth')} ${abMonth}`; } else { msg.style.color='var(--red)'; msg.textContent=abL('impNone'); } }
   }catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
   input.value='';
@@ -6509,24 +6522,29 @@ function abMonitorBody(rows){
     <div class="ab-kpi"><div class="v" style="color:var(--red)">${abFmt(tot.absent)}</div><div class="l">${abL('hAbsent')}</div></div>
     <div class="ab-kpi"><div class="v" style="color:var(--blue)">${abFmt(tot.ot)}</div><div class="l">${abL('hOt')}</div></div>
     <div class="ab-kpi"><div class="v" style="color:var(--amber)">${abFmt(tot.late)}${tot.lateD?` <span style="font-size:12px;color:var(--text3)">(${tot.lateD})</span>`:''}</div><div class="l">${abL('hLate')}</div></div></div>`;
-  html+=abLeaveStatsHtml(agg);
+  html+=abLeaveStatsHtml(agg,rows);
   html+=abChartsHtml(rows);
   html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>${abL('hName')}</th><th>${abL('hId')}</th><th>${abL('hRate')}</th><th style="text-align:right">${abL('hNormal')}</th><th style="text-align:right">${abL('hOt')}</th><th style="text-align:right">${abL('hAbsent')}</th><th style="text-align:right">${abL('hLate')}</th></tr></thead><tbody>`;
   rows.forEach(r=>{ html+=`<tr><td>${r.name}</td><td style="color:var(--text3)">${r.id}</td><td class="ab-rate" style="color:${abRateColor(r.s.rate)}"><span class="ab-bar" style="width:70px"><span style="width:${Math.min(100,r.s.rate)}%;background:${abRateColor(r.s.rate)}"></span></span> ${r.s.rate.toFixed(1)}%</td><td style="text-align:right">${abFmt(r.s.normalMin)}</td><td style="text-align:right;color:var(--blue)">${abFmt(r.s.otMin)}</td><td style="text-align:right;color:var(--red)">${abFmt(r.s.absentMin)}</td><td style="text-align:right;color:${r.s.lateMin?'var(--amber)':'var(--text3)'}">${r.s.lateMin?abFmt(r.s.lateMin)+(r.s.lateDays?` (${r.s.lateDays})`:''):'—'}</td></tr>`; });
   html+=`</tbody></table></div>`;
   return html;
 }
-function abLeaveStatsHtml(agg){
-  const cls=Object.keys(agg); if(!cls.length) return '';
+function abLeaveStatsHtml(agg,rows){
+  const cls=Object.keys(agg); if(!cls.length) return ''; rows=rows||[];
   cls.sort((a,b)=>agg[b].min-agg[a].min);
-  let h=`<div style="margin:4px 0 6px"><b>${abL('leaveStats')}</b></div>`;
+  let h=`<div style="margin:4px 0 6px"><b>${abL('leaveStats')}</b> <span style="font-size:12px;color:var(--text3)">${abL('lsClick')}</span></div>`;
   h+=`<div class="ab-card" style="padding:0;overflow:hidden;margin-bottom:12px"><table class="ab-tbl"><thead><tr><th>${abL('lsType')}</th><th style="text-align:right">${abL('lsPpl')}</th><th style="text-align:right">${abL('lsTimes')}</th><th style="text-align:right">${abL('lsHours')}</th></tr></thead><tbody>`;
-  cls.forEach(c=>{ const a=agg[c]; const t=abTypeByName(c); const codeLabel=t?t.code:c; const desc=t?(t.disp||t.name||''):''; const ab=t&&t.absent;
-    h+=`<tr><td><b>${codeLabel}</b> <span style="color:var(--text3);font-size:11px">${desc}</span>${ab?`<span style="margin-left:6px;font-size:11px;color:var(--red)">${abL('absentTag')}</span>`:''}</td><td style="text-align:right">${a.ppl.size}</td><td style="text-align:right;font-weight:700">${a.cnt||'—'}</td><td style="text-align:right">${abFmt(a.min)}</td></tr>`;
+  cls.forEach((c,i)=>{ const a=agg[c]; const t=abTypeByName(c); const codeLabel=t?t.code:c; const desc=t?(t.disp||t.name||''):''; const ab=t&&t.absent;
+    const ppl=rows.filter(r=>r.s&&r.s.leaves&&(+r.s.leaves[c]||0)>0).map(r=>({name:r.name,id:r.id,min:+r.s.leaves[c]||0,cnt:((r.s.leaveCnt||{})[c])||0})).sort((x,y)=>y.min-x.min);
+    h+=`<tr class="click" onclick="abToggleLeavePpl(${i})"><td><span id="ablva-${i}" style="color:var(--text3)">▸</span> <b>${codeLabel}</b> <span style="color:var(--text3);font-size:11px">${desc}</span>${ab?`<span style="margin-left:6px;font-size:11px;color:var(--red)">${abL('absentTag')}</span>`:''}</td><td style="text-align:right">${a.ppl.size}</td><td style="text-align:right;font-weight:700">${a.cnt||'—'}</td><td style="text-align:right">${abFmt(a.min)}</td></tr>`;
+    h+=`<tr id="ablv-${i}" style="display:none"><td colspan="4" style="background:var(--bg2);padding:8px 12px"><div style="display:flex;flex-wrap:wrap;gap:6px">`+
+       (ppl.length? ppl.map(pp=>`<span style="font-size:12px;padding:3px 9px;border-radius:10px;background:var(--bg);border:1px solid var(--border)"><b>${pp.name}</b> <span style="color:var(--text3)">${pp.id}</span> · ${abFmt(pp.min)}${pp.cnt?` (${pp.cnt})`:''}</span>`).join('') : `<span style="color:var(--text3)">—</span>`)+
+       `</div></td></tr>`;
   });
   h+=`</tbody></table></div>`;
   return h;
 }
+function abToggleLeavePpl(i){ const el=document.getElementById('ablv-'+i); const ar=document.getElementById('ablva-'+i); if(el){ const open=el.style.display==='none'; el.style.display=open?'':'none'; if(ar) ar.textContent=open?'▾':'▸'; } }
 function abChartsHtml(rows){
   const withData=rows.filter(r=>r.s.expMin>0);
   let h=`<div style="margin-bottom:12px"><button class="ab-btn" onclick="abToggleCharts()" style="font-size:12px;padding:6px 12px">${abChartsOpen?abL('chartsHide'):abL('chartsShow')}</button>`;
