@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.16-加班串接</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.17-班表MT2</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -6139,9 +6139,9 @@ const AB_I18N={
 Object.assign(AB_I18N.es,{tGroup:'Por grupo',hGroup:'Grupo',noGroup:'Sin grupo',leaveStats:'Estadística por tipo de permiso',lsType:'Permiso',lsPpl:'Personas',lsTimes:'Veces',lsHours:'Total horas',times:'veces',chartsShow:'📊 Mostrar gráficos',chartsHide:'▲ Ocultar gráficos',chRate:'Ausencia por empleado',chDist:'Distribución de ausencia',absRateL:'Ausencia',clickGroup:'Clic en una fila para ver el panel del grupo',noPunch:'Sin datos de asistencia',backGroup:'← Volver a grupos',cLeave:'Permiso',cLeaveH:'Horas permiso',impShift:'⬆️ Importar turnos',kindShift:'turnos',errShift:'Formato de turnos no válido (falta la fila DAYS)',unmatchedShift:'sin asignar',crossDay:'nocturno',tFix:'Anomalías',fixHint:'Marcajes completos pero con tardanza ≥4h (turno mal asignado). Ingrese la hora de entrada correcta; se recalcula y se guarda.',fixNone:'Sin anomalías',fixInput:'Hora correcta',fixApply:'Aplicar',hLate:'Tardanza',lateTag:'tarde',cfgTitle:'Reglas de cálculo',cfgOt:'Umbral de horas extra (h)',cfgShift:'Hora de entrada',cfgSaved:'✓ Ajustes guardados',leaveList:'Tipos de permiso'});
 Object.assign(AB_I18N.zh,{tGroup:'組別統計',hGroup:'組別',noGroup:'未分組',leaveStats:'各假別統計',lsType:'假別',lsPpl:'幾人請',lsTimes:'共幾次',lsHours:'總時數',times:'次',chartsShow:'📊 顯示圖表',chartsHide:'▲ 收合圖表',chRate:'員工缺勤率',chDist:'缺勤率分布',absRateL:'缺勤率',clickGroup:'點一列看該組別監控表',noPunch:'沒有出勤資料',backGroup:'← 返回組別',cLeave:'請假種類',cLeaveH:'請假總時',impShift:'⬆️ 匯入班表',kindShift:'班表',errShift:'班表格式不符(找不到 DAYS 那列)',unmatchedShift:'未對到編號',crossDay:'跨夜',tFix:'異常打卡',fixHint:'打卡完整、但用目前班別算遲到 ≥4 小時(可能班別對不上或去頂替)。輸入他正確的上班時間,系統立即重算並存起來;若當天其實休息按 FREE。',fixNone:'目前沒有異常',fixInput:'正確上班時間',fixApply:'套用',hLate:'遲到',lateTag:'遲到',cfgTitle:'規則設定',cfgOt:'加班門檻(小時)',cfgShift:'上班時間',cfgSaved:'✓ 設定已儲存',leaveList:'假別清單'});
 Object.assign(AB_I18N.en,{tGroup:'By group',hGroup:'Group',noGroup:'No group',leaveStats:'Leave stats by type',lsType:'Leave',lsPpl:'People',lsTimes:'Times',lsHours:'Total hours',times:'times',chartsShow:'📊 Show charts',chartsHide:'▲ Hide charts',chRate:'Employee absence rate',chDist:'Absence rate distribution',absRateL:'Absence rate',clickGroup:'Click a row for the group panel',noPunch:'No attendance data',backGroup:'← Back to groups',cLeave:'Leave type',cLeaveH:'Leave hrs',impShift:'⬆️ Import roster',kindShift:'roster',errShift:'Invalid roster format (DAYS row not found)',unmatchedShift:'unmatched',crossDay:'overnight',tFix:'Anomalies',fixHint:'Complete punches but computed late ≥4h (wrong shift or substitute). Enter the correct shift start; it recalculates and saves.',fixNone:'No anomalies',fixInput:'Correct start',fixApply:'Apply',hLate:'Late',lateTag:'late',cfgTitle:'Calculation rules',cfgOt:'Overtime threshold (h)',cfgShift:'Shift start',cfgSaved:'✓ Settings saved',leaveList:'Leave types'});
-Object.assign(AB_I18N.es,{hKind:'Estado',kindInc:'Marcaje incompleto',kindLate:'Tardanza excesiva',absShort:'ausencia',fixHint2:'Marcaje incompleto (falta entrada o salida) o tardanza ≥4h. Ingrese la hora real de entrada y salida y pulse Aplicar; ese día se recalcula. Sin corregir cuenta como ausencia. Si ese día descansaba, pulse FREE.',fixClear:'Quitar',restWork:'trabajo en descanso'});
-Object.assign(AB_I18N.zh,{hKind:'狀況',kindInc:'打卡不全',kindLate:'遲到過久',absShort:'缺勤',fixHint2:'打卡不全(缺上班或下班)或遲到 ≥4 小時。輸入他實際的上班、下班時間再按「套用」,當天就重新計算;沒補正之前算缺勤。若當天其實休息按 FREE。',fixClear:'清除',restWork:'假日上班'});
-Object.assign(AB_I18N.en,{hKind:'Status',kindInc:'Incomplete punch',kindLate:'Excess lateness',absShort:'absence',fixHint2:'Incomplete punch (missing in or out) or lateness ≥4h. Enter the real in/out times and click Apply to recompute that day; until corrected it counts as absence. If that day was a rest day, click FREE.',fixClear:'Clear',restWork:'rest-day work'});
+Object.assign(AB_I18N.es,{hKind:'Estado',kindInc:'Marcaje incompleto',kindLate:'Tardanza excesiva',absShort:'ausencia',fixHint2:'Marcaje incompleto (falta entrada o salida) o tardanza ≥4h. Ingrese la hora real de entrada y salida y pulse Aplicar; ese día se recalcula. Sin corregir cuenta como ausencia. Si ese día descansaba, pulse FREE.',fixClear:'Quitar',restWork:'trabajo en descanso',pendTitle:'Nombres del turno sin asignar',pendHint:'El turno usa nombres abreviados que no se pudieron asignar a un N.º de empleado. Elija la persona correcta y pulse Asignar; se recuerda y se aplicará automáticamente cada mes.',pendName:'Nombre en el turno',pendPick:'— elegir persona —',pendApply:'Asignar',pendSkip:'Omitir'});
+Object.assign(AB_I18N.zh,{hKind:'狀況',kindInc:'打卡不全',kindLate:'遲到過久',absShort:'缺勤',fixHint2:'打卡不全(缺上班或下班)或遲到 ≥4 小時。輸入他實際的上班、下班時間再按「套用」,當天就重新計算;沒補正之前算缺勤。若當天其實休息按 FREE。',fixClear:'清除',restWork:'假日上班',pendTitle:'班表未對應名字',pendHint:'班表用縮寫名、對不到員工編號。挑正確的人再按「對應」,系統會記住,以後每個月同一個名字自動套用。',pendName:'班表上的名字',pendPick:'— 選擇人員 —',pendApply:'對應',pendSkip:'略過'});
+Object.assign(AB_I18N.en,{hKind:'Status',kindInc:'Incomplete punch',kindLate:'Excess lateness',absShort:'absence',fixHint2:'Incomplete punch (missing in or out) or lateness ≥4h. Enter the real in/out times and click Apply to recompute that day; until corrected it counts as absence. If that day was a rest day, click FREE.',fixClear:'Clear',restWork:'rest-day work',pendTitle:'Unmatched roster names',pendHint:'The roster uses abbreviated names that could not be matched to an employee ID. Pick the right person and click Assign; it is remembered and auto-applied every month.',pendName:'Roster name',pendPick:'— pick person —',pendApply:'Assign',pendSkip:'Skip'});
 function abL(k){ const L=AB_I18N[(typeof maintLang!=='undefined'?maintLang:'es')]||AB_I18N.es; return (k in L)?L[k]:(AB_I18N.zh[k]!=null?AB_I18N.zh[k]:k); }
 function abApplyLabels(){ const set=(sel,txt)=>{ const e=document.querySelector(sel); if(e) e.textContent=txt; };
   set('#page-attendance .ab-subtab[data-tab="group"]','🏗 '+abL('tGroup'));
@@ -6162,9 +6162,11 @@ function abShiftStartMin(){ const s=String(AB_CONFIG.shiftStart||'07:00').split(
 async function abLoadConfig(){ try{ const r=await fetch(`${FB}/att_config.json`); const d=await r.json(); if(d&&typeof d==='object') AB_CONFIG=Object.assign({otThresholdH:1,shiftStart:'07:00'},d); }catch(e){} }
 // ── 班表(值班排班)──
 let AB_SHIFT=null;  // { 編號: { '01':'7-3', '02':'FREE', ... } }
-const AB_SHIFT_START={'7-3':420,'3-11':900,'11-7':1380,'7A-7P':420,'7P-7A':1140};  // 各班別上班時間(分)
+const AB_SHIFT_START={'7-3':420,'3-11':900,'11-7':1380,'7A-7P':420,'7P-7A':1140,'7-19':420,'19-7':1140,'19-07':1140,'7-7':420};  // 各班別上班時間(分)
 function abShiftStart(code){ code=String(code||'').toUpperCase().replace(/\s+/g,''); return AB_SHIFT_START[code]!=null?AB_SHIFT_START[code]:null; }
-function abIsFree(code){ code=String(code||'').toUpperCase().replace(/\s+/g,''); return code===''||code.indexOf('FREE')>=0; }
+function abIsFree(code){ code=String(code||'').toUpperCase().replace(/\s+/g,''); return code===''||code.indexOf('FREE')>=0||code==='COMP'||code==='HOL'||code==='HOLIDAY'||code==='VAC'||code==='VACATION'||code==='OFF'||code==='DESCANSO'; }
+// 是否為可識別的輪班代碼(用來分辨「個別排班列」與「支援/日班名字列」)
+function abIsShiftCode(v){ const c=String(v||'').toUpperCase().replace(/\s+/g,''); if(!c) return false; if(abIsFree(c)) return true; if(AB_SHIFT_START[c]!=null) return true; return /^\d{1,2}[A-Z]?-\d{1,2}[A-Z]?$/.test(c); }
 async function abLoadShift(){ try{ const r=await fetch(`${FB}/att_shift/${abMonth.replace('-','')}.json`); AB_SHIFT=(await r.json())||{}; }catch(e){ AB_SHIFT={}; } }
 let AB_FIX=null;  // 複查修正:{ 編號:{ '01':'15:00' | 'FREE' } } — 人工指定正確上班時間
 async function abLoadFix(){ try{ const r=await fetch(`${FB}/att_fix/${abMonth.replace('-','')}.json`); AB_FIX=(await r.json())||{}; }catch(e){ AB_FIX={}; } }
@@ -6217,7 +6219,7 @@ function abBuildAnomalies(){ if(!AB_DATA||!AB_DATA.persons) return []; const [y,
     });
   });
   out.sort((a,b)=> a.dd!==b.dd?(a.dd<b.dd?-1:1):String(a.name).localeCompare(String(b.name))); return out; }
-function abUpdateBadge(){ const el=document.getElementById('ab-fix-badge'); if(!el) return; let n=0; try{ n=abBuildAnomalies().length; }catch(e){} el.textContent=n>0?String(n):''; el.style.display=n>0?'inline-block':'none'; }
+function abUpdateBadge(){ const el=document.getElementById('ab-fix-badge'); if(!el) return; let n=0; try{ n=abBuildAnomalies().length; }catch(e){} try{ n+=(AB_PENDING?Object.keys(AB_PENDING).length:0); }catch(e){} el.textContent=n>0?String(n):''; el.style.display=n>0?'inline-block':'none'; }
 function abNorm(s){ s=String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,''); s=s.replace(/\(.*$/,''); s=s.toUpperCase().replace(/[^A-Z0-9 ]/g,' '); return s.split(/\s+/).filter(Boolean).join(' '); }
 async function abBuildNameIndex(){
   if(typeof STAFF==='undefined'||!STAFF||!Object.keys(STAFF).length){ try{ const r=await fetch(`${FB}/staff.json`); if(typeof STAFF!=='undefined') STAFF=(await r.json())||{}; }catch(e){} }
@@ -6225,37 +6227,69 @@ async function abBuildNameIndex(){
   if(AB_DATA&&AB_DATA.persons) for(const id in AB_DATA.persons){ if(!(typeof STAFF!=='undefined'&&STAFF&&STAFF[id])) idx.push({id,n:abNorm(AB_DATA.persons[id].name||id)}); }
   return idx;
 }
+// 班表縮寫名 → 員工編號 的人工對應表(全站共用、跨月重用):{ 正規化名字: 編號 }
+let AB_NAMEMAP=null;
+async function abLoadNameMap(){ try{ const r=await fetch(`${FB}/att_namemap.json`); AB_NAMEMAP=(await r.json())||{}; }catch(e){ AB_NAMEMAP={}; } }
+let AB_PENDING=null;  // 班表未對應名單:{ 正規化名字: {name, raw, sch} } — 待人工挑編號
+async function abLoadPending(){ try{ const r=await fetch(`${FB}/att_shift_pending/${abMonth.replace('-','')}.json`); AB_PENDING=(await r.json())||{}; }catch(e){ AB_PENDING={}; } }
+function abNameKey(name){ return abNorm(name).replace(/ /g,'_'); }
+// 比對:①人工對應表 ②完全相同 ③全字包含(全名) ④姓氏+名字首字母(縮寫)。對不到或有歧義 → 回傳 null(交給人工對應)
 function abMatchId(name,idx){ const n=abNorm(name); if(!n) return null;
-  for(const e of idx){ if(e.n===n) return e.id; }
-  const ws=n.split(' ').filter(w=>w.length>2); if(!ws.length) return null;
-  const hits=idx.filter(e=> ws.every(w=>e.n.indexOf(w)>=0));
-  if(hits.length===1) return hits[0].id;
-  if(hits.length>1){ hits.sort((a,b)=>a.n.length-b.n.length); return hits[0].id; }
+  const key=abNameKey(name);
+  if(typeof AB_NAMEMAP!=='undefined'&&AB_NAMEMAP&&AB_NAMEMAP[key]) return AB_NAMEMAP[key];   // 人工指定過的,最優先
+  for(const e of idx){ if(e.n===n) return e.id; }                                            // 完全相同
+  const wsAll=n.split(' ').filter(Boolean); const ws=wsAll.filter(w=>w.length>2);
+  if(ws.length>=2){ const hits=idx.filter(e=> ws.every(w=>(' '+e.n+' ').indexOf(' '+w+' ')>=0)); if(hits.length===1) return hits[0].id; }  // 全字包含(多字全名才用,避免單姓亂猜)
+  // 姓氏 + 名字首字母(縮寫名):姓氏 = 最後一個長度≥3的字
+  const longs=wsAll.filter(w=>w.length>=3); const surname=longs.length?longs[longs.length-1]:(wsAll[wsAll.length-1]||''); const initial=(wsAll[0]||'')[0]||'';
+  if(surname&&surname.length>=3){ let cands=idx.filter(e=> (' '+e.n+' ').indexOf(' '+surname+' ')>=0);
+    if(cands.length===1) return cands[0].id;
+    if(cands.length>1&&initial){ const byIni=cands.filter(e=> e.n.split(' ').some(w=>w[0]===initial)); if(byIni.length===1) return byIni[0].id;
+      const byFirst=cands.filter(e=> (e.n.split(' ')[0]||'')[0]===initial); if(byFirst.length===1) return byFirst[0].id; }   // 名字(第一個字)首字母相符優先
+  }
+  // 姓氏近似(只差 1 個字母,如 PALACIO↔PALACIOS):需名字首字母相符且結果唯一
+  if(surname&&surname.length>=5){ let cands=idx.filter(e=> e.n.split(' ').some(w=> w.length>=5 && abLev1(w,surname)) );
+    if(initial&&cands.length>1) cands=cands.filter(e=> e.n.split(' ').some(w=>w[0]===initial));
+    if(cands.length===1) return cands[0].id;
+  }
   return null;
 }
+// 編輯距離 ≤ 1(相同、或差一個增/刪/改)
+function abLev1(a,b){ if(a===b) return true; const la=a.length,lb=b.length; if(Math.abs(la-lb)>1) return false;
+  let i=0,j=0,ed=0; while(i<la&&j<lb){ if(a[i]===b[j]){i++;j++;continue;} if(++ed>1) return false; if(la>lb)i++; else if(lb>la)j++; else {i++;j++;} }
+  if(i<la||j<lb) ed++; return ed<=1; }
+const AB_TEAMSET={ALPHA:1,BRAVO:1,CHARLIE:1,DELTA:1,ECHO:1,FOXTROT:1};  // 隊伍名(MT1/MT2 共用)
 async function abImportShift(parsed,fname){
   const rows=[parsed.headers].concat(parsed.data); const up=s=>String(s||'').trim().toUpperCase();
-  const dayRowI=rows.findIndex(r=>up(r[0])==='DAYS'); if(dayRowI<0) throw new Error(abL('errShift'));
+  // 日期列:DAY 或 DAYS(MT1=DAYS,MT2=DAY)
+  const dayRowI=rows.findIndex(r=>/^DAYS?$/.test(up(r[0]))); if(dayRowI<0) throw new Error(abL('errShift'));
   const dayCol={}; rows[dayRowI].forEach((v,i)=>{ const n=parseInt(v,10); if(i>=1&&n>=1&&n<=31) dayCol[i]=n; });
   if(!Object.keys(dayCol).length) throw new Error(abL('errShift'));
-  const teamsI=rows.findIndex(r=>up(r[0])==='TEAMS'); const teams={};
-  if(teamsI>=0) for(let r=teamsI+1;r<teamsI+5&&r<rows.length;r++){ const t=up(rows[r][0]); if(!t) continue; const sh={}; for(const c in dayCol) sh[dayCol[c]]=String(rows[r][c]||'').trim(); teams[t]=sh; }
-  const person={};  // name -> {dd:code}
-  const memI=rows.findIndex(r=>up(r[0]).indexOf('TEAM MEMBERS')>=0);
-  if(memI>=0) for(let r=memI+1;r<memI+5&&r<rows.length;r++){ const t=up(rows[r][0]); const pat=teams[t]; if(!pat) continue;
-    for(const c in dayCol){ const nm=String(rows[r][c]||'').trim(); if(!nm) continue; const dn=+dayCol[c]; const lo=dn<=15?1:16, hi=dn<=15?15:31;
-      const p=person[nm]||(person[nm]={}); for(let d=lo;d<=hi;d++) p[String(d).padStart(2,'0')]=pat[d]||''; }
+  const cellCodes=r=>{ let c=0; for(const k in dayCol) if(abIsShiftCode(rows[r][k])) c++; return c; };
+  const cellNames=r=>{ let c=0; for(const k in dayCol){ const v=String(rows[r][k]||'').trim(); if(v&&!abIsShiftCode(v)) c++; } return c; };
+  const teams={};        // 隊伍名 -> {day:code}
+  const memberRows=[];   // 隊員列(隊伍名、格子是人名)
+  const indivRows=[];    // 個別排班列(非隊伍、格子是班別代碼,如 MT1 的 BORIS/LEROY)
+  for(let r=dayRowI+1;r<rows.length;r++){ const t=up(rows[r][0]); if(!rows[r][0]&&cellNames(r)===0&&cellCodes(r)===0) continue;
+    if(AB_TEAMSET[t]){ if(cellCodes(r)>=5){ const sh={}; for(const c in dayCol) sh[dayCol[c]]=String(rows[r][c]||'').trim(); teams[t]=sh; } else if(cellNames(r)>=1){ memberRows.push(r); } }
+    else if(rows[r][0] && cellCodes(r)>=3){ indivRows.push(r); }   // 個別排班(非隊伍、且格子多為班別代碼)
   }
-  const invI=rows.findIndex(r=>up(r[0]).indexOf('INVENTORY')>=0);
-  const dayLeadI=rows.findIndex(r=>up(r[0]).indexOf('DAYTIME')>=0); const endInv=(dayLeadI>invI?dayLeadI:rows.length);
-  if(invI>=0) for(let r=invI+1;r<endInv;r++){ const nm=String(rows[r][0]||'').trim(); if(!nm) continue; const p={}; let any=false;
-    for(const c in dayCol){ const v=String(rows[r][c]||'').trim(); if(v){ p[String(dayCol[c]).padStart(2,'0')]=v; any=true; } } if(any) person[nm]=p; }
-  const idx=await abBuildNameIndex(); const mk=abMonth.replace('-',''); const unmatched=[];
+  const person={};  // name -> {dd:code}
+  memberRows.forEach(r=>{ const t=up(rows[r][0]); const pat=teams[t]; if(!pat) return;
+    for(const c in dayCol){ const nm=String(rows[r][c]||'').trim(); if(!nm||abIsShiftCode(nm)) continue; const dn=+dayCol[c]; const lo=dn<=15?1:16, hi=dn<=15?15:31;
+      const p=person[nm]||(person[nm]={}); for(let d=lo;d<=hi;d++) p[String(d).padStart(2,'0')]=pat[d]||''; }
+  });
+  indivRows.forEach(r=>{ const nm=String(rows[r][0]||'').trim(); if(!nm) return; const p=person[nm]||(person[nm]={});
+    for(const c in dayCol){ const v=String(rows[r][c]||'').trim(); if(v) p[String(dayCol[c]).padStart(2,'0')]=v; } });
+  await abLoadNameMap();
+  const idx=await abBuildNameIndex(); const mk=abMonth.replace('-',''); const unmatched=[]; const pending={};
   let doc={}; try{ const r=await fetch(`${FB}/att_shift/${mk}.json`); doc=(await r.json())||{}; }catch(e){}
   let matched=0;
-  Object.entries(person).forEach(([nm,sch])=>{ const id=abMatchId(nm,idx); if(id){ doc[id]=Object.assign(doc[id]||{},sch); matched++; } else unmatched.push(nm.replace(/\(.*$/,'').trim()); });
+  Object.entries(person).forEach(([nm,sch])=>{ const id=abMatchId(nm,idx); if(id){ doc[id]=Object.assign(doc[id]||{},sch); matched++; }
+    else { const disp=nm.replace(/\(.*$/,'').trim(); unmatched.push(disp); pending[abNameKey(nm)]={name:disp,raw:nm,sch}; } });
   await fetch(`${FB}/att_shift/${mk}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(doc)});
-  AB_SHIFT=doc;
+  await fetch(`${FB}/att_shift_pending/${mk}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(pending)});
+  AB_SHIFT=doc; AB_PENDING=pending;
   if(typeof logAudit==='function') logAudit('att_shift',`匯入班表 ${matched} 人`+(unmatched.length?`,${unmatched.length} 未對到`:''));
   return {mk, count:matched, unmatched};
 }
@@ -6265,7 +6299,7 @@ async function initAtt(){
   const mi=document.getElementById('ab-month'); if(mi) mi.value=abMonth;
   if(!STAFF_DEPT || !Object.keys(STAFF_DEPT).length){ try{ const r=await fetch(`${FB}/staff_dept.json`); STAFF_DEPT=(await r.json())||{}; }catch(e){} }
   if(!STAFF_GROUP || !Object.keys(STAFF_GROUP).length){ try{ const r=await fetch(`${FB}/staff_group.json`); STAFF_GROUP=(await r.json())||{}; }catch(e){} }
-  await abLoadTypes(); await abLoadConfig(); await abLoadShift(); await abLoadFix(); await abLoadOt(); await abLoadHoli(); await abLoadMonth();
+  await abLoadTypes(); await abLoadConfig(); await abLoadShift(); await abLoadFix(); await abLoadOt(); await abLoadNameMap(); await abLoadPending(); await abLoadHoli(); await abLoadMonth();
   abTab(abTabCur);
 }
 function abCanEdit(){ return (typeof umCurrentUser!=='undefined' && umCurrentUser) ? true : false; }
@@ -6279,7 +6313,7 @@ async function abLoadHoliYear(y){ if(AB_HOLI[y]) return AB_HOLI[y]; try{ const r
 async function abFetchMonthDoc(mk){ try{ const r=await fetch(`${FB}/att_month/${mk}.json`); return (await r.json())||{}; }catch(e){ return {}; } }
 async function abSaveMonthDoc(mk,doc){ await fetch(`${FB}/att_month/${mk}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(doc)}); }
 async function abLoadMonth(){ AB_DATA=await abFetchMonthDoc(abMonth.replace('-','')); }
-function abSetMonth(v){ if(!v) return; abMonth=v; (async()=>{ await abLoadHoli(); await abLoadShift(); await abLoadFix(); await abLoadOt(); await abLoadMonth(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab(abTabCur); abUpdateBadge(); })(); }
+function abSetMonth(v){ if(!v) return; abMonth=v; (async()=>{ await abLoadHoli(); await abLoadShift(); await abLoadFix(); await abLoadOt(); await abLoadPending(); await abLoadMonth(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab(abTabCur); abUpdateBadge(); })(); }
 function abTab(t){ abTabCur=t; abApplyLabels();
   document.querySelectorAll('#page-attendance .ab-subtab').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===t));
   ['group','dept','person','cal','types','fix'].forEach(k=>{ const p=document.getElementById('ab-pane-'+k); if(p) p.style.display=(k===t)?'':'none'; });
@@ -6300,7 +6334,7 @@ async function abImport(kind,input){
     const text=await file.text(); const parsed=abParseCSV(text);
     const res=(kind==='att') ? await abImportAtt(parsed,file.name) : (kind==='leave' ? await abImportLeave(parsed,file.name) : await abImportShift(parsed,file.name));
     if(res && res.mk && kind!=='shift'){ abMonth=res.mk.slice(0,4)+'-'+res.mk.slice(4,6); const mi=document.getElementById('ab-month'); if(mi) mi.value=abMonth; await abLoadHoli(); }
-    if(kind!=='shift') await abLoadMonth(); await abLoadShift(); await abLoadFix(); await abLoadOt(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab('group'); abUpdateBadge();
+    if(kind!=='shift') await abLoadMonth(); await abLoadShift(); await abLoadFix(); await abLoadOt(); await abLoadNameMap(); await abLoadPending(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab('group'); abUpdateBadge();
     if(msg){ if(kind==='shift'){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${abL('kindShift')}）`+(res.unmatched&&res.unmatched.length?`　⚠️ ${res.unmatched.length} ${abL('unmatchedShift')}: ${res.unmatched.slice(0,8).join('、')}`:''); }
       else if(res && res.count>0){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${kind==='att'?abL('kindAtt'):abL('kindLeave')}）${abL('toMonth')} ${abMonth}`; } else { msg.style.color='var(--red)'; msg.textContent=abL('impNone'); } }
   }catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
@@ -6616,10 +6650,44 @@ async function abSaveConfig(){
   catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
 }
 // ── 異常打卡複查區 ──
+function abStaffOptions(){ const opts=[]; const seen={};
+  if(typeof STAFF!=='undefined'&&STAFF) for(const id in STAFF){ opts.push({id,name:STAFF[id]||id}); seen[id]=1; }
+  if(AB_DATA&&AB_DATA.persons) for(const id in AB_DATA.persons){ if(!seen[id]){ opts.push({id,name:(AB_DATA.persons[id].name||id)}); seen[id]=1; } }
+  opts.sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  return opts.map(o=>`<option value="${o.id}">${o.name} · ${o.id}</option>`).join('');
+}
+function abPendingHtml(){ const keys=AB_PENDING?Object.keys(AB_PENDING):[]; if(!keys.length) return ''; window._abPendKeys=keys;
+  const opts=abStaffOptions();
+  let h=`<div style="margin:2px 0 6px"><b style="color:var(--red)">⚠ ${abL('pendTitle')} (${keys.length})</b></div>`;
+  h+=`<div class="ab-warn">${abL('pendHint')}</div>`;
+  h+=`<div class="ab-card" style="padding:0;overflow:hidden;margin-bottom:16px"><table class="ab-tbl"><thead><tr><th>${abL('pendName')}</th><th>${abL('pendPick')}</th><th></th></tr></thead><tbody>`;
+  keys.forEach((k,i)=>{ const p=AB_PENDING[k]||{}; h+=`<tr><td><b>${p.name||k}</b></td><td><select id="abpm-${i}" class="ab-sel" style="min-width:230px;padding:4px 6px"><option value="">${abL('pendPick')}</option>${opts}</select></td>
+    <td style="white-space:nowrap"><button class="ab-btn" style="padding:4px 11px" onclick="abApplyNameMap(${i})">${abL('pendApply')}</button> <button class="ab-btn" style="padding:4px 11px" onclick="abSkipPending(${i})">${abL('pendSkip')}</button></td></tr>`; });
+  h+=`</tbody></table></div>`; return h;
+}
+async function abApplyNameMap(i){ if(!abCanEdit()){ alert(abL('login')); return; }
+  const key=(window._abPendKeys||[])[i]; if(!key||!AB_PENDING||!AB_PENDING[key]) return;
+  const sel=document.getElementById('abpm-'+i); const id=sel?sel.value:''; if(!id) return;
+  const p=AB_PENDING[key]; const sch=p.sch||{}; const mk=abMonth.replace('-','');
+  AB_NAMEMAP=AB_NAMEMAP||{}; AB_NAMEMAP[key]=id;
+  AB_SHIFT=AB_SHIFT||{}; AB_SHIFT[id]=Object.assign(AB_SHIFT[id]||{},sch);
+  delete AB_PENDING[key];
+  try{ await fetch(`${FB}/att_namemap/${encodeURIComponent(key)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(id)});
+    await fetch(`${FB}/att_shift/${mk}/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(sch)});
+    await fetch(`${FB}/att_shift_pending/${mk}/${encodeURIComponent(key)}.json`,{method:'DELETE'});
+    if(typeof logAudit==='function') logAudit('att_namemap',`${p.name} → ${id}`);
+  }catch(e){ alert('✗ '+e.message); }
+  abRenderFix(); abUpdateBadge();
+}
+async function abSkipPending(i){ const key=(window._abPendKeys||[])[i]; if(!key) return; if(AB_PENDING) delete AB_PENDING[key];
+  try{ await fetch(`${FB}/att_shift_pending/${abMonth.replace('-','')}/${encodeURIComponent(key)}.json`,{method:'DELETE'}); }catch(e){}
+  abRenderFix(); abUpdateBadge();
+}
 function abRenderFix(){ const el=document.getElementById('ab-pane-fix'); if(!el) return;
   if(!AB_DATA||!AB_DATA.persons||!Object.keys(AB_DATA.persons).length){ el.innerHTML=`<div class="ab-card">${abL('noData').replace('{m}',abMonth)}</div>`; return; }
+  const pendHtml=abPendingHtml();
   const an=abBuildAnomalies();
-  let html=`<div class="ab-warn">${abL('fixHint2')}</div>`;
+  let html=pendHtml+`<div class="ab-warn">${abL('fixHint2')}</div>`;
   if(!an.length){ html+=`<div class="ab-card" style="text-align:center;color:var(--green);font-weight:700;padding:22px">✓ ${abL('fixNone')}</div>`; el.innerHTML=html; return; }
   html+=`<div class="ab-card" style="padding:0;overflow:hidden"><table class="ab-tbl"><thead><tr><th>${abL('hName')}</th><th>${abL('hId')}</th><th>${abL('dcol')}</th><th>${abL('hKind')}</th><th>${abL('cIn')}</th><th>${abL('cOut')}</th><th>${abL('fixInput')}</th></tr></thead><tbody>`;
   an.forEach(a=>{ const iv=a.i!=null?abT(a.i):'', ov=a.o!=null?abT(a.o):'';
