@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.17-夜班收尾</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.18-缺勤規則</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -6136,9 +6136,9 @@ const AB_I18N={
  zh:{tDept:'各課統計',tPerson:'個人查詢',tCal:'年度月曆',tTypes:'設定',lblMonth:'月份',impAtt:'⬆️ 匯入出勤報表',impLeave:'⬆️ 匯入請假報表',parsing:'解析中…',imported:'已匯入',people:'人',kindAtt:'出勤',kindLeave:'請假',toMonth:'→ 月份',impNone:'✗ 這份檔讀不到可用資料,請確認欄位與內容',login:'請先登入',errAtt:'出勤報表欄位不符（需 Employee Id / Date Time / In Out / Time）',errAttDate:'出勤報表讀不到任何日期',errLeave:'請假報表欄位不符（需 employee id / classification）',noData:'📥 {m} 這個月還沒有資料。請用上方「匯入出勤報表 / 請假報表」上傳 CSV。',csvNote:'(請假報表若是 Excel,請先在 Excel「另存為 CSV」再上傳)',kTotPeople:'本部總人數',kTotRate:'本部出勤率',kTotAbsent:'本部缺勤',kTotOt:'本部加班',deptStats:'各課統計',clickRow:'點一列看該課監控表',hDept:'課別',hPeople:'人數',hRate:'出勤率',hAbsent:'缺勤',hOt:'加班',hLeaveSum:'請假合計',hName:'姓名',hId:'編號',hNormal:'正常出勤',hDeptCol:'部門',unmatched:'⚠️ 有 {n} 位在報表裡、但後台名單查不到部門(算不進課別):{list}。請到後台補上他們的編號與部門。',monitor:'監控表',backDept:'← 返回各課',leaveBreakdown:'各假別合計',absentTag:'·算缺勤',hour:'小時',day:'天',typesWarn:'勾「算缺勤」的假別才會被算進缺勤/拉低出勤率;沒勾的當作正當請假。改完按下面「儲存」。這份清單全站共用。',tyCode:'代碼',tyName:'假別名稱',tyDisp:'顯示名稱(可改)',tyAbsent:'算缺勤',save:'💾 儲存',savedTypes:'✓ 已儲存(出勤率/缺勤已重算)',calHint:'點日期切換 工作日 / 放假日。放假日有打卡 = 加班;工作日 × 8h = 應上班。預設週六日為放假(可點成工作日)。',workday:'工作日',holiday:'放假日',pSearch:'🔍 搜尋 編號 / 姓名',pAllDept:'全部部門 / 組別',peopleN:'共 {n} 人',noMatch:'查無符合',backSearch:'← 返回查詢',leaveTitle:'請假',kExp:'應上班',cIn:'上班',cOut:'下班',cWork:'工時',cType:'類型',incomplete:'⚠打卡不全',dcol:'日',dweek:'星期',unassigned:'未對應',unitD:'天',dow:['日','一','二','三','四','五','六']},
  en:{tDept:'By section',tPerson:'Person search',tCal:'Year calendar',tTypes:'Settings',lblMonth:'Month',impAtt:'⬆️ Import attendance',impLeave:'⬆️ Import leave',parsing:'Parsing…',imported:'Imported',people:'people',kindAtt:'attendance',kindLeave:'leave',toMonth:'→ month',impNone:'✗ No usable data in this file, check columns/content',login:'Please sign in first',errAtt:'Attendance columns invalid (need Employee Id / Date Time / In Out / Time)',errAttDate:'No dates found in the attendance file',errLeave:'Leave columns invalid (need employee id / classification)',noData:'📥 No data for {m} yet. Use “Import attendance / leave” above to upload the CSV.',csvNote:'(If the leave report is Excel, save it as CSV first)',kTotPeople:'Division people',kTotRate:'Division attendance',kTotAbsent:'Division absence',kTotOt:'Division overtime',deptStats:'By section',clickRow:'Click a row for its panel',hDept:'Section',hPeople:'People',hRate:'Attendance',hAbsent:'Absence',hOt:'Overtime',hLeaveSum:'Leave total',hName:'Name',hId:'ID',hNormal:'Normal',hDeptCol:'Dept.',unmatched:'⚠️ {n} people in the report have no section in the staff list (not counted): {list}. Add their ID and section in the backend.',monitor:'Monitor',backDept:'← Back to sections',leaveBreakdown:'Leave by type',absentTag:'·absence',hour:'Hours',day:'Days',typesWarn:'Only types checked as “counts as absence” lower attendance; unchecked ones are excused leave. Click Save when done. This list is shared system-wide.',tyCode:'Code',tyName:'Name',tyDisp:'Display name (editable)',tyAbsent:'Absence?',save:'💾 Save',savedTypes:'✓ Saved (attendance/absence recalculated)',calHint:'Click a day to toggle Workday / Holiday. Holiday with punch = overtime; workday × 8h = expected. Sat/Sun holiday by default.',workday:'Workday',holiday:'Holiday',pSearch:'🔍 Search ID / name',pAllDept:'All depts. / groups',peopleN:'{n} people',noMatch:'No results',backSearch:'← Back to search',leaveTitle:'Leave',kExp:'Expected',cIn:'In',cOut:'Out',cWork:'Hours',cType:'Type',incomplete:'⚠incomplete punch',dcol:'Day',dweek:'Wk',unassigned:'Unassigned',unitD:'d',dow:['Su','Mo','Tu','We','Th','Fr','Sa']}
 };
-Object.assign(AB_I18N.es,{tGroup:'Por grupo',hGroup:'Grupo',noGroup:'Sin grupo',leaveStats:'Estadística por tipo de permiso',lsType:'Permiso',lsPpl:'Personas',lsTimes:'Veces',lsHours:'Total horas',times:'veces',chartsShow:'📊 Mostrar gráficos',chartsHide:'▲ Ocultar gráficos',chRate:'Ausencia por empleado',chDist:'Distribución de ausencia',absRateL:'Ausencia',clickGroup:'Clic en una fila para ver el panel del grupo',noPunch:'Sin datos de asistencia',backGroup:'← Volver a grupos',cLeave:'Permiso',cLeaveH:'Horas permiso',impShift:'⬆️ Importar turnos',kindShift:'turnos',errShift:'Formato de turnos no válido (falta la fila DAYS)',unmatchedShift:'sin asignar',crossDay:'nocturno',tFix:'Anomalías',fixHint:'Marcajes completos pero con tardanza ≥4h (turno mal asignado). Ingrese la hora de entrada correcta; se recalcula y se guarda.',fixNone:'Sin anomalías',fixInput:'Hora correcta',fixApply:'Aplicar',hLate:'Tardanza',lateTag:'tarde',cfgTitle:'Reglas de cálculo',cfgOt:'Umbral de horas extra (h)',cfgShift:'Hora de entrada',cfgSaved:'✓ Ajustes guardados',leaveList:'Tipos de permiso'});
-Object.assign(AB_I18N.zh,{tGroup:'組別統計',hGroup:'組別',noGroup:'未分組',leaveStats:'各假別統計',lsType:'假別',lsPpl:'幾人請',lsTimes:'共幾次',lsHours:'總時數',times:'次',chartsShow:'📊 顯示圖表',chartsHide:'▲ 收合圖表',chRate:'員工缺勤率',chDist:'缺勤率分布',absRateL:'缺勤率',clickGroup:'點一列看該組別監控表',noPunch:'沒有出勤資料',backGroup:'← 返回組別',cLeave:'請假種類',cLeaveH:'請假總時',impShift:'⬆️ 匯入班表',kindShift:'班表',errShift:'班表格式不符(找不到 DAYS 那列)',unmatchedShift:'未對到編號',crossDay:'跨夜',tFix:'異常打卡',fixHint:'打卡完整、但用目前班別算遲到 ≥4 小時(可能班別對不上或去頂替)。輸入他正確的上班時間,系統立即重算並存起來;若當天其實休息按 FREE。',fixNone:'目前沒有異常',fixInput:'正確上班時間',fixApply:'套用',hLate:'遲到',lateTag:'遲到',cfgTitle:'規則設定',cfgOt:'加班門檻(小時)',cfgShift:'上班時間',cfgSaved:'✓ 設定已儲存',leaveList:'假別清單'});
-Object.assign(AB_I18N.en,{tGroup:'By group',hGroup:'Group',noGroup:'No group',leaveStats:'Leave stats by type',lsType:'Leave',lsPpl:'People',lsTimes:'Times',lsHours:'Total hours',times:'times',chartsShow:'📊 Show charts',chartsHide:'▲ Hide charts',chRate:'Employee absence rate',chDist:'Absence rate distribution',absRateL:'Absence rate',clickGroup:'Click a row for the group panel',noPunch:'No attendance data',backGroup:'← Back to groups',cLeave:'Leave type',cLeaveH:'Leave hrs',impShift:'⬆️ Import roster',kindShift:'roster',errShift:'Invalid roster format (DAYS row not found)',unmatchedShift:'unmatched',crossDay:'overnight',tFix:'Anomalies',fixHint:'Complete punches but computed late ≥4h (wrong shift or substitute). Enter the correct shift start; it recalculates and saves.',fixNone:'No anomalies',fixInput:'Correct start',fixApply:'Apply',hLate:'Late',lateTag:'late',cfgTitle:'Calculation rules',cfgOt:'Overtime threshold (h)',cfgShift:'Shift start',cfgSaved:'✓ Settings saved',leaveList:'Leave types'});
+Object.assign(AB_I18N.es,{tGroup:'Por grupo',hGroup:'Grupo',noGroup:'Sin grupo',leaveStats:'Estadística por tipo de permiso',lsType:'Permiso',lsPpl:'Personas',lsTimes:'Veces',lsHours:'Total horas',times:'veces',chartsShow:'📊 Mostrar gráficos',chartsHide:'▲ Ocultar gráficos',chRate:'Ausencia por empleado',chDist:'Distribución de ausencia',absRateL:'Ausencia',clickGroup:'Clic en una fila para ver el panel del grupo',noPunch:'Sin datos de asistencia',backGroup:'← Volver a grupos',cLeave:'Permiso',cLeaveH:'Horas permiso',impShift:'⬆️ Importar turnos',kindShift:'turnos',errShift:'Formato de turnos no válido (falta la fila DAYS)',unmatchedShift:'sin asignar',crossDay:'nocturno',tFix:'Anomalías',fixHint:'Marcajes completos pero con tardanza ≥4h (turno mal asignado). Ingrese la hora de entrada correcta; se recalcula y se guarda.',fixNone:'Sin anomalías',fixInput:'Hora correcta',fixApply:'Aplicar',hLate:'Tardanza',lateTag:'tarde',cfgTitle:'Reglas de cálculo',cfgOt:'Umbral de horas extra (h)',cfgShift:'Hora de entrada',cfgSaved:'✓ Ajustes guardados',leaveList:'Tipos de permiso',cfgLateAbsent:'¿La tardanza cuenta como ausencia?',cfgLateHint:'Marcado: los minutos de tardanza se restan de la asistencia. Sin marcar: la tardanza solo se muestra como «tardanza», no como ausencia (la ausencia solo por salir antes del fin del turno).'});
+Object.assign(AB_I18N.zh,{tGroup:'組別統計',hGroup:'組別',noGroup:'未分組',leaveStats:'各假別統計',lsType:'假別',lsPpl:'幾人請',lsTimes:'共幾次',lsHours:'總時數',times:'次',chartsShow:'📊 顯示圖表',chartsHide:'▲ 收合圖表',chRate:'員工缺勤率',chDist:'缺勤率分布',absRateL:'缺勤率',clickGroup:'點一列看該組別監控表',noPunch:'沒有出勤資料',backGroup:'← 返回組別',cLeave:'請假種類',cLeaveH:'請假總時',impShift:'⬆️ 匯入班表',kindShift:'班表',errShift:'班表格式不符(找不到 DAYS 那列)',unmatchedShift:'未對到編號',crossDay:'跨夜',tFix:'異常打卡',fixHint:'打卡完整、但用目前班別算遲到 ≥4 小時(可能班別對不上或去頂替)。輸入他正確的上班時間,系統立即重算並存起來;若當天其實休息按 FREE。',fixNone:'目前沒有異常',fixInput:'正確上班時間',fixApply:'套用',hLate:'遲到',lateTag:'遲到',cfgTitle:'規則設定',cfgOt:'加班門檻(小時)',cfgShift:'上班時間',cfgSaved:'✓ 設定已儲存',leaveList:'假別清單',cfgLateAbsent:'遲到算缺勤?',cfgLateHint:'勾了:遲到的分鐘會從出勤扣掉(算缺勤)。沒勾:遲到只顯示在「遲到」欄、不算缺勤(缺勤只看有沒有做到下班時間、早退才算)。'});
+Object.assign(AB_I18N.en,{tGroup:'By group',hGroup:'Group',noGroup:'No group',leaveStats:'Leave stats by type',lsType:'Leave',lsPpl:'People',lsTimes:'Times',lsHours:'Total hours',times:'times',chartsShow:'📊 Show charts',chartsHide:'▲ Hide charts',chRate:'Employee absence rate',chDist:'Absence rate distribution',absRateL:'Absence rate',clickGroup:'Click a row for the group panel',noPunch:'No attendance data',backGroup:'← Back to groups',cLeave:'Leave type',cLeaveH:'Leave hrs',impShift:'⬆️ Import roster',kindShift:'roster',errShift:'Invalid roster format (DAYS row not found)',unmatchedShift:'unmatched',crossDay:'overnight',tFix:'Anomalies',fixHint:'Complete punches but computed late ≥4h (wrong shift or substitute). Enter the correct shift start; it recalculates and saves.',fixNone:'No anomalies',fixInput:'Correct start',fixApply:'Apply',hLate:'Late',lateTag:'late',cfgTitle:'Calculation rules',cfgOt:'Overtime threshold (h)',cfgShift:'Shift start',cfgSaved:'✓ Settings saved',leaveList:'Leave types',cfgLateAbsent:'Late counts as absence?',cfgLateHint:'Checked: late minutes are deducted from attendance. Unchecked: lateness only shows in the “Late” column, not as absence (absence only from leaving before shift end).'});
 Object.assign(AB_I18N.es,{hKind:'Estado',kindInc:'Marcaje incompleto',kindLate:'Tardanza excesiva',absShort:'ausencia',fixHint2:'Marcaje incompleto (falta entrada o salida) o tardanza ≥4h. Ingrese la hora real de entrada y salida y pulse Aplicar; ese día se recalcula. Sin corregir cuenta como ausencia. Si ese día descansaba, pulse FREE.',fixClear:'Quitar',restWork:'trabajo en descanso',pendTitle:'Nombres del turno sin asignar',pendHint:'El turno usa nombres abreviados que no se pudieron asignar a un N.º de empleado. Elija la persona correcta y pulse Asignar; se recuerda y se aplicará automáticamente cada mes.',pendName:'Nombre en el turno',pendPick:'— elegir persona —',pendApply:'Asignar',pendSkip:'Omitir',shiftMonthWarn:'Este turno parece ser de {f}, pero el mes seleccionado es {s}. ¿Importar de todos modos a {s}?',shiftCancelled:'Importación cancelada (mes no coincide)',lsClick:'Clic en un tipo para ver quién lo tomó',crossMonth:'nocturno entre meses',nightEnd:'fin de turno nocturno'});
 Object.assign(AB_I18N.zh,{hKind:'狀況',kindInc:'打卡不全',kindLate:'遲到過久',absShort:'缺勤',fixHint2:'打卡不全(缺上班或下班)或遲到 ≥4 小時。輸入他實際的上班、下班時間再按「套用」,當天就重新計算;沒補正之前算缺勤。若當天其實休息按 FREE。',fixClear:'清除',restWork:'假日上班',pendTitle:'班表未對應名字',pendHint:'班表用縮寫名、對不到員工編號。挑正確的人再按「對應」,系統會記住,以後每個月同一個名字自動套用。',pendName:'班表上的名字',pendPick:'— 選擇人員 —',pendApply:'對應',pendSkip:'略過',shiftMonthWarn:'這份班表看起來是 {f} 的,但你目前選的月份是 {s}。確定要匯入到 {s} 嗎?',shiftCancelled:'已取消匯入(月份不符)',lsClick:'點假別看是誰請的',crossMonth:'跨月夜班',nightEnd:'夜班收尾'});
 Object.assign(AB_I18N.en,{hKind:'Status',kindInc:'Incomplete punch',kindLate:'Excess lateness',absShort:'absence',fixHint2:'Incomplete punch (missing in or out) or lateness ≥4h. Enter the real in/out times and click Apply to recompute that day; until corrected it counts as absence. If that day was a rest day, click FREE.',fixClear:'Clear',restWork:'rest-day work',pendTitle:'Unmatched roster names',pendHint:'The roster uses abbreviated names that could not be matched to an employee ID. Pick the right person and click Assign; it is remembered and auto-applied every month.',pendName:'Roster name',pendPick:'— pick person —',pendApply:'Assign',pendSkip:'Skip',shiftMonthWarn:'This roster looks like {f}, but the selected month is {s}. Import into {s} anyway?',shiftCancelled:'Import cancelled (month mismatch)',lsClick:'Click a type to see who took it',crossMonth:'cross-month night',nightEnd:'night-shift end'});
@@ -6156,10 +6156,11 @@ function abApplyLabels(){ const set=(sel,txt)=>{ const e=document.querySelector(
   const bs=document.getElementById('ab-btn-shift'); if(bs) bs.textContent=abL('impShift');
 }
 let AB_TYPES=null, AB_DATA=null, AB_HOLI={}, abTabCur='group', abMonth=null, abUnit='h', abDeptSel=null, abCalYear=null, abGroupSel=null, abChartsOpen=false;
-let AB_CONFIG={otThresholdH:1, shiftStart:'07:00'};  // 加班門檻(小時)、上班時間(遲到起算);制度會改→存 Firebase
+let AB_CONFIG={otThresholdH:1, shiftStart:'07:00', lateAbsent:false};  // 加班門檻、上班時間、遲到是否算缺勤;存 Firebase
 function abOtThreshMin(){ return Math.max(0, Math.round((+AB_CONFIG.otThresholdH||0)*60)); }
+function abLateCountsAbsent(){ return !!(AB_CONFIG&&AB_CONFIG.lateAbsent); }
 function abShiftStartMin(){ const s=String(AB_CONFIG.shiftStart||'07:00').split(':'); return (+s[0]||0)*60+(+s[1]||0); }
-async function abLoadConfig(){ try{ const r=await fetch(`${FB}/att_config.json`); const d=await r.json(); if(d&&typeof d==='object') AB_CONFIG=Object.assign({otThresholdH:1,shiftStart:'07:00'},d); }catch(e){} }
+async function abLoadConfig(){ try{ const r=await fetch(`${FB}/att_config.json`); const d=await r.json(); if(d&&typeof d==='object') AB_CONFIG=Object.assign({otThresholdH:1,shiftStart:'07:00',lateAbsent:false},d); }catch(e){} }
 // ── 班表(值班排班)──
 let AB_SHIFT=null;  // { 編號: { '01':'7-3', '02':'FREE', ... } }
 const AB_SHIFT_START={'7-3':420,'3-11':900,'11-7':1380,'7A-7P':420,'7P-7A':1140,'7-19':420,'19-7':1140,'19-07':1140,'7-7':420};  // 各班別上班時間(分)
@@ -6205,8 +6206,16 @@ function abWorkMin(v,di,sp){
   if(lt>0&&sp){ if(sp.s<=start) lt=0; else if(sp.s<v.i) lt=sp.s-start; }
   if(!di.roster) lt=0;
   if(v.cross) lt=0;   // 跨夜:不判定遲到(下班在隔天,對日班起點算遲到沒意義)
+  // 實際工時(顯示用):早到不算、晚到從實際起,下班照實
   let work=v.o-effStart; if(work<=0) work+=1440; if(work>16*60) work=16*60;
-  return {work:work,effStart:effStart,lateMin:lt,incomplete:false,none:false};
+  // 出勤涵蓋(算缺勤用):班別 = [班首, 班首+8h]。下班超過班末不計較(封頂);晚到是否算缺勤看設定
+  let credit=480;
+  if(start!=null){ const E=start+480; let outAbs=v.o; if(outAbs<start) outAbs+=1440;
+    const covStart=abLateCountsAbsent()? Math.max(start,(leaveCovers?start:v.i)) : start;   // 遲到算缺勤時才從實際上班起算
+    const covEnd=Math.min(outAbs,E);
+    credit=Math.max(0, Math.min(480, covEnd-covStart));
+  } else { credit=Math.min(480,work); }
+  return {work:work,effStart:effStart,lateMin:lt,credit:credit,incomplete:false,none:false};
 }
 // 跨月夜班:月底那天只有上班(下班在下月)、或月初只有清晨下班(上月夜班的下班)。
 // 這是正常夜班,不該算「打卡不全」,也不該算缺勤。回傳 'start' / 'end' / null。
@@ -6449,8 +6458,8 @@ async function abImportLeave(parsed,fname){
           if(hf!=null && ht!=null && ht>hf){ const sp=p.lspan[dd]; if(!sp) p.lspan[dd]={s:hf,e:ht}; else { sp.s=Math.min(sp.s,hf); sp.e=Math.max(sp.e,ht); } }
         } cur.setDate(cur.getDate()+1); }
     }
-    // 請假總時數 = 總天數×8h + 額外時數;報表若沒給天/時,退回用起訖日實際天數
-    let total = days*480 + hr; if(total<=0) total = (inMonthDays||1)*480;
+    // 請假總時數 = 總天數×8h + 額外時數;負數(退件調整等)不採計,退回用當天實際時段(dayMin)×在月天數
+    let total = Math.max(0,days)*480 + Math.max(0,hr); if(total<=0) total = (inMonthDays||1)*(dayMin>0?dayMin:480);
     p.leaves[cls]=(p.leaves[cls]||0)+total; p.lcnt[cls]=(p.lcnt[cls]||0)+1;
   });
   const doc=await abFetchMonthDoc(mk); doc.persons=doc.persons||{};
@@ -6476,7 +6485,7 @@ function abPersonStats(id,pd){
     if(abNightEnd(pd,dd)){ normal+=480; continue; }             // 夜班收尾日(前一夜做到今早)→ 不算缺勤
     const wm=abWorkMin(v,di,(pd.leaveSpan||{})[dd]);
     if(wm.none||wm.incomplete){ continue; }   // 無打卡 / 打卡不全 → 不給正常工時,差額由「無故缺勤」算成缺勤
-    normal+=Math.min(wm.work,480);
+    normal+=(wm.credit!=null?wm.credit:Math.min(wm.work,480));   // 出勤 = 班別涵蓋(下班封頂到班末;遲到是否扣看設定)
     if(wm.lateMin>0){ lateMin+=wm.lateMin; lateDays++; }
   }
   const ot=abOtMin(id);   // 加班:以加班系統(已核准)為準
@@ -6665,8 +6674,9 @@ function abRenderTypes(){
         <input id="ab-cfg-ot" type="number" min="0" step="0.5" value="${(+AB_CONFIG.otThresholdH||0)}" style="width:120px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/></label>
       <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text3)">${abL('cfgShift')}
         <input id="ab-cfg-shift" type="time" value="${(AB_CONFIG.shiftStart||'07:00')}" style="width:120px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg)"/></label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;cursor:pointer;padding-bottom:6px"><input id="ab-cfg-lateabs" type="checkbox" ${abLateCountsAbsent()?'checked':''} style="width:17px;height:17px"/> ${abL('cfgLateAbsent')}</label>
       <button class="ab-btn up" onclick="abSaveConfig()">${abL('save')}</button><span id="ab-cfg-msg" class="ab-msg"></span>
-    </div></div>`;
+    </div><div style="font-size:12px;color:var(--text3);margin-top:8px">${abL('cfgLateHint')}</div></div>`;
   html+=`<div style="font-weight:800;font-size:14px;margin:4px 0 8px">🏷 ${abL('leaveList')}</div>`;
   html+=`<div class="ab-warn">${abL('typesWarn')}</div>`;
   html+=`<div class="ab-card" style="padding:0;overflow:hidden"><div class="ab-typerow h"><div>${abL('tyCode')}</div><div>${abL('tyName')}</div><div>${abL('tyDisp')}</div><div style="text-align:center">${abL('tyAbsent')}</div></div>`;
@@ -6686,7 +6696,8 @@ async function abSaveConfig(){
   if(!abCanEdit()){ alert(abL('login')); return; }
   const otEl=document.getElementById('ab-cfg-ot'), shEl=document.getElementById('ab-cfg-shift');
   const ot=Math.max(0, parseFloat(otEl&&otEl.value)||0); const sh=(shEl&&shEl.value)||'07:00';
-  AB_CONFIG.otThresholdH=ot; AB_CONFIG.shiftStart=sh;
+  const laEl=document.getElementById('ab-cfg-lateabs');
+  AB_CONFIG.otThresholdH=ot; AB_CONFIG.shiftStart=sh; AB_CONFIG.lateAbsent=!!(laEl&&laEl.checked);
   const msg=document.getElementById('ab-cfg-msg');
   try{ await fetch(`${FB}/att_config.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(AB_CONFIG)}); if(msg){ msg.style.color='var(--green)'; msg.textContent=abL('cfgSaved'); } if(typeof logAudit==='function') logAudit('att_config',`加班門檻 ${ot}h、上班 ${sh}`); }
   catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
@@ -6846,7 +6857,8 @@ function abRenderPersonDetail(el){
       if(wm.incomplete){ typ+=` <span style="color:var(--amber);font-weight:700">${abL('incomplete')}</span> <span style="color:var(--red);font-weight:700">${abL('absShort')}</span>`; }
       else if(!wm.none){ wDisp=(wm.work/60).toFixed(1)+'h';
         if(wm.lateMin>0) typ+=` <span style="color:var(--amber);font-weight:700">${abL('lateTag')} ${wm.lateMin>=60?(wm.lateMin/60).toFixed(1)+'h':wm.lateMin+'m'}</span>`;
-        const shortM=Math.max(0,480-wm.work); if(shortM>0) typ+=` <span style="color:var(--red);font-weight:700">${abL('absShort')} ${shortM>=60?(shortM/60).toFixed(1)+'h':shortM+'m'}</span>`;
+        const lmDay=(pd.leaveMinDay||{})[dd]||0; const ldA=(pd.leaveDays||{})[dd]; const anyAbs=ldA&&ldA.some(cls=>{const t=abTypeByName(cls);return t&&t.absent;}); const exLeave=anyAbs?0:lmDay;   // 當天正當請假(扣缺勤)
+        const cr=(wm.credit!=null?wm.credit:Math.min(wm.work,480)); const shortM=Math.max(0,480-cr-exLeave); if(shortM>0) typ+=` <span style="color:var(--red);font-weight:700">${abL('absShort')} ${shortM>=60?(shortM/60).toFixed(1)+'h':shortM+'m'}</span>`;
       }
     }
     const ldarr=(pd.leaveDays||{})[dd]; let leaveCell='<span style="color:var(--text3)">—</span>';
