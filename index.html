@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.18-頂替值班</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.18-請假優先</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -6857,7 +6857,9 @@ function abRenderPersonDetail(el){
     else if(abNightEnd(pd,dd)!=null){ outT=abT(abNightEnd(pd,dd)); typ+=` <span style="color:var(--purple,#7c3aed);font-weight:700">${abL('nightEnd')}</span>`; }   // 前一夜做到今早,顯示那筆下班,不算缺勤
     else { const wm=abWorkMin(dv,di,(pd.leaveSpan||{})[dd]);
       if(dv&&dv.cross) typ+=` <span style="color:var(--purple,#7c3aed);font-weight:700">${abL('crossDay')}</span>`;
-      if(wm.incomplete){ typ+=` <span style="color:var(--amber);font-weight:700">${abL('incomplete')}</span> <span style="color:var(--red);font-weight:700">${abL('absShort')}</span>`; }
+      if(wm.incomplete){ typ+=` <span style="color:var(--amber);font-weight:700">${abL('incomplete')}</span>`;
+        const lmInc=(pd.leaveMinDay||{})[dd]||0; const shInc=Math.max(0,480-lmInc);   // 有請假先扣;整天假就不算缺勤
+        if(shInc>0) typ+=` <span style="color:var(--red);font-weight:700">${abL('absShort')}${shInc<480?' '+(shInc>=60?(shInc/60).toFixed(1)+'h':shInc+'m'):''}</span>`; }
       else if(!wm.none){ wDisp=(wm.work/60).toFixed(1)+'h';
         if(wm.mismatch) typ+=` <span style="color:var(--amber);font-weight:700">${abL('schedMismatch')}</span>`;   // 頂替:與表定上班不符
         if(wm.lateMin>0) typ+=` <span style="color:var(--amber);font-weight:700">${abL('lateTag')} ${wm.lateMin>=60?(wm.lateMin/60).toFixed(1)+'h':wm.lateMin+'m'}</span>`;
