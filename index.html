@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.18-請假優先</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.18-逐日缺勤</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -6477,25 +6477,26 @@ function abMonthWorkdays(){ const [y,m]=abMonth.split('-').map(Number); const n=
 function abTypeByName(cls){ cls=String(cls||'').toUpperCase(); for(const k in AB_TYPES){ const t=AB_TYPES[k]; if((t.name||'').toUpperCase()===cls||(t.code||'').toUpperCase()===cls) return t; } return null; }
 function abPersonStats(id,pd){
   pd=pd||{}; const [y,m]=abMonth.split('-').map(Number); const nDays=new Date(y,m,0).getDate(); const mm=String(m).padStart(2,'0');
-  let normal=0,lateMin=0,lateDays=0,expMin=0;
+  let normal=0,lateMin=0,lateDays=0,expMin=0,unexplained=0;
   for(let d=1;d<=nDays;d++){ const dd=String(d).padStart(2,'0'); const ymd=`${y}${mm}${dd}`;
     const di=abDayInfo(id,dd,ymd); const off=di.off;
     const rawv=(pd.days||{})[dd];
     if(off){ continue; }   // 休息日:出勤統計不列入(加班另以加班系統為準)
     expMin+=480;
-    const v=abFixPunch(id,dd,rawv);
-    if(abBoundaryNight(dd,v,nDays)){ normal+=480; continue; }   // 跨月夜班:當作正常上班,不算缺勤
-    if(abNightEnd(pd,dd)){ normal+=480; continue; }             // 夜班收尾日(前一夜做到今早)→ 不算缺勤
-    const wm=abWorkMin(v,di,(pd.leaveSpan||{})[dd]);
-    if(wm.none||wm.incomplete){ continue; }   // 無打卡 / 打卡不全 → 不給正常工時,差額由「無故缺勤」算成缺勤
-    normal+=(wm.credit!=null?wm.credit:Math.min(wm.work,480));   // 出勤 = 班別涵蓋(下班封頂到班末;遲到是否扣看設定)
-    if(wm.lateMin>0){ lateMin+=wm.lateMin; lateDays++; }
+    const v=abFixPunch(id,dd,rawv); const dayLeave=(pd.leaveMinDay||{})[dd]||0;
+    let credit;
+    if(abBoundaryNight(dd,v,nDays)||abNightEnd(pd,dd)){ credit=480; }   // 跨月夜班 / 夜班收尾日 → 當作正常上班
+    else { const wm=abWorkMin(v,di,(pd.leaveSpan||{})[dd]);
+      if(wm.none||wm.incomplete){ credit=0; }
+      else { credit=(wm.credit!=null?wm.credit:Math.min(wm.work,480)); if(wm.lateMin>0){ lateMin+=wm.lateMin; lateDays++; } }
+    }
+    normal+=credit;
+    unexplained += Math.max(0, 480-credit-dayLeave);   // 逐日封頂:請假只能抵當天缺口,不外溢到別天
   }
   const ot=abOtMin(id);   // 加班:以加班系統(已核准)為準
   let excused=0,absentLeave=0;
   Object.entries(pd.leaves||{}).forEach(([cls,mn])=>{ mn=+mn||0; const t=abTypeByName(cls); if(t&&t.absent) absentLeave+=mn; else excused+=mn; });
-  // 模型A:缺勤 = 算缺勤的假 + 真正沒打卡也沒請假的時數(無故缺勤);休假/病假等未勾算缺勤者中性、不扣分。
-  const unexplained=Math.max(0, expMin-normal-excused-absentLeave);
+  // 缺勤 = 逐日無故缺勤(已扣當天請假) + 算缺勤的假;正當假不列入。
   const absent=absentLeave+unexplained;
   const rate=expMin>0? Math.max(0,(expMin-absent)/expMin*100) : 0;
   return {normalMin:normal,otMin:ot,lateMin,lateDays,expMin,excusedMin:excused,absentLeaveMin:absentLeave,absentMin:absent,unexplainedMin:unexplained,rate,leaves:pd.leaves||{},leaveCnt:pd.leaveCnt||{}};
