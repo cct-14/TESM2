@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.18-逐日缺勤</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.28-登入保護</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -1420,6 +1420,161 @@ select.fld-input.big{height:56px}
 <script>
 const FB = 'https://tesm-c9396-default-rtdb.firebaseio.com';
 const GAS = 'https://script.google.com/macros/s/AKfycbxliEkHrCaCXAiHza1N0r4Ji80we61tDGbF_kg3GGjAkt-e93zznlFYGrj2lwHcRK5b/exec';
+
+/* ============================================================
+   Firebase Authentication 保護層 — 登入才能讀寫資料庫
+   原理：攔截所有送往 FB 的請求，自動掛上登入 token；
+        未登入前所有資料庫請求排隊等候，登入後自動放行。
+   現有 212 個 fetch(FB) 呼叫完全不用改。
+   ============================================================ */
+const FB_API_KEY = 'AIzaSyCZy3VEY5iQDQvnXBxJUzs92euGwuuVHWM';
+let AUTH_TOKEN = null;      // 目前的 Firebase ID token
+let AUTH_REFRESH = null;    // refresh token
+let AUTH_READY = false;     // 是否已通過登入
+let _authWaiters = [];
+let _authRefreshTimer = null;
+
+function _whenAuthReady(){ return AUTH_READY ? Promise.resolve() : new Promise(function(res){ _authWaiters.push(res); }); }
+function _authResolveAll(){ AUTH_READY = true; var w=_authWaiters; _authWaiters=[]; w.forEach(function(r){ try{ r(); }catch(e){} }); }
+
+// 攔截 fetch：只針對送往 FB 的請求，等登入後掛上 token；其餘（含 Firebase 登入 API、GAS）原樣通過
+(function(){
+  var _f = window.fetch.bind(window);
+  window.fetch = function(input, init){
+    if(typeof input==='string' && input.indexOf(FB)===0){
+      return _whenAuthReady().then(function(){
+        var build=function(){ var u=input; if(AUTH_TOKEN){ u += (u.indexOf('?')>=0?'&':'?') + 'auth=' + encodeURIComponent(AUTH_TOKEN); } return u; };
+        return _f(build(), init).then(function(resp){
+          if(resp && resp.status===401 && AUTH_REFRESH){
+            return fbAuthRefresh().then(function(ok){ return ok ? _f(build(), init) : resp; }).catch(function(){ return resp; });
+          }
+          return resp;
+        });
+      });
+    }
+    return _f(input, init);
+  };
+})();
+
+// 用 email／密碼登入 Firebase
+async function fbAuthSignIn(email, password){
+  var r = await window.fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+FB_API_KEY, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ email:email, password:password, returnSecureToken:true })
+  });
+  var j = await r.json();
+  if(!r.ok || !j.idToken){ throw new Error((j && j.error && j.error.message) || 'LOGIN_FAILED'); }
+  _authSet(j.idToken, j.refreshToken, parseInt(j.expiresIn||'3600',10));
+  return j;
+}
+
+// 用 refresh token 換新的 idToken
+async function fbAuthRefresh(){
+  try{
+    var rt = AUTH_REFRESH || _authLoad();
+    if(!rt) return false;
+    var r = await window.fetch('https://securetoken.googleapis.com/v1/token?key='+FB_API_KEY, {
+      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body: 'grant_type=refresh_token&refresh_token='+encodeURIComponent(rt)
+    });
+    var j = await r.json();
+    if(!r.ok || !j.id_token){ return false; }
+    _authSet(j.id_token, j.refresh_token, parseInt(j.expires_in||'3600',10));
+    return true;
+  }catch(e){ return false; }
+}
+
+function _authSet(idToken, refreshToken, expiresInSec){
+  AUTH_TOKEN = idToken;
+  if(refreshToken) AUTH_REFRESH = refreshToken;
+  try{ localStorage.setItem('tesm_fbauth', JSON.stringify({ rt:AUTH_REFRESH, exp:Date.now()+expiresInSec*1000 })); }catch(e){}
+  if(_authRefreshTimer) clearTimeout(_authRefreshTimer);
+  var ms = Math.max(30000, (expiresInSec-300)*1000);   // 過期前 5 分鐘自動續期
+  _authRefreshTimer = setTimeout(function(){ fbAuthRefresh(); }, ms);
+}
+
+function _authLoad(){ try{ var s=JSON.parse(localStorage.getItem('tesm_fbauth')||'null'); return s && s.rt; }catch(e){ return null; } }
+
+function fbAuthLogout(){ AUTH_TOKEN=null; AUTH_REFRESH=null; try{ localStorage.removeItem('tesm_fbauth'); }catch(e){} location.reload(); }
+
+// 啟動：先試著用本機保存的 refresh token 靜默登入；不行就顯示登入畫面
+async function fbAuthBootstrap(){
+  var rt = _authLoad();
+  if(rt){ AUTH_REFRESH = rt; var ok = await fbAuthRefresh(); if(ok){ _fbGateHide(); _authResolveAll(); return; } }
+  _fbGateShow();
+}
+
+// ── 登入畫面（三語：西班牙文預設 / 中文 / English）──
+const _FBG_I18N = {
+  es:{ title:'TESM2 · Acceso', sub:'Inicia sesión para continuar', email:'Correo electrónico', pass:'Contraseña', btn:'Entrar', ing:'Entrando…', err:'Correo o contraseña incorrectos', neterr:'Error de conexión, inténtalo de nuevo' },
+  zh:{ title:'TESM2 · 登入', sub:'請登入以繼續使用', email:'電子郵件', pass:'密碼', btn:'登入', ing:'登入中…', err:'帳號或密碼錯誤', neterr:'連線失敗，請再試一次' },
+  en:{ title:'TESM2 · Sign in', sub:'Please sign in to continue', email:'Email', pass:'Password', btn:'Sign in', ing:'Signing in…', err:'Wrong email or password', neterr:'Connection error, please try again' }
+};
+let _fbgLang = (function(){ try{ return localStorage.getItem('tesm_fbg_lang') || (typeof maintLang!=='undefined'?maintLang:'es'); }catch(e){ return 'es'; } })() || 'es';
+function _fbGateSetLang(l){ _fbgLang=l; try{ localStorage.setItem('tesm_fbg_lang', l); }catch(e){} _fbGateRender(); }
+
+function _fbGateRender(){
+  var o=document.getElementById('fb-gate'); if(!o) return;
+  var t=_FBG_I18N[_fbgLang]||_FBG_I18N.es;
+  o.querySelector('.fbg-title').textContent=t.title;
+  o.querySelector('.fbg-sub').textContent=t.sub;
+  document.getElementById('fbg-email').placeholder=t.email;
+  document.getElementById('fbg-pass').placeholder=t.pass;
+  var btn=document.getElementById('fbg-btn'); if(!btn.disabled) btn.textContent=t.btn;
+  ['es','zh','en'].forEach(function(l){ var b=document.getElementById('fbg-lang-'+l); if(b){ b.style.cssText='padding:4px 10px;border:1px solid #cbd5e1;border-radius:8px;background:'+(l===_fbgLang?'#2563eb':'#fff')+';color:'+(l===_fbgLang?'#fff':'#64748b')+';font-size:12px;font-weight:700;cursor:pointer'; } });
+}
+
+function _fbGateShow(){
+  var o=document.getElementById('fb-gate');
+  if(o){ o.style.display='flex'; _fbGateRender(); return; }
+  o=document.createElement('div');
+  o.id='fb-gate';
+  o.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#0f172a;display:flex;align-items:center;justify-content:center;padding:20px;font-family:system-ui,-apple-system,\'Segoe UI\',Roboto,sans-serif';
+  o.innerHTML='<div style="width:100%;max-width:360px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.45);padding:28px 24px">'
+    +'<div style="text-align:center;font-size:30px;line-height:1">🔒</div>'
+    +'<div class="fbg-title" style="text-align:center;font-size:20px;font-weight:800;color:#0f172a;margin-top:8px"></div>'
+    +'<div class="fbg-sub" style="text-align:center;font-size:13px;color:#64748b;margin:6px 0 20px"></div>'
+    +'<form id="fbg-form" autocomplete="on">'
+    +'<input id="fbg-email" type="email" autocomplete="username" style="width:100%;box-sizing:border-box;padding:12px 14px;margin-bottom:10px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;color:#0f172a;background:#fff"/>'
+    +'<input id="fbg-pass" type="password" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:12px 14px;margin-bottom:14px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;color:#0f172a;background:#fff"/>'
+    +'<button id="fbg-btn" type="submit" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-size:15px;font-weight:700;cursor:pointer"></button>'
+    +'</form>'
+    +'<div id="fbg-err" style="text-align:center;color:#dc2626;font-size:13px;min-height:18px;margin-top:10px"></div>'
+    +'<div style="text-align:center;margin-top:12px;display:flex;gap:6px;justify-content:center">'
+    +'<button id="fbg-lang-es" type="button"></button><button id="fbg-lang-zh" type="button"></button><button id="fbg-lang-en" type="button"></button>'
+    +'</div></div>';
+  document.body.appendChild(o);
+  document.getElementById('fbg-form').addEventListener('submit', function(e){ e.preventDefault(); _fbGateSubmit(); });
+  document.getElementById('fbg-lang-es').addEventListener('click', function(){ _fbGateSetLang('es'); });
+  document.getElementById('fbg-lang-zh').addEventListener('click', function(){ _fbGateSetLang('zh'); });
+  document.getElementById('fbg-lang-en').addEventListener('click', function(){ _fbGateSetLang('en'); });
+  _fbGateRender();
+  setTimeout(function(){ var ei=document.getElementById('fbg-email'); if(ei) ei.focus(); }, 60);
+}
+
+function _fbGateHide(){ var o=document.getElementById('fb-gate'); if(o) o.style.display='none'; }
+
+async function _fbGateSubmit(){
+  var t=_FBG_I18N[_fbgLang]||_FBG_I18N.es;
+  var em=(document.getElementById('fbg-email').value||'').trim();
+  var pw=document.getElementById('fbg-pass').value||'';
+  var btn=document.getElementById('fbg-btn'), err=document.getElementById('fbg-err');
+  if(!em||!pw) return;
+  btn.disabled=true; btn.textContent=t.ing; err.textContent='';
+  try{
+    await fbAuthSignIn(em, pw);
+    _fbGateHide();
+    _authResolveAll();
+  }catch(e){
+    var m=String((e&&e.message)||'');
+    err.textContent = /PASSWORD|EMAIL|INVALID|CREDENTIAL|USER|IDENTIFIER/i.test(m) ? t.err : t.neterr;
+    btn.disabled=false; btn.textContent=t.btn;
+  }
+}
+
+// 立刻啟動保護層（未登入即顯示登入畫面；有保存的登入則靜默恢復）
+fbAuthBootstrap();
+/* ================= Firebase Authentication 保護層 end ================= */
 
 // ── Block definitions ─────────────────────────────────────
 // Each block: {id, label, x, y, w, h, slots:[{label,teu}]}
@@ -6165,7 +6320,7 @@ async function abLoadConfig(){ try{ const r=await fetch(`${FB}/att_config.json`)
 let AB_SHIFT=null;  // { 編號: { '01':'7-3', '02':'FREE', ... } }
 const AB_SHIFT_START={'7-3':420,'3-11':900,'11-7':1380,'7A-7P':420,'7P-7A':1140,'7-19':420,'19-7':1140,'19-07':1140,'7-7':420};  // 各班別上班時間(分)
 function abShiftStart(code){ code=String(code||'').toUpperCase().replace(/\s+/g,''); return AB_SHIFT_START[code]!=null?AB_SHIFT_START[code]:null; }
-function abIsFree(code){ code=String(code||'').toUpperCase().replace(/\s+/g,''); return code===''||code.indexOf('FREE')>=0||code==='COMP'||code==='HOL'||code==='HOLIDAY'||code==='VAC'||code==='VACATION'||code==='OFF'||code==='DESCANSO'; }
+function abIsFree(code){ code=String(code||'').toUpperCase().replace(/[\s-]+/g,''); return code===''||code.indexOf('FREE')>=0||code==='COMP'||code==='HOL'||code==='HOLIDAY'||code==='VAC'||code==='VACATION'||code==='OFF'||code==='DESCANSO'||code==='SF'; }
 // 是否為可識別的輪班代碼(用來分辨「個別排班列」與「支援/日班名字列」)
 function abIsShiftCode(v){ const c=String(v||'').toUpperCase().replace(/\s+/g,''); if(!c) return false; if(abIsFree(c)) return true; if(AB_SHIFT_START[c]!=null) return true; return /^\d{1,2}[A-Z]?-\d{1,2}[A-Z]?$/.test(c); }
 async function abLoadShift(){ try{ const r=await fetch(`${FB}/att_shift/${abMonth.replace('-','')}.json`); AB_SHIFT=(await r.json())||{}; }catch(e){ AB_SHIFT={}; } }
