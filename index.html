@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.28-登入保護</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.28-編號登入</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -1430,9 +1430,13 @@ const GAS = 'https://script.google.com/macros/s/AKfycbxliEkHrCaCXAiHza1N0r4Ji80w
 const FB_API_KEY = 'AIzaSyCZy3VEY5iQDQvnXBxJUzs92euGwuuVHWM';
 let AUTH_TOKEN = null;      // 目前的 Firebase ID token
 let AUTH_REFRESH = null;    // refresh token
+let AUTH_EMAIL = null;      // 目前登入者的 email（由 token 解出）
+let AUTH_UID = null;        // 目前登入者的 Firebase uid
 let AUTH_READY = false;     // 是否已通過登入
 let _authWaiters = [];
 let _authRefreshTimer = null;
+const FB_ADMIN_EMAIL = 'panamah00929@gmail.com';   // 破窗管理帳號（可做一鍵初始化）
+function _jwtPayload(tok){ try{ var p=tok.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'); return JSON.parse(decodeURIComponent(escape(atob(p)))); }catch(e){ return {}; } }
 
 function _whenAuthReady(){ return AUTH_READY ? Promise.resolve() : new Promise(function(res){ _authWaiters.push(res); }); }
 function _authResolveAll(){ AUTH_READY = true; var w=_authWaiters; _authWaiters=[]; w.forEach(function(r){ try{ r(); }catch(e){} }); }
@@ -1487,6 +1491,7 @@ async function fbAuthRefresh(){
 function _authSet(idToken, refreshToken, expiresInSec){
   AUTH_TOKEN = idToken;
   if(refreshToken) AUTH_REFRESH = refreshToken;
+  var pl=_jwtPayload(idToken); AUTH_EMAIL=pl.email||AUTH_EMAIL; AUTH_UID=pl.user_id||pl.sub||AUTH_UID;
   try{ localStorage.setItem('tesm_fbauth', JSON.stringify({ rt:AUTH_REFRESH, exp:Date.now()+expiresInSec*1000 })); }catch(e){}
   if(_authRefreshTimer) clearTimeout(_authRefreshTimer);
   var ms = Math.max(30000, (expiresInSec-300)*1000);   // 過期前 5 分鐘自動續期
@@ -1497,83 +1502,100 @@ function _authLoad(){ try{ var s=JSON.parse(localStorage.getItem('tesm_fbauth')|
 
 function fbAuthLogout(){ AUTH_TOKEN=null; AUTH_REFRESH=null; try{ localStorage.removeItem('tesm_fbauth'); }catch(e){} location.reload(); }
 
-// 啟動：先試著用本機保存的 refresh token 靜默登入；不行就顯示登入畫面
+// 員工編號 → Firebase 帳號 email
+function fbStaffEmail(idOrEmail){ var s=String(idOrEmail||'').trim(); return s.indexOf('@')>=0 ? s.toLowerCase() : (s.toLowerCase()+'@tesm2.local'); }
+
+// 用「編號＋密碼」（或 email＋密碼）登入 Firebase；成功回 true
+async function fbStaffSignIn(idOrEmail, pass){
+  try{ await fbAuthSignIn(fbStaffEmail(idOrEmail), _fbPad(pass)); _authResolveAll(); if(typeof fbMaybeAdminBtn==='function') fbMaybeAdminBtn(); return true; }
+  catch(e){ return false; }
+}
+
+// 改自己的 Firebase 密碼（登入者用自己的 token）
+async function fbUpdatePassword(newPass){
+  try{
+    if(!AUTH_TOKEN) return false;
+    var r=await window.fetch('https://identitytoolkit.googleapis.com/v1/accounts:update?key='+FB_API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:AUTH_TOKEN,password:_fbPad(newPass),returnSecureToken:true})});
+    var j=await r.json(); if(!r.ok) return false;
+    if(j.idToken) _authSet(j.idToken, j.refreshToken||AUTH_REFRESH, parseInt(j.expiresIn||'3600',10));
+    return true;
+  }catch(e){ return false; }
+}
+
+// 啟動：先試著用本機保存的 refresh token 靜默登入；不行就顯示你原本的員工登入畫面
 async function fbAuthBootstrap(){
   var rt = _authLoad();
-  if(rt){ AUTH_REFRESH = rt; var ok = await fbAuthRefresh(); if(ok){ _fbGateHide(); _authResolveAll(); return; } }
-  _fbGateShow();
+  if(rt){ AUTH_REFRESH = rt; var ok = await fbAuthRefresh(); if(ok){ _authResolveAll(); if(typeof fbMaybeAdminBtn==='function') fbMaybeAdminBtn(); return; } }
+  try{ if(typeof showGate==='function') showGate(); }catch(e){}
 }
 
-// ── 登入畫面（三語：西班牙文預設 / 中文 / English）──
-const _FBG_I18N = {
-  es:{ title:'TESM2 · Acceso', sub:'Inicia sesión para continuar', email:'Correo electrónico', pass:'Contraseña', btn:'Entrar', ing:'Entrando…', err:'Correo o contraseña incorrectos', neterr:'Error de conexión, inténtalo de nuevo' },
-  zh:{ title:'TESM2 · 登入', sub:'請登入以繼續使用', email:'電子郵件', pass:'密碼', btn:'登入', ing:'登入中…', err:'帳號或密碼錯誤', neterr:'連線失敗，請再試一次' },
-  en:{ title:'TESM2 · Sign in', sub:'Please sign in to continue', email:'Email', pass:'Password', btn:'Sign in', ing:'Signing in…', err:'Wrong email or password', neterr:'Connection error, please try again' }
-};
-let _fbgLang = (function(){ try{ return localStorage.getItem('tesm_fbg_lang') || (typeof maintLang!=='undefined'?maintLang:'es'); }catch(e){ return 'es'; } })() || 'es';
-function _fbGateSetLang(l){ _fbgLang=l; try{ localStorage.setItem('tesm_fbg_lang', l); }catch(e){} _fbGateRender(); }
-
-function _fbGateRender(){
-  var o=document.getElementById('fb-gate'); if(!o) return;
-  var t=_FBG_I18N[_fbgLang]||_FBG_I18N.es;
-  o.querySelector('.fbg-title').textContent=t.title;
-  o.querySelector('.fbg-sub').textContent=t.sub;
-  document.getElementById('fbg-email').placeholder=t.email;
-  document.getElementById('fbg-pass').placeholder=t.pass;
-  var btn=document.getElementById('fbg-btn'); if(!btn.disabled) btn.textContent=t.btn;
-  ['es','zh','en'].forEach(function(l){ var b=document.getElementById('fbg-lang-'+l); if(b){ b.style.cssText='padding:4px 10px;border:1px solid #cbd5e1;border-radius:8px;background:'+(l===_fbgLang?'#2563eb':'#fff')+';color:'+(l===_fbgLang?'#fff':'#64748b')+';font-size:12px;font-weight:700;cursor:pointer'; } });
-}
-
-function _fbGateShow(){
-  var o=document.getElementById('fb-gate');
-  if(o){ o.style.display='flex'; _fbGateRender(); return; }
-  o=document.createElement('div');
-  o.id='fb-gate';
-  o.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#0f172a;display:flex;align-items:center;justify-content:center;padding:20px;font-family:system-ui,-apple-system,\'Segoe UI\',Roboto,sans-serif';
-  o.innerHTML='<div style="width:100%;max-width:360px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.45);padding:28px 24px">'
-    +'<div style="text-align:center;font-size:30px;line-height:1">🔒</div>'
-    +'<div class="fbg-title" style="text-align:center;font-size:20px;font-weight:800;color:#0f172a;margin-top:8px"></div>'
-    +'<div class="fbg-sub" style="text-align:center;font-size:13px;color:#64748b;margin:6px 0 20px"></div>'
-    +'<form id="fbg-form" autocomplete="on">'
-    +'<input id="fbg-email" type="email" autocomplete="username" style="width:100%;box-sizing:border-box;padding:12px 14px;margin-bottom:10px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;color:#0f172a;background:#fff"/>'
-    +'<input id="fbg-pass" type="password" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:12px 14px;margin-bottom:14px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;color:#0f172a;background:#fff"/>'
-    +'<button id="fbg-btn" type="submit" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-size:15px;font-weight:700;cursor:pointer"></button>'
-    +'</form>'
-    +'<div id="fbg-err" style="text-align:center;color:#dc2626;font-size:13px;min-height:18px;margin-top:10px"></div>'
-    +'<div style="text-align:center;margin-top:12px;display:flex;gap:6px;justify-content:center">'
-    +'<button id="fbg-lang-es" type="button"></button><button id="fbg-lang-zh" type="button"></button><button id="fbg-lang-en" type="button"></button>'
-    +'</div></div>';
-  document.body.appendChild(o);
-  document.getElementById('fbg-form').addEventListener('submit', function(e){ e.preventDefault(); _fbGateSubmit(); });
-  document.getElementById('fbg-lang-es').addEventListener('click', function(){ _fbGateSetLang('es'); });
-  document.getElementById('fbg-lang-zh').addEventListener('click', function(){ _fbGateSetLang('zh'); });
-  document.getElementById('fbg-lang-en').addEventListener('click', function(){ _fbGateSetLang('en'); });
-  _fbGateRender();
-  setTimeout(function(){ var ei=document.getElementById('fbg-email'); if(ei) ei.focus(); }, 60);
-}
-
-function _fbGateHide(){ var o=document.getElementById('fb-gate'); if(o) o.style.display='none'; }
-
-async function _fbGateSubmit(){
-  var t=_FBG_I18N[_fbgLang]||_FBG_I18N.es;
-  var em=(document.getElementById('fbg-email').value||'').trim();
-  var pw=document.getElementById('fbg-pass').value||'';
-  var btn=document.getElementById('fbg-btn'), err=document.getElementById('fbg-err');
-  if(!em||!pw) return;
-  btn.disabled=true; btn.textContent=t.ing; err.textContent='';
+/* ── 一鍵初始化：從現有 /users＋STAFF 幫全部員工建立各自的 Firebase 鑰匙 ──
+   只有破窗管理帳號（panamah）登入後才看得到按鈕。跑的時候規則仍是寬鬆的 auth!=null，
+   panamah 有權讀 /users、寫 /att_auth。完成後再把規則切成嚴格白名單。 */
+function fbMaybeAdminBtn(){
   try{
-    await fbAuthSignIn(em, pw);
-    _fbGateHide();
-    _authResolveAll();
+    if(AUTH_EMAIL!==FB_ADMIN_EMAIL){ var ex=document.getElementById('fb-admin-btn'); if(ex) ex.remove(); return; }
+    if(document.getElementById('fb-admin-btn')) return;
+    var b=document.createElement('button');
+    b.id='fb-admin-btn'; b.type='button';
+    b.textContent='🔧 初始化員工登入';
+    b.style.cssText='position:fixed;right:14px;bottom:14px;z-index:2147483001;padding:10px 16px;border:none;border-radius:10px;background:#b45309;color:#fff;font-size:13px;font-weight:800;box-shadow:0 6px 20px rgba(0,0,0,.35);cursor:pointer';
+    b.addEventListener('click', fbProvisionStaff);
+    document.body.appendChild(b);
+  }catch(e){}
+}
+
+async function fbProvisionStaff(){
+  var btn=document.getElementById('fb-admin-btn');
+  if(!confirm('要幫全部員工建立各自的登入鑰匙嗎？\n（會讀取目前的使用者清單，為每個編號建立一把 Firebase 鑰匙。可重複執行，不會重覆建立。）')) return;
+  if(btn){ btn.disabled=true; }
+  var setMsg=function(t){ if(btn) btn.textContent=t; };
+  try{
+    // 需要 panamah 的 token（此時規則仍為 auth!=null，可讀 /users）
+    if(!AUTH_TOKEN){ alert('請先登入 panamah 帳號'); if(btn){btn.disabled=false;btn.textContent='🔧 初始化員工登入';} return; }
+    setMsg('讀取名單…');
+    var users={}, staff={};
+    try{ users=(await (await fetch(FB+'/users.json')).json())||{}; }catch(e){}
+    try{ staff=(await (await fetch(FB+'/staff.json')).json())||{}; }catch(e){}
+    // 需要建立帳號的所有編號 = users ∪ staff
+    var ids={}; Object.keys(users).forEach(function(k){ ids[k]=1; }); Object.keys(staff).forEach(function(k){ ids[k]=1; });
+    var list=Object.keys(ids); var total=list.length, done=0, created=0, existed=0, failed=0;
+    var allowed={};
+    if(AUTH_UID) allowed[AUTH_UID]=true;   // 破窗帳號自己也要在白名單
+    for(var i=0;i<list.length;i++){
+      var id=list[i];
+      var pass=(users[id]&&users[id].pass)?String(users[id].pass):'123456';
+      if(String(pass).length<6){ /* Firebase 密碼至少 6 碼；短的補足，登入時仍用原碼？ */ }
+      var email=fbStaffEmail(id);
+      var uid=null;
+      try{
+        // 先試建立
+        var r=await window.fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+FB_API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:_fbPad(pass),returnSecureToken:true})});
+        var j=await r.json();
+        if(r.ok && j.localId){ uid=j.localId; created++; }
+        else if(j&&j.error&&/EMAIL_EXISTS/i.test(j.error.message||'')){
+          // 已存在 → 用密碼登入取得 uid（不覆蓋 panamah 的 session）
+          var r2=await window.fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+FB_API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:_fbPad(pass),returnSecureToken:true})});
+          var j2=await r2.json(); if(r2.ok&&j2.localId){ uid=j2.localId; existed++; } else { failed++; }
+        } else { failed++; }
+      }catch(e){ failed++; }
+      if(uid) allowed[uid]=true;
+      done++;
+      if(done%5===0 || done===total) setMsg('建立中… '+done+'/'+total);
+      await new Promise(function(res){ setTimeout(res, 120); });   // 避免觸發流量限制
+    }
+    // 寫入白名單（用 panamah 的 token）
+    setMsg('寫入白名單…');
+    await fetch(FB+'/att_auth.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(allowed)});
+    if(btn){ btn.disabled=false; btn.textContent='✅ 完成（可重跑）'; }
+    alert('初始化完成！\n\n總編號：'+total+'\n新建鑰匙：'+created+'\n已存在：'+existed+'\n失敗：'+failed+'\n\n白名單人數：'+Object.keys(allowed).length+'\n\n接下來請到 Firebase 規則，換成「嚴格白名單」那一段並發布，員工就能用自己的編號＋密碼登入了。');
   }catch(e){
-    var m=String((e&&e.message)||'');
-    err.textContent = /PASSWORD|EMAIL|INVALID|CREDENTIAL|USER|IDENTIFIER/i.test(m) ? t.err : t.neterr;
-    btn.disabled=false; btn.textContent=t.btn;
+    if(btn){ btn.disabled=false; btn.textContent='🔧 初始化員工登入'; }
+    alert('初始化發生錯誤：'+((e&&e.message)||e));
   }
 }
-
-// 立刻啟動保護層（未登入即顯示登入畫面；有保存的登入則靜默恢復）
-fbAuthBootstrap();
+// Firebase 密碼至少 6 碼；短密碼右補到 6 碼（登入端同樣補，維持一致）
+function _fbPad(p){ p=String(p==null?'':p); while(p.length<6){ p+=p.length?p[p.length-1]:'0'; } return p; }
 /* ================= Firebase Authentication 保護層 end ================= */
 
 // ── Block definitions ─────────────────────────────────────
@@ -2729,6 +2751,7 @@ async function umDoChange(){
   if(n1.length<4){ err.textContent=umT('ushort'); return; }
   if(n1!==n2){ err.textContent=umT('umis'); return; }
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:n1,mustChange:false})}); }catch(e){ err.textContent='✗ '+e.message; return; }
+  try{ if(typeof fbUpdatePassword==='function' && typeof AUTH_EMAIL!=='undefined' && AUTH_EMAIL===fbStaffEmail(id)) await fbUpdatePassword(n1); }catch(e){}
   if(USERS[id]){ USERS[id].pass=n1; USERS[id].mustChange=false; }
   umFinish(id,USERS[id]);
 }
@@ -2765,19 +2788,25 @@ async function gateLogin(){
   const id=(document.getElementById('lg-id').value||'').trim();
   const pass=(document.getElementById('lg-pass').value||'').trim();
   const err=document.getElementById('lg-err');
+  if(!id||!pass){ return; }
+  const btn=document.getElementById('lg-btn'); if(btn) btn.disabled=true;
+  // ① 先通過 Firebase 真正驗證（拿到 token，並把外人擋在門外）
+  const fbOk = await fbStaffSignIn(id, pass);
+  if(btn) btn.disabled=false;
+  if(!fbOk){ err.textContent=gT('wrong'); return; }
+  // ② 已登入 → 可讀取名單、套用權限
   if(!USERS||!Object.keys(USERS).length){ try{ await loadUsers(); }catch(e){} }
   if((typeof STAFF==='undefined'||!STAFF||!Object.keys(STAFF).length) && typeof fldLoadConfig==='function'){ try{ await fldLoadConfig(); }catch(e){} }
+  gatePendId=id;
+  // 用 email 登入（例如管理帳號 panamah）→ 直接進入，不走員工首次改密碼流程
+  if(id.indexOf('@')>=0){ gateFinish(id, USERS[id]||{name:id,perms:{}}); return; }
   const u=USERS[id];
   if(u && u.pass){
-    if(String(u.pass)!==pass){ err.textContent=gT('wrong'); return; }
-    gatePendId=id;
     if(u.mustChange){ gateToChange(); return; }
     gateFinish(id,u); return;
   }
-  // 尚未設密碼：合法員工可用預設 123456 首次登入
-  const isStaff=(typeof STAFF!=='undefined'&&STAFF&&(STAFF[id]||STAFF[id.toUpperCase()]));
-  if(isStaff && pass==='123456'){ gatePendId=id; gateToChange(); return; }
-  err.textContent=gT('wrong');
+  // 尚未設定專屬密碼（首次登入，例如預設 123456）→ 強制設定新密碼
+  gateToChange();
 }
 function gateToChange(){
   document.getElementById('lg-step1').style.display='none';
@@ -2794,6 +2823,7 @@ async function gateDoChange(){
   const existing=USERS[id]||{};
   const rec={name:(existing.name)||(typeof STAFF!=='undefined'&&STAFF[id])||id, pass:n1, mustChange:false, perms:existing.perms||{}};
   try{ await fetch(`${FB}/users/${encodeURIComponent(id)}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:n1,mustChange:false,name:rec.name})}); }catch(e){ err.textContent='✗ '+e.message; return; }
+  try{ if(typeof fbUpdatePassword==='function') await fbUpdatePassword(n1); }catch(e){}   // 同步更新自己的 Firebase 密碼
   USERS[id]=Object.assign({},existing,rec);
   gateFinish(id,USERS[id]);
 }
@@ -8438,6 +8468,11 @@ async function alClear(){ if(!confirm(alT('clearQ'))) return;
 const p=panParts(), y=p.y, m=String(p.m).padStart(2,'0'), d=String(p.d).padStart(2,'0');
 document.getElementById('h-from').value=`${y}-${m}-01`;
 document.getElementById('h-to').value=`${y}-${m}-${d}`;
+
+// 啟動 Firebase 保護層：有保存的登入則靜默恢復，否則顯示員工登入畫面。
+// （所有送往資料庫的請求都會自動排隊，等登入後才帶著 token 送出。）
+fbAuthBootstrap();
+try{ var _lgG=document.getElementById('lg-guest'); if(_lgG) _lgG.style.display='none'; }catch(e){}
 
 loadRoles();
 loadProjects();
