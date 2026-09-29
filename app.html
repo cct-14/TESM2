@@ -247,11 +247,121 @@ select.inp{height:58px;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
       </div>
     </div>
   </div>
-  <div class="foot">CCT · Colon Container Terminal</div>
+  <div class="foot">CCT · Colon Container Terminal　<span id="app-ver" style="opacity:.6">v2026.09.29-登入</span></div>
 </div>
 <script>
 const FB='https://tesm-c9396-default-rtdb.firebaseio.com';
 const GAS='https://script.google.com/macros/s/AKfycbxliEkHrCaCXAiHza1N0r4Ji80we61tDGbF_kg3GGjAkt-e93zznlFYGrj2lwHcRK5b/exec';
+
+/* ===== Firebase Authentication 保護層（與 index.html 同一套；員工用同樣的編號＋密碼登入）===== */
+const FB_API_KEY='AIzaSyCZy3VEY5iQDQvnXBxJUzs92euGwuuVHWM';
+let AUTH_TOKEN=null, AUTH_REFRESH=null, AUTH_READY=false, _authWaiters=[], _authRefreshTimer=null;
+function _whenAuthReady(){ return AUTH_READY?Promise.resolve():new Promise(function(res){ _authWaiters.push(res); }); }
+function _authResolveAll(){ AUTH_READY=true; var w=_authWaiters; _authWaiters=[]; w.forEach(function(r){ try{ r(); }catch(e){} }); }
+(function(){
+  var _f=window.fetch.bind(window);
+  window.fetch=function(input, init){
+    if(typeof input==='string' && input.indexOf(FB)===0){
+      return _whenAuthReady().then(function(){
+        var build=function(){ var u=input; if(AUTH_TOKEN){ u+=(u.indexOf('?')>=0?'&':'?')+'auth='+encodeURIComponent(AUTH_TOKEN); } return u; };
+        return _f(build(), init).then(function(resp){
+          if(resp && resp.status===401 && AUTH_REFRESH){ return fbAuthRefresh().then(function(ok){ return ok?_f(build(), init):resp; }).catch(function(){ return resp; }); }
+          return resp;
+        });
+      });
+    }
+    return _f(input, init);
+  };
+})();
+function _fbPad(p){ p=String(p==null?'':p); while(p.length<6){ p+=p.length?p[p.length-1]:'0'; } return p; }
+function fbStaffEmail(idOrEmail){ var s=String(idOrEmail||'').trim(); return s.indexOf('@')>=0?s.toLowerCase():(s.toLowerCase()+'@tesm2.local'); }
+async function fbAuthSignIn(email, password){
+  var r=await window.fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+FB_API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:password,returnSecureToken:true})});
+  var j=await r.json(); if(!r.ok||!j.idToken){ throw new Error((j&&j.error&&j.error.message)||'LOGIN_FAILED'); }
+  _authSet(j.idToken, j.refreshToken, parseInt(j.expiresIn||'3600',10)); return j;
+}
+async function fbAuthRefresh(){
+  try{ var rt=AUTH_REFRESH||_authLoad(); if(!rt) return false;
+    var r=await window.fetch('https://securetoken.googleapis.com/v1/token?key='+FB_API_KEY,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(rt)});
+    var j=await r.json(); if(!r.ok||!j.id_token) return false;
+    _authSet(j.id_token, j.refresh_token, parseInt(j.expires_in||'3600',10)); return true;
+  }catch(e){ return false; }
+}
+function _authSet(idToken, refreshToken, expiresInSec){
+  AUTH_TOKEN=idToken; if(refreshToken) AUTH_REFRESH=refreshToken;
+  try{ localStorage.setItem('tesm_fbauth', JSON.stringify({rt:AUTH_REFRESH, exp:Date.now()+expiresInSec*1000})); }catch(e){}
+  if(_authRefreshTimer) clearTimeout(_authRefreshTimer);
+  _authRefreshTimer=setTimeout(function(){ fbAuthRefresh(); }, Math.max(30000,(expiresInSec-300)*1000));
+}
+function _authLoad(){ try{ var s=JSON.parse(localStorage.getItem('tesm_fbauth')||'null'); return s&&s.rt; }catch(e){ return null; } }
+async function fbStaffSignIn(idOrEmail, pass){ try{ await fbAuthSignIn(fbStaffEmail(idOrEmail), _fbPad(pass)); _authResolveAll(); return true; }catch(e){ return false; } }
+// 啟動：有保存的登入就靜默恢復，否則顯示登入畫面
+async function fbAuthBootstrap(){
+  var rt=_authLoad();
+  if(rt){ AUTH_REFRESH=rt; if(await fbAuthRefresh()){ _authResolveAll(); return; } }
+  fbGateShow();
+}
+/* ── 登入畫面（全螢幕遮罩；三語跟隨 App 語言）── */
+const FBG_T={ es:{t:'CCT · Acceso', s:'Inicie sesión para continuar', id:'N.º de empleado', pw:'Contraseña', btn:'Entrar', ing:'Entrando…', err:'N.º o contraseña incorrectos', neterr:'Error de conexión, inténtelo de nuevo'},
+  zh:{t:'CCT · 登入', s:'請登入以繼續使用', id:'員工編號', pw:'密碼', btn:'登入', ing:'登入中…', err:'編號或密碼錯誤', neterr:'連線失敗，請再試一次'},
+  en:{t:'CCT · Sign in', s:'Please sign in to continue', id:'Employee ID', pw:'Password', btn:'Sign in', ing:'Signing in…', err:'Wrong ID or password', neterr:'Connection error, try again'} };
+function fbGT(){ return FBG_T[(typeof LANG!=='undefined'?LANG:'es')]||FBG_T.es; }
+function fbGateShow(){
+  if(document.getElementById('fb-gate')){ document.getElementById('fb-gate').style.display='flex'; fbGateRelabel(); return; }
+  var o=document.createElement('div'); o.id='fb-gate';
+  o.style.cssText='position:fixed;inset:0;z-index:99999;background:#1f6feb;display:flex;align-items:center;justify-content:center;padding:20px;font-family:-apple-system,"Segoe UI",Roboto,sans-serif';
+  o.innerHTML='<div style="width:100%;max-width:400px;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.35);padding:30px 22px">'
+    +'<div style="text-align:center;font-size:40px;line-height:1">🔒</div>'
+    +'<div class="fbg-t" style="text-align:center;font-size:20px;font-weight:800;color:#0f172a;margin-top:8px"></div>'
+    +'<div class="fbg-s" style="text-align:center;font-size:13px;color:#64748b;margin:6px 0 18px"></div>'
+    +'<input id="fbg-id" class="up" inputmode="text" autocomplete="off" style="width:100%;box-sizing:border-box;padding:15px;margin-bottom:10px;border:1.5px solid #cbd5e1;border-radius:12px;font-size:17px;color:#0f172a;background:#fff;text-transform:uppercase"/>'
+    +'<input id="fbg-pw" type="password" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:15px;margin-bottom:14px;border:1.5px solid #cbd5e1;border-radius:12px;font-size:17px;color:#0f172a;background:#fff"/>'
+    +'<button id="fbg-btn" type="button" style="width:100%;padding:16px;border:none;border-radius:12px;background:#1f6feb;color:#fff;font-size:17px;font-weight:800;cursor:pointer"></button>'
+    +'<div id="fbg-err" style="text-align:center;color:#dc2626;font-size:13px;min-height:18px;margin-top:10px"></div>'
+    +'<div style="text-align:center;margin-top:12px;display:flex;gap:6px;justify-content:center">'
+    +'<button id="fbg-es" type="button" class="fbg-l">ES</button><button id="fbg-zh" type="button" class="fbg-l">中</button><button id="fbg-en" type="button" class="fbg-l">EN</button></div>'
+    +'</div>';
+  document.body.appendChild(o);
+  document.getElementById('fbg-btn').addEventListener('click', fbGateSubmit);
+  document.getElementById('fbg-pw').addEventListener('keydown', function(e){ if(e.key==='Enter') fbGateSubmit(); });
+  document.getElementById('fbg-es').addEventListener('click', function(){ if(typeof setLang==='function')setLang('es'); fbGateRelabel(); });
+  document.getElementById('fbg-zh').addEventListener('click', function(){ if(typeof setLang==='function')setLang('zh'); fbGateRelabel(); });
+  document.getElementById('fbg-en').addEventListener('click', function(){ if(typeof setLang==='function')setLang('en'); fbGateRelabel(); });
+  fbGateRelabel();
+  setTimeout(function(){ var e=document.getElementById('fbg-id'); if(e) e.focus(); }, 60);
+}
+function fbGateRelabel(){
+  var o=document.getElementById('fb-gate'); if(!o) return; var t=fbGT();
+  o.querySelector('.fbg-t').textContent=t.t; o.querySelector('.fbg-s').textContent=t.s;
+  document.getElementById('fbg-id').placeholder=t.id; document.getElementById('fbg-pw').placeholder=t.pw;
+  var b=document.getElementById('fbg-btn'); if(!b.disabled) b.textContent=t.btn;
+  ['es','zh','en'].forEach(function(l){ var x=document.getElementById('fbg-'+l); if(x){ var on=(typeof LANG!=='undefined'?LANG:'es')===l; x.style.cssText='padding:5px 12px;border:1px solid #cbd5e1;border-radius:8px;background:'+(on?'#1f6feb':'#fff')+';color:'+(on?'#fff':'#64748b')+';font-size:13px;font-weight:700;cursor:pointer'; } });
+}
+function fbGateHide(){ var o=document.getElementById('fb-gate'); if(o) o.style.display='none'; }
+async function fbGateSubmit(){
+  var t=fbGT(); var id=(document.getElementById('fbg-id').value||'').trim(); var pw=document.getElementById('fbg-pw').value||'';
+  var btn=document.getElementById('fbg-btn'), err=document.getElementById('fbg-err');
+  if(!id||!pw) return;
+  btn.disabled=true; btn.textContent=t.ing; err.textContent='';
+  var ok=await fbStaffSignIn(id, pw);
+  if(!ok){ err.textContent=t.err; btn.disabled=false; btn.textContent=t.btn; return; }
+  // 登入成功 → 記住身分，並讓「時數/加班」不用再登入一次
+  try{ await fbAfterLogin(id); }catch(e){}
+  fbGateHide();
+  _authResolveAll();
+}
+// 用 Firebase 登入的身分，順便把 App 內部的「時數/加班」登入狀態也建好（同一組編號密碼、免二次登入）
+async function fbAfterLogin(id){
+  try{ if(!USERS_APP||!Object.keys(USERS_APP).length){ USERS_APP=(await (await fetch(FB+'/users.json')).json())||{}; } }catch(e){}
+  var u=USERS_APP[id]||USERS_APP[String(id).toUpperCase()]||{};
+  var nm=(typeof STAFF!=='undefined'&&STAFF[id])||u.name||id;
+  hoursUser={id:id,name:nm}; hoursOK=true;
+  try{ localStorage.setItem('tesm_fld', JSON.stringify({id:id,name:nm,exp:Date.now()+3600*1000})); }catch(e){}
+  var p=(u&&u.perms)||{};
+  if((p.ot_mobile&&p.ot_mobile.v)||(p.ot_mobile_approve&&p.ot_mobile_approve.v)){ otUser={id:id,name:nm,perms:p}; try{ otSaveSession(); }catch(e){} }
+}
+/* ===== Firebase Authentication 保護層 end ===== */
+
 const PA_TZ='America/Panama';
 const DEFAULT_KINDS=['GC','RTG','AR','SL','ESL','TR','CH','FL','PPG','SP'];
 const DEFAULT_STATUSES=['Available','Running','Emergency Maintenance','Out Of Service','Planned Maintenance','Damaged'];
@@ -321,7 +431,7 @@ const OT_HIDDEN_STAFF=['123456'], OT_HIDDEN_VIEWER='H00929'; /* 測試帳號：�
 function otCourseDept(g){ const m={'MT-1':'MT1','MT-2':'MT2','MT-3':'MT3','MTD':'MTD','INVENTORY':'INVENTORY','MT1-ONDUTY':'MT1-ONDUTY','MT2-ONDUTY':'MT2-ONDUTY'}; return m[String(g||'').trim().toUpperCase()]||null; }
 function otPeopleOptions(dept){ let o='<option value="">'+(L().pickPerson||'—')+'</option>'; const viewer=(typeof otUser!=='undefined'&&otUser)?String(otUser.id):''; if(STAFF){ Object.keys(STAFF).sort().forEach(id=>{ if(OT_HIDDEN_STAFF.indexOf(String(id))>=0 && viewer!==OT_HIDDEN_VIEWER) return; const d=(STAFF_DEPT&&STAFF_DEPT[id])||''; if(dept && d!==dept) return; o+=`<option value="${id}">${id}·${STAFF[id]}${d?(' ['+d+']'):''}</option>`; }); } return o; }
 function otGroupChange(){ const g=($('ot-group')||{}).value||''; const sel=$('ot-p-id'); if(sel) sel.innerHTML=otPeopleOptions(otCourseDept(g)); }
-function setLang(l){ LANG=l; localStorage.setItem('app_lang',l); applyLang(); }
+function setLang(l){ LANG=l; localStorage.setItem('app_lang',l); applyLang(); if(document.getElementById('fb-gate')) fbGateRelabel(); }
 function applyLang(){
   const t=L(); document.documentElement.lang=LANG;
   document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===LANG));
@@ -605,7 +715,7 @@ async function otWithdraw(){ const t=L(); if(!lastOtId) return; if(!confirm(t.wi
   lastOtId=null; $('d-withdraw').style.display='none'; $('d-detail').textContent=t.withdrawn;
 }
 function again(){ if(flow==='status') goStatus(); else if(flow==='ot'){ $('d-withdraw').style.display='none'; enterOt(); } else enterHours(); }
-load();
+fbAuthBootstrap(); load();
 </script>
 </body>
 </html>
