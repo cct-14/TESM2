@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.29-編號登入b</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.29-編號登入d</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -1435,7 +1435,8 @@ let AUTH_UID = null;        // 目前登入者的 Firebase uid
 let AUTH_READY = false;     // 是否已通過登入
 let _authWaiters = [];
 let _authRefreshTimer = null;
-const FB_ADMIN_EMAIL = 'panamah00929@gmail.com';   // 破窗管理帳號（可做一鍵初始化）
+const FB_ADMIN_EMAIL = 'panamah00929@gmail.com';   // 破窗管理帳號（可做一鍵初始化、重設密碼）
+const FB_RESET_URL = 'https://resetemployeepassword-393646443341.us-central1.run.app';  // 雲端重設密碼小幫手
 function _jwtPayload(tok){ try{ var p=tok.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'); return JSON.parse(decodeURIComponent(escape(atob(p)))); }catch(e){ return {}; } }
 
 function _whenAuthReady(){ return AUTH_READY ? Promise.resolve() : new Promise(function(res){ _authWaiters.push(res); }); }
@@ -1534,61 +1535,92 @@ async function fbAuthBootstrap(){
    panamah 有權讀 /users、寫 /att_auth。完成後再把規則切成嚴格白名單。 */
 function fbMaybeAdminBtn(){
   try{
-    if(AUTH_EMAIL!==FB_ADMIN_EMAIL){ var ex=document.getElementById('fb-admin-btn'); if(ex) ex.remove(); return; }
-    if(document.getElementById('fb-admin-btn')) return;
-    var b=document.createElement('button');
-    b.id='fb-admin-btn'; b.type='button';
-    b.textContent='🔧 初始化員工登入';
-    b.style.cssText='position:fixed;right:14px;bottom:14px;z-index:2147483001;padding:10px 16px;border:none;border-radius:10px;background:#b45309;color:#fff;font-size:13px;font-weight:800;box-shadow:0 6px 20px rgba(0,0,0,.35);cursor:pointer';
-    b.addEventListener('click', fbProvisionStaff);
-    document.body.appendChild(b);
+    if(AUTH_EMAIL!==FB_ADMIN_EMAIL){ ['fb-admin-btn','fb-reset-btn'].forEach(function(x){ var e=document.getElementById(x); if(e) e.remove(); }); return; }
+    if(!document.getElementById('fb-admin-btn')){
+      var b=document.createElement('button');
+      b.id='fb-admin-btn'; b.type='button';
+      b.textContent='🔧 初始化員工登入';
+      b.style.cssText='position:fixed;right:14px;bottom:14px;z-index:2147483001;padding:10px 16px;border:none;border-radius:10px;background:#b45309;color:#fff;font-size:13px;font-weight:800;box-shadow:0 6px 20px rgba(0,0,0,.35);cursor:pointer';
+      b.addEventListener('click', fbProvisionStaff);
+      document.body.appendChild(b);
+    }
+    if(!document.getElementById('fb-reset-btn')){
+      var b2=document.createElement('button');
+      b2.id='fb-reset-btn'; b2.type='button';
+      b2.textContent='🔑 重設員工密碼';
+      b2.style.cssText='position:fixed;right:14px;bottom:56px;z-index:2147483001;padding:10px 16px;border:none;border-radius:10px;background:#1a56db;color:#fff;font-size:13px;font-weight:800;box-shadow:0 6px 20px rgba(0,0,0,.35);cursor:pointer';
+      b2.addEventListener('click', fbAdminResetPrompt);
+      document.body.appendChild(b2);
+    }
   }catch(e){}
+}
+
+// 一鍵重設某位員工密碼（呼叫雲端小幫手 → 重設為 123456，並要求該員工下次登入設定新密碼）
+async function fbAdminResetPrompt(){
+  var empId = prompt('要重設哪位員工的密碼？\n請輸入他的員工編號：');
+  if(!empId) return;
+  empId = String(empId).trim();
+  if(!empId) return;
+  if(!confirm('確定把「'+empId+'」的密碼重設為 123456 嗎？\n（他之後用「'+empId+' ＋ 123456」登入，會被要求設定自己的新密碼。）')) return;
+  try{
+    var r = await window.fetch(FB_RESET_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({idToken:AUTH_TOKEN, empId:empId, newPass:'123456'})});
+    var j={}; try{ j=await r.json(); }catch(e){}
+    if(!r.ok || !j.ok){ alert('✗ 重設失敗：'+((j&&j.error)||('HTTP '+r.status))+'\n\n（如果寫 permission 之類的，跟 Claude 說，要幫函式加一個權限。）'); return; }
+    // 同步 /users：讓該員工下次登入被要求改密碼
+    try{ await fetch(FB+'/users/'+encodeURIComponent(empId)+'.json', {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({pass:'123456', mustChange:true})}); }catch(e){}
+    alert('✅ 已把「'+empId+'」的密碼重設為 123456。\n請叫他用「'+empId+' ＋ 123456」登入，系統會要他設定自己的新密碼。');
+  }catch(e){ alert('✗ 重設失敗：'+((e&&e.message)||e)); }
+}
+
+var _fbFailedIds=[];
+// 建立單一帳號：只用 signUp（不 signIn，避免撞頻率限制）。
+// 回傳 'created' | 'existed' | 'failed'。遇到頻率限制會自動退避重試。
+async function _fbCreateOne(id, pass){
+  var email=fbStaffEmail(id), attempt=0;
+  while(attempt<3){
+    attempt++;
+    try{
+      var r=await window.fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+FB_API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:_fbPad(pass),returnSecureToken:true})});
+      var j=await r.json();
+      if(r.ok && j.localId) return 'created';
+      var msg=(j&&j.error&&j.error.message)||'';
+      if(/EMAIL_EXISTS/i.test(msg)) return 'existed';            // 已經有了 → 直接跳過，不再戳
+      if(/TOO_MANY|QUOTA|RATE|TIMEOUT|UNAVAILABLE/i.test(msg)){    // 頻率限制 → 退避後重試
+        await new Promise(function(res){ setTimeout(res, 1200*attempt); }); continue;
+      }
+      _fbFailedIds.push(id+'（'+msg+'）'); return 'failed';        // 其他錯誤（例如編號含特殊字元）→ 記下來
+    }catch(e){ await new Promise(function(res){ setTimeout(res, 800*attempt); }); }
+  }
+  _fbFailedIds.push(id+'（重試多次仍失敗）'); return 'failed';
 }
 
 async function fbProvisionStaff(){
   var btn=document.getElementById('fb-admin-btn');
-  if(!confirm('要幫全部員工建立各自的登入鑰匙嗎？\n（會讀取目前的使用者清單，為每個編號建立一把 Firebase 鑰匙。可重複執行，不會重覆建立。）')) return;
+  if(!confirm('要幫全部員工建立各自的登入鑰匙嗎？\n（可重複執行；已經有的會自動跳過，不會重覆建立，也不會影響已改過的密碼。）')) return;
   if(btn){ btn.disabled=true; }
   var setMsg=function(t){ if(btn) btn.textContent=t; };
+  _fbFailedIds=[];
   try{
-    // 需要 panamah 的 token（此時規則仍為 auth!=null，可讀 /users）
-    if(!AUTH_TOKEN){ alert('請先登入 panamah 帳號'); if(btn){btn.disabled=false;btn.textContent='🔧 初始化員工登入';} return; }
+    if(!AUTH_TOKEN){ alert('請先登入管理帳號'); if(btn){btn.disabled=false;btn.textContent='🔧 初始化員工登入';} return; }
     setMsg('讀取名單…');
     var users={}, staff={};
     try{ users=(await (await fetch(FB+'/users.json')).json())||{}; }catch(e){}
     try{ staff=(await (await fetch(FB+'/staff.json')).json())||{}; }catch(e){}
-    // 需要建立帳號的所有編號 = users ∪ staff
     var ids={}; Object.keys(users).forEach(function(k){ ids[k]=1; }); Object.keys(staff).forEach(function(k){ ids[k]=1; });
     var list=Object.keys(ids); var total=list.length, done=0, created=0, existed=0, failed=0;
-    var allowed={};
-    if(AUTH_UID) allowed[AUTH_UID]=true;   // 破窗帳號自己也要在白名單
     for(var i=0;i<list.length;i++){
       var id=list[i];
       var pass=(users[id]&&users[id].pass)?String(users[id].pass):'123456';
-      if(String(pass).length<6){ /* Firebase 密碼至少 6 碼；短的補足，登入時仍用原碼？ */ }
-      var email=fbStaffEmail(id);
-      var uid=null;
-      try{
-        // 先試建立
-        var r=await window.fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+FB_API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:_fbPad(pass),returnSecureToken:true})});
-        var j=await r.json();
-        if(r.ok && j.localId){ uid=j.localId; created++; }
-        else if(j&&j.error&&/EMAIL_EXISTS/i.test(j.error.message||'')){
-          // 已存在 → 用密碼登入取得 uid（不覆蓋 panamah 的 session）
-          var r2=await window.fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+FB_API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:_fbPad(pass),returnSecureToken:true})});
-          var j2=await r2.json(); if(r2.ok&&j2.localId){ uid=j2.localId; existed++; } else { failed++; }
-        } else { failed++; }
-      }catch(e){ failed++; }
-      if(uid) allowed[uid]=true;
+      var res=await _fbCreateOne(id, pass);
+      if(res==='created') created++; else if(res==='existed') existed++; else failed++;
       done++;
-      if(done%5===0 || done===total) setMsg('建立中… '+done+'/'+total);
-      await new Promise(function(res){ setTimeout(res, 120); });   // 避免觸發流量限制
+      if(done%5===0 || done===total) setMsg('處理中… '+done+'/'+total);
+      await new Promise(function(res2){ setTimeout(res2, 90); });   // 溫和節流，避免瞬間爆量
     }
-    // 寫入白名單（用 panamah 的 token）
-    setMsg('寫入白名單…');
-    await fetch(FB+'/att_auth.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(allowed)});
     if(btn){ btn.disabled=false; btn.textContent='✅ 完成（可重跑）'; }
-    alert('初始化完成！\n\n總編號：'+total+'\n新建鑰匙：'+created+'\n已存在：'+existed+'\n失敗：'+failed+'\n\n白名單人數：'+Object.keys(allowed).length+'\n\n接下來請到 Firebase 規則，換成「嚴格白名單」那一段並發布，員工就能用自己的編號＋密碼登入了。');
+    var extra='';
+    if(_fbFailedIds.length){ console.log('初始化失敗的編號：', _fbFailedIds); extra='\n\n失敗的編號（前 30 個，完整清單看瀏覽器主控台 F12）：\n'+_fbFailedIds.slice(0,30).join('\n'); }
+    alert('初始化完成！\n\n總編號：'+total+'\n新建鑰匙：'+created+'\n已存在（跳過）：'+existed+'\n失敗：'+failed+extra);
   }catch(e){
     if(btn){ btn.disabled=false; btn.textContent='🔧 初始化員工登入'; }
     alert('初始化發生錯誤：'+((e&&e.message)||e));
