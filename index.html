@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.28-編號登入</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.29-編號登入b</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -2798,15 +2798,18 @@ async function gateLogin(){
   if(!USERS||!Object.keys(USERS).length){ try{ await loadUsers(); }catch(e){} }
   if((typeof STAFF==='undefined'||!STAFF||!Object.keys(STAFF).length) && typeof fldLoadConfig==='function'){ try{ await fldLoadConfig(); }catch(e){} }
   gatePendId=id;
+  // 找出使用者記錄（容錯：原樣 / 大寫 / 小寫都試，避免編號大小寫對不上）
+  const u = USERS[id] || USERS[(id||'').toUpperCase()] || USERS[(id||'').toLowerCase()];
   // 用 email 登入（例如管理帳號 panamah）→ 直接進入，不走員工首次改密碼流程
-  if(id.indexOf('@')>=0){ gateFinish(id, USERS[id]||{name:id,perms:{}}); return; }
-  const u=USERS[id];
+  if(id.indexOf('@')>=0){ gateFinish(id, u||{name:id,perms:{}}); return; }
   if(u && u.pass){
     if(u.mustChange){ gateToChange(); return; }
     gateFinish(id,u); return;
   }
-  // 尚未設定專屬密碼（首次登入，例如預設 123456）→ 強制設定新密碼
-  gateToChange();
+  // 找不到既有密碼記錄時：只有「用預設 123456 登入」才視為首次、要求設定新密碼；
+  // 其餘代表本人已有自己的密碼（Firebase 已驗證通過），直接放行，不逼他重設。
+  if(pass==='123456'){ gateToChange(); return; }
+  gateFinish(id, u||{name:(typeof STAFF!=='undefined'&&STAFF[id])||id, perms:{}});
 }
 function gateToChange(){
   document.getElementById('lg-step1').style.display='none';
