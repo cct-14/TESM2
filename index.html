@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,.docx,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.30-Word班表</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.30-Word班表b</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -6967,18 +6967,29 @@ function abStaffOptions(){ const opts=[]; const seen={};
   opts.sort((a,b)=>String(a.name).localeCompare(String(b.name)));
   return opts.map(o=>`<option value="${o.id}">${o.name} · ${o.id}</option>`).join('');
 }
+function abStaffList(){ const opts=[]; const seen={};
+  if(typeof STAFF!=='undefined'&&STAFF) for(const id in STAFF){ opts.push({id,name:STAFF[id]||id}); seen[id]=1; }
+  if(AB_DATA&&AB_DATA.persons) for(const id in AB_DATA.persons){ if(!seen[id]){ opts.push({id,name:(AB_DATA.persons[id].name||id)}); seen[id]=1; } }
+  opts.sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  return opts;
+}
 function abPendingHtml(){ const keys=AB_PENDING?Object.keys(AB_PENDING):[]; if(!keys.length) return ''; window._abPendKeys=keys;
-  const opts=abStaffOptions();
+  const list=abStaffList(); window._abStaffMap={};
+  const dl=list.map(o=>{ const label=o.name+' · '+o.id; window._abStaffMap[label]=o.id; return `<option value="${label.replace(/"/g,'&quot;')}"></option>`; }).join('');
   let h=`<div style="margin:2px 0 6px"><b style="color:var(--red)">⚠ ${abL('pendTitle')} (${keys.length})</b></div>`;
   h+=`<div class="ab-warn">${abL('pendHint')}</div>`;
+  h+=`<datalist id="ab-staff-dl">${dl}</datalist>`;
   h+=`<div class="ab-card" style="padding:0;overflow:hidden;margin-bottom:16px"><table class="ab-tbl"><thead><tr><th>${abL('pendName')}</th><th>${abL('pendPick')}</th><th></th></tr></thead><tbody>`;
-  keys.forEach((k,i)=>{ const p=AB_PENDING[k]||{}; h+=`<tr><td><b>${p.name||k}</b></td><td><select id="abpm-${i}" class="ab-sel" style="min-width:230px;padding:4px 6px"><option value="">${abL('pendPick')}</option>${opts}</select></td>
+  keys.forEach((k,i)=>{ const p=AB_PENDING[k]||{}; h+=`<tr><td><b>${p.name||k}</b></td><td><input list="ab-staff-dl" id="abpm-${i}" class="ab-sel up" style="min-width:230px;padding:6px 8px" placeholder="🔍 ${abL('pendPick')}" autocomplete="off" onkeydown="if(event.key==='Enter')abApplyNameMap(${i})"/></td>
     <td style="white-space:nowrap"><button class="ab-btn" style="padding:4px 11px" onclick="abApplyNameMap(${i})">${abL('pendApply')}</button> <button class="ab-btn" style="padding:4px 11px" onclick="abSkipPending(${i})">${abL('pendSkip')}</button></td></tr>`; });
   h+=`</tbody></table></div>`; return h;
 }
 async function abApplyNameMap(i){ if(!abCanEdit()){ alert(abL('login')); return; }
   const key=(window._abPendKeys||[])[i]; if(!key||!AB_PENDING||!AB_PENDING[key]) return;
-  const sel=document.getElementById('abpm-'+i); const id=sel?sel.value:''; if(!id) return;
+  const inp=document.getElementById('abpm-'+i); const val=inp?String(inp.value||'').trim():'';
+  let id=(window._abStaffMap&&window._abStaffMap[val])||'';
+  if(!id && val){ if((typeof STAFF!=='undefined'&&STAFF&&STAFF[val])||(AB_DATA&&AB_DATA.persons&&AB_DATA.persons[val])) id=val; }   // 也允許直接打編號
+  if(!id){ alert(abL('pendPick')); return; }
   const p=AB_PENDING[key]; const sch=p.sch||{}; const mk=abMonth.replace('-','');
   AB_NAMEMAP=AB_NAMEMAP||{}; AB_NAMEMAP[key]=id;
   AB_SHIFT=AB_SHIFT||{}; AB_SHIFT[id]=Object.assign(AB_SHIFT[id]||{},sch);
