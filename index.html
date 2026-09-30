@@ -1338,7 +1338,7 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
           <input type="file" id="ab-file-shift" accept=".csv,.docx,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.30-Word班表b</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.30-請假CANCEL</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -6691,12 +6691,16 @@ async function abImportLeave(parsed,fname){
         iHf=abFind(H,['hour from','time from']), iHt2=abFind(H,['hour to','time to']),
         iDay=abFind(H,['total day','days','天']), iHr=abFind(H,['total hour','hours','時']);
   if(iId<0||iCls<0) throw new Error(abL('errLeave'));
-  // 核准欄:SEC / DEPT / HRD(三段陳核)。任一欄 = REJECT 就不列入;空白沒關係(不同假別上陳級數不同)
+  // 核准欄:SEC / DEPT / HRD(三段陳核)。有效只認 APP / YES;空白代表該段不需要(不影響)。
+  // 任一段填了「不是空白、也不是 APP/YES」的字(CANCEL、REJ、REJECT…)→ 代表沒請成,不列入。
   const apCols=[]; H.forEach((h,i)=>{ const hl=String(h||'').trim().toLowerCase(); if(hl==='sec ap'||hl==='dept ap'||hl==='hrd ap'||/(^|\s)(sec|dept|hrd)\s*ap$/.test(hl)) apCols.push(i); });
+  const _abApOK=v=>{ v=String(v||'').trim().toUpperCase(); return v===''||v==='APP'||v==='YES'; };
   const mcount={}; D.forEach(c=>{ const f=(iFrom>=0?c[iFrom]:'').replace(/\D/g,''); if(f.length>=6){ const ym=f.slice(0,6); mcount[ym]=(mcount[ym]||0)+1; } });
   const mk=Object.keys(mcount).sort((a,b)=>mcount[b]-mcount[a])[0]||abMonth.replace('-',''); const byPer={};
   D.forEach(c=>{ const id=(c[iId]||'').trim(); if(!id) return; const cls=(iCls>=0?c[iCls]:'').trim().toUpperCase(); if(!cls) return;
-    if((apCols.length?apCols:c.map((_,i)=>i)).some(i=>String(c[i]||'').toUpperCase().indexOf('REJECT')>=0)) return;   // SEC/DEPT/HRD 任一退件就不算(避免重送的重複計算);空白不影響
+    // 三段簽核有效只認 APP/YES(空白=該段不需要);任一段是其他字(CANCEL/REJ/REJECT…)就代表沒請成,不列入
+    if(apCols.length){ if(apCols.some(i=>!_abApOK(c[i]))) return; }
+    else { if(c.some(v=>/REJECT|CANCEL|REJ\b|ANULAD|CANCELAD/i.test(String(v||'')))) return; }   // 找不到簽核欄時的後備
     const from=(iFrom>=0?c[iFrom]:'').replace(/\D/g,''); if(from.length>=6 && from.slice(0,6)!==mk) return;
     const days=iDay>=0?(parseFloat(c[iDay])||0):0; const hr=iHr>=0?abParseHM(c[iHr]):0;
     const p=byPer[id]||(byPer[id]={name:(iNm>=0?c[iNm]:'')||'',leaves:{},lcnt:{},ldays:{},lspan:{},lmin:{}});
