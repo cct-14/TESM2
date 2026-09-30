@@ -1336,9 +1336,9 @@ select.fld-input.big{height:56px}
           <button class="ab-btn up" id="ab-btn-leave" onclick="abTriggerImport('leave')">⬆️ 匯入請假報表</button>
           <input type="file" id="ab-file-leave" accept=".csv,text/csv" style="display:none" onchange="abImport('leave',this)"/>
           <button class="ab-btn up" id="ab-btn-shift" onclick="abTriggerImport('shift')">⬆️ 匯入班表</button>
-          <input type="file" id="ab-file-shift" accept=".csv,text/csv" style="display:none" onchange="abImport('shift',this)"/>
+          <input type="file" id="ab-file-shift" accept=".csv,.docx,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none" onchange="abImport('shift',this)"/>
           <span id="ab-import-msg" class="ab-msg"></span>
-          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.29-編號登入d</span>
+          <span id="ab-ver" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:700" title="程式版本">v2026.09.30-Word班表</span>
         </div>
         <div class="ab-body">
           <div class="ab-pane" id="ab-pane-group"></div>
@@ -6593,7 +6593,10 @@ async function abImport(kind,input){
   const file=input.files&&input.files[0]; if(!file) return;
   const msg=document.getElementById('ab-import-msg'); if(msg){ msg.style.color='var(--text3)'; msg.textContent=abL('parsing'); }
   try{
-    const text=await file.text(); const parsed=abParseCSV(text);
+    let text;
+    if(/\.docx$/i.test(file.name||'')){ text=await abDocxToCsv(await file.arrayBuffer()); }   // Word 班表 → 直接讀
+    else { text=await file.text(); }
+    const parsed=abParseCSV(text);
     const res=(kind==='att') ? await abImportAtt(parsed,file.name) : (kind==='leave' ? await abImportLeave(parsed,file.name) : await abImportShift(parsed,file.name));
     if(res && res.mk && kind!=='shift'){ abMonth=res.mk.slice(0,4)+'-'+res.mk.slice(4,6); const mi=document.getElementById('ab-month'); if(mi) mi.value=abMonth; await abLoadHoli(); }
     if(kind!=='shift') await abLoadMonth(); await abLoadShift(); await abLoadFix(); await abLoadOt(); await abLoadNameMap(); await abLoadPending(); abDeptSel=null; abGroupSel=null; abPSel=null; abTab('group'); abUpdateBadge();
@@ -6602,6 +6605,37 @@ async function abImport(kind,input){
       else if(res && res.count>0){ msg.style.color='var(--green)'; msg.textContent=`✓ ${abL('imported')} ${res.count} ${abL('people')}（${kind==='att'?abL('kindAtt'):abL('kindLeave')}）${abL('toMonth')} ${abMonth}`; } else { msg.style.color='var(--red)'; msg.textContent=abL('impNone'); } }
   }catch(e){ if(msg){ msg.style.color='var(--red)'; msg.textContent='✗ '+e.message; } }
   input.value='';
+}
+// ── 直接讀 Word(.docx)班表：在瀏覽器裡把 Word 表格拆成 CSV 文字，餵給原本的解析 ──
+const _W_NS='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+function _abLoadJSZip(){
+  if(window.JSZip) return Promise.resolve(window.JSZip);
+  return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'; s.onload=()=>res(window.JSZip); s.onerror=()=>rej(new Error('無法載入解壓工具(請確認有網路)')); document.head.appendChild(s); });
+}
+function _wGridSpan(tc){ try{ const gs=tc.getElementsByTagNameNS(_W_NS,'gridSpan')[0]; if(!gs) return 1; const v=gs.getAttributeNS(_W_NS,'val')||gs.getAttribute('w:val')||gs.getAttribute('val'); const n=parseInt(v,10); return (n&&n>0)?n:1; }catch(e){ return 1; } }
+async function abDocxToCsv(arrayBuffer){
+  const JSZip=await _abLoadJSZip();
+  const zip=await JSZip.loadAsync(arrayBuffer);
+  const f=zip.file('word/document.xml'); if(!f) throw new Error('這不是有效的 Word 檔');
+  const xml=await f.async('string');
+  const doc=new DOMParser().parseFromString(xml,'application/xml');
+  const tbls=doc.getElementsByTagNameNS(_W_NS,'tbl');
+  if(!tbls.length) throw new Error('Word 檔裡找不到班表表格');
+  // 取儲存格最多的那張表當班表（避免抓到頁首之類的小表格）
+  let tbl=tbls[0], best=-1;
+  for(let i=0;i<tbls.length;i++){ const n=tbls[i].getElementsByTagNameNS(_W_NS,'tc').length; if(n>best){ best=n; tbl=tbls[i]; } }
+  const esc=v=>{ v=String(v==null?'':v); return /[",\n]/.test(v)?('"'+v.replace(/"/g,'""')+'"'):v; };
+  const out=[]; const trs=tbl.getElementsByTagNameNS(_W_NS,'tr');
+  for(let i=0;i<trs.length;i++){
+    const tr=trs[i]; const line=[];
+    for(let c=0;c<tr.childNodes.length;c++){ const tc=tr.childNodes[c]; if(!tc||tc.localName!=='tc') continue;
+      const ts=tc.getElementsByTagNameNS(_W_NS,'t'); let s=''; for(let k=0;k<ts.length;k++) s+=(ts[k].textContent||'');
+      s=s.replace(/\s+/g,' ').trim();
+      const span=_wGridSpan(tc); line.push(s); for(let g=1;g<span;g++) line.push('');   // 合併儲存格 → 補空格保持欄位對齊
+    }
+    out.push(line.map(esc).join(','));
+  }
+  return out.join('\n');
 }
 function abParseCSV(text){
   text=text.replace(/^﻿/,''); const lines=text.split(/\r?\n/).filter(l=>l.length);
